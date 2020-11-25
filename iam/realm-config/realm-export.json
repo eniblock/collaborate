@@ -54,7 +54,7 @@
       },
       {
         "id": "53148955-f9d9-40bb-a532-52a392882d65",
-        "name": "inactive",
+        "name": "newbie",
         "description": "The default role of the user, Admin should remove this role when user is active",
         "composite": false,
         "clientRole": false,
@@ -393,7 +393,7 @@
   "groups": [],
   "defaultRoles": [
     "uma_authorization",
-    "inactive",
+    "newbie",
     "offline_access"
   ],
   "requiredCredentials": [
