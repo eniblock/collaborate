@@ -1426,7 +1426,7 @@
   "identityProviders": [
     {
       "alias": "google",
-      "internalId": "49d98542-8da2-4fdf-a9af-c35629723fff",
+      "internalId": "980b73aa-a3c8-46f4-ba55-2fab36139d24",
       "providerId": "google",
       "enabled": true,
       "updateProfileFirstLoginMode": "on",
@@ -1439,7 +1439,7 @@
       "config": {
         "syncMode": "IMPORT",
         "clientSecret": "**********",
-        "clientId": "888801442209-9c47ns36kc77esa3vk02j2pciqsks36q.apps.googleusercontent.com",
+        "clientId": "1068446898590-lpk3gcli4h6qokoei6pqkmdolpdugeau.apps.googleusercontent.com",
         "useJwksUrl": "true"
       }
     }
