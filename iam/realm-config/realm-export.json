@@ -54,8 +54,8 @@
       },
       {
         "id": "53148955-f9d9-40bb-a532-52a392882d65",
-        "name": "newbie",
-        "description": "The default role of the user, Admin should remove this role when user is active",
+        "name": "service_identity_provider_administrator",
+        "description": "The administrator who can give roles to other users",
         "composite": false,
         "clientRole": false,
         "containerId": "{{.Env.REALM}}",
@@ -1438,8 +1438,8 @@
       "firstBrokerLoginFlowAlias": "first broker login",
       "config": {
         "syncMode": "IMPORT",
-        "clientSecret": "**********",
-        "clientId": "1068446898590-lpk3gcli4h6qokoei6pqkmdolpdugeau.apps.googleusercontent.com",
+        "clientSecret": "{{.Env.GOOGLE_AUTH_CLIENT_SECRET}}",
+        "clientId": "{{.Env.GOOGLE_AUTH_CLIENT_ID}}",
         "useJwksUrl": "true"
       }
     }

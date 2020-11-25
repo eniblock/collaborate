@@ -37,7 +37,8 @@ services:
       - DB_DATABASE=iam
       - DB_USER=iam_db_user
       - DB_PASSWORD
-      - ORGANIZATION
+      - GOOGLE_AUTH_CLIENT_ID
+      - GOOGLE_AUTH_CLIENT_SECRET
       - SMTP_HOST=maildev
       - SMTP_AUTH
       - SMTP_SSL
