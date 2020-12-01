@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/collaborate
+    username: postgres
+    password: randompwd
+server:
+  port: 7772
+keycloak:
+  auth-server-url: http://localhost:8080/auth
+  realm: collaborate
+  resource: collaborate-frontend
+  public-client: true
+  bearer-only: true
+  disable-trust-manager: true
+springdoc:
+  version: '@springdoc.version@'
+  swagger-ui:
+    oauth:
+      clientId: data-platform-frontend
+      useBasicAuthenticationWithAccessCodeGrant: true
+  oAuthFlow:
+    authorizationUrl: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/auth
+    tokenUrl: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/token
