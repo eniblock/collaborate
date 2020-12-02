@@ -1372,7 +1372,8 @@
   },
   "eventsEnabled": true,
   "eventsListeners": [
-    "jboss-logging"
+    "jboss-logging",
+    "send_email_after_register"
   ],
   "enabledEventTypes": [
     "SEND_RESET_PASSWORD",
