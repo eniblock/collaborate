@@ -54,7 +54,7 @@
       },
       {
         "id": "53148955-f9d9-40bb-a532-52a392882d65",
-        "name": "service_identity_provider_administrator",
+        "name": "{{.Env.IDP_ADMIN_ROLE}}",
         "description": "The administrator who can give roles to other users",
         "composite": false,
         "clientRole": false,
@@ -448,7 +448,7 @@
     }],
     "disableableCredentialTypes": [],
     "requiredActions": [],
-    "realmRoles": ["service_identity_provider_administrator", "uma_authorization", "offline_access"],
+    "realmRoles": ["{{.Env.IDP_ADMIN_ROLE}}", "uma_authorization", "offline_access"],
     "clientRoles": {
       "account": ["view-profile", "manage-account"]
     },

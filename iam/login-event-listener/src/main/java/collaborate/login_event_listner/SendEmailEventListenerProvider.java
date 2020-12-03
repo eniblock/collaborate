@@ -20,7 +20,7 @@ public class SendEmailEventListenerProvider implements EventListenerProvider {
 
     private static final Logger log = Logger.getLogger(SendEmailEventListenerProvider.class);
 
-    private String IDP_ADMIN_ROLE = "service_identity_provider_administrator";
+    private String IDP_ADMIN_ROLE = System.getenv("IDP_ADMIN_ROLE");
 
 
     public SendEmailEventListenerProvider(KeycloakSession session) {

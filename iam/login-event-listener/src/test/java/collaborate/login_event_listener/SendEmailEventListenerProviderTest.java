@@ -33,7 +33,7 @@ public class SendEmailEventListenerProviderTest {
     private Event event;
 
     private String FAKE_REALM_ID = "fake_id";
-    private String IDP_ADMIN_ROLE = "service_identity_provider_administrator";
+    private String IDP_ADMIN_ROLE = System.getenv("IDP_ADMIN_ROLE");
 
 
     @Before
