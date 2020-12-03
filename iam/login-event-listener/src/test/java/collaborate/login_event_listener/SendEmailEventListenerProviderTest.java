@@ -142,11 +142,11 @@ public class SendEmailEventListenerProviderTest {
         UserModel firstIdpAdmin = listUsers.get(0);
         UserModel secondIdpAdmin = listUsers.get(3);
 
-        String firstExpectedHtml = "<p>Dear Eric Chan,</p>";
+        String firstExpectedHtml = "<p>Hello,</p>";
         firstExpectedHtml += "<p><b>Toto Tata</b> has created a new account on " + System.getenv("APPLICATION_NAME") + " PCC Platform.</p>";
         firstExpectedHtml += "Please validate this user";
 
-        String secondExpectedHtml = "<p>Dear Christ Foo,</p>";
+        String secondExpectedHtml = "<p>Hello,</p>";
         secondExpectedHtml += "<p><b>Toto Tata</b> has created a new account on " + System.getenv("APPLICATION_NAME") + " PCC Platform.</p>";
         secondExpectedHtml += "Please validate this user";
 

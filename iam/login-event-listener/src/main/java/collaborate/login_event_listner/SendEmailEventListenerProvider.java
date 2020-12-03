@@ -55,8 +55,9 @@ public class SendEmailEventListenerProvider implements EventListenerProvider {
     }
 
     /**
+     * Sending a notification email about a new user registration to all the idp admins
      *
-     * @param event
+     * @param event {Keycloak.Events} the REGISTER event that happened
      */
     public void sendNotificationEmailForIDPAdmins(Event event) {
         ListIterator<UserModel> iterator = this.session.users().getUsers(getRealm()).listIterator();
@@ -75,7 +76,7 @@ public class SendEmailEventListenerProvider implements EventListenerProvider {
                         user,
                         "New User Created!",
                         "",
-                        buildHTMLEmailContentForNotificationEmail(user.getFirstName(), user.getLastName(), newUser)
+                        buildHTMLEmailContentForNotificationEmail(newUser)
                     );
                 } catch (EmailException e) {
                     log.error(e.getMessage());
@@ -87,18 +88,12 @@ public class SendEmailEventListenerProvider implements EventListenerProvider {
     /**
      * Build a html template for the notification email which will be sent to idp admins
      *
-     * @param adminFirstName {String} - the first name of the idp admin
-     * @param adminLastName {String} - the last name of the idp admin
      * @param newUser {UserModel} - the UserModel instance which represent the new keycloak user is registered
      *
      * @return {String} the html template as string
      */
-    private String buildHTMLEmailContentForNotificationEmail(
-        String adminFirstName,
-        String adminLastName,
-        UserModel newUser
-    ) {
-        String result = "<p>Dear " + adminFirstName + " " + adminLastName + ",</p>";
+    private String buildHTMLEmailContentForNotificationEmail(UserModel newUser) {
+        String result = "<p>Hello,</p>";
 
         result += "<p><b>" + newUser.getFirstName() + " " + newUser.getLastName()
                 + "</b> has created a new account on "

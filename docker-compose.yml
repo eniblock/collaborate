@@ -30,6 +30,7 @@ services:
     build: iam
     restart: always
     environment:
+      - APPLICATION_NAME
       - KEYCLOAK_USER=kcadmin
       - KEYCLOAK_PASSWORD
       - DB_VENDOR=postgres

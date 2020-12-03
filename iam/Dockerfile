@@ -34,8 +34,6 @@ ENV REALM=collaborate \
 ENV GOOGLE_AUTH_CLIENT_SECRET=G9j2wLI3E-a97t8T5XG8BGA9 \
   GOOGLE_AUTH_CLIENT_ID=1068446898590-lpk3gcli4h6qokoei6pqkmdolpdugeau.apps.googleusercontent.com
 
-ENV APPLICATION_NAME=PSA
-
 ENTRYPOINT []
 CMD ["dockerize", "-template", "/realm-export.json.tpl:/tmp/realm-export.json", \
      "/opt/jboss/tools/docker-entrypoint.sh", \
