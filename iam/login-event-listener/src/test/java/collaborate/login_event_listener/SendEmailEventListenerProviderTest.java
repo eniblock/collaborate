@@ -242,28 +242,28 @@ public class SendEmailEventListenerProviderTest {
                 newUser.setLastName("Tata");
                 expectedHtml = "<p>Welcome<b> Toto Tata</b> to <b>" + APPLICATION_NAME + " PCC Platform</b>,</p>";
                 expectedHtml += "<p>Your account has been successfully created. ";
-                expectedHtml += "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator grants</b> you access.</p>";
+                expectedHtml += "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator</b> grants you access.</p>";
                 break;
             case "withoutFirstName":
                 newUser.setFirstName(null);
                 newUser.setLastName("Tata");
                 expectedHtml = "<p>Welcome<b> Tata</b> to <b>" + APPLICATION_NAME + " PCC Platform</b>,</p>";
                 expectedHtml += "<p>Your account has been successfully created. ";
-                expectedHtml += "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator grants</b> you access.</p>";
+                expectedHtml += "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator</b> grants you access.</p>";
                 break;
             case "withoutLastName":
                 newUser.setFirstName("Toto");
                 newUser.setLastName(null);
                 expectedHtml = "<p>Welcome<b> Toto</b> to <b>" + APPLICATION_NAME + " PCC Platform</b>,</p>";
                 expectedHtml += "<p>Your account has been successfully created. ";
-                expectedHtml += "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator grants</b> you access.</p>";
+                expectedHtml += "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator</b> grants you access.</p>";
                 break;
             case "withoutAnyNames":
                 newUser.setFirstName(null);
                 newUser.setLastName(null);
                 expectedHtml = "<p>Welcome<b></b> to <b>" + APPLICATION_NAME + " PCC Platform</b>,</p>";
                 expectedHtml += "<p>Your account has been successfully created. ";
-                expectedHtml += "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator grants</b> you access.</p>";
+                expectedHtml += "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator</b> grants you access.</p>";
                 break;
             default:
                 break;

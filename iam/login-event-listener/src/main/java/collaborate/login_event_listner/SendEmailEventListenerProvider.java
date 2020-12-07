@@ -138,7 +138,7 @@ public class SendEmailEventListenerProvider implements EventListenerProvider {
         String result = "<p>Welcome<b>" + name + "</b> to <b>" + APPLICATION_NAME + " PCC Platform</b>,</p>";
 
         result += "<p>Your account has been successfully created. " +
-                "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator grants</b> you access.</p>";
+                "You will receive a notification email when your <b>" + APPLICATION_NAME + " administrator</b> grants you access.</p>";
 
         return result;
     }
