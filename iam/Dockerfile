@@ -1,9 +1,9 @@
 #
 # Build event listener
 #
-FROM maven:3.6.0-jdk-11-slim AS build
-COPY login-event-listener/src /home/app/src
-COPY login-event-listener/pom.xml /home/app
+FROM maven:3.6.3-jdk-11-slim AS KeycloakExtension
+COPY kc-extension/src /home/app/src
+COPY kc-extension/pom.xml /home/app
 RUN mvn -f /home/app/pom.xml clean package -Dmaven.test.skip=true
 
 FROM jboss/keycloak
@@ -13,7 +13,7 @@ USER 1000
 COPY certs/ /etc/x509/https/
 COPY realm-config/realm-export.json /realm-export.json.tpl
 COPY standalone/standalone-ha.xml /opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
-COPY --from=build /home/app/target/login-event-listener.jar /opt/jboss/keycloak/standalone/deployments/
+COPY --from=KeycloakExtension /home/app/src/kc-extension-ear/target/kc-extension-ear.ear /opt/jboss/keycloak/standalone/deployments/
 
 # the SMTP configuration variables
 # SMTP_AUTH, SMTP_STARTTLS and SMTP_SSL are boolean that should be either true, false or an empty string

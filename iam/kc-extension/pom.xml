@@ -1,0 +1,45 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <name>Keycloak extension Parent</name>
+    <description/>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>xdev.keycloak</groupId>
+    <artifactId>kc-extension-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>src/kc-rest-api</module>
+        <module>src/login-event-listener</module>
+        <module>src/kc-extension-ear</module>
+    </modules>
+
+    <properties>
+        <version.keycloak>11.0.3</version.keycloak>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.keycloak.bom</groupId>
+                <artifactId>keycloak-spi-bom</artifactId>
+                <version>${version.keycloak}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-server-spi-private</artifactId>
+                <scope>provided</scope>
+                <version>${version.keycloak}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.keycloak</groupId>
+                <artifactId>keycloak-services</artifactId>
+                <scope>provided</scope>
+                <version>${version.keycloak}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

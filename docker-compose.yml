@@ -31,6 +31,7 @@ services:
     restart: always
     environment:
       - APPLICATION_NAME
+      - BACKEND_SECRET
       - KEYCLOAK_USER=kcadmin
       - KEYCLOAK_PASSWORD
       - DB_VENDOR=postgres
@@ -41,6 +42,8 @@ services:
       - GOOGLE_AUTH_CLIENT_ID
       - GOOGLE_AUTH_CLIENT_SECRET
       - IDP_ADMIN_ROLE
+      - ROLE_ATTRIBUTE_KEY
+      - ROLE_ATTRIBUTE_VALUE
       - SMTP_HOST=maildev
       - SMTP_AUTH
       - SMTP_SSL

@@ -1,4 +1,4 @@
-package collaborate.login_event_listner;
+package collaborate.login_event_listener;
 
 import org.jboss.logging.Logger;
 import org.keycloak.email.DefaultEmailSenderProvider;

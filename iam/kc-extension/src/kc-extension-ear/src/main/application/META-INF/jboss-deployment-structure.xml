@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure>
+    <deployment>
+        <module-alias name="deployment.kc-extension-ear"/>
+    </deployment>
+    <sub-deployment name="kc-rest-api.jar">
+        <dependencies>
+            <module name="org.hibernate"/>
+            <module name="org.keycloak.keycloak-services"/>
+            <module name="org.keycloak.keycloak-model-jpa"/>
+            <module name="org.keycloak.keycloak-server-spi"/>
+            <module name="org.keycloak.keycloak-core"/>
+        </dependencies>
+    </sub-deployment>
+    <sub-deployment name="login-event-listener.jar">
+        <dependencies>
+            <module name="org.keycloak.keycloak-services"/>
+        </dependencies>
+    </sub-deployment>
+</jboss-deployment-structure>
