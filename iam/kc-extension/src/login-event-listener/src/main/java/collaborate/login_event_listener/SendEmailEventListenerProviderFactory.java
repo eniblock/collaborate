@@ -1,4 +1,4 @@
-package collaborate.login_event_listner;
+package collaborate.login_event_listener;
 
 import org.keycloak.Config;
 import org.keycloak.events.EventListenerProviderFactory;

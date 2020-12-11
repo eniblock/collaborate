@@ -1,6 +1,5 @@
 package collaborate.login_event_listener;
 
-import collaborate.login_event_listner.SendEmailEventListenerProvider;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
