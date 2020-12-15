@@ -33,25 +33,7 @@ public class UserController {
     @io.swagger.v3.oas.annotations.Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
-    public Page<UserDTO> listUsersByPage(
-        @RequestParam(defaultValue = "0") int page,
-        @RequestParam(defaultValue = "15") int size,
-        String sort
-    ) {
-        Sort sortOption;
-
-        if(sort != null && (sort.equalsIgnoreCase("asc") || sort.equalsIgnoreCase("desc"))) {
-            try {
-                sortOption = Sort.by(Sort.Direction.fromString(sort));
-            } catch (IllegalArgumentException e) {
-                log.error("Unexpected error happen while create sort option");
-                sortOption = Sort.unsorted();
-            }
-        } else {
-            sortOption = Sort.unsorted();
-        }
-
-        Pageable pageable = PageRequest.of(page, size, sortOption);
+    public Page<UserDTO> listUsersByPage(Pageable pageable) {
         return userService.listUsers(pageable);
     }
 
