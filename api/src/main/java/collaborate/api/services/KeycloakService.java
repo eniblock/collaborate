@@ -41,7 +41,6 @@ public class KeycloakService {
     public Page<UserDTO> findAll(Pageable pageable) {
         UserSearchCriteria userSearchCriteria = new UserSearchCriteria();
         addPaginationInformation(userSearchCriteria, pageable);
-        addSortInformation(userSearchCriteria, pageable.getSort());
 
         UserSearchResponseDTO responseDto = keycloakController.findByCriteria(getBearerToken(), userSearchCriteria);
         return responseToPage(responseDto, pageable);
@@ -61,23 +60,6 @@ public class KeycloakService {
             userSearchCriteria.setOffset(pageable.getOffset());
             userSearchCriteria.setPageNumber(pageable.getPageNumber());
             userSearchCriteria.setPageSize(pageable.getPageSize());
-        }
-    }
-
-    private void addSortInformation(UserSearchCriteria userSearchCriteria, Sort sort) {
-        userSearchCriteria.setSorted(sort.isSorted());
-        if (sort.isSorted()) {
-            List<String> sorts = new ArrayList<>();
-            userSearchCriteria.setSort(sorts);
-            sort.forEach(order -> {
-                StringBuilder sb = new StringBuilder(order.getProperty());
-                if (order.isAscending()) {
-                   sb.append(",asc");
-                } else {
-                    sb.append(",desc");
-                }
-                sorts.add(sb.toString());
-            });
         }
     }
 
