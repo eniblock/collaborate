@@ -5,6 +5,7 @@ import collaborate.api.errors.UserIdNotFoundException;
 import collaborate.api.services.UserService;
 import collaborate.api.services.dto.EditUserDTO;
 import collaborate.api.services.dto.UserDTO;
+import feign.FeignException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -29,8 +31,25 @@ public class UserController {
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
+    @PreAuthorize(IDP_ADMIN_AUTHORIZATION)
     public Page<UserDTO> listUsersByPage(Pageable pageable) {
         return userService.listUsers(pageable);
+    }
+
+    @GetMapping("/users/{id}")
+    @Operation(
+            security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
+    )
+    @PreAuthorize(IDP_ADMIN_AUTHORIZATION)
+    public UserDTO getUserDetails(@PathVariable(value="id") UUID userId) throws UserIdNotFoundException {
+        try {
+            return userService.findOneByUserId(userId);
+        } catch (Exception ex) {
+            if(ex instanceof FeignException.NotFound) {
+                throw new UserIdNotFoundException(userId);
+            }
+            throw ex;
+        }
     }
 
     @PostMapping("/users/{id}")

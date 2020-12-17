@@ -10,6 +10,7 @@ import collaborate.api.services.dto.UserDTO;
 import collaborate.api.services.dto.UserSearchCriteria;
 import collaborate.api.services.dto.UserSearchResponseDTO;
 
+import feign.FeignException;
 import org.keycloak.admin.client.Keycloak;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -46,8 +47,8 @@ public class KeycloakService {
         return responseToPage(responseDto, pageable);
     }
 
-    public UserDTO findOneByIdOrElseThrow(UUID id) throws UserIdNotFoundException {
-        return keycloakController.findById(getBearerToken(), id).orElseThrow(() -> new UserIdNotFoundException(id));
+    public UserDTO findOneByIdOrElseThrow(UUID id) {
+        return keycloakController.findById(getBearerToken(), id).get();
     }
 
     private String getBearerToken() {
