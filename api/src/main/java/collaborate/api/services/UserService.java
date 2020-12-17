@@ -1,5 +1,6 @@
 package collaborate.api.services;
 
+import collaborate.api.errors.UserIdNotFoundException;
 import collaborate.api.services.dto.EditUserDTO;
 import collaborate.api.services.dto.UserDTO;
 import org.keycloak.admin.client.resource.*;
@@ -68,10 +69,13 @@ public class UserService {
      * Modify the user details
      * @param {String} userId  - the id of the user that will be modified
      * @param {EditUserDTO} userDetails  - all of the details that need to be updated
+     *
+     * @return {UserDTO} the updated user
      */
-    public void modifyUsers(String userId, EditUserDTO userDetails) {
+    public UserDTO modifyUser(String userId, EditUserDTO userDetails) throws UserIdNotFoundException {
         UserResource userResource = realmResource.users().get(userId);
         updateUserRoles(userResource.roles().realmLevel(), userDetails.getRolesNames());
+        return keycloakService.findOneByIdOrElseThrow(UUID.fromString(userId));
     }
 
     /**
