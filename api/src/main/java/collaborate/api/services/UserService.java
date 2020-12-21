@@ -66,6 +66,18 @@ public class UserService {
     }
 
     /**
+     *
+     * @param {UUID} userId  - the user id
+     * @return {
+     *
+     * @throws UserIdNotFoundException
+     */
+    @Transactional(readOnly = true)
+    public UserDTO findOneByUserId(UUID userId) {
+        return keycloakService.findOneByIdOrElseThrow(userId);
+    }
+
+    /**
      * Modify the user details
      * @param {String} userId  - the id of the user that will be modified
      * @param {EditUserDTO} userDetails  - all of the details that need to be updated
