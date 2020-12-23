@@ -1,3 +1,6 @@
+api-properties:
+  platform: PSA
+  idp-admin-role: service_identity_provider_administrator
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/collaborate
@@ -6,6 +9,16 @@ spring:
 server:
   port: 7772
 
+mail:
+  host: localhost
+  port: 1025
+  username:
+  password:
+  properties:
+    addressFrom: noreply@theblockchainxdev.com
+    mail:
+      smtp:
+        auth: false
 keycloak-admin-client-properties:
   base-url: http://localhost:8080/auth
   realm: collaborate
