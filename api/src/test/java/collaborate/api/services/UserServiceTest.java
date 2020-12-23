@@ -1,5 +1,10 @@
 package collaborate.api.services;
 
+import collaborate.api.config.properties.ApiProperties;
+import collaborate.api.config.properties.MailProperties;
+import collaborate.api.services.dto.MailDTO;
+import collaborate.api.utils.MailUtils;
+import collaborate.api.wrapper.TemplateEngineWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,9 +14,12 @@ import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.springframework.mail.javamail.JavaMailSender;
 
 import javax.ws.rs.NotFoundException;
 import java.util.ArrayList;
@@ -34,9 +42,30 @@ public class UserServiceTest {
     @Mock
     KeycloakService mockKeycloakService;
 
+    @Mock
+    JavaMailSender mockJavaMailSender;
+
+    @Mock
+    TemplateEngineWrapper mockTemplateEngineWrapper;
+
+    @Mock
+    ApiProperties apiProperties;
+
+    @Mock
+    MailProperties mailProperties;
+
+    @Mock
+    MailProperties.Properties mockMailProperties;
+
+    private String IDP_ADMIN_ROLE = "service_identity_provider_administrator";
+    private String FAKE_ADRESS_FROM = "from@gmail.com";
+
     @Before
     public void beforeEach() {
         when(mockRealmResource.roles()).thenReturn(mockRolesResource);
+        when(apiProperties.getIdpAdminRole()).thenReturn(IDP_ADMIN_ROLE);
+        when(mailProperties.getProperties()).thenReturn(mockMailProperties);
+        when(mockMailProperties.getAddressFrom()).thenReturn(FAKE_ADRESS_FROM);
     }
 
     @After
@@ -48,7 +77,14 @@ public class UserServiceTest {
 
     @Test
     public void testGetRolesRepresentations() {
-        UserService userService = new UserService(mockRealmResource, mockKeycloakService);
+        UserService userService = new UserService(
+                mockRealmResource,
+                mockKeycloakService,
+                mockTemplateEngineWrapper,
+                mockJavaMailSender,
+                apiProperties,
+                mailProperties
+        );
         Set<String> fakeRolesNames = new HashSet<>();
         String fakeRole1 = "role_1";
         String fakeRole2 = "role_2";
@@ -70,7 +106,16 @@ public class UserServiceTest {
 
     @Test
     public void testSetUserRoles() {
-        UserService userService = new UserService(mockRealmResource, mockKeycloakService);
+        UserService userService = new UserService(
+                mockRealmResource,
+                mockKeycloakService,
+                mockTemplateEngineWrapper,
+                mockJavaMailSender,
+                apiProperties,
+                mailProperties
+        );
+        UserService spyUserService = spy(userService);
+
 
         // Set up a set of roles which are going to be updated for user
         Set<String> fakeRolesNames = new HashSet<>();
@@ -97,6 +142,9 @@ public class UserServiceTest {
         effectiveRoles.add(roleRepresentationToRemove);
         effectiveRoles.add(roleRepresentation);
 
+        //Set up UserRepresentation
+        UserRepresentation userRepresentation = mock(UserRepresentation.class);
+
         // GIVEN
         when(mockRolesResource.get(fakeRole1)).thenReturn(fakeRoleResourceToAdd);
         when(mockRolesResource.get(fakeRole3)).thenReturn(fakeRoleResourceToRemove);
@@ -105,9 +153,11 @@ public class UserServiceTest {
         when(mockRoleScopeResource.listEffective()).thenReturn(effectiveRoles);
         doNothing().when(mockRoleScopeResource).add(anyList());
         doNothing().when(mockRoleScopeResource).remove(anyList());
+        // Do not check the sending email process
+        doNothing().when(spyUserService).sendNotificationEmail(anyList(), anyList(), any(), anySet());
 
         // WHEN
-        userService.updateUserRoles(mockRoleScopeResource, fakeRolesNames);
+        spyUserService.updateUserRoles(mockRoleScopeResource, fakeRolesNames, userRepresentation);
 
         ArgumentCaptor<List<RoleRepresentation>> addFunctionArgumentCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List<RoleRepresentation>> removeFunctionArgumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -127,5 +177,44 @@ public class UserServiceTest {
 
         assertEquals(1, removeFunctionArgumentCaptor.getAllValues().size());
         assertEquals(removeRoles, removeFunctionArgumentCaptor.getAllValues().get(0));
+    }
+
+    @Test
+    public void testSendNotificationEmail() {
+        UserService userService = new UserService(
+                mockRealmResource,
+                mockKeycloakService,
+                mockTemplateEngineWrapper,
+                mockJavaMailSender,
+                apiProperties,
+                mailProperties
+        );
+
+        UserRepresentation mockUserRepresentation = mock(UserRepresentation.class);
+
+        List<RoleRepresentation> toAdd = new ArrayList<>();
+        List<RoleRepresentation> toRemove = new ArrayList<>();
+
+        Set<String> rolesNames = new HashSet<>();
+
+        try (MockedStatic<MailUtils> mockedMailUtil = mockStatic(MailUtils.class)) {
+            // Both lists does not have any values
+            userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
+            mockedMailUtil.verifyNoInteractions();
+
+            // when one of the list have a value
+            toAdd.add(mock(RoleRepresentation.class));
+            userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
+            mockedMailUtil.verify(() -> MailUtils.sendMail(
+                    any(MailDTO.class),
+                    eq("UTF-8"),
+                    eq("html/contactEmail.html"),
+                    eq(mockJavaMailSender),
+                    eq(mockTemplateEngineWrapper)
+                    )
+            );
+        }
+
+
     }
 }
