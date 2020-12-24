@@ -1,13 +1,11 @@
 package collaborate.api.services;
 
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.config.properties.MailProperties;
 import collaborate.api.services.dto.MailDTO;
-import collaborate.api.utils.MailUtils;
-import collaborate.api.wrapper.TemplateEngineWrapper;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleResource;
@@ -16,23 +14,26 @@ import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.mail.javamail.JavaMailSender;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.autoconfigure.mail.MailProperties;
 
+import javax.mail.MessagingException;
 import javax.ws.rs.NotFoundException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
+    @InjectMocks
+    UserService userService;
+
     @Mock
     RolesResource mockRolesResource;
 
@@ -43,10 +44,7 @@ public class UserServiceTest {
     KeycloakService mockKeycloakService;
 
     @Mock
-    JavaMailSender mockJavaMailSender;
-
-    @Mock
-    TemplateEngineWrapper mockTemplateEngineWrapper;
+    MailService mockMailService;
 
     @Mock
     ApiProperties apiProperties;
@@ -54,18 +52,17 @@ public class UserServiceTest {
     @Mock
     MailProperties mailProperties;
 
-    @Mock
-    MailProperties.Properties mockMailProperties;
-
     private String IDP_ADMIN_ROLE = "service_identity_provider_administrator";
     private String FAKE_ADRESS_FROM = "from@gmail.com";
 
     @Before
     public void beforeEach() {
+        Map<String,String> fakeProperties = new HashMap<>();
+        fakeProperties.put("addressFrom", FAKE_ADRESS_FROM);
+
         when(mockRealmResource.roles()).thenReturn(mockRolesResource);
         when(apiProperties.getIdpAdminRole()).thenReturn(IDP_ADMIN_ROLE);
-        when(mailProperties.getProperties()).thenReturn(mockMailProperties);
-        when(mockMailProperties.getAddressFrom()).thenReturn(FAKE_ADRESS_FROM);
+        when(mailProperties.getProperties()).thenReturn(fakeProperties);
     }
 
     @After
@@ -77,14 +74,6 @@ public class UserServiceTest {
 
     @Test
     public void testGetRolesRepresentations() {
-        UserService userService = new UserService(
-                mockRealmResource,
-                mockKeycloakService,
-                mockTemplateEngineWrapper,
-                mockJavaMailSender,
-                apiProperties,
-                mailProperties
-        );
         Set<String> fakeRolesNames = new HashSet<>();
         String fakeRole1 = "role_1";
         String fakeRole2 = "role_2";
@@ -106,16 +95,7 @@ public class UserServiceTest {
 
     @Test
     public void testSetUserRoles() {
-        UserService userService = new UserService(
-                mockRealmResource,
-                mockKeycloakService,
-                mockTemplateEngineWrapper,
-                mockJavaMailSender,
-                apiProperties,
-                mailProperties
-        );
         UserService spyUserService = spy(userService);
-
 
         // Set up a set of roles which are going to be updated for user
         Set<String> fakeRolesNames = new HashSet<>();
@@ -181,15 +161,6 @@ public class UserServiceTest {
 
     @Test
     public void testSendNotificationEmail() {
-        UserService userService = new UserService(
-                mockRealmResource,
-                mockKeycloakService,
-                mockTemplateEngineWrapper,
-                mockJavaMailSender,
-                apiProperties,
-                mailProperties
-        );
-
         UserRepresentation mockUserRepresentation = mock(UserRepresentation.class);
 
         List<RoleRepresentation> toAdd = new ArrayList<>();
@@ -197,24 +168,27 @@ public class UserServiceTest {
 
         Set<String> rolesNames = new HashSet<>();
 
-        try (MockedStatic<MailUtils> mockedMailUtil = mockStatic(MailUtils.class)) {
+        //WHEN
+        try {
+            doNothing().when(mockMailService).sendMail(any(MailDTO.class), anyString(), anyString());
             // Both lists does not have any values
             userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
-            mockedMailUtil.verifyNoInteractions();
+            verify(mockMailService, times(0)).sendMail(any(MailDTO.class), anyString(), anyString());
 
             // when one of the list have a value
+            when(mockUserRepresentation.getEmail()).thenReturn("user@gmail.com");
             toAdd.add(mock(RoleRepresentation.class));
             userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
-            mockedMailUtil.verify(() -> MailUtils.sendMail(
-                    any(MailDTO.class),
-                    eq("UTF-8"),
-                    eq("html/contactEmail.html"),
-                    eq(mockJavaMailSender),
-                    eq(mockTemplateEngineWrapper)
-                    )
-            );
+            verify(mockMailService, times(1))
+                    .sendMail(any(MailDTO.class), eq("UTF-8"), eq("html/contactEmail.html"));
+
+            // when email is null
+            when(mockUserRepresentation.getEmail()).thenReturn(null);
+            toAdd.add(mock(RoleRepresentation.class));
+            userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
+            verifyNoMoreInteractions(mockMailService);
+        } catch (MessagingException e) {
+            e.printStackTrace();
         }
-
-
     }
 }

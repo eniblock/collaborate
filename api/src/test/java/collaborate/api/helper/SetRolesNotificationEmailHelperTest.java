@@ -1,14 +1,14 @@
-package collaborate.api.utils;
+package collaborate.api.helper;
 
 import collaborate.api.services.dto.MailDTO;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class SetRolesNotificationEmailUtilTest {
+public class SetRolesNotificationEmailHelperTest {
     @Test
     public void buildRolesSetNotificationEmailTest() {
-        SetRolesNotificationEmailUtil util = new SetRolesNotificationEmailUtil("idpAdmin");
+        SetRolesNotificationEmailHelper util = new SetRolesNotificationEmailHelper("idpAdmin");
         String[] roles = {"idpAdmin", "service_provider_operator"};
 
         MailDTO mailWithFullName = util.buildRolesSetNotificationEmail(

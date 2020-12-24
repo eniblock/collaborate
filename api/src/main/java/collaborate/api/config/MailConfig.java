@@ -3,9 +3,8 @@ package collaborate.api.config;
 import java.util.Collections;
 import java.util.Properties;
 
-import collaborate.api.config.properties.MailProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -17,12 +16,7 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
 @Configuration
-@EnableConfigurationProperties(MailProperties.class)
 public class MailConfig {
-
-    @Autowired
-    private MailProperties mailProperties;
-	
 	public static final String EMAIL_TEMPLATE_ENCODING = "UTF-8";
 	public static final String TEMPLATERESOLVER_PREFIX = "/mail/";
 	public static final String TEMPLATERESOLVER_SUFFIX= ".html";
@@ -45,21 +39,5 @@ public class MailConfig {
         templateResolver.setCharacterEncoding(EMAIL_TEMPLATE_ENCODING);
         templateResolver.setCacheable(false);
         return templateResolver;
-    }
-
-    @Bean
-    public JavaMailSender getJavaMailSender() {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(mailProperties.getHost());
-        mailSender.setPort(mailProperties.getPort());
-
-        mailSender.setUsername(mailProperties.getUsername());
-        mailSender.setPassword(mailProperties.getPassword());
-
-        Properties props = mailSender.getJavaMailProperties();
-
-        props.put("mail.smtp.auth",  mailProperties.getProperties().getMail().getSmtp().isAuth());
-
-        return mailSender;
     }
 }

@@ -1,14 +1,14 @@
-package collaborate.api.utils;
+package collaborate.api.helper;
 
 import collaborate.api.services.dto.MailDTO;
 
 import java.util.HashMap;
 import java.util.Map;
 
-public class SetRolesNotificationEmailUtil {
+public class SetRolesNotificationEmailHelper {
     private Map<String, String> rolesNamesMap;
 
-    public SetRolesNotificationEmailUtil(String idpAdminRole) {
+    public SetRolesNotificationEmailHelper(String idpAdminRole) {
         rolesNamesMap = new HashMap<>();
         rolesNamesMap.put("service_provider_operator", "Operator");
         rolesNamesMap.put("service_provider_administrator", "Administrator");

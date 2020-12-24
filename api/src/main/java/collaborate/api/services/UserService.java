@@ -1,13 +1,10 @@
 package collaborate.api.services;
 
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.config.properties.MailProperties;
 import collaborate.api.errors.UserIdNotFoundException;
 import collaborate.api.services.dto.EditUserDTO;
 import collaborate.api.services.dto.UserDTO;
-import collaborate.api.utils.MailUtils;
-import collaborate.api.utils.SetRolesNotificationEmailUtil;
-import collaborate.api.wrapper.TemplateEngineWrapper;
+import collaborate.api.helper.SetRolesNotificationEmailHelper;
 import org.keycloak.admin.client.resource.*;
 
 import org.keycloak.representations.idm.RoleRepresentation;
@@ -15,9 +12,10 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
@@ -33,33 +31,29 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    private final RealmResource realmResource;
-    private final KeycloakService keycloakService;
-    private final JavaMailSender javaMailSender;
-    private final TemplateEngineWrapper templateEngine;
     private final Set<String> defaultKeycloakRoles;
-    private final MailProperties mailProperties;
-    private final ApiProperties apiProperties;
+
+    @Autowired
+    private ApiProperties apiProperties;
+
+    @Autowired
+    private RealmResource realmResource;
+
+    @Autowired
+    private KeycloakService keycloakService;
+
+    @Autowired
+    private MailProperties mailProperties;
+
+    @Autowired
+    private MailService mailService;
 
     public static final String EMAIL_TEMPLATE_ENCODING = "UTF-8";
     private static final String EMAIL_SIMPLE_TEMPLATE_NAME = "html/contactEmail.html";
 
 
-    public UserService(
-        RealmResource realmResource,
-        KeycloakService keycloakService,
-        TemplateEngineWrapper templateEngine,
-        JavaMailSender sender,
-        ApiProperties apiProperties,
-        MailProperties mailProperties
-    ) {
-        this.realmResource = realmResource;
-        this.keycloakService = keycloakService;
-        this.javaMailSender = sender;
-        this.templateEngine = templateEngine;
+    public UserService() {
         defaultKeycloakRoles = initializeDefaultKeycloakRoles();
-        this.mailProperties = mailProperties;
-        this.apiProperties = apiProperties;
     }
 
     private Set<String> initializeDefaultKeycloakRoles() {
@@ -165,28 +159,29 @@ public class UserService {
             UserRepresentation userRepresentation,
             Set<String> rolesNames
     ) {
-        SetRolesNotificationEmailUtil mailUtil = new SetRolesNotificationEmailUtil(apiProperties.getIdpAdminRole());
+        if ((toAddRoleRepresentations.isEmpty() && toRemoveRoleRepresentations.isEmpty())
+                || userRepresentation.getEmail() == null) {
+            return;
+        }
 
-        if (!toAddRoleRepresentations.isEmpty() || !toRemoveRoleRepresentations.isEmpty()) {
-            try {
-                log.info("Sending email about updating user roles");
-                MailUtils.sendMail(
-                        mailUtil.buildRolesSetNotificationEmail(
-                                mailProperties.getProperties().getAddressFrom(),
-                                userRepresentation.getEmail(),
-                                userRepresentation.getFirstName(),
-                                userRepresentation.getLastName(),
-                                rolesNames.toArray(new String[0]),
-                                apiProperties.getPlatform()
-                        ),
-                        EMAIL_TEMPLATE_ENCODING,
-                        EMAIL_SIMPLE_TEMPLATE_NAME,
-                        javaMailSender,
-                        templateEngine
-                );
-            } catch (MessagingException e) {
-                log.error(e.getMessage());
-            }
+        SetRolesNotificationEmailHelper emailHelper = new SetRolesNotificationEmailHelper(apiProperties.getIdpAdminRole());
+
+        try {
+            log.info("Sending email about updating user roles");
+            mailService.sendMail(
+                    emailHelper.buildRolesSetNotificationEmail(
+                            mailProperties.getProperties().get("addressFrom"),
+                            userRepresentation.getEmail(),
+                            userRepresentation.getFirstName(),
+                            userRepresentation.getLastName(),
+                            rolesNames.toArray(new String[0]),
+                            apiProperties.getPlatform()
+                    ),
+                    EMAIL_TEMPLATE_ENCODING,
+                    EMAIL_SIMPLE_TEMPLATE_NAME
+            );
+        } catch (MessagingException e) {
+            log.error(e.getMessage());
         }
     }
 

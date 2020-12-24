@@ -2,7 +2,7 @@ package collaborate.api.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
-@ConfigurationProperties(prefix = "api-properties", ignoreUnknownFields = false)
+@ConfigurationProperties(prefix = "api", ignoreUnknownFields = false)
 public class ApiProperties {
     private String platform;
     private String idpAdminRole;
