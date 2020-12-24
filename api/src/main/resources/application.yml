@@ -1,8 +1,21 @@
+api:
+  platform: PSA
+  idp-admin-role: service_identity_provider_administrator
 spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/collaborate
     username: postgres
     password: randompwd
+  mail:
+    host: localhost
+    port: 1025
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+      addressFrom: noreply@theblockchainxdev.com
 server:
   port: 7772
 

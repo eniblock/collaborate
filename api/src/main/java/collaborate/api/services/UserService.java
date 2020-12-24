@@ -1,14 +1,19 @@
 package collaborate.api.services;
 
+import collaborate.api.config.properties.ApiProperties;
 import collaborate.api.errors.UserIdNotFoundException;
 import collaborate.api.services.dto.EditUserDTO;
 import collaborate.api.services.dto.UserDTO;
+import collaborate.api.helper.SetRolesNotificationEmailHelper;
 import org.keycloak.admin.client.resource.*;
 
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.retry.annotation.Backoff;
@@ -17,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ServerErrorException;
 
+import javax.mail.MessagingException;
 import javax.ws.rs.NotFoundException;
 import java.io.IOException;
 import java.util.*;
@@ -25,13 +31,28 @@ import java.util.stream.Collectors;
 @Service
 public class UserService {
     private static final Logger log = LoggerFactory.getLogger(UserService.class);
-    private final RealmResource realmResource;
-    private final KeycloakService keycloakService;
     private final Set<String> defaultKeycloakRoles;
 
-    public UserService(RealmResource realmResource, KeycloakService keycloakService) {
-        this.realmResource = realmResource;
-        this.keycloakService = keycloakService;
+    @Autowired
+    private ApiProperties apiProperties;
+
+    @Autowired
+    private RealmResource realmResource;
+
+    @Autowired
+    private KeycloakService keycloakService;
+
+    @Autowired
+    private MailProperties mailProperties;
+
+    @Autowired
+    private MailService mailService;
+
+    public static final String EMAIL_TEMPLATE_ENCODING = "UTF-8";
+    private static final String EMAIL_SIMPLE_TEMPLATE_NAME = "html/contactEmail.html";
+
+
+    public UserService() {
         defaultKeycloakRoles = initializeDefaultKeycloakRoles();
     }
 
@@ -86,17 +107,22 @@ public class UserService {
      */
     public UserDTO modifyUser(String userId, EditUserDTO userDetails) throws UserIdNotFoundException {
         UserResource userResource = realmResource.users().get(userId);
-        updateUserRoles(userResource.roles().realmLevel(), userDetails.getRolesNames());
+        updateUserRoles(userResource.roles().realmLevel(), userDetails.getRolesNames(), userResource.toRepresentation());
         return keycloakService.findOneByIdOrElseThrow(UUID.fromString(userId));
     }
 
     /**
      * Update user roles by filtering which roles should be add and which roles should be removed
+     * If there is any roles modification, send a notification email for user
      *
      * @param {RoleScopeResource} userRoleScopeResource   - the scope holding user's roles details
      * @param {Set<String} rolesNames                     - the roles' names that user suppose to have
      */
-    protected void updateUserRoles(RoleScopeResource userRoleScopeResource, Set<String> rolesNames) {
+    protected void updateUserRoles(
+        RoleScopeResource userRoleScopeResource,
+        Set<String> rolesNames,
+        UserRepresentation userRepresentation
+    ) {
         List<RoleRepresentation> effectiveRoles = userRoleScopeResource.listEffective();
 
         Set<String> effectiveRolesNames = effectiveRoles.stream()
@@ -110,8 +136,53 @@ public class UserService {
         Set<String> toAddRoles = new HashSet<>(rolesNames);
         toAddRoles.removeAll(effectiveRolesNames);
 
-        userRoleScopeResource.add(getRolesRepresentations(toAddRoles));
-        userRoleScopeResource.remove(getRolesRepresentations(toRemoveRoles));
+        List<RoleRepresentation> toAddRoleRepresentations = getRolesRepresentations(toAddRoles);
+        List<RoleRepresentation> toRemoveRoleRepresentations = getRolesRepresentations(toRemoveRoles);
+
+        userRoleScopeResource.add(toAddRoleRepresentations);
+        userRoleScopeResource.remove(toRemoveRoleRepresentations);
+
+        sendNotificationEmail(toAddRoleRepresentations, toRemoveRoleRepresentations, userRepresentation, rolesNames);
+    }
+
+    /**
+     * Check whether a notification email should be sent to users when roles are changed
+     *
+     * @param toAddRoleRepresentations {List<RoleRepresentation>}         - list of the roles that should be added
+     * @param toRemoveRoleRepresentations {List<RoleRepresentation>}      - list of the roles that should be removed
+     * @param userRepresentation {UserRepresentation} userRepresentation  - the user that has the roles change
+     * @param rolesNames {Set<String>}                                    - the current roles names that user has
+     */
+    protected void sendNotificationEmail(
+            List<RoleRepresentation> toAddRoleRepresentations,
+            List<RoleRepresentation> toRemoveRoleRepresentations,
+            UserRepresentation userRepresentation,
+            Set<String> rolesNames
+    ) {
+        if ((toAddRoleRepresentations.isEmpty() && toRemoveRoleRepresentations.isEmpty())
+                || userRepresentation.getEmail() == null) {
+            return;
+        }
+
+        SetRolesNotificationEmailHelper emailHelper = new SetRolesNotificationEmailHelper(apiProperties.getIdpAdminRole());
+
+        try {
+            log.info("Sending email about updating user roles");
+            mailService.sendMail(
+                    emailHelper.buildRolesSetNotificationEmail(
+                            mailProperties.getProperties().get("addressFrom"),
+                            userRepresentation.getEmail(),
+                            userRepresentation.getFirstName(),
+                            userRepresentation.getLastName(),
+                            rolesNames.toArray(new String[0]),
+                            apiProperties.getPlatform()
+                    ),
+                    EMAIL_TEMPLATE_ENCODING,
+                    EMAIL_SIMPLE_TEMPLATE_NAME
+            );
+        } catch (MessagingException e) {
+            log.error(e.getMessage());
+        }
     }
 
     /**

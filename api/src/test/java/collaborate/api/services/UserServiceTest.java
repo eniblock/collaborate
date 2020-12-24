@@ -1,30 +1,39 @@
 package collaborate.api.services;
 
+import collaborate.api.config.properties.ApiProperties;
+import collaborate.api.services.dto.MailDTO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.runner.RunWith;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.representations.idm.RoleRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.autoconfigure.mail.MailProperties;
 
+import javax.mail.MessagingException;
 import javax.ws.rs.NotFoundException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 
 @RunWith(MockitoJUnitRunner.class)
+@ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
+    @InjectMocks
+    UserService userService;
+
     @Mock
     RolesResource mockRolesResource;
 
@@ -34,9 +43,26 @@ public class UserServiceTest {
     @Mock
     KeycloakService mockKeycloakService;
 
+    @Mock
+    MailService mockMailService;
+
+    @Mock
+    ApiProperties apiProperties;
+
+    @Mock
+    MailProperties mailProperties;
+
+    private String IDP_ADMIN_ROLE = "service_identity_provider_administrator";
+    private String FAKE_ADRESS_FROM = "from@gmail.com";
+
     @Before
     public void beforeEach() {
+        Map<String,String> fakeProperties = new HashMap<>();
+        fakeProperties.put("addressFrom", FAKE_ADRESS_FROM);
+
         when(mockRealmResource.roles()).thenReturn(mockRolesResource);
+        when(apiProperties.getIdpAdminRole()).thenReturn(IDP_ADMIN_ROLE);
+        when(mailProperties.getProperties()).thenReturn(fakeProperties);
     }
 
     @After
@@ -48,7 +74,6 @@ public class UserServiceTest {
 
     @Test
     public void testGetRolesRepresentations() {
-        UserService userService = new UserService(mockRealmResource, mockKeycloakService);
         Set<String> fakeRolesNames = new HashSet<>();
         String fakeRole1 = "role_1";
         String fakeRole2 = "role_2";
@@ -70,7 +95,7 @@ public class UserServiceTest {
 
     @Test
     public void testSetUserRoles() {
-        UserService userService = new UserService(mockRealmResource, mockKeycloakService);
+        UserService spyUserService = spy(userService);
 
         // Set up a set of roles which are going to be updated for user
         Set<String> fakeRolesNames = new HashSet<>();
@@ -97,6 +122,9 @@ public class UserServiceTest {
         effectiveRoles.add(roleRepresentationToRemove);
         effectiveRoles.add(roleRepresentation);
 
+        //Set up UserRepresentation
+        UserRepresentation userRepresentation = mock(UserRepresentation.class);
+
         // GIVEN
         when(mockRolesResource.get(fakeRole1)).thenReturn(fakeRoleResourceToAdd);
         when(mockRolesResource.get(fakeRole3)).thenReturn(fakeRoleResourceToRemove);
@@ -105,9 +133,11 @@ public class UserServiceTest {
         when(mockRoleScopeResource.listEffective()).thenReturn(effectiveRoles);
         doNothing().when(mockRoleScopeResource).add(anyList());
         doNothing().when(mockRoleScopeResource).remove(anyList());
+        // Do not check the sending email process
+        doNothing().when(spyUserService).sendNotificationEmail(anyList(), anyList(), any(), anySet());
 
         // WHEN
-        userService.updateUserRoles(mockRoleScopeResource, fakeRolesNames);
+        spyUserService.updateUserRoles(mockRoleScopeResource, fakeRolesNames, userRepresentation);
 
         ArgumentCaptor<List<RoleRepresentation>> addFunctionArgumentCaptor = ArgumentCaptor.forClass(List.class);
         ArgumentCaptor<List<RoleRepresentation>> removeFunctionArgumentCaptor = ArgumentCaptor.forClass(List.class);
@@ -127,5 +157,38 @@ public class UserServiceTest {
 
         assertEquals(1, removeFunctionArgumentCaptor.getAllValues().size());
         assertEquals(removeRoles, removeFunctionArgumentCaptor.getAllValues().get(0));
+    }
+
+    @Test
+    public void testSendNotificationEmail() {
+        UserRepresentation mockUserRepresentation = mock(UserRepresentation.class);
+
+        List<RoleRepresentation> toAdd = new ArrayList<>();
+        List<RoleRepresentation> toRemove = new ArrayList<>();
+
+        Set<String> rolesNames = new HashSet<>();
+
+        //WHEN
+        try {
+            doNothing().when(mockMailService).sendMail(any(MailDTO.class), anyString(), anyString());
+            // Both lists does not have any values
+            userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
+            verify(mockMailService, times(0)).sendMail(any(MailDTO.class), anyString(), anyString());
+
+            // when one of the list have a value
+            when(mockUserRepresentation.getEmail()).thenReturn("user@gmail.com");
+            toAdd.add(mock(RoleRepresentation.class));
+            userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
+            verify(mockMailService, times(1))
+                    .sendMail(any(MailDTO.class), eq("UTF-8"), eq("html/contactEmail.html"));
+
+            // when email is null
+            when(mockUserRepresentation.getEmail()).thenReturn(null);
+            toAdd.add(mock(RoleRepresentation.class));
+            userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
+            verifyNoMoreInteractions(mockMailService);
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 }
