@@ -8,9 +8,29 @@ const keycloakCerts = require('get-keycloak-public-key');
 const kc = new keycloakCerts('http://datasource-iam:8080', 'datasource');
 
 server.use(middlewares)
-server.use(async (req, res, next) => {
+server.use(router)
+
+router.render = async function (req, res) {
     const authHeader = req.headers.authorization;
-    console.log(authHeader);
+
+    if (Array.isArray(res.locals.data)) {
+        var scope = "list";
+        var resource = new hal.Resource({}, req.path);
+        var rows = [];
+
+        for (const row of res.locals.data) {
+            var embeddedResource = new hal.Resource(row, "/data/" + row.id);
+
+            rows.push(embeddedResource);
+        }
+
+        resource.embed("data", rows);
+    } else {
+        var scope = res.locals.data.type;
+
+        var resource = new hal.Resource(res.locals.data, req.path);
+    }
+
     if (authHeader) {
         const token = authHeader.split(' ')[1];
 
@@ -25,37 +45,23 @@ server.use(async (req, res, next) => {
                 if (err) {
                     return res.sendStatus(403);
                 }
-                console.log(user);
+
+                var scopes = user.scope.split(' ');
+
+                if (!scopes.includes(scope)) {
+                    return res.sendStatus(403);
+                }
+
                 req.user = user;
-                next();
+
+                res.jsonp(resource);
             });
         } else {
-            res.sendStatus(401);
+            return res.sendStatus(401);
         }
     } else {
         return res.sendStatus(401);
     }
-})
-
-server.use(router)
-
-router.render = (req, res) => {
-    if (Array.isArray(res.locals.data)) {
-        var resource = new hal.Resource({}, req.path);
-        var rows = [];
-
-        for (const row of res.locals.data) {
-            var embeddedResource = new hal.Resource(row, "/metadata/" + row.id);
-
-            rows.push(embeddedResource);
-        }
-
-        resource.embed("metadata", rows);
-    } else {
-        var resource = new hal.Resource(res.locals.data, req.path);
-    }
-
-    res.jsonp(resource);
 }
 
 server.listen(3000, () => {
