@@ -1,0 +1,56 @@
+version: '3.5'
+
+services:
+  datasource-iam-db:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=iam_db_user
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB=iam
+    volumes:
+      - iam-db:/var/lib/postgresql/data
+    networks:
+      - datasource
+
+  datasource-iam:
+    image: $CI_REGISTRY_IMAGE/fake-datasource/datasource-iam:$CI_COMMIT_REF_SLUG
+    build: datasource-iam
+    restart: always
+    environment:
+      - KEYCLOAK_USER=kcadmin
+      - KEYCLOAK_PASSWORD
+      - DB_VENDOR=postgres
+      - DB_ADDR=datasource-iam-db
+      - DB_DATABASE=iam
+      - DB_USER=iam_db_user
+      - DB_PASSWORD
+      - SMTP_HOST
+      - SMTP_AUTH
+      - SMTP_SSL
+      - SMTP_USER
+      - SMTP_PASSWORD
+      - CLIENT_SECRET_COLLABORATE
+    ports:
+      - 8443:8443
+      - 8080:8080
+    networks:
+      - datasource
+
+  datasource-api:
+    image: $CI_REGISTRY_IMAGE/fake-datasource/datasource-api:$CI_COMMIT_REF_SLUG
+    build: datasource-api
+    restart: always
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./datasource-api/db.json:/usr/src/app/db.json
+      - ./datasource-api/server.js:/usr/src/app/server.js
+    networks:
+      - datasource
+
+networks:
+  datasource:
+
+volumes:
+  iam-db:

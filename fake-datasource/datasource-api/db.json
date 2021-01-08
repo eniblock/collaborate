@@ -1,0 +1,19 @@
+{
+  "data": [
+    {
+      "id": "data1",
+      "title": "My data 1",
+      "type": "type1"
+    },
+    {
+      "id": "data2",
+      "title": "My data 2",
+      "type": "type1"
+    },
+    {
+      "id": "data3",
+      "title": "My data 3",
+      "type": "type2"
+    }
+  ]
+}
