@@ -1,19 +1,24 @@
 {
-  "data": [
+  "metadata": [
     {
-      "id": "data1",
-      "title": "My data 1",
-      "type": "type1"
+      "id": "1",
+      "title": "Maintenance Plan 1",
+      "scope": "maintenance-plans:read"
     },
     {
-      "id": "data2",
-      "title": "My data 2",
-      "type": "type1"
+      "id": "2",
+      "title": "Maintenance Report 2",
+      "scope": "maintenance-reports:read"
     },
     {
-      "id": "data3",
-      "title": "My data 3",
-      "type": "type2"
+      "id": "3",
+      "title": "Insurance Policies 3",
+      "scope": "insurance-policies:read"
+    },
+    {
+      "id": "4",
+      "title": "Insurance Offers 4",
+      "scope": "insurance-offers:read"
     }
   ]
 }
