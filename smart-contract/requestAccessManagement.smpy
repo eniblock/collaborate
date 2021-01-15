@@ -9,22 +9,24 @@ organization_type = sp.TRecord(
 
 access_request_type = sp.TRecord(
     identifier = sp.TString,
-    dataSourceUri = sp.TString,
-    scope = sp.TString,
+    dataSourceUriHash = sp.TString,
+    scopeHash = sp.TString,
     requesterAddress = sp.TAddress,
     providerAddress = sp.TAddress,
+    createdAt = sp.TTimestamp,
     status = sp.TString,
     jwtToken = sp.TOption(sp.TString)
 )
 
 access_request_key_type = sp.TRecord(
-    dataSourceUri = sp.TString,
-    scope = sp.TString,
+    dataSourceUriHash = sp.TString,
+    scopeHash = sp.TString,
     requesterAddress = sp.TAddress,
     providerAddress = sp.TAddress
 )
 
 access_request_value_type = sp.TRecord(
+    createdAt = sp.TTimestamp,
     status = sp.TString,
     jwtToken = sp.TOption(sp.TString)
 )
@@ -34,9 +36,14 @@ grant_access_request_type = sp.TRecord(
     jwtToken = sp.TString
 )
 
+organization_directory_type = sp.big_map(
+    sp.TAddress,
+    organization_type
+)
 
-class RequestManagement(sp.Contract):
-    def __init__(self, _org: sp.big_map(sp.TAddress,organization_type)):
+
+class AccessManagement(sp.Contract):
+    def __init__(self, _org: organization_directory_type):
         self.init(
             organizations = _org,
             latest_AR_ids = sp.big_map(
@@ -55,8 +62,8 @@ class RequestManagement(sp.Contract):
         sp.verify(self.data.organizations.contains(accessRequest.providerAddress))
 
         key = sp.record(
-            dataSourceUri = accessRequest.dataSourceUri,
-            scope = accessRequest.scope,
+            dataSourceUriHash = accessRequest.dataSourceUriHash,
+            scopeHash = accessRequest.scopeHash,
             requesterAddress = accessRequest.requesterAddress,
             providerAddress = accessRequest.providerAddress
         )
@@ -64,6 +71,7 @@ class RequestManagement(sp.Contract):
             self.data.accessRequests[key] = {}
 
         self.data.accessRequests[key][accessRequest.identifier] = sp.record(
+            createdAt = sp.now,
             status = accessRequest.status,
             jwtToken = accessRequest.jwtToken
         )
@@ -100,23 +108,23 @@ def test():
         )
 
     # Test if RequestManagement is initialized correctly
-    requestManagement = RequestManagement(organizations)
+    requestManagement = AccessManagement(organizations)
     scenario += requestManagement
     scenario.verify(requestManagement.data.organizations == organizations)
 
     # Test if accessRequest is added correctly
     accessRequest = sp.record(
         identifier = "0",
-        dataSourceUri = 'uri',
-        scope = 'scope',
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
         requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
         providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR'),
         status = 'requested',
         jwtToken = sp.none
     )
     accessRequestKey = sp.record(
-        dataSourceUri = 'uri',
-        scope = 'scope',
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
         requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
         providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR')
     )
@@ -128,8 +136,8 @@ def test():
     #should successfully add a second access request
     accessRequest = sp.record(
         identifier = "1",
-        dataSourceUri = 'uri',
-        scope = 'scope',
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
         requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
         providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR'),
         status = 'requested',
@@ -144,8 +152,8 @@ def test():
     # should not add the accessRequest if the requesterAddress is not in the organizations list
     accessRequest = sp.record(
         identifier = "2",
-        dataSourceUri = 'uri',
-        scope = 'scope',
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
         requesterAddress = sp.address('tz1hdQscorfqMzFqYxnrApuS5i6QSTuoAp3w'),
         providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR'),
         status = 'requested',
@@ -153,8 +161,8 @@ def test():
     )
     scenario += requestManagement.requestAccess(accessRequest).run(sender = admin, valid = False)
     scenario.verify(requestManagement.data.accessRequests.contains(sp.record(
-        dataSourceUri = 'uri',
-        scope = 'scope',
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
         requesterAddress = sp.address('tz1hdQscorfqMzFqYxnrApuS5i6QSTuoAp3w'),
         providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR')
     )) == False)
@@ -162,8 +170,8 @@ def test():
     # should not add the accessRequest if the requesterAddress is not in the organizations list
     accessRequest = sp.record(
         identifier = "2",
-        dataSourceUri = 'uri',
-        scope = 'scope',
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
         requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
         providerAddress = sp.address('tz1hdQscorfqMzFqYxnrApuS5i6QSTuoAp3w'),
         status = 'requested',
@@ -171,8 +179,8 @@ def test():
     )
     scenario += requestManagement.requestAccess(accessRequest).run(sender = admin, valid = False)
     scenario.verify(requestManagement.data.accessRequests.contains(sp.record(
-        dataSourceUri = 'uri',
-        scope = 'scope',
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
         requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
         providerAddress = sp.address('tz1hdQscorfqMzFqYxnrApuS5i6QSTuoAp3w')
     )) == False)
