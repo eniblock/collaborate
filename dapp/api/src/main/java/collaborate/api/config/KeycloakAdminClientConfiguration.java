@@ -1,5 +1,6 @@
-package collaborate.api.services.config;
+package collaborate.api.config;
 
+import collaborate.api.config.properties.KeycloakAdminClientProperties;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;

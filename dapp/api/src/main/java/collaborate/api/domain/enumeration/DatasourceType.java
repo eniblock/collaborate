@@ -1,2 +1,6 @@
-package collaborate.api.domain.enumeration;public enum DatasourceType {
+package collaborate.api.domain.enumeration;
+
+public enum DatasourceType {
+    WEBSERVER,
+    RDBM;
 }

@@ -16,6 +16,10 @@ spring:
         smtp:
           auth: false
       addressFrom: noreply@theblockchainxdev.com
+  jpa:
+    hibernate:
+      ddl-auto: create
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 server:
   port: 7772
 

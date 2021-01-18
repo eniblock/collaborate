@@ -1,4 +1,4 @@
-package collaborate.api.services.config;
+package collaborate.api.config.properties;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
