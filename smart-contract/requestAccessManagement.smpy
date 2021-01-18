@@ -1,0 +1,186 @@
+import smartpy as sp
+
+
+organization_type = sp.TRecord(
+    name = sp.TString,
+    publicKeyHash = sp.TAddress,
+    publicKey = sp.TString
+)
+
+access_request_type = sp.TRecord(
+    identifier = sp.TString,
+    dataSourceUriHash = sp.TString,
+    scopeHash = sp.TString,
+    requesterAddress = sp.TAddress,
+    providerAddress = sp.TAddress,
+    createdAt = sp.TTimestamp,
+    status = sp.TString,
+    jwtToken = sp.TOption(sp.TString)
+)
+
+access_request_key_type = sp.TRecord(
+    dataSourceUriHash = sp.TString,
+    scopeHash = sp.TString,
+    requesterAddress = sp.TAddress,
+    providerAddress = sp.TAddress
+)
+
+access_request_value_type = sp.TRecord(
+    createdAt = sp.TTimestamp,
+    status = sp.TString,
+    jwtToken = sp.TOption(sp.TString)
+)
+
+grant_access_request_type = sp.TRecord(
+    accessRequestKey = access_request_key_type,
+    jwtToken = sp.TString
+)
+
+organization_directory_type = sp.big_map(
+    sp.TAddress,
+    organization_type
+)
+
+
+class AccessManagement(sp.Contract):
+    def __init__(self, _org: organization_directory_type):
+        self.init(
+            organizations = _org,
+            latest_AR_ids = sp.big_map(
+                tkey = access_request_key_type,
+                tvalue = sp.TString
+            ),
+            accessRequests = sp.big_map(
+                tkey = access_request_key_type,
+                tvalue = sp.TMap(sp.TString, access_request_value_type)
+            )
+        )
+
+    @sp.entry_point
+    def requestAccess(self, accessRequest: access_request_type):
+        sp.verify(self.data.organizations.contains(accessRequest.requesterAddress))
+        sp.verify(self.data.organizations.contains(accessRequest.providerAddress))
+
+        key = sp.record(
+            dataSourceUriHash = accessRequest.dataSourceUriHash,
+            scopeHash = accessRequest.scopeHash,
+            requesterAddress = accessRequest.requesterAddress,
+            providerAddress = accessRequest.providerAddress
+        )
+        sp.if ~ self.data.accessRequests.contains(key):
+            self.data.accessRequests[key] = {}
+
+        self.data.accessRequests[key][accessRequest.identifier] = sp.record(
+            createdAt = sp.now,
+            status = accessRequest.status,
+            jwtToken = accessRequest.jwtToken
+        )
+        self.data.latest_AR_ids[key] = accessRequest.identifier
+
+
+
+@sp.add_test("RequestManagement")
+def test():
+    scenario = sp.test_scenario()
+    scenario.h1("RequestManagement test")
+
+    scenario.table_of_contents()
+    admin = sp.test_account("Administrator")
+
+    organizations = sp.map(
+            {
+                sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'): sp.record(
+                                name = 'psa',
+                                publicKeyHash = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
+                                publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwMpIgzGJtOOQ7R/a05aPraxPbCTEWXUuuU5YGU4BHi7RGQGKqDdXX9XqJffYHFHUu50G5na1ZQeg+tK15YOFNcdO7USp4NfktRfdyWodqi0P05SllfBWsyo9u3p55Ra8j5pBNajCVAsFTrbJtrZaBcolaLa3nArpmq7krVDMsdxflFD5LvjR7pF6qlunFZSVmbeUhpDlftIX8+kjNbTftYsFfOew1szS9Uj4KPLJwas0b2s9ooyeyBQ6caBE6+r3082gEhVu/o/8nXxoMnIdCQFVxwl+xF1CXO29MEtuFXRLiRzCHlUSr/oiS5LpYbzDFcsxeAcK20TMSaBneaeY5QIDAQAB-----END PUBLIC KEY-----'
+                            ),
+                sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR'): sp.record(
+                                name = 'mobivia',
+                                publicKeyHash = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR'),
+                                publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq5fYr3XQUwcwxamB6QDMVemkZ+v7zR88rS6MhEqf5VNYbbfKwCp1+pz02WK13J8J6+gOysJRQj0uLNVrVC+gE+TciFRkPA4041tesNXaqU2HHiOpYT9EfkMBQRe1OBvTEBzi+u5WiFMoIhXJX83MgXx04yKlM+foftciKl9cZwMPxVKNZ+hcadg4xSYqn7OKKm4Ht3grZ9/0JO+ghsReKLosjqB52yfUHE1F8y4G8PGFdI55kJIEtquqX37jY76NQIjIPP8Bj75TDy0y+Lz4BawxL529bFo25kmG21KP1PjT/Ce0PrG3vImk3kabNipmysI7mnOOt4pqAbA0CUTpSwIDAQAB-----END PUBLIC KEY-----'
+                            ),
+                sp.address('tz1NzUHMXw6KMwxvkMss6CqmFmkFjUiYcWtQ'): sp.record(
+                                name = 'matmut',
+                                publicKeyHash = sp.address('tz1NzUHMXw6KMwxvkMss6CqmFmkFjUiYcWtQ'),
+                                publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzRPz9yall4Nar14ekZHb1rGFCdL26D00jVKYM9jZswD5ifaI03CM7T4vAREoKQp4N4vEMlAvhDHe2N2AwH/EH9p2QlpzEOsiOGBgbRF5/Jo8ZYN1IrTmj6A12TVCgW1x8Ub87S3T0KEwxYyew0heBVH/jPadA14VGYDiU169U65BSkTqFeJopW29skwlb9a4pdJG6+RBLH9pTdxj9x9ut2oL8ZkpF8NoD1zEmXXNQN0ySBlXiZQpJoMG9sycUaybrTQ4Ggd/ZOW85/FD7d699bzCEmqsFqMXjsM40YwFGOQ6ORSUbEUgk00KLtiLbvpUDpBnRb6oycvHoIYO4XlRmwIDAQAB-----END PUBLIC KEY-----'
+                            )
+            }
+        )
+
+    # Test if RequestManagement is initialized correctly
+    requestManagement = AccessManagement(organizations)
+    scenario += requestManagement
+    scenario.verify(requestManagement.data.organizations == organizations)
+
+    # Test if accessRequest is added correctly
+    accessRequest = sp.record(
+        identifier = "0",
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
+        requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
+        providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR'),
+        status = 'requested',
+        jwtToken = sp.none
+    )
+    accessRequestKey = sp.record(
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
+        requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
+        providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR')
+    )
+    scenario += requestManagement.requestAccess(accessRequest).run(sender = admin)
+    scenario.verify(requestManagement.data.accessRequests.contains(accessRequestKey) == True)
+    scenario.verify(requestManagement.data.latest_AR_ids[accessRequestKey] == "0")
+    scenario.verify(requestManagement.data.accessRequests[accessRequestKey]["0"].status == "requested")
+
+    #should successfully add a second access request
+    accessRequest = sp.record(
+        identifier = "1",
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
+        requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
+        providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR'),
+        status = 'requested',
+        jwtToken = sp.none
+    )
+
+    scenario += requestManagement.requestAccess(accessRequest).run(sender = admin)
+    scenario.verify(requestManagement.data.accessRequests[accessRequestKey]["1"].jwtToken.is_some() == False)
+    scenario.verify(requestManagement.data.latest_AR_ids[accessRequestKey] == "1")
+    scenario.verify(requestManagement.data.accessRequests[accessRequestKey]["1"].status == "requested")
+
+    # should not add the accessRequest if the requesterAddress is not in the organizations list
+    accessRequest = sp.record(
+        identifier = "2",
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
+        requesterAddress = sp.address('tz1hdQscorfqMzFqYxnrApuS5i6QSTuoAp3w'),
+        providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR'),
+        status = 'requested',
+        jwtToken = sp.none
+    )
+    scenario += requestManagement.requestAccess(accessRequest).run(sender = admin, valid = False)
+    scenario.verify(requestManagement.data.accessRequests.contains(sp.record(
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
+        requesterAddress = sp.address('tz1hdQscorfqMzFqYxnrApuS5i6QSTuoAp3w'),
+        providerAddress = sp.address('tz1VufVpLCEzwCbuVmhumSK6vbk4Uw495EXR')
+    )) == False)
+
+    # should not add the accessRequest if the requesterAddress is not in the organizations list
+    accessRequest = sp.record(
+        identifier = "2",
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
+        requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
+        providerAddress = sp.address('tz1hdQscorfqMzFqYxnrApuS5i6QSTuoAp3w'),
+        status = 'requested',
+        jwtToken = sp.none
+    )
+    scenario += requestManagement.requestAccess(accessRequest).run(sender = admin, valid = False)
+    scenario.verify(requestManagement.data.accessRequests.contains(sp.record(
+        dataSourceUriHash = 'uri',
+        scopeHash = 'scopeHash',
+        requesterAddress = sp.address('tz1SqXjz5ewytytU2iggzdg12yiT14CKuhYX'),
+        providerAddress = sp.address('tz1hdQscorfqMzFqYxnrApuS5i6QSTuoAp3w')
+    )) == False)

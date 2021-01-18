@@ -35,3 +35,5 @@ target/
 # .env
 .DS_Store
 Info.plist*
+
+*.pem
