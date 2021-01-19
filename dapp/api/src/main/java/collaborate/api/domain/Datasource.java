@@ -23,11 +23,17 @@ public class Datasource {
     private DatasourceType type;
 
     @NotNull
-    private URI url;
+    private URI apiURI;
 
     @NotNull
     @Enumerated(EnumType.STRING)
     private DatasourceAccessMethod accessMethod;
+
+    @NotNull
+    private URI issuerIdentifierURI;
+
+    @NotNull
+    private String wellKnownURIPathSuffix;
 
     @NotNull
     private String clientId;
@@ -63,12 +69,12 @@ public class Datasource {
         this.type = type;
     }
 
-    public URI getUrl() {
-        return url;
+    public URI getApiURI() {
+        return apiURI;
     }
 
-    public void setUrl(URI url) {
-        this.url = url;
+    public void setApiURI(URI apiURI) {
+        this.apiURI = apiURI;
     }
 
     public DatasourceAccessMethod getAccessMethod() {
@@ -77,6 +83,22 @@ public class Datasource {
 
     public void setAccessMethod(DatasourceAccessMethod accessMethod) {
         this.accessMethod = accessMethod;
+    }
+
+    public URI getIssuerIdentifierURI() {
+        return issuerIdentifierURI;
+    }
+
+    public void setIssuerIdentifierURI(URI issuerIdentifierURI) {
+        this.issuerIdentifierURI = issuerIdentifierURI;
+    }
+
+    public String getWellKnownURIPathSuffix() {
+        return wellKnownURIPathSuffix;
+    }
+
+    public void setWellKnownURIPathSuffix(String wellKnownURIPathSuffix) {
+        this.wellKnownURIPathSuffix = wellKnownURIPathSuffix;
     }
 
     public String getClientId() {
