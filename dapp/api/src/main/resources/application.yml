@@ -22,6 +22,8 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
 server:
   port: 7772
+  error:
+    include-message: always
 
 keycloak-admin-client-properties:
   base-url: http://localhost:8080/auth

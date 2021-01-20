@@ -394,10 +394,10 @@
         "role_list",
         "roles",
         "profile",
-        "email"
+        "email",
+        "metadata:read"
       ],
       "optionalClientScopes": [
-        "metadata:read",
         "maintenance-plans:read",
         "address",
         "phone",
