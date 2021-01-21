@@ -2,8 +2,10 @@ package collaborate.api.controller;
 
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.domain.Datasource;
+import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.services.DatasourceService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,9 +49,17 @@ public class DatasourceController {
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
     @PreAuthorize(ADMIN_AUTHORIZATION)
-    public ResponseEntity<Datasource> create(@RequestBody Datasource datasource) {
+    public ResponseEntity<Datasource> create(@RequestBody Datasource datasource) throws JsonProcessingException {
+        // Test datasource connection
         datasourceService.testConnection(datasource);
-        datasourceRepository.save(datasource);
+
+        // Save the datasource in DB
+        datasource = datasourceRepository.save(datasource);
+
+        // TODO save client id and client secret in vault
+
+        // Send synchronize datasource message
+        datasourceService.produce(datasource, DatasourceEvent.CREATED);
 
         Link link = linkTo(methodOn(DatasourceController.class).get(datasource.getId())).withSelfRel();
 
