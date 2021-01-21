@@ -21,6 +21,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
+@RequestMapping("datasources")
 public class DatasourceController {
 
     private final String ADMIN_AUTHORIZATION = "hasRole('service_provider_administrator')";
@@ -31,7 +32,7 @@ public class DatasourceController {
     @Autowired
     private DatasourceService datasourceService;
 
-    @GetMapping("/api/v1/datasources")
+    @GetMapping()
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
@@ -41,13 +42,13 @@ public class DatasourceController {
         return ResponseEntity.ok(datasourceRepository.findAll(pageable));
     }
 
-    @PostMapping("/api/v1/datasources")
+    @PostMapping()
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
     @PreAuthorize(ADMIN_AUTHORIZATION)
     public ResponseEntity<Datasource> create(@RequestBody Datasource datasource) {
-        dataso@Path("/api/v1/datasources/{id}")urceService.testConnection(datasource);
+        datasourceService.testConnection(datasource);
         datasourceRepository.save(datasource);
 
         Link link = linkTo(methodOn(DatasourceController.class).get(datasource.getId())).withSelfRel();
@@ -55,7 +56,7 @@ public class DatasourceController {
         return ResponseEntity.created(link.toUri()).build();
     }
 
-    @GetMapping("/api/v1/datasources/{id}")
+    @GetMapping("{id}")
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )

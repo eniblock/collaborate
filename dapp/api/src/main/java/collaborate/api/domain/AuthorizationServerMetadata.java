@@ -3,6 +3,7 @@ package collaborate.api.domain;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 
+import javax.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.Arrays;
 
@@ -10,6 +11,7 @@ import java.util.Arrays;
 public class AuthorizationServerMetadata {
     private URI issuer;
     private URI authorizationEndpoint;
+    @NotNull
     private URI tokenEndpoint;
     private String[] scopesSupported;
     private String[] responseTypesSupported;
