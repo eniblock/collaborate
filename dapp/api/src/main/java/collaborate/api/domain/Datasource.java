@@ -1,15 +1,17 @@
 package collaborate.api.domain;
 
 import collaborate.api.domain.enumeration.DatasourceAccessMethod;
+import collaborate.api.domain.enumeration.DatasourceStatus;
 import collaborate.api.domain.enumeration.DatasourceTransferMethod;
 import collaborate.api.domain.enumeration.DatasourceType;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.net.URI;
 
 @Entity
-public class Datasource {
+public class Datasource implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -44,6 +46,9 @@ public class Datasource {
     @NotNull
     @Enumerated(EnumType.STRING)
     private DatasourceTransferMethod transferMethod;
+
+    @Enumerated(EnumType.STRING)
+    private DatasourceStatus status = DatasourceStatus.CREATED;
 
     public Long getId() {
         return id;
@@ -123,5 +128,13 @@ public class Datasource {
 
     public void setTransferMethod(DatasourceTransferMethod transferMethod) {
         this.transferMethod = transferMethod;
+    }
+
+    public DatasourceStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(DatasourceStatus status) {
+        this.status = status;
     }
 }

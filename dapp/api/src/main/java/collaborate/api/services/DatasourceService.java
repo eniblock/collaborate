@@ -4,10 +4,13 @@ import collaborate.api.domain.AccessTokenResponse;
 import collaborate.api.domain.AuthorizationServerMetadata;
 import collaborate.api.domain.Datasource;
 import collaborate.api.domain.enumeration.DatasourceEvent;
+import collaborate.api.domain.enumeration.DatasourceStatus;
 import collaborate.api.domain.enumeration.GrantType;
+import collaborate.api.repository.DatasourceRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -21,6 +24,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -40,12 +44,29 @@ public class DatasourceService {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private DatasourceRepository datasourceRepository;
+
     public void produce(Datasource datasource, DatasourceEvent event) throws JsonProcessingException {
         rabbitTemplate.convertAndSend(
                 topic.getName(),
                 event.getEvent(),
-                objectMapper.writeValueAsString(datasource)
+                datasource
         );
+    }
+
+    @RabbitListener(queues = "#{datasourceSynchronizeQueue.name}")
+    public void synchronize(Datasource datasource) {
+        Optional<Datasource> optionalDatasource = datasourceRepository.findById(datasource.getId());
+
+        if (optionalDatasource.isPresent()) {
+            datasource = optionalDatasource.get();
+
+            if (datasource.getStatus() != DatasourceStatus.SYNCHRONIZING) {
+                System.out.println("Synchronizing " + datasource.getName());
+                // TODO get metadata list
+            }
+        }
     }
 
     private AuthorizationServerMetadata getAuthorizationServerMetadata(Datasource datasource) {
