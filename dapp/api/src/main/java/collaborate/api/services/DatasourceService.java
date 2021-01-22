@@ -5,8 +5,9 @@ import collaborate.api.domain.AuthorizationServerMetadata;
 import collaborate.api.domain.Datasource;
 import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.domain.enumeration.DatasourceStatus;
-import collaborate.api.domain.enumeration.GrantType;
 import collaborate.api.repository.DatasourceRepository;
+import collaborate.api.restclient.ICatalogClient;
+import collaborate.api.services.connectors.fakedatasource.FakeDatasourceConnector;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.TopicExchange;
@@ -15,8 +16,6 @@ import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
@@ -47,6 +46,9 @@ public class DatasourceService {
     @Autowired
     private DatasourceRepository datasourceRepository;
 
+    @Autowired
+    private ICatalogClient catalogClient;
+
     public void produce(Datasource datasource, DatasourceEvent event) throws JsonProcessingException {
         rabbitTemplate.convertAndSend(
                 topic.getName(),
@@ -64,42 +66,23 @@ public class DatasourceService {
 
             if (datasource.getStatus() != DatasourceStatus.SYNCHRONIZING) {
                 System.out.println("Synchronizing " + datasource.getName());
-                // TODO get metadata list
+
+                // TODO delete datasource
+
+                FakeDatasourceConnector connector = new FakeDatasourceConnector(restTemplate, rabbitTemplate, catalogClient);
+                connector.synchronize(datasource);
             }
         }
     }
 
-    private AuthorizationServerMetadata getAuthorizationServerMetadata(Datasource datasource) {
-        return restTemplate.getForObject(
-                datasource.getIssuerIdentifierURI() + datasource.getWellKnownURIPathSuffix(),
-                AuthorizationServerMetadata.class
-        );
-    }
-
-    private AccessTokenResponse getAccessToken(Datasource datasource, AuthorizationServerMetadata authorizationServerMetadata) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("grant_type", GrantType.client_credentials.toString());
-        map.add("client_id", datasource.getClientId());
-        map.add("client_secret", datasource.getClientSecret());
-
-        HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
-
-        return restTemplate.postForObject(
-                authorizationServerMetadata.getTokenEndpoint(),
-                entity,
-                AccessTokenResponse.class
-        );
-    }
-
     public void testConnection(Datasource datasource) {
+        FakeDatasourceConnector connector = new FakeDatasourceConnector(restTemplate, rabbitTemplate, catalogClient);
+
         AuthorizationServerMetadata authorizationServerMetadata;
         AccessTokenResponse accessTokenResponse;
 
         try {
-            authorizationServerMetadata = this.getAuthorizationServerMetadata(datasource);
+            authorizationServerMetadata = connector.getAuthorizationServerMetadata(datasource);
             Set<ConstraintViolation<AuthorizationServerMetadata>> violations = validator.validate(authorizationServerMetadata);
 
             if (!violations.isEmpty()) {
@@ -112,7 +95,7 @@ public class DatasourceService {
         }
 
         try {
-            accessTokenResponse = this.getAccessToken(datasource, authorizationServerMetadata);
+            accessTokenResponse = connector.getAccessToken(datasource, authorizationServerMetadata);
 
             Set<ConstraintViolation<AccessTokenResponse>> violations = validator.validate(accessTokenResponse);
 

@@ -1,4 +1,4 @@
-package collaborate.api.config;
+package collaborate.catalog.config;
 
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
@@ -18,27 +18,21 @@ import org.springframework.messaging.handler.annotation.support.MessageHandlerMe
 @Configuration
 public class RabbitMQConfig implements RabbitListenerConfigurer {
     @Bean
-    Queue datasourceSynchronizeQueue() {
-        return new Queue("datasource.synchronize", true);
+    Queue dataCreateQueue() {
+        return new Queue("data.create", true);
     }
 
     @Bean
     TopicExchange exchange() {
-        return new TopicExchange("datasource");
+        return new TopicExchange("data");
     }
 
     @Bean
-    public Binding datasourceSynchronizeBinding(TopicExchange topic, Queue queue) {
+    public Binding dataCreateBinding(TopicExchange topic,
+                             Queue queue) {
         return BindingBuilder.bind(queue)
                 .to(topic)
-                .with("datasource.synchronize");
-    }
-
-    @Bean
-    public Binding datasourceCreaedBinding(TopicExchange topic, Queue queue) {
-        return BindingBuilder.bind(queue)
-                .to(topic)
-                .with("datasource.created");
+                .with("data.create");
     }
 
     @Bean

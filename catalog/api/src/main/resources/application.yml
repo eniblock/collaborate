@@ -1,0 +1,12 @@
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5673
+    username: guest
+    password: guest
+server:
+  port: 7773
+  error:
+    include-message: always
+  servlet:
+    context-path: /api/v1
