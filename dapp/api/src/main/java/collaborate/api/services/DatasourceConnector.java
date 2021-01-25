@@ -1,5 +1,6 @@
 package collaborate.api.services;
 
+import collaborate.api.config.properties.ApiProperties;
 import collaborate.api.domain.AccessTokenResponse;
 import collaborate.api.domain.AuthorizationServerMetadata;
 import collaborate.api.domain.Datasource;
@@ -18,14 +19,21 @@ public abstract class DatasourceConnector {
     protected RestTemplate restTemplate;
     protected RabbitTemplate rabbitTemplate;
     protected ICatalogClient catalogClient;
+    protected ApiProperties apiProperties;
 
-    public DatasourceConnector(RestTemplate restTemplate, RabbitTemplate rabbitTemplate, ICatalogClient catalogClient) {
+    public DatasourceConnector(
+            RestTemplate restTemplate,
+            RabbitTemplate rabbitTemplate,
+            ICatalogClient catalogClient,
+            ApiProperties apiProperties
+    ) {
         this.restTemplate = restTemplate;
         this.rabbitTemplate = rabbitTemplate;
         this.catalogClient = catalogClient;
+        this.apiProperties = apiProperties;
     }
 
-    public abstract void synchronize(Datasource datasource);
+    public abstract Integer synchronize(Datasource datasource);
 
     protected AuthorizationServerMetadata getAuthorizationServerMetadata(Datasource datasource) {
         return restTemplate.getForObject(

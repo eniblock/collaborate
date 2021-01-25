@@ -50,6 +50,8 @@ public class Datasource implements Serializable {
     @Enumerated(EnumType.STRING)
     private DatasourceStatus status = DatasourceStatus.CREATED;
 
+    private Integer dataCount;
+
     public Long getId() {
         return id;
     }
@@ -136,5 +138,31 @@ public class Datasource implements Serializable {
 
     public void setStatus(DatasourceStatus status) {
         this.status = status;
+    }
+
+    public Integer getDataCount() {
+        return dataCount;
+    }
+
+    public void setDataCount(Integer dataCount) {
+        this.dataCount = dataCount;
+    }
+
+    @Override
+    public String toString() {
+        return "Datasource{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", type=" + type +
+                ", apiURI=" + apiURI +
+                ", accessMethod=" + accessMethod +
+                ", issuerIdentifierURI=" + issuerIdentifierURI +
+                ", wellKnownURIPathSuffix='" + wellKnownURIPathSuffix + '\'' +
+                ", clientId='" + clientId + '\'' +
+                ", clientSecret='" + clientSecret + '\'' +
+                ", transferMethod=" + transferMethod +
+                ", status=" + status +
+                ", dataCount=" + dataCount +
+                '}';
     }
 }

@@ -13,6 +13,18 @@ services:
     networks:
       - app
 
+  mongo:
+    image: mongo:4.4.3-bionic
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: catalog
+    volumes:
+      - mongodb:/data/db
+      - mongodb-config:/data/configdb
+
   iam-db:
     image: postgres:12-alpine
     restart: always
@@ -55,3 +67,5 @@ networks:
 
 volumes:
   iam-db:
+  mongodb:
+  mongodb-config:

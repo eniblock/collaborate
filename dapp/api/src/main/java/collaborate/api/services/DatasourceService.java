@@ -1,7 +1,9 @@
 package collaborate.api.services;
 
+import collaborate.api.config.properties.ApiProperties;
 import collaborate.api.domain.AccessTokenResponse;
 import collaborate.api.domain.AuthorizationServerMetadata;
+import collaborate.api.domain.Data;
 import collaborate.api.domain.Datasource;
 import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.domain.enumeration.DatasourceStatus;
@@ -14,7 +16,9 @@ import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
@@ -23,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -49,6 +54,9 @@ public class DatasourceService {
     @Autowired
     private ICatalogClient catalogClient;
 
+    @Autowired
+    private ApiProperties apiProperties;
+
     public void produce(Datasource datasource, DatasourceEvent event) throws JsonProcessingException {
         rabbitTemplate.convertAndSend(
                 topic.getName(),
@@ -66,17 +74,23 @@ public class DatasourceService {
 
             if (datasource.getStatus() != DatasourceStatus.SYNCHRONIZING) {
                 System.out.println("Synchronizing " + datasource.getName());
+                datasource.setStatus(DatasourceStatus.SYNCHRONIZING);
+                datasourceRepository.save(datasource);
 
-                // TODO delete datasource
+                catalogClient.delete(this.apiProperties.getOrganizationName(), datasource.getId());
 
-                FakeDatasourceConnector connector = new FakeDatasourceConnector(restTemplate, rabbitTemplate, catalogClient);
-                connector.synchronize(datasource);
+                FakeDatasourceConnector connector = new FakeDatasourceConnector(restTemplate, rabbitTemplate, catalogClient, apiProperties);
+                Integer dataCount = connector.synchronize(datasource);
+
+                datasource.setDataCount(dataCount);
+
+                datasourceRepository.save(datasource);
             }
         }
     }
 
     public void testConnection(Datasource datasource) {
-        FakeDatasourceConnector connector = new FakeDatasourceConnector(restTemplate, rabbitTemplate, catalogClient);
+        FakeDatasourceConnector connector = new FakeDatasourceConnector(restTemplate, rabbitTemplate, catalogClient, apiProperties);
 
         AuthorizationServerMetadata authorizationServerMetadata;
         AccessTokenResponse accessTokenResponse;
@@ -127,6 +141,22 @@ public class DatasourceService {
             }
         } catch (HttpClientErrorException exception) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format("Request of the datasource failed with status %s, check your datasource authorization server", exception.getStatusCode()));
+        }
+    }
+
+    @Scheduled(cron = "*/10 * * * * *")
+    public void updateStatus() {
+        List<Datasource> datasources = datasourceRepository.findByStatus(DatasourceStatus.SYNCHRONIZING);
+
+        for (Datasource datasource : datasources) {
+            Page<Data> data = catalogClient.get(apiProperties.getOrganizationName(), datasource.getId());
+
+            if (data.getTotalElements() == datasource.getDataCount()) {
+                System.out.println("Updating datasource status: " + datasource);
+                datasource.setStatus(DatasourceStatus.SYNCHRONIZED);
+
+                datasourceRepository.save(datasource);
+            }
         }
     }
 }

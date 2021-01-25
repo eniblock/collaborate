@@ -4,6 +4,13 @@ spring:
     port: 5673
     username: guest
     password: guest
+  data:
+    mongodb:
+      authentication-database: admin
+      host: localhost
+      username: root
+      password: root
+      database: catalog
 server:
   port: 7773
   error:

@@ -1,5 +1,6 @@
 package collaborate.api.services.connectors.fakedatasource;
 
+import collaborate.api.config.properties.ApiProperties;
 import collaborate.api.domain.AccessTokenResponse;
 import collaborate.api.domain.AuthorizationServerMetadata;
 import collaborate.api.domain.Data;
@@ -18,11 +19,16 @@ import org.springframework.web.client.RestTemplate;
 @Service
 public class FakeDatasourceConnector extends DatasourceConnector {
 
-    public FakeDatasourceConnector(RestTemplate restTemplate, RabbitTemplate rabbitTemplate, ICatalogClient catalogClient) {
-        super(restTemplate, rabbitTemplate, catalogClient);
+    public FakeDatasourceConnector(
+            RestTemplate restTemplate,
+            RabbitTemplate rabbitTemplate,
+            ICatalogClient catalogClient,
+            ApiProperties apiProperties
+    ) {
+        super(restTemplate, rabbitTemplate, catalogClient, apiProperties);
     }
 
-    public void synchronize(Datasource datasource) {
+    public Integer synchronize(Datasource datasource) {
         AuthorizationServerMetadata authorizationServerMetadata = this.getAuthorizationServerMetadata(datasource);
         AccessTokenResponse accessTokenResponse = this.getAccessToken(datasource, authorizationServerMetadata);
 
@@ -39,10 +45,13 @@ public class FakeDatasourceConnector extends DatasourceConnector {
         };
         CollectionModel<Metadata> collection = builder.toObject(resourceParameterizedTypeReference);
 
+        Integer dataCount = 0;
+
         if (null != collection) {
             for (Metadata metadata : collection) {
                 Data data = new Data();
 
+                data.setOrganizationName(this.apiProperties.getOrganizationName());
                 data.setDatasourceId(datasource.getId());
                 data.setDataId(metadata.getId());
                 data.setTitle(metadata.getTitle());
@@ -51,8 +60,11 @@ public class FakeDatasourceConnector extends DatasourceConnector {
 
                 System.out.println(data);
 
-                catalogClient.add(data);
+                catalogClient.add(data.getOrganizationName(), data.getDatasourceId(), data);
+                dataCount++;
             }
         }
+
+        return dataCount;
     }
 }

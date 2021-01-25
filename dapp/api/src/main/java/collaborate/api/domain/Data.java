@@ -3,11 +3,20 @@ package collaborate.api.domain;
 import java.io.Serializable;
 
 public class Data implements Serializable {
+    String organizationName;
     Long datasourceId;
     String dataId;
     String title;
     String scope;
     String type;
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
+    }
 
     public Long getDatasourceId() {
         return datasourceId;

@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class ApiProperties {
     private String platform;
     private String idpAdminRole;
+    private String organizationName;
 
     public String getPlatform() {
         return platform;
@@ -21,5 +22,13 @@ public class ApiProperties {
 
     public void setIdpAdminRole(String idpAdminRole) {
         this.idpAdminRole = idpAdminRole;
+    }
+
+    public String getOrganizationName() {
+        return organizationName;
+    }
+
+    public void setOrganizationName(String organizationName) {
+        this.organizationName = organizationName;
     }
 }

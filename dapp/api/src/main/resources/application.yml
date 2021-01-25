@@ -1,6 +1,7 @@
 api:
   platform: PSA
   idp-admin-role: service_identity_provider_administrator
+  organizationName: psa
 spring:
   rabbitmq:
     host: localhost
