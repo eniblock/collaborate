@@ -1,7 +1,7 @@
 api:
   platform: PSA
   idp-admin-role: service_identity_provider_administrator
-  organizationName: psa
+  organizationName: collaborate
 spring:
   rabbitmq:
     host: localhost
@@ -26,6 +26,18 @@ spring:
     hibernate:
       ddl-auto: create
     database-platform: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          catalog:
+            client-id: collaborate
+            client-secret: 57936b16-2f90-434a-9eb4-843668a3a521
+            authorization-grant-type: client_credentials
+        provider:
+          catalog:
+            authorization-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/auth
+            token-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/token
 server:
   port: 7772
   error:

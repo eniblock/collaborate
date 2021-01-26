@@ -1,12 +1,13 @@
 package collaborate.api.restclient;
 
+import collaborate.api.config.FeignConfiguration;
 import collaborate.api.domain.Data;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "catalog-client", url = "http://localhost:7773/api/v1")
+@FeignClient(name = "catalog-client", url = "http://localhost:7773/api/v1", configuration = FeignConfiguration.class)
 public interface ICatalogClient {
 
     @Operation(description = "Add data")
