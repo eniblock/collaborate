@@ -12,16 +12,6 @@ test_catalog_api:
 test_dapp_api:
   stage: test
   image: openjdk:11-jdk-slim
-  services:
-    - postgres:13.1-alpine
-    - rabbitmq:3-management-alpine
-  variables:
-    POSTGRES_DB: collaborate
-    POSTGRES_PASSWORD: randompwd
-    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/collaborate
-    RABBITMQ_DEFAULT_USER: guest
-    RABBITMQ_DEFAULT_PASS: guest
-    SPRING_RABBITMQ_HOST: rabbitmq
   before_script:
     - cd dapp/api
   script:

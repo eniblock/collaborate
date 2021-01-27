@@ -2,6 +2,7 @@ package collaborate.api.config;
 
 import collaborate.api.ApiApplication;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.KeycloakPrincipal;
@@ -21,6 +22,7 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ApiApplication.class)
+@Ignore
 public class KeycloakConfigurationTest {
 
     @Spy
