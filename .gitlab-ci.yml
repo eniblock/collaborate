@@ -1,0 +1,18 @@
+stages:
+  - test
+
+test_catalog_api:
+  stage: test
+  image: openjdk:11-jdk-slim
+  before_script:
+    - cd catalog/api
+  script:
+    - ./mvnw test
+
+test_dapp_api:
+  stage: test
+  image: openjdk:11-jdk-slim
+  before_script:
+    - cd dapp/api
+  script:
+    - ./mvnw test
