@@ -84,11 +84,11 @@
     {
       "id": "175be0c2-cac5-4565-ba02-9c2d69c7705d",
       "createdTimestamp": 1603457416149,
-      "username": "service-account-collaborate",
+      "username": "service-account-psa",
       "enabled": true,
       "totp": false,
       "emailVerified": false,
-      "serviceAccountClientId": "collaborate",
+      "serviceAccountClientId": "psa",
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "notBefore": 0
@@ -307,12 +307,12 @@
     },
     {
       "id": "be076549-3d4a-4aa2-bbea-ebfb33221a62",
-      "clientId": "collaborate",
+      "clientId": "psa",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "{{.Env.CLIENT_SECRET_COLLABORATE}}",
+      "secret": "{{.Env.CLIENT_SECRET_PSA}}",
       "redirectUris": [
         "*"
       ],

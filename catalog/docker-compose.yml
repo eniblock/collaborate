@@ -54,7 +54,7 @@ services:
       - SMTP_SSL
       - SMTP_USER
       - SMTP_PASSWORD
-      - CLIENT_SECRET_COLLABORATE
+      - CLIENT_SECRET_PSA
     ports:
       - 10443:8443
       - 10080:8080
