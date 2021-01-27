@@ -1,16 +1,12 @@
 package collaborate.api.services;
 
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.AccessTokenResponse;
-import collaborate.api.domain.AuthorizationServerMetadata;
-import collaborate.api.domain.Data;
-import collaborate.api.domain.Datasource;
+import collaborate.api.domain.*;
 import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.domain.enumeration.DatasourceStatus;
 import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.restclient.ICatalogClient;
-import collaborate.api.services.connectors.fakedatasource.FakeDatasourceConnector;
-import com.fasterxml.jackson.core.JsonProcessingException;
+import collaborate.api.services.connectors.DatasourceConnectorFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -57,7 +53,13 @@ public class DatasourceService {
     @Autowired
     private ApiProperties apiProperties;
 
-    public void produce(Datasource datasource, DatasourceEvent event) throws JsonProcessingException {
+    @Autowired
+    private DatasourceConnectorFactory datasourceConnectorFactory;
+
+    @Autowired
+    private DatasourceHttpEntityFactory datasourceHttpEntityFactory;
+
+    public void produce(Datasource datasource, DatasourceEvent event) {
         rabbitTemplate.convertAndSend(
                 topic.getName(),
                 event.getEvent(),
@@ -79,7 +81,7 @@ public class DatasourceService {
 
                 catalogClient.delete(this.apiProperties.getOrganizationName(), datasource.getId());
 
-                FakeDatasourceConnector connector = new FakeDatasourceConnector(restTemplate, rabbitTemplate, catalogClient, apiProperties);
+                DatasourceConnector connector = datasourceConnectorFactory.create(datasource);
                 Integer dataCount = connector.synchronize(datasource);
 
                 datasource.setDataCount(dataCount);
@@ -90,7 +92,7 @@ public class DatasourceService {
     }
 
     public void testConnection(Datasource datasource) {
-        FakeDatasourceConnector connector = new FakeDatasourceConnector(restTemplate, rabbitTemplate, catalogClient, apiProperties);
+        DatasourceConnector connector = datasourceConnectorFactory.create(datasource);
 
         AuthorizationServerMetadata authorizationServerMetadata;
         AccessTokenResponse accessTokenResponse;
@@ -123,16 +125,10 @@ public class DatasourceService {
         }
 
         try {
-            HttpHeaders datasourceHeaders = new HttpHeaders();
-            datasourceHeaders.setContentType(MediaType.APPLICATION_JSON);
-            datasourceHeaders.set("Authorization", "Bearer " + accessTokenResponse.getAccessToken());
-
-            HttpEntity<Void> datasourceEntity = new HttpEntity<Void>(datasourceHeaders);
-
             ResponseEntity<Void> response = restTemplate.exchange(
                     datasource.getApiURI(),
                     HttpMethod.GET,
-                    datasourceEntity,
+                    datasourceHttpEntityFactory.create(accessTokenResponse),
                     Void.class
             );
 

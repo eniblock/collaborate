@@ -42,8 +42,10 @@ public class DataController {
     @DeleteMapping("organizations/{organizationName}/datasources/{datasourceId}/data")
     @PreAuthorize("principal.getKeycloakSecurityContext().getToken().getIssuedFor() == #organizationName")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    public void delete(@AuthenticationPrincipal KeycloakPrincipal principal, @PathVariable("organizationName") String organizationName, @PathVariable("datasourceId") Long datasourceId) {
+    public ResponseEntity<Void> delete(@AuthenticationPrincipal KeycloakPrincipal principal, @PathVariable("organizationName") String organizationName, @PathVariable("datasourceId") Long datasourceId) {
         dataRepository.deleteByOrganizationNameAndDatasourceId(organizationName, datasourceId);
+
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("organizations/{organizationName}/datasources/{datasourceId}/data")
