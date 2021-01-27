@@ -1,10 +1,7 @@
 package collaborate.api.services.connectors.fakedatasource;
 
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.AccessTokenResponse;
-import collaborate.api.domain.AuthorizationServerMetadata;
-import collaborate.api.domain.Data;
-import collaborate.api.domain.Datasource;
+import collaborate.api.domain.*;
 import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.DatasourceConnector;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -12,7 +9,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.client.Traverson;
-import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -32,14 +28,11 @@ public class FakeDatasourceConnector extends DatasourceConnector {
         AuthorizationServerMetadata authorizationServerMetadata = this.getAuthorizationServerMetadata(datasource);
         AccessTokenResponse accessTokenResponse = this.getAccessToken(datasource, authorizationServerMetadata);
 
-        HttpHeaders datasourceHeaders = new HttpHeaders();
-        datasourceHeaders.set("Authorization", "Bearer " + accessTokenResponse.getAccessToken());
-
         Traverson traverson = new Traverson(datasource.getApiURI(), MediaTypes.HAL_JSON);
 
         Traverson.TraversalBuilder builder = traverson
                 .follow()
-                .withHeaders(datasourceHeaders);
+                .withHeaders(new BearerHttpHeaders(accessTokenResponse));
 
         ParameterizedTypeReference<CollectionModel<Metadata>> resourceParameterizedTypeReference = new ParameterizedTypeReference<CollectionModel<Metadata>>() {
         };

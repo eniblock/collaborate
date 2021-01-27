@@ -56,9 +56,6 @@ public class DatasourceService {
     @Autowired
     private DatasourceConnectorFactory datasourceConnectorFactory;
 
-    @Autowired
-    private DatasourceHttpEntityFactory datasourceHttpEntityFactory;
-
     public void produce(Datasource datasource, DatasourceEvent event) {
         rabbitTemplate.convertAndSend(
                 topic.getName(),
@@ -128,7 +125,7 @@ public class DatasourceService {
             ResponseEntity<Void> response = restTemplate.exchange(
                     datasource.getApiURI(),
                     HttpMethod.GET,
-                    datasourceHttpEntityFactory.create(accessTokenResponse),
+                    new HttpEntity<Void>(new BearerHttpHeaders(accessTokenResponse)),
                     Void.class
             );
 

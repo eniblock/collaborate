@@ -67,9 +67,6 @@ class DatasourceServiceTest {
     @Mock
     private DatasourceConnectorFactory datasourceConnectorFactory;
 
-    @Mock
-    private DatasourceHttpEntityFactory datasourceHttpEntityFactory;
-
     @Test()
     void produce() {
         Datasource datasource = new Datasource();
@@ -114,7 +111,7 @@ class DatasourceServiceTest {
         AccessTokenResponse accessTokenResponse = mock(AccessTokenResponse.class);
 
         ResponseEntity<Void> response = ResponseEntity.ok().build();
-        HttpEntity<Void> datasourceHttpEntity = datasourceHttpEntityFactory.create(accessTokenResponse);
+        HttpEntity<Void> datasourceHttpEntity = new HttpEntity<Void>(new BearerHttpHeaders(accessTokenResponse));
 
         when(datasourceConnectorFactory.create(datasource)).thenReturn(connector);
         when(connector.getAuthorizationServerMetadata(datasource)).thenReturn(authorizationServerMetadata);
