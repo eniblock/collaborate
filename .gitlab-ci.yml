@@ -12,6 +12,12 @@ test_catalog_api:
 test_dapp_api:
   stage: test
   image: openjdk:11-jdk-slim
+  services:
+    - postgres:13.1-alpine
+  variables:
+    POSTGRES_DB: collaborate
+    POSTGRES_PASSWORD: randompwd
+    SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/collaborate
   before_script:
     - cd dapp/api
   script:
