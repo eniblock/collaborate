@@ -1,20 +1,18 @@
-package collaborate.api.domain;
+package collaborate.api.services.dto;
 
 import collaborate.api.domain.enumeration.DatasourceAccessMethod;
 import collaborate.api.domain.enumeration.DatasourceStatus;
 import collaborate.api.domain.enumeration.DatasourceTransferMethod;
 import collaborate.api.domain.enumeration.DatasourceType;
 
-import javax.persistence.*;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 import java.net.URI;
 
-@Entity
-public class Datasource implements Serializable {
-
+public class DatasourceDTO {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
@@ -45,6 +43,12 @@ public class Datasource implements Serializable {
     private DatasourceStatus status = DatasourceStatus.CREATED;
 
     private Integer dataCount;
+
+    @NotNull
+    private String clientId;
+
+    @NotNull
+    private String clientSecret;
 
     public Long getId() {
         return id;
@@ -126,9 +130,25 @@ public class Datasource implements Serializable {
         this.dataCount = dataCount;
     }
 
+    public String getClientId() {
+        return clientId;
+    }
+
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
+    }
+
+    public void setClientSecret(String clientSecret) {
+        this.clientSecret = clientSecret;
+    }
+
     @Override
     public String toString() {
-        return "Datasource{" +
+        return "DatasourceDTO{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", type=" + type +
@@ -139,6 +159,8 @@ public class Datasource implements Serializable {
                 ", transferMethod=" + transferMethod +
                 ", status=" + status +
                 ", dataCount=" + dataCount +
+                ", clientId='" + clientId + '\'' +
+                ", clientSecret='" + clientSecret + '\'' +
                 '}';
     }
 }

@@ -2,12 +2,15 @@ package collaborate.api.controller;
 
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.domain.Datasource;
+import collaborate.api.domain.DatasourceClientSecret;
 import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.services.DatasourceService;
+import collaborate.api.services.dto.DatasourceDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +19,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.vault.core.VaultKeyValueOperations;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -34,6 +38,11 @@ public class DatasourceController {
     @Autowired
     private DatasourceService datasourceService;
 
+    @Autowired
+    private VaultKeyValueOperations vaultKeyValueOperations;
+
+    private static final ModelMapper modelMapper = new ModelMapper();
+
     @GetMapping()
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
@@ -49,14 +58,18 @@ public class DatasourceController {
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
     @PreAuthorize(ADMIN_AUTHORIZATION)
-    public ResponseEntity<Datasource> create(@RequestBody Datasource datasource) throws JsonProcessingException {
+    public ResponseEntity<Datasource> create(@RequestBody DatasourceDTO datasourceDTO) throws JsonProcessingException {
+        Datasource datasource = modelMapper.map(datasourceDTO, Datasource.class);
+        DatasourceClientSecret datasourceClientSecret = modelMapper.map(datasourceDTO, DatasourceClientSecret.class);
+
         // Test datasource connection
-        datasourceService.testConnection(datasource);
+        datasourceService.testConnection(datasource, datasourceClientSecret);
 
         // Save the datasource in DB
         datasource = datasourceRepository.save(datasource);
 
-        // TODO save client id and client secret in vault
+        // Save client secret in vault
+        vaultKeyValueOperations.put("datasources/" + datasource.getId(), datasourceClientSecret);
 
         // Send synchronize datasource message
         datasourceService.produce(datasource, DatasourceEvent.CREATED);

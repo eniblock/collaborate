@@ -13,9 +13,13 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.vault.core.VaultKeyValueOperations;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
@@ -56,6 +60,9 @@ public class DatasourceService {
     @Autowired
     private DatasourceConnectorFactory datasourceConnectorFactory;
 
+    @Autowired
+    private VaultKeyValueOperations vaultKeyValueOperations;
+
     public void produce(Datasource datasource, DatasourceEvent event) {
         rabbitTemplate.convertAndSend(
                 topic.getName(),
@@ -78,8 +85,10 @@ public class DatasourceService {
 
                 catalogClient.delete(this.apiProperties.getOrganizationName(), datasource.getId());
 
+                DatasourceClientSecret datasourceClientSecret = vaultKeyValueOperations.get("datasources/" + datasource.getId(), DatasourceClientSecret.class).getData();
+
                 DatasourceConnector connector = datasourceConnectorFactory.create(datasource);
-                Integer dataCount = connector.synchronize(datasource);
+                Integer dataCount = connector.synchronize(datasource, datasourceClientSecret);
 
                 datasource.setDataCount(dataCount);
 
@@ -88,7 +97,7 @@ public class DatasourceService {
         }
     }
 
-    public void testConnection(Datasource datasource) {
+    public void testConnection(Datasource datasource, DatasourceClientSecret datasourceClientSecret) {
         DatasourceConnector connector = datasourceConnectorFactory.create(datasource);
 
         AuthorizationServerMetadata authorizationServerMetadata;
@@ -108,7 +117,7 @@ public class DatasourceService {
         }
 
         try {
-            accessTokenResponse = connector.getAccessToken(datasource, authorizationServerMetadata);
+            accessTokenResponse = connector.getAccessToken(datasourceClientSecret, authorizationServerMetadata);
 
             Set<ConstraintViolation<AccessTokenResponse>> violations = validator.validate(accessTokenResponse);
 

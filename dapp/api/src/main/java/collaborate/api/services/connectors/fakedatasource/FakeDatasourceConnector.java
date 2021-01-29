@@ -24,9 +24,9 @@ public class FakeDatasourceConnector extends DatasourceConnector {
         super(restTemplate, rabbitTemplate, catalogClient, apiProperties);
     }
 
-    public Integer synchronize(Datasource datasource) {
+    public Integer synchronize(Datasource datasource, DatasourceClientSecret datasourceClientSecret) {
         AuthorizationServerMetadata authorizationServerMetadata = this.getAuthorizationServerMetadata(datasource);
-        AccessTokenResponse accessTokenResponse = this.getAccessToken(datasource, authorizationServerMetadata);
+        AccessTokenResponse accessTokenResponse = this.getAccessToken(datasourceClientSecret, authorizationServerMetadata);
 
         Traverson traverson = new Traverson(datasource.getApiURI(), MediaTypes.HAL_JSON);
 

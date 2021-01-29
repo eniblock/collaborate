@@ -75,6 +75,28 @@ services:
     networks:
       - iam
 
+  vault:
+    image: registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/vault:master
+    restart: always
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEBUG=true
+      - VAULT_ADDR='http://127.0.0.1:8200'
+      - VAULT_APP_TOKEN
+      - VAULT_SEAL_TYPE
+      - GOOGLE_PROJECT
+      - GOOGLE_REGION=global
+      - VAULT_GCPCKMS_SEAL_KEY_RING
+      - VAULT_GCPCKMS_SEAL_CRYPTO_KEY=unseal
+      - VAULT_INIT_PATH
+      - VAULT_INIT_TOKEN
+    volumes:
+      - vault:/vault/file
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - app
 networks:
   app:
   iam:
@@ -82,3 +104,4 @@ networks:
 volumes:
   iam-db:
   postgres:
+  vault:

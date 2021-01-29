@@ -1,10 +1,7 @@
 package collaborate.api.services;
 
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.AccessTokenResponse;
-import collaborate.api.domain.AuthorizationServerMetadata;
-import collaborate.api.domain.ClientCredentialsHttpEntityBody;
-import collaborate.api.domain.Datasource;
+import collaborate.api.domain.*;
 import collaborate.api.restclient.ICatalogClient;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -64,7 +61,7 @@ class DatasourceConnectorTest {
 
     @Test
     public void getAccessToken() {
-        Datasource datasource = new Datasource();
+        DatasourceClientSecret datasourceClientSecret = new DatasourceClientSecret();
         AuthorizationServerMetadata authorizationServerMetadata = new AuthorizationServerMetadata();
         AccessTokenResponse accessTokenExpected = new AccessTokenResponse();
         HttpHeaders headers = new HttpHeaders();
@@ -79,11 +76,11 @@ class DatasourceConnectorTest {
 
         when(restTemplate.postForObject(
                 authorizationServerMetadata.getTokenEndpoint(),
-                new HttpEntity<>(new ClientCredentialsHttpEntityBody(datasource), headers),
+                new HttpEntity<>(new ClientCredentialsHttpEntityBody(datasourceClientSecret), headers),
                 AccessTokenResponse.class
         )).thenReturn(accessTokenExpected);
 
-        AccessTokenResponse accessTokenActual = connector.getAccessToken(datasource, authorizationServerMetadata);
+        AccessTokenResponse accessTokenActual = connector.getAccessToken(datasourceClientSecret, authorizationServerMetadata);
 
         assertEquals(accessTokenExpected, accessTokenActual);
     }

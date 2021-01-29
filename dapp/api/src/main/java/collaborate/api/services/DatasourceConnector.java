@@ -1,10 +1,7 @@
 package collaborate.api.services;
 
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.AccessTokenResponse;
-import collaborate.api.domain.AuthorizationServerMetadata;
-import collaborate.api.domain.ClientCredentialsHttpEntityBody;
-import collaborate.api.domain.Datasource;
+import collaborate.api.domain.*;
 import collaborate.api.restclient.ICatalogClient;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpEntity;
@@ -31,7 +28,7 @@ public abstract class DatasourceConnector {
         this.apiProperties = apiProperties;
     }
 
-    public abstract Integer synchronize(Datasource datasource);
+    public abstract Integer synchronize(Datasource datasource, DatasourceClientSecret datasourceClientSecret);
 
     protected AuthorizationServerMetadata getAuthorizationServerMetadata(Datasource datasource) {
         return restTemplate.getForObject(
@@ -40,13 +37,13 @@ public abstract class DatasourceConnector {
         );
     }
 
-    protected AccessTokenResponse getAccessToken(Datasource datasource, AuthorizationServerMetadata authorizationServerMetadata) {
+    protected AccessTokenResponse getAccessToken(DatasourceClientSecret datasourceClientSecret, AuthorizationServerMetadata authorizationServerMetadata) {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
 
         return restTemplate.postForObject(
                 authorizationServerMetadata.getTokenEndpoint(),
-                new HttpEntity<>(new ClientCredentialsHttpEntityBody(datasource), headers),
+                new HttpEntity<>(new ClientCredentialsHttpEntityBody(datasourceClientSecret), headers),
                 AccessTokenResponse.class
         );
     }

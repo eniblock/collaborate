@@ -10,10 +10,8 @@ import collaborate.api.services.connectors.DatasourceConnectorFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -22,6 +20,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.vault.core.VaultKeyValueOperations;
+import org.springframework.vault.support.VaultResponseSupport;
 import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Validator;
@@ -66,6 +66,9 @@ class DatasourceServiceTest {
     @Mock
     private DatasourceConnectorFactory datasourceConnectorFactory;
 
+    @Mock
+    private VaultKeyValueOperations vaultKeyValueOperations;
+
     @Test()
     void produce() {
         Datasource datasource = new Datasource();
@@ -87,12 +90,16 @@ class DatasourceServiceTest {
         Optional<Datasource> optionalDatasource = Optional.of(datasource);
         ResponseEntity<Void> deleteEntity = ResponseEntity.noContent().build();
         DatasourceConnector connector = mock(DatasourceConnector.class);
+        DatasourceClientSecret datasourceClientSecret = new DatasourceClientSecret();
+        VaultResponseSupport<DatasourceClientSecret> datasourceClientSecretVaultResponseSupport = new VaultResponseSupport<>();
+        datasourceClientSecretVaultResponseSupport.setData(datasourceClientSecret);
 
         when(datasourceRepository.findById(datasource.getId())).thenReturn(optionalDatasource);
         when(apiProperties.getOrganizationName()).thenReturn("psa");
         when(catalogClient.delete(apiProperties.getOrganizationName(), datasource.getId())).thenReturn(deleteEntity);
         when(datasourceConnectorFactory.create(datasource)).thenReturn(connector);
-        when(connector.synchronize(datasource)).thenReturn(1);
+        when(connector.synchronize(datasource, datasourceClientSecret)).thenReturn(1);
+        when(vaultKeyValueOperations.get("datasources/" + datasource.getId(), DatasourceClientSecret.class)).thenReturn(datasourceClientSecretVaultResponseSupport);
 
         datasourceService.synchronize(datasource);
 
@@ -102,8 +109,10 @@ class DatasourceServiceTest {
 
     @Test
     void testConnection() {
-        Datasource datasource = new Datasource();
+        Datasource datasource = mock(Datasource.class);
         datasource.setApiURI(URI.create("http://foo.bar"));
+
+        DatasourceClientSecret datasourceClientSecret = mock(DatasourceClientSecret.class);
 
         DatasourceConnector connector = mock(DatasourceConnector.class);
         AuthorizationServerMetadata authorizationServerMetadata = mock(AuthorizationServerMetadata.class);
@@ -114,8 +123,7 @@ class DatasourceServiceTest {
 
         when(datasourceConnectorFactory.create(datasource)).thenReturn(connector);
         when(connector.getAuthorizationServerMetadata(datasource)).thenReturn(authorizationServerMetadata);
-        when(connector.getAccessToken(datasource, authorizationServerMetadata)).thenReturn(accessTokenResponse);
-        when(connector.getAccessToken(datasource, authorizationServerMetadata)).thenReturn(accessTokenResponse);
+        when(connector.getAccessToken(datasourceClientSecret, authorizationServerMetadata)).thenReturn(accessTokenResponse);
 
         when(restTemplate.exchange(
                 datasource.getApiURI(),
@@ -124,7 +132,7 @@ class DatasourceServiceTest {
                 Void.class
         )).thenReturn(response);
 
-        assertDoesNotThrow(() -> datasourceService.testConnection(datasource));
+        assertDoesNotThrow(() -> datasourceService.testConnection(datasource, datasourceClientSecret));
     }
 
     @Test
