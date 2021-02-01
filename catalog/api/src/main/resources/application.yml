@@ -1,0 +1,28 @@
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5673
+    username: guest
+    password: guest
+  data:
+    mongodb:
+      authentication-database: admin
+      host: localhost
+      username: root
+      password: root
+      database: catalog
+
+server:
+  port: 7773
+  error:
+    include-message: always
+  servlet:
+    context-path: /api/v1
+
+keycloak:
+  auth-server-url: http://localhost:10080/auth
+  realm: catalog
+  resource: catalog
+  public-client: true
+  bearer-only: true
+  disable-trust-manager: true

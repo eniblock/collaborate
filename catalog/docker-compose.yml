@@ -1,0 +1,71 @@
+version: '3.5'
+
+services:
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS
+    ports:
+      - 15673:15672
+      - 5673:5672
+    networks:
+      - app
+
+  mongo:
+    image: mongo:4.4.3-bionic
+    ports:
+      - 27017:27017
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+      MONGO_INITDB_DATABASE: catalog
+    volumes:
+      - mongodb:/data/db
+      - mongodb-config:/data/configdb
+
+  iam-db:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=iam_db_user
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB=iam
+    volumes:
+      - iam-db:/var/lib/postgresql/data
+    networks:
+      - iam
+
+  iam:
+    image: $CI_REGISTRY_IMAGE/catalog/iam:$CI_COMMIT_REF_SLUG
+    build: iam
+    restart: always
+    environment:
+      - KEYCLOAK_USER=kcadmin
+      - KEYCLOAK_PASSWORD
+      - DB_VENDOR=postgres
+      - DB_ADDR=iam-db
+      - DB_DATABASE=iam
+      - DB_USER=iam_db_user
+      - DB_PASSWORD
+      - SMTP_HOST
+      - SMTP_AUTH
+      - SMTP_SSL
+      - SMTP_USER
+      - SMTP_PASSWORD
+      - CLIENT_SECRET_PSA
+    ports:
+      - 10443:8443
+      - 10080:8080
+    networks:
+      - iam
+
+networks:
+  app:
+  iam:
+
+volumes:
+  iam-db:
+  mongodb:
+  mongodb-config:

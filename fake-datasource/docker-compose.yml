@@ -32,8 +32,8 @@ services:
       - SMTP_PASSWORD
       - CLIENT_SECRET_COLLABORATE
     ports:
-      - 8443:8443
-      - 8080:8080
+      - 9443:8443
+      - 9080:8080
     networks:
       - datasource
 

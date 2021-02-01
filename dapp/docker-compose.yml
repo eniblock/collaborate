@@ -1,0 +1,107 @@
+version: '3.5'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_DB=collaborate
+      - POSTGRES_PASSWORD
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - app
+
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS
+    ports:
+      - 15672:15672
+      - 5672:5672
+    networks:
+      - app
+
+  iam-db:
+    image: postgres:12-alpine
+    restart: always
+    environment:
+      - POSTGRES_USER=iam_db_user
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB=iam
+    volumes:
+      - iam-db:/var/lib/postgresql/data
+    networks:
+      - iam
+
+  iam:
+    image: $CI_REGISTRY_IMAGE/iam:$CI_COMMIT_REF_SLUG
+    build: iam
+    restart: always
+    environment:
+      - APPLICATION_NAME
+      - BACKEND_SECRET
+      - KEYCLOAK_USER=kcadmin
+      - KEYCLOAK_PASSWORD
+      - DB_VENDOR=postgres
+      - DB_ADDR=iam-db
+      - DB_DATABASE=iam
+      - DB_USER=iam_db_user
+      - DB_PASSWORD
+      - GOOGLE_AUTH_CLIENT_ID
+      - GOOGLE_AUTH_CLIENT_SECRET
+      - IDP_ADMIN_ROLE
+      - ROLE_ATTRIBUTE_KEY
+      - ROLE_ATTRIBUTE_VALUE
+      - SMTP_HOST=maildev
+      - SMTP_AUTH
+      - SMTP_SSL
+      - SMTP_USER
+      - SMTP_PASSWORD
+    networks:
+      - iam
+      - app
+    ports:
+      - 8443:8443
+      - 8080:8080
+
+  maildev:
+    image: djfarrelly/maildev
+    ports:
+      - 1080:80
+      - "1025:25"
+    networks:
+      - iam
+
+  vault:
+    image: registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/vault:master
+    restart: always
+    ports:
+      - "8200:8200"
+    environment:
+      - VAULT_DEBUG=true
+      - VAULT_ADDR='http://127.0.0.1:8200'
+      - VAULT_APP_TOKEN
+      - VAULT_SEAL_TYPE
+      - GOOGLE_PROJECT
+      - GOOGLE_REGION=global
+      - VAULT_GCPCKMS_SEAL_KEY_RING
+      - VAULT_GCPCKMS_SEAL_CRYPTO_KEY=unseal
+      - VAULT_INIT_PATH
+      - VAULT_INIT_TOKEN
+    volumes:
+      - vault:/vault/file
+    cap_add:
+      - IPC_LOCK
+    networks:
+      - app
+networks:
+  app:
+  iam:
+
+volumes:
+  iam-db:
+  postgres:
+  vault:

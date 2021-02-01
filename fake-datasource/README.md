@@ -24,7 +24,7 @@ To obtain an access token, you need the client id and secret and scopes. There a
 
 Here an example using curl and the default client id and secret:
 ```shell
-curl --location --request POST 'http://localhost:8080/auth/realms/datasource/protocol/openid-connect/token' \
+curl --location --request POST 'http://localhost:9080/auth/realms/datasource/protocol/openid-connect/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=client_credentials' \
 --data-urlencode 'client_id=collaborate' \

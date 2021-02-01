@@ -90,6 +90,8 @@ router.render = async function (req, res) {
     }
 
     auth(req, res, scope, function () {
+		res.setHeader('Content-Type', 'application/hal+json');
+
         res.jsonp(resource);
     });
 }

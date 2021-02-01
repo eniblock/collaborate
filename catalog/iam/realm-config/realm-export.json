@@ -1,7 +1,7 @@
 {
-  "id": "datasource",
-  "realm": "datasource",
-  "displayName": "datasource",
+  "id": "catalog",
+  "realm": "catalog",
+  "displayName": "catalog",
   "notBefore": 0,
   "revokeRefreshToken": false,
   "refreshTokenMaxReuse": 0,
@@ -84,11 +84,11 @@
     {
       "id": "175be0c2-cac5-4565-ba02-9c2d69c7705d",
       "createdTimestamp": 1603457416149,
-      "username": "service-account-collaborate",
+      "username": "service-account-psa",
       "enabled": true,
       "totp": false,
       "emailVerified": false,
-      "serviceAccountClientId": "collaborate",
+      "serviceAccountClientId": "psa",
       "disableableCredentialTypes": [],
       "requiredActions": [],
       "notBefore": 0
@@ -130,7 +130,7 @@
       "clientId": "account",
       "name": "${client_account}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/datasource/account/",
+      "baseUrl": "/realms/catalog/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
@@ -141,7 +141,7 @@
         "view-profile"
       ],
       "redirectUris": [
-        "/realms/datasource/account/*"
+        "/realms/catalog/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -177,14 +177,14 @@
       "clientId": "account-console",
       "name": "${client_account-console}",
       "rootUrl": "${authBaseUrl}",
-      "baseUrl": "/realms/datasource/account/",
+      "baseUrl": "/realms/catalog/account/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "/realms/datasource/account/*"
+        "/realms/catalog/account/*"
       ],
       "webOrigins": [],
       "notBefore": 0,
@@ -307,12 +307,12 @@
     },
     {
       "id": "be076549-3d4a-4aa2-bbea-ebfb33221a62",
-      "clientId": "collaborate",
+      "clientId": "psa",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
-      "secret": "{{.Env.CLIENT_SECRET_COLLABORATE}}",
+      "secret": "{{.Env.CLIENT_SECRET_PSA}}",
       "redirectUris": [
         "*"
       ],
@@ -452,14 +452,14 @@
       "clientId": "security-admin-console",
       "name": "${client_security-admin-console}",
       "rootUrl": "${authAdminUrl}",
-      "baseUrl": "/admin/datasource/console/",
+      "baseUrl": "/admin/catalog/console/",
       "surrogateAuthRequired": false,
       "enabled": true,
       "alwaysDisplayInConsole": false,
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "/admin/datasource/console/*"
+        "/admin/catalog/console/*"
       ],
       "webOrigins": [
         "+"
