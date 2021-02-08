@@ -38,26 +38,27 @@ public class FakeDatasourceConnector extends DatasourceConnector {
         };
         CollectionModel<Metadata> collection = builder.toObject(resourceParameterizedTypeReference);
 
-        Integer dataCount = 0;
+        Integer documentCount = 0;
 
         if (null != collection) {
             for (Metadata metadata : collection) {
-                Data data = new Data();
+                Document document = new Document();
 
-                data.setOrganizationName(this.apiProperties.getOrganizationName());
-                data.setDatasourceId(datasource.getId());
-                data.setDataId(metadata.getId());
-                data.setTitle(metadata.getTitle());
-                data.setScope(metadata.getScope());
-                data.setType("metadata");
+                document.setOrganizationId(this.apiProperties.getOrganizationId());
+                document.setOrganizationName(this.apiProperties.getOrganizationName());
+                document.setDatasourceId(datasource.getId());
+                document.setDocumentId(metadata.getId());
+                document.setTitle(metadata.getTitle());
+                document.setScope(metadata.getScope());
+                document.setType("metadata");
 
-                System.out.println(data);
+                System.out.println(document);
 
-                catalogClient.add(data.getOrganizationName(), data.getDatasourceId(), data);
-                dataCount++;
+                catalogClient.add(document.getOrganizationId(), document.getDatasourceId(), document);
+                documentCount++;
             }
         }
 
-        return dataCount;
+        return documentCount;
     }
 }

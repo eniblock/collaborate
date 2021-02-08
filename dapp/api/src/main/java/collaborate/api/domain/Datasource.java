@@ -44,7 +44,7 @@ public class Datasource implements Serializable {
     @Enumerated(EnumType.STRING)
     private DatasourceStatus status = DatasourceStatus.CREATED;
 
-    private Integer dataCount;
+    private Integer documentCount;
 
     public Long getId() {
         return id;
@@ -118,12 +118,12 @@ public class Datasource implements Serializable {
         this.status = status;
     }
 
-    public Integer getDataCount() {
-        return dataCount;
+    public Integer getDocumentCount() {
+        return documentCount;
     }
 
-    public void setDataCount(Integer dataCount) {
-        this.dataCount = dataCount;
+    public void setDocumentCount(Integer documentCount) {
+        this.documentCount = documentCount;
     }
 
     @Override
@@ -138,7 +138,7 @@ public class Datasource implements Serializable {
                 ", wellKnownURIPathSuffix='" + wellKnownURIPathSuffix + '\'' +
                 ", transferMethod=" + transferMethod +
                 ", status=" + status +
-                ", dataCount=" + dataCount +
+                ", documentCount=" + documentCount +
                 '}';
     }
 }

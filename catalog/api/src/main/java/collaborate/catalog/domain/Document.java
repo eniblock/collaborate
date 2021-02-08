@@ -1,17 +1,17 @@
 package collaborate.catalog.domain;
 
 import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.io.Serializable;
 
-@Document
-public class Data implements Serializable {
+@org.springframework.data.mongodb.core.mapping.Document
+public class Document implements Serializable {
     @Id
     String id;
+    String organizationId;
     String organizationName;
     Long datasourceId;
-    String dataId;
+    String documentId;
     String title;
     String scope;
     String type;
@@ -22,6 +22,14 @@ public class Data implements Serializable {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
     }
 
     public String getOrganizationName() {
@@ -40,12 +48,12 @@ public class Data implements Serializable {
         this.datasourceId = datasourceId;
     }
 
-    public String getDataId() {
-        return dataId;
+    public String getDocumentId() {
+        return documentId;
     }
 
-    public void setDataId(String dataId) {
-        this.dataId = dataId;
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public String getTitle() {
@@ -74,11 +82,12 @@ public class Data implements Serializable {
 
     @Override
     public String toString() {
-        return "Data{" +
+        return "Document{" +
                 "id='" + id + '\'' +
+                ", organizationId='" + organizationId + '\'' +
                 ", organizationName='" + organizationName + '\'' +
                 ", datasourceId=" + datasourceId +
-                ", dataId='" + dataId + '\'' +
+                ", documentId='" + documentId + '\'' +
                 ", title='" + title + '\'' +
                 ", scope='" + scope + '\'' +
                 ", type='" + type + '\'' +

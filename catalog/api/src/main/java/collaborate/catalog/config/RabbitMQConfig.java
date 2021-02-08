@@ -18,21 +18,21 @@ import org.springframework.messaging.handler.annotation.support.MessageHandlerMe
 @Configuration
 public class RabbitMQConfig implements RabbitListenerConfigurer {
     @Bean
-    Queue dataCreateQueue() {
-        return new Queue("data.create", true);
+    Queue documentCreateQueue() {
+        return new Queue("document.create", true);
     }
 
     @Bean
     TopicExchange exchange() {
-        return new TopicExchange("data");
+        return new TopicExchange("document");
     }
 
     @Bean
-    public Binding dataCreateBinding(TopicExchange topic,
+    public Binding documentCreateBinding(TopicExchange topic,
                              Queue queue) {
         return BindingBuilder.bind(queue)
                 .to(topic)
-                .with("data.create");
+                .with("document.create");
     }
 
     @Bean

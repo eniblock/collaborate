@@ -83,14 +83,14 @@ public class DatasourceService {
                 datasource.setStatus(DatasourceStatus.SYNCHRONIZING);
                 datasourceRepository.save(datasource);
 
-                catalogClient.delete(this.apiProperties.getOrganizationName(), datasource.getId());
+                catalogClient.delete(this.apiProperties.getOrganizationId(), datasource.getId());
 
                 DatasourceClientSecret datasourceClientSecret = vaultKeyValueOperations.get("datasources/" + datasource.getId(), DatasourceClientSecret.class).getData();
 
                 DatasourceConnector connector = datasourceConnectorFactory.create(datasource);
-                Integer dataCount = connector.synchronize(datasource, datasourceClientSecret);
+                Integer documentCount = connector.synchronize(datasource, datasourceClientSecret);
 
-                datasource.setDataCount(dataCount);
+                datasource.setDocumentCount(documentCount);
 
                 datasourceRepository.save(datasource);
             }
@@ -151,9 +151,9 @@ public class DatasourceService {
         List<Datasource> datasources = datasourceRepository.findByStatus(DatasourceStatus.SYNCHRONIZING);
 
         for (Datasource datasource : datasources) {
-            Page<Data> data = catalogClient.get(apiProperties.getOrganizationName(), datasource.getId());
+            Page<Document> data = catalogClient.get(apiProperties.getOrganizationId(), datasource.getId());
 
-            if (data.getTotalElements() == datasource.getDataCount()) {
+            if (data.getTotalElements() == datasource.getDocumentCount()) {
                 System.out.println("Updating datasource status: " + datasource);
                 datasource.setStatus(DatasourceStatus.SYNCHRONIZED);
 

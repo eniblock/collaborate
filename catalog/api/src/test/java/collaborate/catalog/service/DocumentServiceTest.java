@@ -1,7 +1,7 @@
 package collaborate.catalog.service;
 
-import collaborate.catalog.domain.Data;
-import collaborate.catalog.repository.DataRepository;
+import collaborate.catalog.domain.Document;
+import collaborate.catalog.repository.DocumentRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -12,19 +12,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-class DataServiceTest {
+class DocumentServiceTest {
     @InjectMocks
-    DataService dataService;
+    DocumentService documentService;
 
     @Mock
-    private DataRepository dataRepository;
+    private DocumentRepository documentRepository;
 
     @Test
     void create() {
-        Data data = new Data();
+        Document document = new Document();
 
-        dataService.create(data);
+        documentService.create(document);
 
-        verify(dataRepository, times(1)).save(data);
+        verify(documentRepository, times(1)).save(document);
     }
 }
