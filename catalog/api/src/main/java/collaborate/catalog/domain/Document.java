@@ -3,6 +3,7 @@ package collaborate.catalog.domain;
 import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @org.springframework.data.mongodb.core.mapping.Document
 public class Document implements Serializable {
@@ -14,6 +15,7 @@ public class Document implements Serializable {
     String documentId;
     String title;
     String scope;
+    UUID scopeId;
     String type;
 
     public String getId() {
@@ -72,6 +74,14 @@ public class Document implements Serializable {
         this.scope = scope;
     }
 
+    public UUID getScopeId() {
+        return scopeId;
+    }
+
+    public void setScopeId(UUID scopeId) {
+        this.scopeId = scopeId;
+    }
+
     public String getType() {
         return type;
     }
@@ -90,6 +100,7 @@ public class Document implements Serializable {
                 ", documentId='" + documentId + '\'' +
                 ", title='" + title + '\'' +
                 ", scope='" + scope + '\'' +
+                ", scopeId=" + scopeId +
                 ", type='" + type + '\'' +
                 '}';
     }

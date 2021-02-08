@@ -12,6 +12,8 @@ import org.springframework.hateoas.client.Traverson;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.UUID;
+
 @Service
 public class FakeDatasourceConnector extends DatasourceConnector {
 
@@ -50,6 +52,7 @@ public class FakeDatasourceConnector extends DatasourceConnector {
                 document.setDocumentId(metadata.getId());
                 document.setTitle(metadata.getTitle());
                 document.setScope(metadata.getScope());
+                document.setScopeId(UUID.nameUUIDFromBytes(metadata.getScope().getBytes()));
                 document.setType("metadata");
 
                 System.out.println(document);
