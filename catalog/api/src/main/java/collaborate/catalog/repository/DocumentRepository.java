@@ -7,7 +7,7 @@ import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
 
-public interface DocumentRepository extends MongoRepository<Document, String> {
+public interface DocumentRepository extends MongoRepository<Document, String>, ScopeRepository {
     List<Document> deleteByOrganizationIdAndDatasourceId(String organizationId, Long datasourceId);
     Page<Document> findByOrganizationIdAndDatasourceId(String organizationId, Long datasourceId, Pageable pageable);
 }

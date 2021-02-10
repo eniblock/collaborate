@@ -2,6 +2,7 @@ package collaborate.api.restclient;
 
 import collaborate.api.config.FeignConfiguration;
 import collaborate.api.domain.Document;
+import collaborate.api.domain.Scope;
 import io.swagger.v3.oas.annotations.Operation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
@@ -19,7 +20,11 @@ public interface ICatalogClient {
     @DeleteMapping("organizations/{organizationId}/datasources/{datasourceId}/documents")
     ResponseEntity<Void> delete(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId);
 
-    @Operation(description = "Get document")
+    @Operation(description = "Get documents")
     @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/documents")
     Page<Document> get(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId);
+
+    @Operation(description = "Get scopes")
+    @GetMapping("scopes")
+    Page<Scope> getScopes();
 }

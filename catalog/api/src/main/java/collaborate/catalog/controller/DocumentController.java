@@ -49,7 +49,6 @@ public class DocumentController {
     }
 
     @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/documents")
-    @PreAuthorize("principal.getKeycloakSecurityContext().getToken().getIssuedFor() == #organizationId")
     public Page<Document> list(@AuthenticationPrincipal KeycloakPrincipal principal, @PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, Pageable pageable) {
         Page<Document> documentPage = documentRepository.findByOrganizationIdAndDatasourceId(organizationId, datasourceId, pageable);
 
