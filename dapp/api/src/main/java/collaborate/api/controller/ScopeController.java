@@ -33,7 +33,7 @@ public class ScopeController {
         Page<Scope> scopes = catalogClient.getScopes();
 
         for (Scope s : scopes) {
-            s.setStatus(ScopeStatus.GRANTED);
+            s.setStatus(ScopeStatus.LOCKED);
         }
 
         return ResponseEntity.ok(scopes);
