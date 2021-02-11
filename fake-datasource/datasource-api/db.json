@@ -3,27 +3,27 @@
     {
       "id": "1",
       "title": "Maintenance Plan 1",
-      "scope": "maintenance-plans:read"
+      "scope": "maintenance-plans"
     },
     {
       "id": "2",
       "title": "Maintenance Report 2",
-      "scope": "maintenance-reports:read"
+      "scope": "maintenance-reports"
     },
     {
       "id": "3",
       "title": "Insurance Policies 3",
-      "scope": "insurance-policies:read"
+      "scope": "insurance-policies"
     },
     {
       "id": "4",
       "title": "Insurance Offers 4",
-      "scope": "insurance-offers:read"
+      "scope": "insurance-offers"
     },
     {
       "id": "5",
       "title": "Insurance Offers 5",
-      "scope": "insurance-offers:read"
+      "scope": "insurance-offers"
     }
   ]
 }

@@ -395,16 +395,16 @@
         "roles",
         "profile",
         "email",
-        "metadata:read"
+        "metadata"
       ],
       "optionalClientScopes": [
-        "maintenance-plans:read",
+        "maintenance-plans",
         "address",
         "phone",
-        "insurance-offers:read",
+        "insurance-offers",
         "offline_access",
-        "insurance-policies:read",
-        "maintenance-reports:read",
+        "insurance-policies",
+        "maintenance-reports",
         "microprofile-jwt"
       ]
     },
@@ -1140,7 +1140,7 @@
     },
     {
       "id": "8f67fc65-c067-4d68-865f-c926213f4ba7",
-      "name": "metadata:read",
+      "name": "metadata",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
@@ -1149,7 +1149,7 @@
     },
     {
       "id": "0fb3200c-22c3-42a3-9444-b75089c82573",
-      "name": "maintenance-plans:read",
+      "name": "maintenance-plans",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
@@ -1158,7 +1158,7 @@
     },
     {
       "id": "c11e7d30-43df-4a4e-93dd-8240e2862481",
-      "name": "maintenance-reports:read",
+      "name": "maintenance-reports",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
@@ -1167,7 +1167,7 @@
     },
     {
       "id": "72e11e98-ab3e-4cf6-ad9f-52fee61bcffa",
-      "name": "insurance-policies:read",
+      "name": "insurance-policies",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
@@ -1176,7 +1176,7 @@
     },
     {
       "id": "1396305c-0655-4dea-814d-f99ad0ea693c",
-      "name": "insurance-offers:read",
+      "name": "insurance-offers",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",

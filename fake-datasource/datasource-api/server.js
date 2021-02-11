@@ -66,7 +66,7 @@ router.render = async function (req, res) {
     console.log(req.path);
 
     if (req.path == '/metadata') {
-        var scope = "metadata:read";
+        var scope = "metadata";
         var resource = new hal.Resource({}, req.path);
         var rows = [];
 
