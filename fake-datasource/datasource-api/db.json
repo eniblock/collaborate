@@ -19,6 +19,11 @@
       "id": "4",
       "title": "Insurance Offers 4",
       "scope": "insurance-offers:read"
+    },
+    {
+      "id": "5",
+      "title": "Insurance Offers 5",
+      "scope": "insurance-offers:read"
     }
   ]
 }

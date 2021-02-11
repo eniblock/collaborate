@@ -1,14 +1,25 @@
 package collaborate.api.domain;
 
 import java.io.Serializable;
+import java.util.UUID;
 
-public class Data implements Serializable {
+public class Document implements Serializable {
+    String organizationId;
     String organizationName;
     Long datasourceId;
-    String dataId;
+    String documentId;
     String title;
     String scope;
+    UUID scopeId;
     String type;
+
+    public String getOrganizationId() {
+        return organizationId;
+    }
+
+    public void setOrganizationId(String organizationId) {
+        this.organizationId = organizationId;
+    }
 
     public String getOrganizationName() {
         return organizationName;
@@ -26,12 +37,12 @@ public class Data implements Serializable {
         this.datasourceId = datasourceId;
     }
 
-    public String getDataId() {
-        return dataId;
+    public String getDocumentId() {
+        return documentId;
     }
 
-    public void setDataId(String dataId) {
-        this.dataId = dataId;
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
     }
 
     public String getTitle() {
@@ -50,6 +61,14 @@ public class Data implements Serializable {
         this.scope = scope;
     }
 
+    public UUID getScopeId() {
+        return scopeId;
+    }
+
+    public void setScopeId(UUID scopeId) {
+        this.scopeId = scopeId;
+    }
+
     public String getType() {
         return type;
     }
@@ -60,11 +79,14 @@ public class Data implements Serializable {
 
     @Override
     public String toString() {
-        return "Data{" +
-                "datasourceId=" + datasourceId +
-                ", dataId='" + dataId + '\'' +
+        return "Document{" +
+                "organizationId='" + organizationId + '\'' +
+                ", organizationName='" + organizationName + '\'' +
+                ", datasourceId=" + datasourceId +
+                ", documentId='" + documentId + '\'' +
                 ", title='" + title + '\'' +
                 ", scope='" + scope + '\'' +
+                ", scopeId=" + scopeId +
                 ", type='" + type + '\'' +
                 '}';
     }

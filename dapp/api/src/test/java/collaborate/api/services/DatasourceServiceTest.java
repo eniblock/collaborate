@@ -95,8 +95,8 @@ class DatasourceServiceTest {
         datasourceClientSecretVaultResponseSupport.setData(datasourceClientSecret);
 
         when(datasourceRepository.findById(datasource.getId())).thenReturn(optionalDatasource);
-        when(apiProperties.getOrganizationName()).thenReturn("psa");
-        when(catalogClient.delete(apiProperties.getOrganizationName(), datasource.getId())).thenReturn(deleteEntity);
+        when(apiProperties.getOrganizationId()).thenReturn("psa");
+        when(catalogClient.delete(apiProperties.getOrganizationId(), datasource.getId())).thenReturn(deleteEntity);
         when(datasourceConnectorFactory.create(datasource)).thenReturn(connector);
         when(connector.synchronize(datasource, datasourceClientSecret)).thenReturn(1);
         when(vaultKeyValueOperations.get("datasources/" + datasource.getId(), DatasourceClientSecret.class)).thenReturn(datasourceClientSecretVaultResponseSupport);
@@ -104,7 +104,7 @@ class DatasourceServiceTest {
         datasourceService.synchronize(datasource);
 
         assertEquals(DatasourceStatus.SYNCHRONIZING, datasource.getStatus());
-        assertEquals(1, datasource.getDataCount());
+        assertEquals(1, datasource.getDocumentCount());
     }
 
     @Test
@@ -140,14 +140,14 @@ class DatasourceServiceTest {
         Datasource datasource = new Datasource();
         datasource.setId(1L);
         datasource.setStatus(DatasourceStatus.SYNCHRONIZING);
-        datasource.setDataCount(1);
+        datasource.setDocumentCount(1);
 
         List<Datasource> datasources = Collections.singletonList(datasource);
-        Page<Data> page = new PageImpl<Data>(Collections.singletonList(new Data()));
+        Page<Document> page = new PageImpl<Document>(Collections.singletonList(new Document()));
 
         when(datasourceRepository.findByStatus(DatasourceStatus.SYNCHRONIZING)).thenReturn(datasources);
-        when(apiProperties.getOrganizationName()).thenReturn("psa");
-        when(catalogClient.get(apiProperties.getOrganizationName(), datasource.getId())).thenReturn(page);
+        when(apiProperties.getOrganizationId()).thenReturn("psa");
+        when(catalogClient.get(apiProperties.getOrganizationId(), datasource.getId())).thenReturn(page);
 
         datasourceService.updateStatus();
 
