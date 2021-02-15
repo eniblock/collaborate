@@ -1,6 +1,9 @@
 package collaborate.api.config.properties;
 
+import collaborate.api.domain.Organization;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+
+import java.util.HashMap;
 
 @ConfigurationProperties(prefix = "api", ignoreUnknownFields = false)
 public class ApiProperties {
@@ -9,6 +12,7 @@ public class ApiProperties {
     private String organizationId;
     private String organizationName;
     private String contractAddress;
+    private HashMap<String, Organization> organizations;
 
     public String getPlatform() {
         return platform;
@@ -48,5 +52,13 @@ public class ApiProperties {
 
     public void setContractAddress(String contractAddress) {
         this.contractAddress = contractAddress;
+    }
+
+    public HashMap<String, Organization> getOrganizations() {
+        return organizations;
+    }
+
+    public void setOrganizations(HashMap<String, Organization> organizations) {
+        this.organizations = organizations;
     }
 }

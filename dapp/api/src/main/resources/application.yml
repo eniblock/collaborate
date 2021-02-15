@@ -4,6 +4,15 @@ api:
   organizationId: psa
   organizationName: PSA Groupe
   contractAddress: KT1HtPSz6rg7PhXHN9Pjp5rpqQA3e8AzRdpf
+  organizations:
+    psa:
+      id: psa
+      name: PSA Groupe
+      publicKeyHash: tz1W1Wu7otQ63uLPh6vdvA3j1DUHQCVJuWKa
+    mobivia:
+      id: mobivia
+      name: Mobivia
+      publicKeyHash: tz1RDUgUKrhQw3FuSXtBt2RmWbzYAP7TiWhx
 spring:
   rabbitmq:
     host: localhost

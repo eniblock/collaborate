@@ -4,7 +4,6 @@ import collaborate.api.config.OpenApiConfig;
 import collaborate.api.config.properties.ApiProperties;
 import collaborate.api.domain.Scope;
 import collaborate.api.repository.AccessRequestRepository;
-import collaborate.api.repository.OrganizationRepository;
 import collaborate.api.restclient.ITezosApiGatewayClient;
 import collaborate.api.services.AccessRequestService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,9 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("access-requests")
 public class AccessRequestController {
     private final String OPERATOR_AUTHORIZATION = "hasRole('service_provider_operator')";
-
-    @Autowired
-    private OrganizationRepository organizationRepository;
 
     @Autowired
     private AccessRequestRepository accessRequestRepository;

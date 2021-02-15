@@ -4,7 +4,6 @@ import collaborate.api.config.properties.ApiProperties;
 import collaborate.api.domain.*;
 import collaborate.api.domain.enumeration.AccessRequestStatus;
 import collaborate.api.repository.AccessRequestRepository;
-import collaborate.api.repository.OrganizationRepository;
 import collaborate.api.restclient.ITezosApiGatewayClient;
 import feign.FeignException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,9 +17,6 @@ import java.util.UUID;
 
 @Service
 public class AccessRequestService {
-
-    @Autowired
-    private OrganizationRepository organizationRepository;
 
     @Autowired
     private AccessRequestRepository accessRequestRepository;
@@ -41,8 +37,8 @@ public class AccessRequestService {
         List<AccessRequest> accessRequests = new ArrayList<>();
 
         for (Scope scope : scopes) {
-            Organization provider = organizationRepository.findById(scope.getOrganizationId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-            Organization requester = organizationRepository.findById(apiProperties.getOrganizationId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            Organization provider = apiProperties.getOrganizations().get(scope.getOrganizationId());
+            Organization requester = apiProperties.getOrganizations().get(apiProperties.getOrganizationId());
 
             AccessRequest accessRequest = this.createAccessRequest(scope);
 
