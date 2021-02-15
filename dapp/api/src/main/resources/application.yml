@@ -3,6 +3,7 @@ api:
   idp-admin-role: service_identity_provider_administrator
   organizationId: psa
   organizationName: PSA Groupe
+  contractAddress: KT1HtPSz6rg7PhXHN9Pjp5rpqQA3e8AzRdpf
 spring:
   rabbitmq:
     host: localhost

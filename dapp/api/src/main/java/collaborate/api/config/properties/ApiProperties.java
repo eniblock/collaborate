@@ -8,6 +8,7 @@ public class ApiProperties {
     private String idpAdminRole;
     private String organizationId;
     private String organizationName;
+    private String contractAddress;
 
     public String getPlatform() {
         return platform;
@@ -39,5 +40,13 @@ public class ApiProperties {
 
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
+    }
+
+    public String getContractAddress() {
+        return contractAddress;
+    }
+
+    public void setContractAddress(String contractAddress) {
+        this.contractAddress = contractAddress;
     }
 }

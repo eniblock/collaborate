@@ -29,6 +29,8 @@ services:
       - VAULT_GCPCKMS_SEAL_CRYPTO_KEY=unseal
       - VAULT_INIT_PATH
       - VAULT_INIT_TOKEN
+    ports:
+      - "8300:8200"
     volumes:
       - vault:/vault/file
     cap_add:

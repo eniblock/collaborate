@@ -51,13 +51,14 @@ public class ScopeController {
         for (Scope s : scopes) {
             Organization provider = organizationRepository.findById(s.getOrganizationId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
             Organization requester = organizationRepository.findById(apiProperties.getOrganizationId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
             AccessRequest accessRequest =
                     accessRequestRepository
-                            .findOneByProviderAddressAndRequesterAddressAndDatasourceIdAndScopeOrderByCreatedAtDesc(
+                            .findFirstByProviderAddressAndRequesterAddressAndDatasourceIdAndScopeIdOrderByCreatedAtDesc(
                                     provider.getPublicKeyHash(),
                                     requester.getPublicKeyHash(),
                                     s.getDatasourceId(),
-                                    s.getScope()
+                                    s.getScopeId()
                             );
 
             if (accessRequest != null) {

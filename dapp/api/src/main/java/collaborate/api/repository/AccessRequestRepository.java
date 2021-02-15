@@ -8,5 +8,5 @@ import java.util.UUID;
 
 @Repository
 public interface AccessRequestRepository extends JpaRepository<AccessRequest, UUID> {
-    AccessRequest findOneByProviderAddressAndRequesterAddressAndDatasourceIdAndScopeOrderByCreatedAtDesc(String providerAddress, String requesterAddress, Long datasourceId, String scope);
+    AccessRequest findFirstByProviderAddressAndRequesterAddressAndDatasourceIdAndScopeIdOrderByCreatedAtDesc(String providerAddress, String requesterAddress, Long datasourceId, UUID scopeId);
 }
