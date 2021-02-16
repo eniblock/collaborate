@@ -35,7 +35,7 @@ public class KeycloakServiceTest {
     @Test
     public void findAllWithList() {
         when(userSearchResponseDTO.getContent()).thenReturn(null);
-        when(keycloakController.findByCriteria(anyString(), any(UserSearchCriteria.class))).thenReturn(userSearchResponseDTO);
+        when(keycloakController.findByCriteria(any(UserSearchCriteria.class))).thenReturn(userSearchResponseDTO);
         when(tokenManager.getAccessTokenString()).thenReturn(FAKE_TOKEN);
         when(keycloak.tokenManager()).thenReturn(tokenManager);
 
@@ -53,7 +53,7 @@ public class KeycloakServiceTest {
         response.add(user);
 
         when(userSearchResponseDTO.getContent()).thenReturn(response);
-        when(keycloakController.findByCriteria(anyString(), any(UserSearchCriteria.class))).thenReturn(userSearchResponseDTO);
+        when(keycloakController.findByCriteria(any(UserSearchCriteria.class))).thenReturn(userSearchResponseDTO);
         when(tokenManager.getAccessTokenString()).thenReturn(FAKE_TOKEN);
         when(keycloak.tokenManager()).thenReturn(tokenManager);
 

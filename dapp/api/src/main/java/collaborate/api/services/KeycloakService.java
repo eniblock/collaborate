@@ -1,23 +1,19 @@
 package collaborate.api.services;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import collaborate.api.errors.UserIdNotFoundException;
 import collaborate.api.restclient.IKeycloakController;
 import collaborate.api.services.dto.UserDTO;
 import collaborate.api.services.dto.UserSearchCriteria;
 import collaborate.api.services.dto.UserSearchResponseDTO;
-
-import feign.FeignException;
 import org.keycloak.admin.client.Keycloak;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 public class KeycloakService {
@@ -31,7 +27,7 @@ public class KeycloakService {
     }
 
     public List<UserDTO> findAll() {
-        UserSearchResponseDTO users = keycloakController.findByCriteria(getBearerToken(), new UserSearchCriteria());
+        UserSearchResponseDTO users = keycloakController.findByCriteria(new UserSearchCriteria());
         if (users.getContent() == null) {
             return new ArrayList<>();
         } else {
@@ -43,16 +39,12 @@ public class KeycloakService {
         UserSearchCriteria userSearchCriteria = new UserSearchCriteria();
         addPaginationInformation(userSearchCriteria, pageable);
 
-        UserSearchResponseDTO responseDto = keycloakController.findByCriteria(getBearerToken(), userSearchCriteria);
+        UserSearchResponseDTO responseDto = keycloakController.findByCriteria(userSearchCriteria);
         return responseToPage(responseDto, pageable);
     }
 
     public UserDTO findOneByIdOrElseThrow(UUID id) {
-        return keycloakController.findById(getBearerToken(), id).get();
-    }
-
-    private String getBearerToken() {
-        return "Bearer " + keycloak.tokenManager().getAccessTokenString();
+        return keycloakController.findById(id).get();
     }
 
     private void addPaginationInformation(UserSearchCriteria userSearchCriteria, Pageable pageable) {

@@ -1,6 +1,6 @@
 package collaborate.api.restclient;
 
-import collaborate.api.config.FeignConfiguration;
+import collaborate.api.config.FeignCatalogConfiguration;
 import collaborate.api.domain.Document;
 import collaborate.api.domain.Scope;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "catalog-client", url = "http://localhost:7773/api/v1", configuration = FeignConfiguration.class)
+@FeignClient(name = "catalog-client", url = "http://localhost:7773/api/v1", configuration = FeignCatalogConfiguration.class)
 public interface ICatalogClient {
 
     @Operation(description = "Add document")

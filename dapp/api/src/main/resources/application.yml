@@ -45,10 +45,17 @@ spring:
             client-id: psa
             client-secret: 57936b16-2f90-434a-9eb4-843668a3a521
             authorization-grant-type: client_credentials
+          collaborate:
+            client-id: collaborate-backend
+            client-secret: 572255bd-1504-4d51-8389-967d8cc668f8
+            authorization-grant-type: client_credentials
         provider:
           catalog:
             authorization-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/auth
             token-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/token
+          collaborate:
+            authorization-uri: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/auth
+            token-uri: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/token
 server:
   port: 7772
   error:
