@@ -1,6 +1,31 @@
 version: '3.5'
 
 services:
+  api:
+    image: $CI_REGISTRY_IMAGE/dapp/api:$CI_COMMIT_REF_SLUG
+    build: api
+    environment:
+      - API_PLATFORM
+      - API_ORGANIZATION_ID
+      - API_ORGANIZATION_NAME
+      - SPRING_CLOUD_VAULT_URI=http://vault:8200
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/collaborate
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - KEYCLOAK_AUTH_SERVER_URL
+      - KEYCLOAK_ADMIN_CLIENT_PROPERTIES_BASE_URL
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_CATALOG_AUTHORIZATION_URI
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_CATALOG_TOKEN_URI
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COLLABORATE_AUTHORIZATION_URI
+      - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COLLABORATE_TOKEN_URI
+      - CATALOG_API_URL
+      - TEZOS_API_GATEWAY_URL
+    ports:
+      - "7772:7772"
+    networks:
+      - app
+    extra_hosts:
+      - "pcc.localhost:172.17.0.1"
+
   postgres:
     image: postgres:13
     environment:

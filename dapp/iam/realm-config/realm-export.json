@@ -696,8 +696,7 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "http://localhost:4200/*",
-        "/*"
+        "*"
       ],
       "webOrigins": [
         "*"

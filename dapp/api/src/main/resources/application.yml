@@ -13,6 +13,8 @@ api:
       id: mobivia
       name: Mobivia
       publicKeyHash: tz1RDUgUKrhQw3FuSXtBt2RmWbzYAP7TiWhx
+  catalog-api-url: http://pcc.localhost:7773/api/v1
+  tezos-api-gateway-url: http://pcc.localhost:3333/api
 spring:
   rabbitmq:
     host: localhost

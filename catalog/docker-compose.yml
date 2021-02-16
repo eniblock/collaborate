@@ -1,6 +1,20 @@
 version: '3.5'
 
 services:
+  api:
+    image: $CI_REGISTRY_IMAGE/catalog/api:$CI_COMMIT_REF_SLUG
+    build: api
+    environment:
+      - SPRING_RABBITMQ_HOST=rabbitmq
+      - SPRING_RABBITMQ_PORT=5672
+      - SPRING_DATA_MONGODB_HOST=mongo
+      - KEYCLOAK_AUTH_SERVER_URL
+    ports:
+      - "7773:7773"
+    networks:
+      - app
+    extra_hosts:
+      - "pcc.localhost:172.17.0.1"
 
   rabbitmq:
     image: rabbitmq:3-management-alpine
@@ -24,6 +38,8 @@ services:
     volumes:
       - mongodb:/data/db
       - mongodb-config:/data/configdb
+    networks:
+      - app
 
   iam-db:
     image: postgres:12-alpine
@@ -55,11 +71,13 @@ services:
       - SMTP_USER
       - SMTP_PASSWORD
       - CLIENT_SECRET_PSA
+      - CLIENT_SECRET_MOBIVIA
     ports:
       - 10443:8443
       - 10080:8080
     networks:
       - iam
+      - app
 
 networks:
   app:
