@@ -20,11 +20,13 @@ services:
       - CATALOG_API_URL
       - TEZOS_API_GATEWAY_URL
     ports:
-      - "7772:7772"
+      - "$API_PORT:7772"
     networks:
       - app
     extra_hosts:
       - "pcc.localhost:172.17.0.1"
+      - "psa.pcc.localhost:172.17.0.1"
+      - "mobivia.pcc.localhost:172.17.0.1"
 
   postgres:
     image: postgres:13
@@ -32,7 +34,7 @@ services:
       - POSTGRES_DB=collaborate
       - POSTGRES_PASSWORD
     ports:
-      - 5432:5432
+      - "$POSTGRES_PORT:5432"
     volumes:
       - postgres:/var/lib/postgresql/data
     networks:
@@ -44,8 +46,8 @@ services:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS
     ports:
-      - 15672:15672
-      - 5672:5672
+      - "$RABBITMQ_MANAGEMENT_PORT:15672"
+      - "$RABBITMQ_PORT:5672"
     networks:
       - app
 
@@ -89,14 +91,13 @@ services:
       - iam
       - app
     ports:
-      - 8443:8443
-      - 8080:8080
+      - "$IAM_PORT:8080"
 
   maildev:
     image: djfarrelly/maildev
     ports:
-      - 1080:80
-      - "1025:25"
+      - "$MAIL_PORT:80"
+      - "$SMTP_PORT:25"
     networks:
       - iam
 
@@ -104,7 +105,7 @@ services:
     image: registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/vault:master
     restart: always
     ports:
-      - "8200:8200"
+      - "$VAULT_PORT:8200"
     environment:
       - VAULT_DEBUG=true
       - VAULT_ADDR='http://127.0.0.1:8200'
