@@ -12,7 +12,7 @@ RUN curl -sL https://github.com/jwilder/dockerize/releases/download/v0.6.1/docke
 USER 1000
 COPY certs/ /etc/x509/https/
 COPY realm-config/realm-export.json /realm-export.json.tpl
-COPY standalone/standalone-ha.xml /opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
+#COPY standalone/standalone-ha.xml /opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
 COPY --from=KeycloakExtension /home/app/src/kc-extension-ear/target/kc-extension-ear.ear /opt/jboss/keycloak/standalone/deployments/
 
 # the SMTP configuration variables
