@@ -26,3 +26,4 @@ keycloak:
   public-client: true
   bearer-only: true
   disable-trust-manager: true
+  ssl-required: none
