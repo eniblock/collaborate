@@ -46,7 +46,7 @@ public class TransactionsEventConsumerService {
             exchange = @Exchange(name = "headers-exchange", type = "headers"),
             arguments = {
                     @Argument(name = "entrypoint", value = "requestAccess"),
-                    @Argument(name = "contractAddress", value = "KT1TTCPr7Mocjuw6qBZFd3pkJoDU1XPZTVNy"),
+                    @Argument(name = "contractAddress", value = "KT1XiELVbwkH3T6uhEedrvBvqWWYXW5RxNhV"),
                     @Argument(name = "x-match", value = "all")
             },
             key = ""))
