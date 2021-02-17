@@ -1,5 +1,6 @@
 import smartpy as sp
 
+
 organization_type = sp.TRecord(
     name = sp.TString,
     publicKeyHash = sp.TAddress,
@@ -8,15 +9,14 @@ organization_type = sp.TRecord(
 
 access_request_parameters_type = sp.TRecord(
     id = sp.TString,
-    datasourceId = sp.TInt,
+    datasourceId = sp.TNat,
     scopeId = sp.TString,
     requesterAddress = sp.TAddress,
     providerAddress = sp.TAddress
 )
 
 access_request_value_type = sp.TRecord(
-    id = sp.TString,
-    datasourceId = sp.TInt,
+    datasourceId = sp.TNat,
     scopeId = sp.TString,
     requesterAddress = sp.TAddress,
     providerAddress = sp.TAddress,
@@ -35,15 +35,17 @@ organization_directory_type = sp.big_map(
     organization_type
 )
 
+
 class AccessManagement(sp.Contract):
-    def __init__(self, organizations: organization_directory_type):
+    def __init__(self, _org: organization_directory_type):
         self.init(
-            organizations = organizations,
+            organizations = _org,
             accessRequests = sp.big_map(
                 tkey = sp.TString,
                 tvalue = access_request_value_type
             )
         )
+
     @sp.entry_point
     def requestAccess(self, params: access_request_parameters_type):
         sp.verify(self.data.organizations.contains(params.requesterAddress))
@@ -55,13 +57,12 @@ class AccessManagement(sp.Contract):
         sp.verify( ~ self.data.accessRequests.contains(key))
 
         self.data.accessRequests[key] = sp.record(
-            id = params.id,
             datasourceId = params.datasourceId,
             scopeId = params.scopeId,
             requesterAddress = params.requesterAddress,
             providerAddress = params.providerAddress,
             createdAt = sp.now,
-            status = "REQUESTED",
+            status = "requested",
             jwtToken = sp.none
         )
 
@@ -71,35 +72,43 @@ class AccessManagement(sp.Contract):
         sp.verify(self.data.accessRequests.contains(params.id))
 
         key = params.id
-
         accessRequest = self.data.accessRequests[key]
 
         sp.verify(sp.sender == accessRequest.providerAddress)
-        sp.verify(accessRequest.status == "REQUESTED")
-
+        sp.verify(accessRequest.status == "requested")
         accessRequest.jwtToken = sp.some(params.jwtToken)
-        accessRequest.status = "GRANTED"
+        accessRequest.status = "granted"
+
 
 @sp.add_test("RequestManagement")
 def test():
     scenario = sp.test_scenario()
     scenario.h1("RequestManagement test")
+
     scenario.table_of_contents()
     admin = sp.test_account("Administrator")
+
     organizations = sp.map(
             {
-                sp.address('tz1W1Wu7otQ63uLPh6vdvA3j1DUHQCVJuWKa'): sp.record(
+                sp.address('tz1XByDAXZZVEAb6HPxTBsPPaEbHvtPVXmhK'): sp.record(
                                 name = 'psa',
-                                publicKeyHash = sp.address('tz1W1Wu7otQ63uLPh6vdvA3j1DUHQCVJuWKa'),
+                                publicKeyHash = sp.address('tz1XByDAXZZVEAb6HPxTBsPPaEbHvtPVXmhK'),
                                 publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwMpIgzGJtOOQ7R/a05aPraxPbCTEWXUuuU5YGU4BHi7RGQGKqDdXX9XqJffYHFHUu50G5na1ZQeg+tK15YOFNcdO7USp4NfktRfdyWodqi0P05SllfBWsyo9u3p55Ra8j5pBNajCVAsFTrbJtrZaBcolaLa3nArpmq7krVDMsdxflFD5LvjR7pF6qlunFZSVmbeUhpDlftIX8+kjNbTftYsFfOew1szS9Uj4KPLJwas0b2s9ooyeyBQ6caBE6+r3082gEhVu/o/8nXxoMnIdCQFVxwl+xF1CXO29MEtuFXRLiRzCHlUSr/oiS5LpYbzDFcsxeAcK20TMSaBneaeY5QIDAQAB-----END PUBLIC KEY-----'
                             ),
-                sp.address('tz1RDUgUKrhQw3FuSXtBt2RmWbzYAP7TiWhx'): sp.record(
+                sp.address('tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw'): sp.record(
                                 name = 'mobivia',
-                                publicKeyHash = sp.address('tz1RDUgUKrhQw3FuSXtBt2RmWbzYAP7TiWhx'),
+                                publicKeyHash = sp.address('tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw'),
                                 publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq5fYr3XQUwcwxamB6QDMVemkZ+v7zR88rS6MhEqf5VNYbbfKwCp1+pz02WK13J8J6+gOysJRQj0uLNVrVC+gE+TciFRkPA4041tesNXaqU2HHiOpYT9EfkMBQRe1OBvTEBzi+u5WiFMoIhXJX83MgXx04yKlM+foftciKl9cZwMPxVKNZ+hcadg4xSYqn7OKKm4Ht3grZ9/0JO+ghsReKLosjqB52yfUHE1F8y4G8PGFdI55kJIEtquqX37jY76NQIjIPP8Bj75TDy0y+Lz4BawxL529bFo25kmG21KP1PjT/Ce0PrG3vImk3kabNipmysI7mnOOt4pqAbA0CUTpSwIDAQAB-----END PUBLIC KEY-----'
-                            )
+                            ),
+                sp.address('tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw'): sp.record(
+                    name = 'mobivia',
+                    publicKeyHash = sp.address('tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw'),
+                    publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq5fYr3XQUwcwxamB6QDMVemkZ+v7zR88rS6MhEqf5VNYbbfKwCp1+pz02WK13J8J6+gOysJRQj0uLNVrVC+gE+TciFRkPA4041tesNXaqU2HHiOpYT9EfkMBQRe1OBvTEBzi+u5WiFMoIhXJX83MgXx04yKlM+foftciKl9cZwMPxVKNZ+hcadg4xSYqn7OKKm4Ht3grZ9/0JO+ghsReKLosjqB52yfUHE1F8y4G8PGFdI55kJIEtquqX37jY76NQIjIPP8Bj75TDy0y+Lz4BawxL529bFo25kmG21KP1PjT/Ce0PrG3vImk3kabNipmysI7mnOOt4pqAbA0CUTpSwIDAQAB-----END PUBLIC KEY-----'
+                )
             }
         )
+
     # Test if RequestManagement is initialized correctly
     requestManagement = AccessManagement(organizations)
     scenario += requestManagement
+    scenario.verify(requestManagement.data.organizations == organizations
