@@ -1,23 +1,6 @@
 version: '3.5'
 
 services:
-  api:
-    image: $CI_REGISTRY_IMAGE/catalog/api:$CI_COMMIT_REF_SLUG
-    build: api
-    environment:
-      - SPRING_RABBITMQ_HOST=rabbitmq
-      - SPRING_RABBITMQ_PORT=5672
-      - SPRING_DATA_MONGODB_HOST=mongo
-      - KEYCLOAK_AUTH_SERVER_URL
-    ports:
-      - "7773:7773"
-    networks:
-      - app
-    extra_hosts:
-      - "pcc.localhost:172.17.0.1"
-      - "psa.pcc.localhost:172.17.0.1"
-      - "mobivia.pcc.localhost:172.17.0.1"
-
   rabbitmq:
     image: rabbitmq:3-management-alpine
     environment:
