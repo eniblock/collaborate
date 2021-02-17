@@ -1,14 +1,14 @@
 api:
   platform: PSA
   idp-admin-role: service_identity_provider_administrator
-  organizationId: psa
-  organizationName: PSA Groupe
-  contractAddress: KT1HtPSz6rg7PhXHN9Pjp5rpqQA3e8AzRdpf
+  organizationId: mobivia
+  organizationName: Mobivia
+  contractAddress: KT1TTCPr7Mocjuw6qBZFd3pkJoDU1XPZTVNy
   organizations:
     psa:
       id: psa
       name: PSA Groupe
-      publicKeyHash: tz1W1Wu7otQ63uLPh6vdvA3j1DUHQCVJuWKa
+      publicKeyHash: tz1XByDAXZZVEAb6HPxTBsPPaEbHvtPVXmhK
     mobivia:
       id: mobivia
       name: Mobivia
@@ -21,6 +21,11 @@ spring:
     port: 5672
     username: guest
     password: guest
+  multirabbitmq:
+    connections:
+      tezos-api-gateway:
+        host: localhost
+        port: 5674
   datasource:
     url: jdbc:postgresql://localhost:5432/collaborate
     username: postgres
