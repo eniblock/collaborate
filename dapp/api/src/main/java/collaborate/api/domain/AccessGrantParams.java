@@ -9,6 +9,12 @@ public class AccessGrantParams implements Serializable {
     private UUID id;
 
     @NotNull
+    private String requesterAddress;
+
+    @NotNull
+    private String providerAddress;
+
+    @NotNull
     private String jwtToken;
 
     public UUID getId() {
@@ -25,6 +31,22 @@ public class AccessGrantParams implements Serializable {
 
     public void setJwtToken(String jwtToken) {
         this.jwtToken = jwtToken;
+    }
+
+    public String getRequesterAddress() {
+        return requesterAddress;
+    }
+
+    public void setRequesterAddress(String requesterAddress) {
+        this.requesterAddress = requesterAddress;
+    }
+
+    public String getProviderAddress() {
+        return providerAddress;
+    }
+
+    public void setProviderAddress(String providerAddress) {
+        this.providerAddress = providerAddress;
     }
 
     @Override

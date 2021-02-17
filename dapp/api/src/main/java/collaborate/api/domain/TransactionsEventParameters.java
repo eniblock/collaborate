@@ -3,11 +3,11 @@ package collaborate.api.domain;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
-public class RequestAccessParameters implements Serializable {
+public class TransactionsEventParameters<T> implements Serializable {
     @NotNull
     private String entrypoint;
 
-    @NotNull RequestAccessValue value;
+    @NotNull T value;
 
     public String getEntrypoint() {
         return entrypoint;
@@ -17,11 +17,11 @@ public class RequestAccessParameters implements Serializable {
         this.entrypoint = entrypoint;
     }
 
-    public RequestAccessValue getValue() {
+    public T getValue() {
         return value;
     }
 
-    public void setValue(RequestAccessValue value) {
+    public void setValue(T value) {
         this.value = value;
     }
 

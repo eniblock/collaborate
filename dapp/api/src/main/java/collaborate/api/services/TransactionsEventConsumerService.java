@@ -2,6 +2,8 @@ package collaborate.api.services;
 
 import collaborate.api.config.properties.ApiProperties;
 import collaborate.api.domain.*;
+import collaborate.api.domain.enumeration.AccessRequestStatus;
+import collaborate.api.repository.AccessRequestRepository;
 import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.restclient.ITezosApiGatewayClient;
 import collaborate.api.services.connectors.DatasourceConnectorFactory;
@@ -13,13 +15,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.vault.core.VaultKeyValueOperations;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class TransactionsEventConsumerService {
     Logger logger = LoggerFactory.getLogger(TransactionsEventConsumerService.class);
 
     @Autowired
-    private ITezosApiGatewayClient tezosApiGatewayClient;
+    private AccessRequestRepository accessRequestRepository;
 
     @Autowired
     private ApiProperties apiProperties;
@@ -46,18 +49,19 @@ public class TransactionsEventConsumerService {
             exchange = @Exchange(name = "headers-exchange", type = "headers"),
             arguments = {
                     @Argument(name = "entrypoint", value = "requestAccess"),
-                    @Argument(name = "contractAddress", value = "KT1XiELVbwkH3T6uhEedrvBvqWWYXW5RxNhV"),
+                    @Argument(name = "contractAddress", value = "KT1HY9PtbnLBGSgVBL8N1utmiBVKZY4XKmFm"),
                     @Argument(name = "x-match", value = "all")
             },
             key = ""))
-    void listen(RequestAccessMessage message) {
+    void listenRequestAccess(TransactionsEventMessage<RequestAccessValue> message) {
         logger.info("Received message: " + message.toString());
 
         Organization myOrganization = apiProperties.getOrganizations().get(apiProperties.getOrganizationId());
 
-        String providerAddress = message.getParameters().getValue().getRequestAccess().getProviderAddress();
+        RequestAccessValue value = (RequestAccessValue) message.getParameters().getValue();
+        String providerAddress = value.getRequestAccess().getProviderAddress();
 
-        Long dataSourceId = message.getParameters().getValue().getRequestAccess().getDatasourceId();
+        Long dataSourceId = value.getRequestAccess().getDatasourceId();
 
         Optional<Datasource> optionalDatasource = datasourceRepository.findById(dataSourceId);
 
@@ -68,9 +72,6 @@ public class TransactionsEventConsumerService {
         Datasource datasource = optionalDatasource.get();
 
         logger.info("Found data source: " + datasource.getId());
-        logger.info("Myorganization: " + myOrganization.getPublicKeyHash());
-        logger.info("providerAddress: " + providerAddress);
-        logger.info("COMPARE: " + !providerAddress.equalsIgnoreCase(myOrganization.getPublicKeyHash()));
 
         if (!providerAddress.equalsIgnoreCase(myOrganization.getPublicKeyHash())) {
             return;
@@ -84,15 +85,55 @@ public class TransactionsEventConsumerService {
 
         AccessTokenResponse token = connector.getAccessToken(datasourceClientSecret, authorizationServerMetadata);
 
-        System.out.println("TOKEN: " + token.getAccessToken());
-
         AccessGrantParams params = new AccessGrantParams();
 
-        params.setId(message.getParameters().getValue().getRequestAccess().getId());
+        params.setId(value.getRequestAccess().getId());
         params.setJwtToken(token.getAccessToken());
+        params.setProviderAddress(value.getRequestAccess().getProviderAddress());
+        params.setRequesterAddress(value.getRequestAccess().getRequesterAddress());
 
-        System.out.println("Access GRANT params: " + params.toString());
+        logger.info("Add the grant access for this request: " + params.getId());
 
         accessGrantService.addAccessGrant(params);
+    }
+
+    @RabbitListener(containerFactory = "tezos-api-gateway", bindings = @QueueBinding(
+            value = @Queue(
+                    name = "",
+                    arguments = {
+                            @Argument(name = "exclusive", value = "true")
+                    }
+            ),
+            exchange = @Exchange(name = "headers-exchange", type = "headers"),
+            arguments = {
+                    @Argument(name = "entrypoint", value = "grantAccess"),
+                    @Argument(name = "contractAddress", value = "KT1HY9PtbnLBGSgVBL8N1utmiBVKZY4XKmFm"),
+                    @Argument(name = "x-match", value = "all")
+            },
+            key = ""))
+    void listenGrantAccess(TransactionsEventMessage<GrantAccessValue> message) {
+        logger.info("Received message: " + message.toString());
+
+        Organization myOrganization = apiProperties.getOrganizations().get(apiProperties.getOrganizationId());
+
+        GrantAccessValue value = (GrantAccessValue) message.getParameters().getValue();
+
+        if (!value.getGrantAccess().getRequesterAddress().equalsIgnoreCase(myOrganization.getPublicKeyHash())) {
+            return;
+        }
+
+        UUID requestID = value.getGrantAccess().getId();
+
+        Optional<AccessRequest> optionalAccessRequest = accessRequestRepository.findById(requestID);
+
+        if(!optionalAccessRequest.isPresent()) {
+            return;
+        }
+
+        AccessRequest accessRequest = optionalAccessRequest.get();
+
+        accessRequest.setStatus(AccessRequestStatus.GRANTED);
+
+        accessRequestRepository.save(accessRequest);
     }
 }

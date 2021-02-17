@@ -2,9 +2,8 @@ package collaborate.api.domain;
 
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.util.LinkedHashMap;
 
-public class RequestAccessMessage implements Serializable {
+public class TransactionsEventMessage<T> implements Serializable {
     @NotNull
     private String entrypoint;
 
@@ -12,7 +11,7 @@ public class RequestAccessMessage implements Serializable {
     private String contractAddress;
 
     @NotNull
-    private RequestAccessParameters parameters;
+    private TransactionsEventParameters<T> parameters;
 
     public String getEntrypoint() {
         return entrypoint;
@@ -30,17 +29,17 @@ public class RequestAccessMessage implements Serializable {
         this.contractAddress = contractAddress;
     }
 
-    public RequestAccessParameters getParameters() {
+    public TransactionsEventParameters getParameters() {
         return parameters;
     }
 
-    public void setParameters(RequestAccessParameters parameters) {
+    public void setParameters(TransactionsEventParameters parameters) {
         this.parameters = parameters;
     }
 
     @Override
     public String toString() {
-        return "RequestAccessMessage{" +
+        return "TransactionsEventMessage{" +
                 "entrypoint='" + entrypoint + '\'' +
                 ", contractAddress='" + contractAddress + '\'' +
                 ", parameters=" + parameters +

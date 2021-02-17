@@ -3,16 +3,16 @@ api:
   idp-admin-role: service_identity_provider_administrator
   organizationId: psa
   organizationName: PSA Groupe
-  contractAddress: KT1XiELVbwkH3T6uhEedrvBvqWWYXW5RxNhV
+  contractAddress: KT1HY9PtbnLBGSgVBL8N1utmiBVKZY4XKmFm
   organizations:
     psa:
       id: psa
       name: PSA Groupe
-      publicKeyHash: tz1M5RJW8jwXtGFBC5fFx2W6J1EhdTy3MRDJ
+      publicKeyHash: tz1XByDAXZZVEAb6HPxTBsPPaEbHvtPVXmhK
     mobivia:
       id: mobivia
       name: Mobivia
-      publicKeyHash: tz1XFwigLzCGg9URAyrxNnY7A5o7RGFcn4i3
+      publicKeyHash: tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw
   catalog-api-url: http://localhost:7773/api/v1
   tezos-api-gateway-url: http://localhost:3333/api
 spring:
