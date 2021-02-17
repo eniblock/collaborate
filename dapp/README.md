@@ -1,6 +1,6 @@
 Copy the env dist 
 ```ssh
-cp -a .env.dist .env
+cp -a .env.psa.dist .env
 ```
 
 Start
