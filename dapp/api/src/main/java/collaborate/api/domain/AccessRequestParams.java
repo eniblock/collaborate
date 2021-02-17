@@ -1,12 +1,23 @@
 package collaborate.api.domain;
 
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 import java.util.UUID;
 
-public class AccessRequestParams {
+public class AccessRequestParams implements Serializable {
+    @NotNull
     private UUID id;
+
+    @NotNull
     private Long datasourceId;
+
+    @NotNull
     private UUID scopeId;
+
+    @NotNull
     private String requesterAddress;
+
+    @NotNull
     private String providerAddress;
 
     public UUID getId() {
