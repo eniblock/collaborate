@@ -22,4 +22,12 @@ public class TransactionBatch<T> {
     public void setSecureKeyName(String secureKeyName) {
         this.secureKeyName = secureKeyName;
     }
+
+    @Override
+    public String toString() {
+        return "TransactionBatch{" +
+                "transactions=" + transactions +
+                ", secureKeyName='" + secureKeyName + '\'' +
+                '}';
+    }
 }

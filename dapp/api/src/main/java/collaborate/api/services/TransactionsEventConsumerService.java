@@ -5,7 +5,6 @@ import collaborate.api.domain.*;
 import collaborate.api.domain.enumeration.AccessRequestStatus;
 import collaborate.api.repository.AccessRequestRepository;
 import collaborate.api.repository.DatasourceRepository;
-import collaborate.api.restclient.ITezosApiGatewayClient;
 import collaborate.api.services.connectors.DatasourceConnectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +48,7 @@ public class TransactionsEventConsumerService {
             exchange = @Exchange(name = "headers-exchange", type = "headers"),
             arguments = {
                     @Argument(name = "entrypoint", value = "requestAccess"),
-                    @Argument(name = "contractAddress", value = "KT1HY9PtbnLBGSgVBL8N1utmiBVKZY4XKmFm"),
+                    @Argument(name = "contractAddress", value = "#{contractAddress}"),
                     @Argument(name = "x-match", value = "all")
             },
             key = ""))
@@ -107,7 +106,7 @@ public class TransactionsEventConsumerService {
             exchange = @Exchange(name = "headers-exchange", type = "headers"),
             arguments = {
                     @Argument(name = "entrypoint", value = "grantAccess"),
-                    @Argument(name = "contractAddress", value = "KT1HY9PtbnLBGSgVBL8N1utmiBVKZY4XKmFm"),
+                    @Argument(name = "contractAddress", value = "#{contractAddress}"),
                     @Argument(name = "x-match", value = "all")
             },
             key = ""))

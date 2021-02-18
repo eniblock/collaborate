@@ -41,4 +41,9 @@ public class ApiConfig {
     public Module sortJacksonModule() {
         return new SortJacksonModule();
     }
+
+    @Bean
+    public String contractAddress() {
+        return apiProperties.getContractAddress();
+    }
 }

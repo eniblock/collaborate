@@ -28,4 +28,13 @@ public class Organization {
     public void setPublicKeyHash(String publicKeyHash) {
         this.publicKeyHash = publicKeyHash;
     }
+
+    @Override
+    public String toString() {
+        return "Organization{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", publicKeyHash='" + publicKeyHash + '\'' +
+                '}';
+    }
 }

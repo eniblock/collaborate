@@ -28,4 +28,13 @@ public class Transaction<T> {
     public void setEntryPointParams(T entryPointParams) {
         this.entryPointParams = entryPointParams;
     }
+
+    @Override
+    public String toString() {
+        return "Transaction{" +
+                "contractAddress='" + contractAddress + '\'' +
+                ", entryPoint='" + entryPoint + '\'' +
+                ", entryPointParams=" + entryPointParams +
+                '}';
+    }
 }
