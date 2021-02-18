@@ -5,7 +5,7 @@
   "notBefore": 0,
   "revokeRefreshToken": false,
   "refreshTokenMaxReuse": 0,
-  "accessTokenLifespan": 300,
+  "accessTokenLifespan": 86400,
   "accessTokenLifespanForImplicitFlow": 86400,
   "ssoSessionIdleTimeout": 1800,
   "ssoSessionMaxLifespan": 36000,

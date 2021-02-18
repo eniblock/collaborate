@@ -27,6 +27,8 @@ access_request_value_type = sp.TRecord(
 
 grant_access_request_type = sp.TRecord(
     id = sp.TString,
+    requesterAddress = sp.TAddress,
+    providerAddress = sp.TAddress,
     jwtToken = sp.TString
 )
 
@@ -75,6 +77,8 @@ class AccessManagement(sp.Contract):
         accessRequest = self.data.accessRequests[key]
 
         sp.verify(sp.sender == accessRequest.providerAddress)
+        sp.verify(params.providerAddress == accessRequest.providerAddress)
+        sp.verify(params.requesterAddress == accessRequest.requesterAddress)
         sp.verify(accessRequest.status == "requested")
         accessRequest.jwtToken = sp.some(params.jwtToken)
         accessRequest.status = "granted"
@@ -99,16 +103,12 @@ def test():
                                 name = 'mobivia',
                                 publicKeyHash = sp.address('tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw'),
                                 publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq5fYr3XQUwcwxamB6QDMVemkZ+v7zR88rS6MhEqf5VNYbbfKwCp1+pz02WK13J8J6+gOysJRQj0uLNVrVC+gE+TciFRkPA4041tesNXaqU2HHiOpYT9EfkMBQRe1OBvTEBzi+u5WiFMoIhXJX83MgXx04yKlM+foftciKl9cZwMPxVKNZ+hcadg4xSYqn7OKKm4Ht3grZ9/0JO+ghsReKLosjqB52yfUHE1F8y4G8PGFdI55kJIEtquqX37jY76NQIjIPP8Bj75TDy0y+Lz4BawxL529bFo25kmG21KP1PjT/Ce0PrG3vImk3kabNipmysI7mnOOt4pqAbA0CUTpSwIDAQAB-----END PUBLIC KEY-----'
-                            ),
-                sp.address('tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw'): sp.record(
-                    name = 'mobivia',
-                    publicKeyHash = sp.address('tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw'),
-                    publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq5fYr3XQUwcwxamB6QDMVemkZ+v7zR88rS6MhEqf5VNYbbfKwCp1+pz02WK13J8J6+gOysJRQj0uLNVrVC+gE+TciFRkPA4041tesNXaqU2HHiOpYT9EfkMBQRe1OBvTEBzi+u5WiFMoIhXJX83MgXx04yKlM+foftciKl9cZwMPxVKNZ+hcadg4xSYqn7OKKm4Ht3grZ9/0JO+ghsReKLosjqB52yfUHE1F8y4G8PGFdI55kJIEtquqX37jY76NQIjIPP8Bj75TDy0y+Lz4BawxL529bFo25kmG21KP1PjT/Ce0PrG3vImk3kabNipmysI7mnOOt4pqAbA0CUTpSwIDAQAB-----END PUBLIC KEY-----'
-                )
+                            )
             }
         )
 
     # Test if RequestManagement is initialized correctly
     requestManagement = AccessManagement(organizations)
     scenario += requestManagement
-    scenario.verify(requestManagement.data.organizations == organizations
+    scenario.verify(requestManagement.data.organizations == organizations)
+
