@@ -35,6 +35,7 @@ ENV GOOGLE_AUTH_CLIENT_SECRET=G9j2wLI3E-a97t8T5XG8BGA9 \
   GOOGLE_AUTH_CLIENT_ID=1068446898590-lpk3gcli4h6qokoei6pqkmdolpdugeau.apps.googleusercontent.com
 
 ENV IDP_ADMIN_ROLE=service_identity_provider_administrator
+ENV ADMIN_ROLE=service_provider_administrator
 
 ENTRYPOINT []
 CMD ["dockerize", "-template", "/realm-export.json.tpl:/tmp/realm-export.json", \

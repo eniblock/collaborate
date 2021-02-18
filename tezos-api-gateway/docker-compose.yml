@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13.1-alpine
+    environment:
+      - POSTGRES_DB=tezos_api_gateway
+      - POSTGRES_USER=tezos-service
+      - POSTGRES_PASSWORD=randompwd
+    volumes:
+      - postgres:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq
+    ports:
+      - 5674:5672
+      - 15674:15672
+  vault:
+    image: registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/vault:master
+    restart: always
+    environment:
+      - VAULT_DEBUG=true
+      - VAULT_ADDR='http://127.0.0.1:8200'
+      - VAULT_APP_TOKEN=myroot
+      - VAULT_SEAL_TYPE
+      - GOOGLE_PROJECT
+      - GOOGLE_REGION=global
+      - VAULT_GCPCKMS_SEAL_KEY_RING
+      - VAULT_GCPCKMS_SEAL_CRYPTO_KEY=unseal
+      - VAULT_INIT_PATH
+      - VAULT_INIT_TOKEN
+    ports:
+      - "8300:8200"
+    volumes:
+      - vault:/vault/file
+    cap_add:
+      - IPC_LOCK
+  api:
+    image: registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/tezos-api-gateway:develop
+    restart: always
+    environment:
+      PORT: 3333
+      AMQP_URL: amqp://rabbitmq
+      VAULT_URL: http://vault:8200/v1/
+      VAULT_TOKEN: myroot
+      DB_HOST: postgres
+    ports:
+      - "3333:3333"
+  check-operation-status-worker:
+    image: registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/tezos-api-gateway:develop
+    restart: always
+    environment:
+      PORT: 3333
+      AMQP_URL: amqp://rabbitmq
+      VAULT_URL: http://vault:8200/v1/
+      VAULT_TOKEN: myroot
+      DB_HOST: postgres
+    command: 'node build/src/processes/workers/check-operation-status/index.js'
+  send-transactions-worker:
+    image: registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/tezos-api-gateway:develop
+    restart: always
+    environment:
+      PORT: 3333
+      AMQP_URL: amqp://rabbitmq
+      VAULT_URL: http://vault:8200/v1/
+      VAULT_TOKEN: myroot
+      DB_HOST: postgres
+    command: 'node build/src/processes/workers/send-transactions/index.js'
+
+volumes:
+  postgres:
+  vault:

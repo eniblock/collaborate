@@ -1,7 +1,6 @@
 version: '3.5'
 
 services:
-
   rabbitmq:
     image: rabbitmq:3-management-alpine
     environment:
@@ -24,6 +23,8 @@ services:
     volumes:
       - mongodb:/data/db
       - mongodb-config:/data/configdb
+    networks:
+      - app
 
   iam-db:
     image: postgres:12-alpine
@@ -55,11 +56,13 @@ services:
       - SMTP_USER
       - SMTP_PASSWORD
       - CLIENT_SECRET_PSA
+      - CLIENT_SECRET_MOBIVIA
     ports:
       - 10443:8443
       - 10080:8080
     networks:
       - iam
+      - app
 
 networks:
   app:

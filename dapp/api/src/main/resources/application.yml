@@ -3,12 +3,29 @@ api:
   idp-admin-role: service_identity_provider_administrator
   organizationId: psa
   organizationName: PSA Groupe
+  contractAddress: KT1HY9PtbnLBGSgVBL8N1utmiBVKZY4XKmFm
+  organizations:
+    psa:
+      id: psa
+      name: PSA Groupe
+      publicKeyHash: tz1XByDAXZZVEAb6HPxTBsPPaEbHvtPVXmhK
+    mobivia:
+      id: mobivia
+      name: Mobivia
+      publicKeyHash: tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw
+  catalog-api-url: http://localhost:7773/api/v1
+  tezos-api-gateway-url: http://localhost:3333/api
 spring:
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
+  multirabbitmq:
+    connections:
+      tezos-api-gateway:
+        host: localhost
+        port: 5674
   datasource:
     url: jdbc:postgresql://localhost:5432/collaborate
     username: postgres
@@ -35,10 +52,17 @@ spring:
             client-id: psa
             client-secret: 57936b16-2f90-434a-9eb4-843668a3a521
             authorization-grant-type: client_credentials
+          collaborate:
+            client-id: collaborate-backend
+            client-secret: 572255bd-1504-4d51-8389-967d8cc668f8
+            authorization-grant-type: client_credentials
         provider:
           catalog:
             authorization-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/auth
             token-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/token
+          collaborate:
+            authorization-uri: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/auth
+            token-uri: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/token
 server:
   port: 7772
   error:
@@ -63,6 +87,7 @@ keycloak:
   public-client: true
   bearer-only: true
   disable-trust-manager: true
+  ssl-required: none
 
 springdoc:
   version: '@springdoc.version@'

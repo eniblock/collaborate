@@ -5,12 +5,12 @@ import collaborate.api.domain.enumeration.ScopeStatus;
 import java.util.UUID;
 
 public class Scope {
-    String organizationId;
-    String organizationName;
-    Long datasourceId;
-    String scope;
-    UUID scopeId;
-    ScopeStatus status;
+    private String organizationId;
+    private String organizationName;
+    private Long datasourceId;
+    private String scope;
+    private UUID scopeId;
+    private ScopeStatus status;
 
     public String getOrganizationId() {
         return organizationId;
