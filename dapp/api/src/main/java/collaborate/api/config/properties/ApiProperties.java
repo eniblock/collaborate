@@ -4,6 +4,7 @@ import collaborate.api.domain.Organization;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 @ConfigurationProperties(prefix = "api", ignoreUnknownFields = false)
 public class ApiProperties {
@@ -11,10 +12,28 @@ public class ApiProperties {
     private String idpAdminRole;
     private String organizationId;
     private String organizationName;
+    private String organizationPublicKeyHash;
+    private String organizationPrivateKey;
     private String contractAddress;
     private HashMap<String, Organization> organizations;
     private String catalogApiUrl;
     private String tezosApiGatewayUrl;
+
+    public String getOrganizationPrivateKey() {
+        return organizationPrivateKey;
+    }
+
+    public void setOrganizationPrivateKey(String organizationPrivateKey) {
+        this.organizationPrivateKey = organizationPrivateKey;
+    }
+
+    public String getOrganizationPublicKeyHash() {
+        return organizationPublicKeyHash;
+    }
+
+    public void setOrganizationPublicKeyHash(String organizationPublicKeyHash) {
+        this.organizationPublicKeyHash = organizationPublicKeyHash;
+    }
 
     public String getPlatform() {
         return platform;
@@ -78,5 +97,13 @@ public class ApiProperties {
 
     public void setTezosApiGatewayUrl(String tezosApiGatewayUrl) {
         this.tezosApiGatewayUrl = tezosApiGatewayUrl;
+    }
+
+    public Optional<Organization> findOrganizationWithOrganizationId(String organizationId) {
+        return organizations.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().getId().equalsIgnoreCase(organizationId))
+                .map(entry -> organizations.get(entry.getKey()))
+                .findFirst();
     }
 }

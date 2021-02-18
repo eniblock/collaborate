@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Optional;
+
 @RestController
 @RequestMapping("scopes")
 public class ScopeController {
@@ -43,8 +45,14 @@ public class ScopeController {
         Page<Scope> scopes = catalogClient.getScopes();
 
         for (Scope s : scopes) {
-            Organization provider = apiProperties.getOrganizations().get(s.getOrganizationId());
-            Organization requester = apiProperties.getOrganizations().get(apiProperties.getOrganizationId());
+            Optional<Organization> optionalProvider = apiProperties.findOrganizationWithOrganizationId(s.getOrganizationId());
+
+            if (!optionalProvider.isPresent()) {
+                continue;
+            }
+
+            Organization provider = optionalProvider.get();
+            Organization requester = apiProperties.getOrganizations().get(apiProperties.getOrganizationPublicKeyHash());
 
             AccessRequest accessRequest =
                     accessRequestRepository

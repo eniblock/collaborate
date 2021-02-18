@@ -4,6 +4,15 @@ public class Organization {
     private String id;
     private String name;
     private String publicKeyHash;
+    private String publicKey;
+
+    public String getPublicKey() {
+        return publicKey;
+    }
+
+    public void setPublicKey(String publicKey) {
+        this.publicKey = publicKey;
+    }
 
     public String getId() {
         return id;
