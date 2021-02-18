@@ -9,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@FeignClient(name = "catalog-client", url = "http://localhost:7773/api/v1", configuration = FeignCatalogConfiguration.class)
+@FeignClient(name = "catalog-client", url = "${api.catalog-api-url}", configuration = FeignCatalogConfiguration.class)
 public interface ICatalogClient {
 
     @Operation(description = "Add document")

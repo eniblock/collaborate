@@ -13,6 +13,8 @@ public class ApiProperties {
     private String organizationName;
     private String contractAddress;
     private HashMap<String, Organization> organizations;
+    private String catalogApiUrl;
+    private String tezosApiGatewayUrl;
 
     public String getPlatform() {
         return platform;
@@ -60,5 +62,21 @@ public class ApiProperties {
 
     public void setOrganizations(HashMap<String, Organization> organizations) {
         this.organizations = organizations;
+    }
+
+    public String getCatalogApiUrl() {
+        return catalogApiUrl;
+    }
+
+    public void setCatalogApiUrl(String catalogApiUrl) {
+        this.catalogApiUrl = catalogApiUrl;
+    }
+
+    public String getTezosApiGatewayUrl() {
+        return tezosApiGatewayUrl;
+    }
+
+    public void setTezosApiGatewayUrl(String tezosApiGatewayUrl) {
+        this.tezosApiGatewayUrl = tezosApiGatewayUrl;
     }
 }

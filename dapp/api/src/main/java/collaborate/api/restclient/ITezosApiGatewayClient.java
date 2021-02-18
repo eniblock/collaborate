@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "tezos-api-gateway-client", url = "http://localhost:3333/api")
+@FeignClient(name = "tezos-api-gateway-client", url = "${api.tezos-api-gateway-url}")
 public interface ITezosApiGatewayClient {
 
     @Operation(description = "Send transaction batch")

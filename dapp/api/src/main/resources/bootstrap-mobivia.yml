@@ -1,0 +1,4 @@
+spring:
+  cloud:
+    vault:
+      uri: http://localhost:18200

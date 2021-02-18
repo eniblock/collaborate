@@ -85,4 +85,18 @@ public class AccessRequest {
     public void setJwtToken(String jwtToken) {
         this.jwtToken = jwtToken;
     }
+
+    @Override
+    public String toString() {
+        return "AccessRequest{" +
+                "id=" + id +
+                ", datasourceId=" + datasourceId +
+                ", scopeId=" + scopeId +
+                ", status=" + status +
+                ", requesterAddress='" + requesterAddress + '\'' +
+                ", providerAddress='" + providerAddress + '\'' +
+                ", createdAt=" + createdAt +
+                ", jwtToken='" + jwtToken + '\'' +
+                '}';
+    }
 }

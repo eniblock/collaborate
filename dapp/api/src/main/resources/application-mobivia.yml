@@ -1,0 +1,35 @@
+api:
+  platform: Mobivia
+  organizationId: mobivia
+  organizationName: Mobivia
+spring:
+  rabbitmq:
+    port: 6672
+  datasource:
+    url: jdbc:postgresql://localhost:15432/collaborate
+  mail:
+    port: 11025
+  security:
+    oauth2:
+      client:
+        provider:
+          collaborate:
+            authorization-uri: http://localhost:18080/auth/realms/collaborate/protocol/openid-connect/auth
+            token-uri: http://localhost:18080/auth/realms/collaborate/protocol/openid-connect/token
+server:
+  port: 17772
+  error:
+    include-message: always
+  servlet:
+    context-path: /api/v1
+
+keycloak-admin-client-properties:
+  base-url: http://localhost:18080/auth
+
+keycloak:
+  auth-server-url: http://localhost:18080/auth
+
+springdoc:
+  oAuthFlow:
+    authorizationUrl: http://localhost:18080/auth/realms/collaborate/protocol/openid-connect/auth
+    tokenUrl: http://localhost:18080/auth/realms/collaborate/protocol/openid-connect/token

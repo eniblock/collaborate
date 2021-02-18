@@ -3,22 +3,29 @@ api:
   idp-admin-role: service_identity_provider_administrator
   organizationId: psa
   organizationName: PSA Groupe
-  contractAddress: KT1HtPSz6rg7PhXHN9Pjp5rpqQA3e8AzRdpf
+  contractAddress: KT1HY9PtbnLBGSgVBL8N1utmiBVKZY4XKmFm
   organizations:
     psa:
       id: psa
       name: PSA Groupe
-      publicKeyHash: tz1W1Wu7otQ63uLPh6vdvA3j1DUHQCVJuWKa
+      publicKeyHash: tz1XByDAXZZVEAb6HPxTBsPPaEbHvtPVXmhK
     mobivia:
       id: mobivia
       name: Mobivia
-      publicKeyHash: tz1RDUgUKrhQw3FuSXtBt2RmWbzYAP7TiWhx
+      publicKeyHash: tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw
+  catalog-api-url: http://localhost:7773/api/v1
+  tezos-api-gateway-url: http://localhost:3333/api
 spring:
   rabbitmq:
     host: localhost
     port: 5672
     username: guest
     password: guest
+  multirabbitmq:
+    connections:
+      tezos-api-gateway:
+        host: localhost
+        port: 5674
   datasource:
     url: jdbc:postgresql://localhost:5432/collaborate
     username: postgres
@@ -80,6 +87,7 @@ keycloak:
   public-client: true
   bearer-only: true
   disable-trust-manager: true
+  ssl-required: none
 
 springdoc:
   version: '@springdoc.version@'

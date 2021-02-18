@@ -24,7 +24,7 @@
   "actionTokenGeneratedByAdminLifespan": 43200,
   "actionTokenGeneratedByUserLifespan": 300,
   "enabled": true,
-  "sslRequired": "external",
+  "sslRequired": "none",
   "registrationAllowed": false,
   "registrationEmailAsUsername": false,
   "rememberMe": false,
@@ -451,7 +451,8 @@
       "username": "admin",
       "enabled": true,
       "totp": false,
-      "emailVerified": false,
+      "emailVerified": true,
+      "email" : "admin@theblockchainxdev.com",
       "credentials": [{
         "id": "8a855cfd-41ed-4d62-950a-5367a04257d6",
         "type": "password",
@@ -461,7 +462,7 @@
       }],
       "disableableCredentialTypes": [],
       "requiredActions": [],
-      "realmRoles": ["{{.Env.IDP_ADMIN_ROLE}}", "uma_authorization", "offline_access"],
+      "realmRoles": ["{{.Env.IDP_ADMIN_ROLE}}", "{{.Env.ADMIN_ROLE}}", "uma_authorization", "offline_access"],
       "clientRoles": {
         "account": ["view-profile", "manage-account"]
       },
@@ -696,8 +697,7 @@
       "clientAuthenticatorType": "client-secret",
       "secret": "**********",
       "redirectUris": [
-        "http://localhost:4200/*",
-        "/*"
+        "*"
       ],
       "webOrigins": [
         "*"
