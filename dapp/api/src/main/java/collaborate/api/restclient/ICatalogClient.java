@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @FeignClient(name = "catalog-client", url = "${api.catalog-api-url}", configuration = FeignCatalogConfiguration.class)
 public interface ICatalogClient {
 
@@ -26,5 +28,5 @@ public interface ICatalogClient {
 
     @Operation(description = "Get scopes")
     @GetMapping("scopes")
-    Page<Scope> getScopes();
+    List<Scope> getScopes();
 }
