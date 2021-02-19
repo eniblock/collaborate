@@ -10,9 +10,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.vault.core.VaultKeyValueOperations;
+import org.springframework.web.server.ResponseStatusException;
 
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,6 +42,9 @@ public class TransactionsEventConsumerService {
     @Autowired
     private AccessGrantService accessGrantService;
 
+    @Autowired
+    private CipherService cipherService;
+
     @RabbitListener(containerFactory = "tezos-api-gateway", bindings = @QueueBinding(
             value = @Queue(
                     name = "",
@@ -55,24 +62,18 @@ public class TransactionsEventConsumerService {
     void listenRequestAccess(TransactionsEventMessage<RequestAccessValue> message) {
         logger.info("Received message: " + message.toString());
 
-        Organization myOrganization = apiProperties.getOrganizations().get(apiProperties.getOrganizationId());
-
         RequestAccessValue value = (RequestAccessValue) message.getParameters().getValue();
         String providerAddress = value.getRequestAccess().getProviderAddress();
 
         Long dataSourceId = value.getRequestAccess().getDatasourceId();
 
-        Optional<Datasource> optionalDatasource = datasourceRepository.findById(dataSourceId);
-
-        if (!optionalDatasource.isPresent()) {
-            return;
-        }
-
-        Datasource datasource = optionalDatasource.get();
+        Datasource datasource = datasourceRepository.findById(dataSourceId).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
 
         logger.info("Found data source: " + datasource.getId());
 
-        if (!providerAddress.equalsIgnoreCase(myOrganization.getPublicKeyHash())) {
+        if (!providerAddress.equalsIgnoreCase(apiProperties.getOrganizationPublicKeyHash())) {
             return;
         }
 
@@ -84,16 +85,30 @@ public class TransactionsEventConsumerService {
 
         AccessTokenResponse token = connector.getAccessToken(datasourceClientSecret, authorizationServerMetadata);
 
-        AccessGrantParams params = new AccessGrantParams();
+        try {
+            // Begin to ciphered the token
+            String requesterAddress = value.getRequestAccess().getRequesterAddress();
 
-        params.setId(value.getRequestAccess().getId());
-        params.setJwtToken(token.getAccessToken());
-        params.setProviderAddress(value.getRequestAccess().getProviderAddress());
-        params.setRequesterAddress(value.getRequestAccess().getRequesterAddress());
+            String publicKeyAsString = apiProperties.getOrganizations().get(requesterAddress).getPublicKey();
+            PublicKey publicKey = CipherService.getKey(publicKeyAsString);
 
-        logger.info("Add the grant access for this request: " + params.getId());
+            System.out.println("RAW TOKEN: " + token.getAccessToken());
+            String cipheredToken = cipherService.cipher(token.getAccessToken(), publicKey);
 
-        accessGrantService.addAccessGrant(params);
+            // Prepare the parameters for the grant access transaction
+            AccessGrantParams params = new AccessGrantParams();
+
+            params.setId(value.getRequestAccess().getId());
+            params.setJwtToken(cipheredToken);
+            params.setProviderAddress(value.getRequestAccess().getProviderAddress());
+            params.setRequesterAddress(value.getRequestAccess().getRequesterAddress());
+
+            logger.info("Add the grant access for this request: " + params.getId());
+
+            accessGrantService.addAccessGrant(params);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
     }
 
     @RabbitListener(containerFactory = "tezos-api-gateway", bindings = @QueueBinding(
@@ -113,12 +128,21 @@ public class TransactionsEventConsumerService {
     void listenGrantAccess(TransactionsEventMessage<GrantAccessValue> message) {
         logger.info("Received message: " + message.toString());
 
-        Organization myOrganization = apiProperties.getOrganizations().get(apiProperties.getOrganizationId());
-
         GrantAccessValue value = (GrantAccessValue) message.getParameters().getValue();
 
-        if (!value.getGrantAccess().getRequesterAddress().equalsIgnoreCase(myOrganization.getPublicKeyHash())) {
+        if (!value.getGrantAccess().getRequesterAddress().equalsIgnoreCase(apiProperties.getOrganizationPublicKeyHash())) {
             return;
+        }
+
+        // This part is to test the token is correctly encrypted
+        // Should be move to the download process in the future
+        String privateKeyAsString = apiProperties.getOrganizationPrivateKey();
+        PrivateKey privateKey = CipherService.getPrivateKey(privateKeyAsString);
+
+        try {
+            System.out.println("DECIPHERED TOKEN: " + cipherService.decipher(value.getGrantAccess().getJwtToken(), privateKey));
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         UUID requestID = value.getGrantAccess().getId();
@@ -132,6 +156,7 @@ public class TransactionsEventConsumerService {
         AccessRequest accessRequest = optionalAccessRequest.get();
 
         accessRequest.setStatus(AccessRequestStatus.GRANTED);
+        accessRequest.setJwtToken(value.getGrantAccess().getJwtToken());
 
         accessRequestRepository.save(accessRequest);
     }

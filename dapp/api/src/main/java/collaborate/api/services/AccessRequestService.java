@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -37,8 +38,14 @@ public class AccessRequestService {
         List<AccessRequest> accessRequests = new ArrayList<>();
 
         for (Scope scope : scopes) {
-            Organization provider = apiProperties.getOrganizations().get(scope.getOrganizationId());
-            Organization requester = apiProperties.getOrganizations().get(apiProperties.getOrganizationId());
+            Optional<Organization> optionalProvider = apiProperties.findOrganizationWithOrganizationId(scope.getOrganizationId());
+
+            if (!optionalProvider.isPresent()) {
+                continue;
+            }
+
+            Organization provider = optionalProvider.get();
+            Organization requester = apiProperties.getOrganizations().get(apiProperties.getOrganizationPublicKeyHash());
 
             AccessRequest accessRequest = this.createAccessRequest(scope);
 
