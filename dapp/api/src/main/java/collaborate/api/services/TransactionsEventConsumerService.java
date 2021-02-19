@@ -10,8 +10,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.vault.core.VaultKeyValueOperations;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -65,13 +67,9 @@ public class TransactionsEventConsumerService {
 
         Long dataSourceId = value.getRequestAccess().getDatasourceId();
 
-        Optional<Datasource> optionalDatasource = datasourceRepository.findById(dataSourceId);
-
-        if (!optionalDatasource.isPresent()) {
-            return;
-        }
-
-        Datasource datasource = optionalDatasource.get();
+        Datasource datasource = datasourceRepository.findById(dataSourceId).orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
 
         logger.info("Found data source: " + datasource.getId());
 
