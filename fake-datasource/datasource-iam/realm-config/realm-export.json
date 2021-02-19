@@ -398,14 +398,20 @@
         "metadata"
       ],
       "optionalClientScopes": [
-        "maintenance-plans",
         "address",
         "phone",
-        "insurance-offers",
         "offline_access",
-        "insurance-policies",
-        "maintenance-reports",
-        "microprofile-jwt"
+        "microprofile-jwt",
+        "maintenance-plans-Peugeot-3008",
+        "maintenance-plans-Peugeot-5008",
+        "maintenance-plans-Peugeot-208",
+        "maintenance-plans-Peugeot-308",
+        "maintenance-plans-Peugeot-108",
+        "maintenance-plans-Citroen-C1",
+        "maintenance-plans-Citroen-C2",
+        "maintenance-plans-Citroen-C3",
+        "maintenance-plans-Citroen-C4",
+        "maintenance-plans-Citroen-DS7"
       ]
     },
     {
@@ -1149,7 +1155,7 @@
     },
     {
       "id": "0fb3200c-22c3-42a3-9444-b75089c82573",
-      "name": "maintenance-plans",
+      "name": "maintenance-plans-Peugeot-3008",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
@@ -1158,7 +1164,7 @@
     },
     {
       "id": "c11e7d30-43df-4a4e-93dd-8240e2862481",
-      "name": "maintenance-reports",
+      "name": "maintenance-plans-Peugeot-5008",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
@@ -1167,7 +1173,7 @@
     },
     {
       "id": "72e11e98-ab3e-4cf6-ad9f-52fee61bcffa",
-      "name": "insurance-policies",
+      "name": "maintenance-plans-Peugeot-208",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
@@ -1176,7 +1182,61 @@
     },
     {
       "id": "1396305c-0655-4dea-814d-f99ad0ea693c",
-      "name": "insurance-offers",
+      "name": "maintenance-plans-Peugeot-308",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "0073b240-5f1f-4410-8473-784e59b126fe",
+      "name": "maintenance-plans-Peugeot-108",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "bdc546be-b3b1-4c38-bd7a-7e80e1bd0758",
+      "name": "maintenance-plans-Citroen-C1",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "35bfbdd1-49a2-4002-b7b6-2dc8a464c890",
+      "name": "maintenance-plans-Citroen-C2",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "2645e585-1da2-4aee-aa0e-cdc8e21d7321",
+      "name": "maintenance-plans-Citroen-C3",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "4370017e-ea39-45c0-95a7-66889bb10d66",
+      "name": "maintenance-plans-Citroen-C4",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "1da0705b-9c8d-4425-a4c8-8b76405c5cbc",
+      "name": "maintenance-plans-Citroen-DS7",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
