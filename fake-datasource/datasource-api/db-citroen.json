@@ -3,57 +3,57 @@
     {
       "id": "1",
       "title": "Maintenance Plan 2009",
-      "scope": "maintenance-plans-Peugeot-3008"
+      "scope": "maintenance-plans-Citroen-C1"
     },
     {
       "id": "2",
       "title": "Maintenance Plan 2016",
-      "scope": "maintenance-plans-Peugeot-3008"
+      "scope": "maintenance-plans-Citroen-C1"
     },
     {
       "id": "3",
       "title": "Maintenance Plan 1_2 THP",
-      "scope": "maintenance-plans-Peugeot-5008"
+      "scope": "maintenance-plans-Citroen-C2"
     },
     {
       "id": "4",
       "title": "Maintenance Plan 1_6 THP",
-      "scope": "maintenance-plans-Peugeot-5008"
+      "scope": "maintenance-plans-Citroen-C2"
     },
     {
       "id": "5",
       "title": "Maintenance Plan 1_6 VTi",
-      "scope": "maintenance-plans-Peugeot-5008"
+      "scope": "maintenance-plans-Citroen-C2"
     },
     {
       "id": "6",
       "title": "Maintenance Plan 1_6 THP EAT6",
-      "scope": "maintenance-plans-Peugeot-5008"
+      "scope": "maintenance-plans-Citroen-C2"
     },
     {
       "id": "7",
       "title": "Maintenance Plan 1_6 HDi FAP",
-      "scope": "maintenance-plans-Peugeot-5008"
+      "scope": "maintenance-plans-Citroen-C2"
     },
     {
       "id": "8",
       "title": "Maintenance Plan 1_6 THP",
-      "scope": "maintenance-plans-Peugeot-208"
+      "scope": "maintenance-plans-Citroen-C3"
     },
     {
       "id": "9",
       "title": "Maintenance Plan 1_6 BlueHDi",
-      "scope": "maintenance-plans-Peugeot-208"
+      "scope": "maintenance-plans-Citroen-C3"
     },
     {
       "id": "10",
       "title": "Maintenance Plan 1_0 VTi",
-      "scope": "maintenance-plans-Peugeot-108"
+      "scope": "maintenance-plans-Citroen-C4"
     },
     {
       "id": "11",
       "title": "Maintenance Plan 1_5 BlueHDi",
-      "scope": "maintenance-plans-Peugeot-308"
+      "scope": "maintenance-plans-Citroen-DS7"
     }
   ]
 }
