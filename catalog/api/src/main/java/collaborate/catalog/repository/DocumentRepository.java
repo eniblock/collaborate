@@ -6,8 +6,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
 import java.util.List;
+import java.util.UUID;
 
-public interface DocumentRepository extends MongoRepository<Document, String>, ScopeRepository {
+public interface DocumentRepository extends MongoRepository<Document, String>, ScopeRepository, SearchRepository {
     List<Document> deleteByOrganizationIdAndDatasourceId(String organizationId, Long datasourceId);
+
     Page<Document> findByOrganizationIdAndDatasourceId(String organizationId, Long datasourceId, Pageable pageable);
+
+    Page<Document> findByOrganizationIdAndDatasourceIdAndScopeId(String organizationId, Long datasourceId, UUID scopeId, Pageable pageable);
+
+    Document findOneByOrganizationIdAndDatasourceIdAndScopeId(String organizationId, Long datasourceId, UUID scopeId);
+
+    Page<Document> searchByScope(String organizationId, Long datasourceId, UUID scopeId, Pageable pageable, String q);
+    Page<Document> findByOrganizationIdAndDatasourceIdAndScopeIdAndTitleIgnoreCaseLike(String organizationId, Long datasourceId, UUID scopeId, Pageable pageable, String q);
 }

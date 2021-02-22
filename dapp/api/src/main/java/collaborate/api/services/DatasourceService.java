@@ -27,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Validator;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -80,6 +81,7 @@ public class DatasourceService {
 
             if (datasource.getStatus() != DatasourceStatus.SYNCHRONIZING) {
                 System.out.println("Synchronizing " + datasource.getName());
+                datasource.setSynchronizedAt(new Date());
                 datasource.setStatus(DatasourceStatus.SYNCHRONIZING);
                 datasourceRepository.save(datasource);
 

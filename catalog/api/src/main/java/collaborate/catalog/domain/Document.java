@@ -3,6 +3,7 @@ package collaborate.catalog.domain;
 import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.UUID;
 
 @org.springframework.data.mongodb.core.mapping.Document
@@ -17,6 +18,7 @@ public class Document implements Serializable {
     String scope;
     UUID scopeId;
     String type;
+    Date synchronizedAt;
 
     public String getId() {
         return id;
@@ -88,6 +90,14 @@ public class Document implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Date getSynchronizedAt() {
+        return synchronizedAt;
+    }
+
+    public void setSynchronizedAt(Date synchronizedAt) {
+        this.synchronizedAt = synchronizedAt;
     }
 
     @Override

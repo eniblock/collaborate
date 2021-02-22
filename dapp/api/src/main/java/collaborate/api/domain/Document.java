@@ -1,9 +1,11 @@
 package collaborate.api.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.UUID;
 
 public class Document implements Serializable {
+    String id;
     String organizationId;
     String organizationName;
     Long datasourceId;
@@ -12,6 +14,15 @@ public class Document implements Serializable {
     String scope;
     UUID scopeId;
     String type;
+    Date synchronizedAt;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getOrganizationId() {
         return organizationId;
@@ -75,6 +86,14 @@ public class Document implements Serializable {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public Date getSynchronizedAt() {
+        return synchronizedAt;
+    }
+
+    public void setSynchronizedAt(Date synchronizedAt) {
+        this.synchronizedAt = synchronizedAt;
     }
 
     @Override

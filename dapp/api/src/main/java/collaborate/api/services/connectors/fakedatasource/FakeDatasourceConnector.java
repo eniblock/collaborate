@@ -54,6 +54,7 @@ public class FakeDatasourceConnector extends DatasourceConnector {
                 document.setScope(metadata.getScope());
                 document.setScopeId(UUID.nameUUIDFromBytes(metadata.getScope().getBytes()));
                 document.setType("metadata");
+                document.setSynchronizedAt(datasource.getSynchronizedAt());
 
                 System.out.println(document);
 
