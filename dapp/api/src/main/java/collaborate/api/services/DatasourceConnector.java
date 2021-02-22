@@ -47,4 +47,15 @@ public abstract class DatasourceConnector {
                 AccessTokenResponse.class
         );
     }
+
+    protected AccessTokenResponse getAccessToken(DatasourceClientSecret datasourceClientSecret, AuthorizationServerMetadata authorizationServerMetadata, String scope) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+        return restTemplate.postForObject(
+                authorizationServerMetadata.getTokenEndpoint(),
+                new HttpEntity<>(new ClientCredentialsHttpEntityBody(datasourceClientSecret, scope), headers),
+                AccessTokenResponse.class
+        );
+    }
 }

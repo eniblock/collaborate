@@ -43,7 +43,7 @@ public class ScopeRepositoryImpl implements ScopeRepository {
         AggregationResults<Scope> groupResults = mongoTemplate.aggregate(aggregation, "document", Scope.class);
 
         if (groupResults.getMappedResults().isEmpty()) {
-            new ResponseStatusException(HttpStatus.NOT_FOUND);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
         }
 
         return groupResults.getMappedResults().get(0);

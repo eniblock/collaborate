@@ -2,10 +2,7 @@ package collaborate.api.domain;
 
 import collaborate.api.domain.enumeration.AccessRequestStatus;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.sql.Timestamp;
 import java.util.UUID;
 
@@ -20,6 +17,8 @@ public class AccessRequest {
     private String requesterAddress;
     private String providerAddress;
     private Timestamp createdAt;
+
+    @Column(columnDefinition = "varchar(2048)")
     private String jwtToken;
 
     public UUID getId() {

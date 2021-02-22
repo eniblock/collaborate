@@ -93,9 +93,8 @@ public class TransactionsEventConsumerService {
         DatasourceClientSecret datasourceClientSecret = vaultKeyValueOperations.get("datasources/" + datasource.getId(), DatasourceClientSecret.class).getData();
 
         AuthorizationServerMetadata authorizationServerMetadata = connector.getAuthorizationServerMetadata(datasource);
-        authorizationServerMetadata.setScopesSupported(new String[]{ scope.getScope() });
 
-        AccessTokenResponse token = connector.getAccessToken(datasourceClientSecret, authorizationServerMetadata);
+        AccessTokenResponse token = connector.getAccessToken(datasourceClientSecret, authorizationServerMetadata, scope.getScope());
 
         try {
             // Begin to ciphered the token
