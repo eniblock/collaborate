@@ -5,6 +5,7 @@ import collaborate.api.domain.*;
 import collaborate.api.domain.enumeration.AccessRequestStatus;
 import collaborate.api.repository.AccessRequestRepository;
 import collaborate.api.repository.DatasourceRepository;
+import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.connectors.DatasourceConnectorFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +46,9 @@ public class TransactionsEventConsumerService {
     @Autowired
     private CipherService cipherService;
 
+    @Autowired
+    private ICatalogClient catalogClient;
+
     @RabbitListener(containerFactory = "tezos-api-gateway", bindings = @QueueBinding(
             value = @Queue(
                     name = "",
@@ -65,17 +69,24 @@ public class TransactionsEventConsumerService {
         RequestAccessValue value = (RequestAccessValue) message.getParameters().getValue();
         String providerAddress = value.getRequestAccess().getProviderAddress();
 
+        if (!providerAddress.equalsIgnoreCase(apiProperties.getOrganizationPublicKeyHash())) {
+            return;
+        }
+
+        // Find the datasource by id
         Long dataSourceId = value.getRequestAccess().getDatasourceId();
 
         Datasource datasource = datasourceRepository.findById(dataSourceId).orElseThrow(
             () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
         );
 
-        logger.info("Found data source: " + datasource.getId());
+        logger.info("Found data source: " + datasource.getName());
 
-        if (!providerAddress.equalsIgnoreCase(apiProperties.getOrganizationPublicKeyHash())) {
-            return;
-        }
+        // Find scope by id
+        UUID scopeId = value.getRequestAccess().getScopeId();
+        Scope scope = catalogClient.getScopeById(scopeId);
+
+        logger.info("Found scope: " + scope.getScope());
 
         DatasourceConnector connector = datasourceConnectorFactory.create(datasource);
 
@@ -83,7 +94,7 @@ public class TransactionsEventConsumerService {
 
         AuthorizationServerMetadata authorizationServerMetadata = connector.getAuthorizationServerMetadata(datasource);
 
-        AccessTokenResponse token = connector.getAccessToken(datasourceClientSecret, authorizationServerMetadata);
+        AccessTokenResponse token = connector.getAccessToken(datasourceClientSecret, authorizationServerMetadata, scope.getScope());
 
         try {
             // Begin to ciphered the token
@@ -92,7 +103,6 @@ public class TransactionsEventConsumerService {
             String publicKeyAsString = apiProperties.getOrganizations().get(requesterAddress).getPublicKey();
             PublicKey publicKey = CipherService.getKey(publicKeyAsString);
 
-            System.out.println("RAW TOKEN: " + token.getAccessToken());
             String cipheredToken = cipherService.cipher(token.getAccessToken(), publicKey);
 
             // Prepare the parameters for the grant access transaction

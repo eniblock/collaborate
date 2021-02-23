@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 
 @FeignClient(name = "catalog-client", url = "${api.catalog-api-url}", configuration = FeignCatalogConfiguration.class)
 public interface ICatalogClient {
@@ -29,4 +30,8 @@ public interface ICatalogClient {
     @Operation(description = "Get scopes")
     @GetMapping("scopes")
     List<Scope> getScopes();
+
+    @Operation(description = "Get scope by Id")
+    @GetMapping("scopes/{scopeId}")
+    Scope getScopeById(@PathVariable("scopeId") UUID scopeId);
 }

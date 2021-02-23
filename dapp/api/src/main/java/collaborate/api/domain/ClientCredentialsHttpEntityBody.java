@@ -9,4 +9,11 @@ public class ClientCredentialsHttpEntityBody extends LinkedMultiValueMap<String,
         this.add("client_id", datasourceClientSecret.getClientId());
         this.add("client_secret", datasourceClientSecret.getClientSecret());
     }
+
+    public ClientCredentialsHttpEntityBody(DatasourceClientSecret datasourceClientSecret, String scope) {
+        this.add("grant_type", GrantType.client_credentials.toString());
+        this.add("client_id", datasourceClientSecret.getClientId());
+        this.add("client_secret", datasourceClientSecret.getClientSecret());
+        this.add("scope", scope);
+    }
 }
