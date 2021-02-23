@@ -34,7 +34,7 @@ public class ScopeRepositoryImpl implements ScopeRepository {
         return groupResults.getMappedResults();
     }
 
-    public Scope findScope(String organizationId, Long datasourceId, UUID scopeId) {
+    public List<Scope> findScopes(String organizationId, Long datasourceId, UUID scopeId) {
         ProjectionOperation projectOperation = Aggregation.project("organizationId", "organizationName", "datasourceId", "scope", "scopeId");
         GroupOperation groupOperation = Aggregation.group("organizationId", "organizationName", "datasourceId", "scope", "scopeId");
 
@@ -46,9 +46,10 @@ public class ScopeRepositoryImpl implements ScopeRepository {
                 groupOperation,
                 projectOperation
         );
+
         AggregationResults<Scope> groupResults = mongoTemplate.aggregate(aggregation, "document", Scope.class);
 
-        return groupResults.getMappedResults().get(0);
+        return groupResults.getMappedResults();
     }
 
     @Override

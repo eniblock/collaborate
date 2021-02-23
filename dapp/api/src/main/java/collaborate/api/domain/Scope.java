@@ -75,7 +75,7 @@ public class Scope {
                     break;
             }
         } else {
-            this.setStatus(ScopeStatus.GRANTED);
+            this.setStatus(ScopeStatus.LOCKED);
         }
     }
 }
