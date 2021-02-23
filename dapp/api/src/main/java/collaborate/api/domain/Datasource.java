@@ -9,6 +9,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.net.URI;
+import java.util.Date;
 
 @Entity
 public class Datasource implements Serializable {
@@ -45,6 +46,8 @@ public class Datasource implements Serializable {
     private DatasourceStatus status = DatasourceStatus.CREATED;
 
     private Integer documentCount;
+
+    private Date synchronizedAt;
 
     public Long getId() {
         return id;
@@ -124,6 +127,14 @@ public class Datasource implements Serializable {
 
     public void setDocumentCount(Integer documentCount) {
         this.documentCount = documentCount;
+    }
+
+    public Date getSynchronizedAt() {
+        return synchronizedAt;
+    }
+
+    public void setSynchronizedAt(Date synchronizedAt) {
+        this.synchronizedAt = synchronizedAt;
     }
 
     @Override

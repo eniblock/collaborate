@@ -7,6 +7,8 @@ import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.UUID;
@@ -27,6 +29,24 @@ public class ScopeRepositoryImpl implements ScopeRepository {
         GroupOperation groupOperation = Aggregation.group("organizationId", "organizationName", "datasourceId", "scope", "scopeId");
 
         Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, projectOperation);
+        AggregationResults<Scope> groupResults = mongoTemplate.aggregate(aggregation, "document", Scope.class);
+
+        return groupResults.getMappedResults();
+    }
+
+    public List<Scope> findScopes(String organizationId, Long datasourceId, UUID scopeId) {
+        ProjectionOperation projectOperation = Aggregation.project("organizationId", "organizationName", "datasourceId", "scope", "scopeId");
+        GroupOperation groupOperation = Aggregation.group("organizationId", "organizationName", "datasourceId", "scope", "scopeId");
+
+        Aggregation aggregation = Aggregation.newAggregation(
+                Aggregation.match(Criteria.where("type").is("metadata")),
+                Aggregation.match(Criteria.where("organizationId").is(organizationId)),
+                Aggregation.match(Criteria.where("datasourceId").is(datasourceId)),
+                Aggregation.match(Criteria.where("scopeId").is(scopeId)),
+                groupOperation,
+                projectOperation
+        );
+
         AggregationResults<Scope> groupResults = mongoTemplate.aggregate(aggregation, "document", Scope.class);
 
         return groupResults.getMappedResults();

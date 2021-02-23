@@ -2,30 +2,24 @@ package collaborate.api.controller;
 
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.AccessRequest;
-import collaborate.api.domain.Organization;
 import collaborate.api.domain.Scope;
-import collaborate.api.domain.enumeration.ScopeStatus;
 import collaborate.api.repository.AccessRequestRepository;
 import collaborate.api.restclient.ICatalogClient;
+import collaborate.api.services.ScopeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Optional;
 
 import java.util.List;
+import java.util.UUID;
 
 @RestController
-@RequestMapping("scopes")
 public class ScopeController {
 
     private final String OPERATOR_AUTHORIZATION = "hasRole('service_provider_operator')";
@@ -39,7 +33,10 @@ public class ScopeController {
     @Autowired
     private ApiProperties apiProperties;
 
-    @GetMapping()
+    @Autowired
+    private ScopeService scopeService;
+
+    @GetMapping("scopes")
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
@@ -47,40 +44,23 @@ public class ScopeController {
     public HttpEntity<List<Scope>> list() {
         List<Scope> scopes = catalogClient.getScopes();
 
-        for (Scope s : scopes) {
-            Organization provider = apiProperties
-                    .findOrganizationWithOrganizationId(s.getOrganizationId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-            Organization requester = apiProperties.getOrganizations().get(apiProperties.getOrganizationPublicKeyHash());
-
-            AccessRequest accessRequest =
-                    accessRequestRepository
-                            .findFirstByProviderAddressAndRequesterAddressAndDatasourceIdAndScopeIdOrderByCreatedAtDesc(
-                                    provider.getPublicKeyHash(),
-                                    requester.getPublicKeyHash(),
-                                    s.getDatasourceId(),
-                                    s.getScopeId()
-                            );
-
-            if (accessRequest != null) {
-                switch (accessRequest.getStatus()) {
-                    case REQUESTED:
-                        s.setStatus(ScopeStatus.PENDING);
-                        break;
-                    case REVOKED:
-                    case REJECTED:
-                        s.setStatus(ScopeStatus.LOCKED);
-                        break;
-                    case GRANTED:
-                        s.setStatus(ScopeStatus.GRANTED);
-                        break;
-                }
-            } else {
-                s.setStatus(ScopeStatus.LOCKED);
-            }
+        for (Scope scope : scopes) {
+            scope.setStatusFromAccessRequest(scopeService.getAccessRequest(scope));
         }
 
         return ResponseEntity.ok(scopes);
+    }
+
+    @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}")
+    @Operation(
+            security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
+    )
+    @PreAuthorize(OPERATOR_AUTHORIZATION)
+    public HttpEntity<Scope> get(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @PathVariable("scopeId") UUID scopeId) {
+        Scope scope = catalogClient.getScope(organizationId, datasourceId, scopeId);
+
+        scope.setStatusFromAccessRequest(scopeService.getAccessRequest(scope));
+
+        return ResponseEntity.ok(scope);
     }
 }

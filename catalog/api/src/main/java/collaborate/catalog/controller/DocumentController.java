@@ -14,6 +14,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 public class DocumentController {
     @Autowired
@@ -51,6 +53,13 @@ public class DocumentController {
     @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/documents")
     public Page<Document> list(@AuthenticationPrincipal KeycloakPrincipal principal, @PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, Pageable pageable) {
         Page<Document> documentPage = documentRepository.findByOrganizationIdAndDatasourceId(organizationId, datasourceId, pageable);
+
+        return documentPage;
+    }
+
+    @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}/documents")
+    public Page<Document> listByScope(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @PathVariable("scopeId") UUID scopeId, Pageable pageable, @RequestParam(required = false) String q) {
+        Page<Document> documentPage = documentRepository.findByOrganizationIdAndDatasourceIdAndScopeIdAndTitleIgnoreCaseLike(organizationId, datasourceId, scopeId, pageable, q);
 
         return documentPage;
     }

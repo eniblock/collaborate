@@ -59,4 +59,23 @@ public class Scope {
     public void setStatus(ScopeStatus status) {
         this.status = status;
     }
+
+    public void setStatusFromAccessRequest(AccessRequest accessRequest) {
+        if (accessRequest != null) {
+            switch (accessRequest.getStatus()) {
+                case REQUESTED:
+                    this.setStatus(ScopeStatus.PENDING);
+                    break;
+                case REVOKED:
+                case REJECTED:
+                    this.setStatus(ScopeStatus.LOCKED);
+                    break;
+                case GRANTED:
+                    this.setStatus(ScopeStatus.GRANTED);
+                    break;
+            }
+        } else {
+            this.setStatus(ScopeStatus.LOCKED);
+        }
+    }
 }
