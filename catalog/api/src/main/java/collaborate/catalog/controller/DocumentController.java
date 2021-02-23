@@ -63,4 +63,11 @@ public class DocumentController {
 
         return documentPage;
     }
+
+    @GetMapping("documents")
+    public Page<Document> listAll(Pageable pageable, @RequestParam(required = false) String q) {
+        Page<Document> documentPage = documentRepository.findByTitleIgnoreCaseLike(pageable, q);
+
+        return documentPage;
+    }
 }

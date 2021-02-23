@@ -78,4 +78,16 @@ public class Scope {
             this.setStatus(ScopeStatus.LOCKED);
         }
     }
+
+    public static Scope createFromDocument(Document document) {
+        Scope scope = new Scope();
+
+        scope.setOrganizationId(document.getOrganizationId());
+        scope.setOrganizationName(document.getOrganizationName());
+        scope.setScope(document.getScope());
+        scope.setScopeId(document.getScopeId());
+        scope.setDatasourceId(document.getDatasourceId());
+
+        return scope;
+    }
 }

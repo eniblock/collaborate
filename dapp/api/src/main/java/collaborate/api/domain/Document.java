@@ -1,7 +1,10 @@
 package collaborate.api.domain;
 
+import collaborate.api.domain.enumeration.ScopeStatus;
+
 import java.io.Serializable;
 import java.util.Date;
+import java.util.Random;
 import java.util.UUID;
 
 public class Document implements Serializable {
@@ -15,6 +18,7 @@ public class Document implements Serializable {
     UUID scopeId;
     String type;
     Date synchronizedAt;
+    ScopeStatus status;
 
     public String getId() {
         return id;
@@ -96,10 +100,38 @@ public class Document implements Serializable {
         this.synchronizedAt = synchronizedAt;
     }
 
+    public ScopeStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(ScopeStatus status) {
+        this.status = status;
+    }
+
+    public void setStatusFromAccessRequest(AccessRequest accessRequest) {
+        if (accessRequest != null) {
+            switch (accessRequest.getStatus()) {
+                case REQUESTED:
+                    this.setStatus(ScopeStatus.PENDING);
+                    break;
+                case REVOKED:
+                case REJECTED:
+                    this.setStatus(ScopeStatus.LOCKED);
+                    break;
+                case GRANTED:
+                    this.setStatus(ScopeStatus.GRANTED);
+                    break;
+            }
+        } else {
+            this.setStatus(ScopeStatus.LOCKED);
+        }
+    }
+
     @Override
     public String toString() {
         return "Document{" +
-                "organizationId='" + organizationId + '\'' +
+                "id='" + id + '\'' +
+                ", organizationId='" + organizationId + '\'' +
                 ", organizationName='" + organizationName + '\'' +
                 ", datasourceId=" + datasourceId +
                 ", documentId='" + documentId + '\'' +
@@ -107,6 +139,8 @@ public class Document implements Serializable {
                 ", scope='" + scope + '\'' +
                 ", scopeId=" + scopeId +
                 ", type='" + type + '\'' +
+                ", synchronizedAt=" + synchronizedAt +
+                ", status=" + status +
                 '}';
     }
 }

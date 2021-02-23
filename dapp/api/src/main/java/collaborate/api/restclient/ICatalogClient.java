@@ -46,6 +46,13 @@ public interface ICatalogClient {
             @RequestParam(required = false) String q
     );
 
+    @Operation(description = "Get documents")
+    @GetMapping("documents")
+    Page<Document> getDocuments(
+            Pageable pageable,
+            @RequestParam(required = false) String q
+    );
+
     @Operation(description = "Get scope by Id")
     @GetMapping("scopes/{scopeId}")
     Scope getScopeById(@PathVariable("scopeId") UUID scopeId);

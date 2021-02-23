@@ -18,4 +18,6 @@ public interface DocumentRepository extends MongoRepository<Document, String>, S
     Document findOneByOrganizationIdAndDatasourceIdAndScopeId(String organizationId, Long datasourceId, UUID scopeId);
 
     Page<Document> findByOrganizationIdAndDatasourceIdAndScopeIdAndTitleIgnoreCaseLike(String organizationId, Long datasourceId, UUID scopeId, Pageable pageable, String q);
+
+    Page<Document> findByTitleIgnoreCaseLike(Pageable pageable, String q);
 }

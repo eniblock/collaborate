@@ -1,8 +1,11 @@
 package collaborate.api.controller;
 
 import collaborate.api.config.OpenApiConfig;
+import collaborate.api.domain.AccessRequest;
 import collaborate.api.domain.Document;
+import collaborate.api.domain.Scope;
 import collaborate.api.restclient.ICatalogClient;
+import collaborate.api.services.ScopeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +26,9 @@ public class DocumentController {
     @Autowired
     private ICatalogClient catalogClient;
 
+    @Autowired
+    private ScopeService scopeService;
+
     @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}/documents")
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
@@ -30,6 +36,24 @@ public class DocumentController {
     @PreAuthorize(OPERATOR_AUTHORIZATION)
     public HttpEntity<Page<Document>> listByScope(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @PathVariable("scopeId") UUID scopeId, Pageable pageable, @RequestParam(required = false) String q) {
         Page<Document> documents = catalogClient.getDocumentsByScope(organizationId, datasourceId, scopeId, pageable, q);
+
+        return ResponseEntity.ok(documents);
+    }
+
+    @GetMapping("documents")
+    @Operation(
+            security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
+    )
+    @PreAuthorize(OPERATOR_AUTHORIZATION)
+    public HttpEntity<Page<Document>> list(Pageable pageable, @RequestParam(required = false) String q) {
+        Page<Document> documents = catalogClient.getDocuments(pageable, q);
+
+        for (Document document : documents) {
+            Scope scope = Scope.createFromDocument(document);
+            AccessRequest accessRequest = scopeService.getAccessRequest(scope);
+
+            document.setStatusFromAccessRequest(accessRequest);
+        }
 
         return ResponseEntity.ok(documents);
     }
