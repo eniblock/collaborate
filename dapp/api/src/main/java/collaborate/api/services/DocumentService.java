@@ -41,6 +41,9 @@ public class DocumentService {
     public DownloadDocument downloadDocument(String documentId) throws Exception {
         Document document = catalogClient.getDocumentById(documentId);
 
+        if (document == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
         Scope scope = Scope.createFromDocument(document);
 
         System.out.println("SCOPE: " + scope.toString());

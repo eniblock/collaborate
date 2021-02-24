@@ -22,8 +22,11 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @RestController
 public class DocumentController {
@@ -88,8 +91,26 @@ public class DocumentController {
         downloadDocument.getFile().delete();
     }
 
-    @PostMapping("downloads")
-    public void downloadList(@RequestBody Document[] documents) {
+    @PostMapping(value = "/downloads", produces="application/zip")
+    public void downloadList(@RequestBody String[] documentIds, HttpServletResponse response) throws Exception {
 
+        response.setHeader("Content-Disposition", "attachment; filename=download.zip");
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+
+        ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
+        for (String documentId : documentIds) {
+            DownloadDocument downloadDocument = documentService.downloadDocument(documentId);
+            zipOutputStream.putNextEntry(new ZipEntry(downloadDocument.getFileName()));
+            FileInputStream fileInputStream = new FileInputStream(downloadDocument.getFile());
+
+            IOUtils.copy(fileInputStream, zipOutputStream);
+
+            fileInputStream.close();
+            zipOutputStream.closeEntry();
+
+            downloadDocument.getFile().delete();
+        }
+
+        zipOutputStream.close();
     }
 }
