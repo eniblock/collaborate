@@ -8,7 +8,10 @@ const keycloakCerts = require('get-keycloak-public-key');
 const kc = new keycloakCerts('http://datasource-iam:8080', 'datasource');
 const fs = require('fs');
 
-server.use(middlewares)
+const URL = process.env.WEB_URL || 'http://localhost';
+const PORT = parseInt(process.env.WEB_PORT || '3000', 10);
+
+server.use(middlewares);
 server.get('/metadata/:id/download', (req, res) => {
     var resource = router.db.get('metadata')
                      .find({ id: req.params.id })
@@ -23,7 +26,7 @@ server.get('/metadata/:id/download', (req, res) => {
     });
 })
 
-server.use(router)
+server.use(router);
 
 auth = async function (req, res, scope, next) {
     const authHeader = req.headers.authorization;
@@ -67,13 +70,13 @@ router.render = async function (req, res) {
 
     if (req.path == '/metadata') {
         var scope = "metadata";
-        var resource = new hal.Resource({}, req.path);
+        var resource = new hal.Resource({}, `${URL}:${PORT}${req.path}`);
         var rows = [];
 
         for (const row of res.locals.data) {
-            var embeddedResource = new hal.Resource(row, "/metadata/" + row.id);
+            var embeddedResource = new hal.Resource(row, `${URL}:${PORT}/metadata/${row.id}`);
 
-            embeddedResource.link('download', "/metadata/" + row.id + "/download");
+            embeddedResource.link('download', `${URL}:${PORT}/metadata/${row.id}/download`);
 
             rows.push(embeddedResource);
         }
@@ -84,9 +87,9 @@ router.render = async function (req, res) {
     if (req.route.path == '/:id') {
         var scope = res.locals.data.scope;
 
-        var resource = new hal.Resource(res.locals.data, req.path);
+        var resource = new hal.Resource(res.locals.data, `${URL}:${PORT}${req.path}`);
 
-        resource.link('download', "/metadata/" + res.locals.data.id + "/download");
+        resource.link('download', `${URL}:${PORT}/metadata/${res.locals.data.id}/download`);
     }
 
     auth(req, res, scope, function () {

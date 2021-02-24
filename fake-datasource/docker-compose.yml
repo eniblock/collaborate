@@ -41,8 +41,11 @@ services:
     image: $CI_REGISTRY_IMAGE/fake-datasource/datasource-api:$CI_COMMIT_REF_SLUG
     build: datasource-api
     restart: always
+    environment:
+      - WEB_URL=$URL_PEUGEOT
+      - WEB_PORT=$PORT_PEUGEOT
     ports:
-      - "3000:3000"
+      - "$PORT_PEUGEOT:3000"
     volumes:
       - ./datasource-api/db.json:/usr/src/app/db.json
       - ./datasource-api/server.js:/usr/src/app/server.js
@@ -53,8 +56,11 @@ services:
     image: $CI_REGISTRY_IMAGE/fake-datasource/datasource-api:$CI_COMMIT_REF_SLUG
     build: datasource-api
     restart: always
+    environment:
+      - WEB_URL=$URL_CITROEN
+      - WEB_PORT=$PORT_CITROEN
     ports:
-      - "3001:3000"
+      - "$PORT_CITROEN:3000"
     volumes:
       - ./datasource-api/db-citroen.json:/usr/src/app/db.json
       - ./datasource-api/server.js:/usr/src/app/server.js
