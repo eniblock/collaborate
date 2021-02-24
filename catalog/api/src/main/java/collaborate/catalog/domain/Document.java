@@ -3,6 +3,7 @@ package collaborate.catalog.domain;
 import org.springframework.data.annotation.Id;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
 
@@ -14,6 +15,7 @@ public class Document implements Serializable {
     String organizationName;
     Long datasourceId;
     String documentId;
+    URI documentURI;
     String title;
     String scope;
     UUID scopeId;
@@ -58,6 +60,14 @@ public class Document implements Serializable {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public URI getDocumentURI() {
+        return documentURI;
+    }
+
+    public void setDocumentURI(URI documentURI) {
+        this.documentURI = documentURI;
     }
 
     public String getTitle() {

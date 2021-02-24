@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.UUID;
 
@@ -69,5 +70,10 @@ public class DocumentController {
         Page<Document> documentPage = documentRepository.findByTitleIgnoreCaseLike(pageable, q);
 
         return documentPage;
+    }
+
+    @GetMapping("documents/{id}")
+    public Document getDocumentById(@PathVariable("id") String documentId) {
+        return documentRepository.findById(documentId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 }
