@@ -34,7 +34,7 @@ public class DocumentController {
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
     @PreAuthorize(OPERATOR_AUTHORIZATION)
-    public HttpEntity<Page<Document>> listByScope(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @PathVariable("scopeId") UUID scopeId, Pageable pageable, @RequestParam(required = false) String q) {
+    public HttpEntity<Page<Document>> listByScope(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @PathVariable("scopeId") UUID scopeId, Pageable pageable, @RequestParam(required = false, defaultValue = "") String q) {
         Page<Document> documents = catalogClient.getDocumentsByScope(organizationId, datasourceId, scopeId, pageable, q);
 
         return ResponseEntity.ok(documents);
@@ -45,7 +45,7 @@ public class DocumentController {
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
     @PreAuthorize(OPERATOR_AUTHORIZATION)
-    public HttpEntity<Page<Document>> list(Pageable pageable, @RequestParam(required = false) String q) {
+    public HttpEntity<Page<Document>> list(Pageable pageable, @RequestParam(required = false, defaultValue = "") String q) {
         Page<Document> documents = catalogClient.getDocuments(pageable, q);
 
         for (Document document : documents) {
