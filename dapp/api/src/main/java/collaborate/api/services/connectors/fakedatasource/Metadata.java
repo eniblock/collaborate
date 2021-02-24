@@ -22,11 +22,11 @@ public class Metadata {
         this.title = title;
     }
 
-    public Links get_links() {
+    public Links getLinks() {
         return _links;
     }
 
-    public void set_links(Links _links) {
+    public void setLinks(Links _links) {
         this._links = _links;
     }
 

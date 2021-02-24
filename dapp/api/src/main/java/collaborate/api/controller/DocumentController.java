@@ -4,20 +4,25 @@ import collaborate.api.config.OpenApiConfig;
 import collaborate.api.domain.AccessRequest;
 import collaborate.api.domain.Document;
 import collaborate.api.domain.Scope;
+import collaborate.api.domain.DownloadDocument;
 import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.ScopeService;
 import collaborate.api.services.DocumentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.File;
+import javax.servlet.http.HttpServletResponse;
+import java.io.FileInputStream;
+import java.io.OutputStream;
 import java.util.UUID;
 
 @RestController
@@ -63,9 +68,24 @@ public class DocumentController {
         return ResponseEntity.ok(documents);
     }
 
-    @PostMapping("documents/{id}/downloads")
-    public File download(@PathVariable("id") String id) throws Exception {
-        return documentService.downloadDocument(id);
+    @GetMapping("documents/{id}/downloads")
+    public void download(@PathVariable("id") String id, HttpServletResponse response) throws Exception {
+        DownloadDocument downloadDocument = documentService.downloadDocument(id);
+
+        FileInputStream in = new FileInputStream(downloadDocument.getFile());
+
+        response.setHeader("Content-Disposition", "attachment; filename="+ downloadDocument.getFileName());
+        response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+        response.setContentLengthLong(downloadDocument.getFile().length());
+
+        OutputStream out = response.getOutputStream();
+
+        // copy from in to out
+        IOUtils.copy(in,out);
+
+        out.close();
+        in.close();
+        downloadDocument.getFile().delete();
     }
 
     @PostMapping("downloads")

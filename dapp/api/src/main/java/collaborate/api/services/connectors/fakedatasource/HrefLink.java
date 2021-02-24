@@ -1,13 +1,15 @@
 package collaborate.api.services.connectors.fakedatasource;
 
-public class HrefLink {
-    private String href;
+import java.net.URI;
 
-    public String getHref() {
+public class HrefLink {
+    private URI href;
+
+    public URI getHref() {
         return href;
     }
 
-    public void setHref(String href) {
+    public void setHref(URI href) {
         this.href = href;
     }
 }
