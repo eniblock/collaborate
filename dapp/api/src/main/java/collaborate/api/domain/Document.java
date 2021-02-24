@@ -4,7 +4,6 @@ import collaborate.api.domain.enumeration.ScopeStatus;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.Random;
 import java.util.UUID;
 
 public class Document implements Serializable {

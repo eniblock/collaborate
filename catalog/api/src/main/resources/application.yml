@@ -12,7 +12,6 @@ spring:
       password: root
       database: catalog
 
-
 server:
   port: 7773
   error:
