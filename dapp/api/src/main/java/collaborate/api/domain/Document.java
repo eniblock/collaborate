@@ -3,6 +3,7 @@ package collaborate.api.domain;
 import collaborate.api.domain.enumeration.ScopeStatus;
 
 import java.io.Serializable;
+import java.net.URI;
 import java.util.Date;
 import java.util.UUID;
 
@@ -12,6 +13,7 @@ public class Document implements Serializable {
     String organizationName;
     Long datasourceId;
     String documentId;
+    URI documentUri;
     String title;
     String scope;
     UUID scopeId;
@@ -57,6 +59,14 @@ public class Document implements Serializable {
 
     public void setDocumentId(String documentId) {
         this.documentId = documentId;
+    }
+
+    public URI getDocumentUri() {
+        return documentUri;
+    }
+
+    public void setDocumentUri(URI documentUri) {
+        this.documentUri = documentUri;
     }
 
     public String getTitle() {
@@ -134,6 +144,7 @@ public class Document implements Serializable {
                 ", organizationName='" + organizationName + '\'' +
                 ", datasourceId=" + datasourceId +
                 ", documentId='" + documentId + '\'' +
+                ", documentUri=" + documentUri +
                 ", title='" + title + '\'' +
                 ", scope='" + scope + '\'' +
                 ", scopeId=" + scopeId +

@@ -15,7 +15,7 @@ public class Document implements Serializable {
     String organizationName;
     Long datasourceId;
     String documentId;
-    URI documentURI;
+    URI documentUri;
     String title;
     String scope;
     UUID scopeId;
@@ -62,12 +62,12 @@ public class Document implements Serializable {
         this.documentId = documentId;
     }
 
-    public URI getDocumentURI() {
-        return documentURI;
+    public URI getDocumentUri() {
+        return documentUri;
     }
 
-    public void setDocumentURI(URI documentURI) {
-        this.documentURI = documentURI;
+    public void setDocumentUri(URI documentUri) {
+        this.documentUri = documentUri;
     }
 
     public String getTitle() {
@@ -118,10 +118,12 @@ public class Document implements Serializable {
                 ", organizationName='" + organizationName + '\'' +
                 ", datasourceId=" + datasourceId +
                 ", documentId='" + documentId + '\'' +
+                ", documentUri=" + documentUri +
                 ", title='" + title + '\'' +
                 ", scope='" + scope + '\'' +
                 ", scopeId=" + scopeId +
                 ", type='" + type + '\'' +
+                ", synchronizedAt=" + synchronizedAt +
                 '}';
     }
 }

@@ -6,6 +6,7 @@ import collaborate.api.domain.Document;
 import collaborate.api.domain.Scope;
 import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.ScopeService;
+import collaborate.api.services.DocumentService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
 import java.util.UUID;
 
 @RestController
@@ -28,6 +30,9 @@ public class DocumentController {
 
     @Autowired
     private ScopeService scopeService;
+
+    @Autowired
+    private DocumentService documentService;
 
     @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}/documents")
     @Operation(
@@ -59,8 +64,8 @@ public class DocumentController {
     }
 
     @PostMapping("documents/{id}/downloads")
-    public void download(@PathVariable("id") String id) {
-
+    public File download(@PathVariable("id") String id) throws Exception {
+        return documentService.downloadDocument(id);
     }
 
     @PostMapping("downloads")
