@@ -58,8 +58,15 @@ public class DocumentController {
     }
 
     @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}/documents")
-    public Page<Document> listByScope(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @PathVariable("scopeId") UUID scopeId, Pageable pageable, @RequestParam(required = false) String q) {
+    public Page<Document> listByScope(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @PathVariable("scopeId") UUID scopeId, Pageable pageable, @RequestParam(required = false, defaultValue = "") String q) {
         Page<Document> documentPage = documentRepository.findByOrganizationIdAndDatasourceIdAndScopeIdAndTitleIgnoreCaseLike(organizationId, datasourceId, scopeId, pageable, q);
+
+        return documentPage;
+    }
+
+    @GetMapping("documents")
+    public Page<Document> listAll(Pageable pageable, @RequestParam(required = false, defaultValue = "") String q) {
+        Page<Document> documentPage = documentRepository.findByTitleIgnoreCaseLike(pageable, q);
 
         return documentPage;
     }

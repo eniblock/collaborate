@@ -4,6 +4,7 @@ import collaborate.api.config.FeignCatalogConfiguration;
 import collaborate.api.domain.Document;
 import collaborate.api.domain.Scope;
 import io.swagger.v3.oas.annotations.Operation;
+import org.springframework.cloud.openfeign.CollectionFormat;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,10 +39,19 @@ public interface ICatalogClient {
 
     @Operation(description = "Get documents by scope")
     @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}/documents")
+    @CollectionFormat(feign.CollectionFormat.CSV)
     Page<Document> getDocumentsByScope(
             @PathVariable("organizationId") String organizationId,
             @PathVariable("datasourceId") Long datasourceId,
             @PathVariable("scopeId") UUID scopeId,
+            Pageable pageable,
+            @RequestParam(required = false) String q
+    );
+
+    @Operation(description = "Get documents")
+    @GetMapping("documents")
+    @CollectionFormat(feign.CollectionFormat.CSV)
+    Page<Document> getDocuments(
             Pageable pageable,
             @RequestParam(required = false) String q
     );
