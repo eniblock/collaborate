@@ -4,6 +4,7 @@ public class Metadata {
     private String id;
     private String title;
     private String scope;
+    private Links _links;
 
     public String getId() {
         return id;
@@ -19,6 +20,14 @@ public class Metadata {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public Links get_links() {
+        return _links;
+    }
+
+    public void set_links(Links _links) {
+        this._links = _links;
     }
 
     public String getScope() {

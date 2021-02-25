@@ -16,7 +16,6 @@ import java.util.UUID;
 
 @Service
 public class FakeDatasourceConnector extends DatasourceConnector {
-
     public FakeDatasourceConnector(
             RestTemplate restTemplate,
             RabbitTemplate rabbitTemplate,
@@ -31,6 +30,7 @@ public class FakeDatasourceConnector extends DatasourceConnector {
         AccessTokenResponse accessTokenResponse = this.getAccessToken(datasourceClientSecret, authorizationServerMetadata);
 
         Traverson traverson = new Traverson(datasource.getApiURI(), MediaTypes.HAL_JSON);
+
 
         Traverson.TraversalBuilder builder = traverson
                 .follow()
@@ -49,14 +49,15 @@ public class FakeDatasourceConnector extends DatasourceConnector {
                 document.setOrganizationId(this.apiProperties.getOrganizationId());
                 document.setOrganizationName(this.apiProperties.getOrganizationName());
                 document.setDatasourceId(datasource.getId());
+
                 document.setDocumentId(metadata.getId());
+                document.setDocumentUri(metadata.get_links().getDownload().getHref());
+
                 document.setTitle(metadata.getTitle());
                 document.setScope(metadata.getScope());
                 document.setScopeId(UUID.nameUUIDFromBytes(metadata.getScope().getBytes()));
                 document.setType("metadata");
                 document.setSynchronizedAt(datasource.getSynchronizedAt());
-
-                System.out.println(document);
 
                 catalogClient.add(document.getOrganizationId(), document.getDatasourceId(), document);
                 documentCount++;

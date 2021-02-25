@@ -90,4 +90,16 @@ public class Scope {
 
         return scope;
     }
+
+    @Override
+    public String toString() {
+        return "Scope{" +
+                "organizationId='" + organizationId + '\'' +
+                ", organizationName='" + organizationName + '\'' +
+                ", datasourceId=" + datasourceId +
+                ", scope='" + scope + '\'' +
+                ", scopeId=" + scopeId +
+                ", status=" + status +
+                '}';
+    }
 }

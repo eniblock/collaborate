@@ -29,6 +29,11 @@ public interface ICatalogClient {
     @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/documents")
     Page<Document> get(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId);
 
+    @Operation(description = "Get document by id")
+    @GetMapping("documents/{id}")
+    Document getDocumentById(@PathVariable("id") String documentId);
+
+
     @Operation(description = "Get scopes")
     @GetMapping("scopes")
     List<Scope> getScopes();
