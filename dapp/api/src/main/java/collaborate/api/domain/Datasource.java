@@ -45,7 +45,7 @@ public class Datasource implements Serializable {
     @Enumerated(EnumType.STRING)
     private DatasourceStatus status = DatasourceStatus.CREATED;
 
-    private Integer documentCount;
+    private Integer documentCount = 0;
 
     private Date synchronizedAt;
 
