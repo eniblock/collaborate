@@ -50,7 +50,8 @@ public class FakeDatasourceConnector extends DatasourceConnector {
                 document.setOrganizationName(this.apiProperties.getOrganizationName());
                 document.setDatasourceId(datasource.getId());
 
-                document.setDocumentUri(metadata.getLinks().getDownload().getHref());
+                document.setDocumentId(metadata.getId());
+                document.setDocumentUri(metadata.get_links().getDownload().getHref());
 
                 document.setTitle(metadata.getTitle());
                 document.setScope(metadata.getScope());
