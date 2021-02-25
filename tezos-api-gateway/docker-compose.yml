@@ -55,6 +55,7 @@ services:
       PORT: 3333
       AMQP_URL: amqp://rabbitmq
       VAULT_URL: http://vault:8200/v1/
+      NUMBER_OF_OPERATION_CONFIRMATION: 1
       VAULT_TOKEN: myroot
       DB_HOST: postgres
     command: 'node build/src/processes/workers/check-operation-status/index.js'
