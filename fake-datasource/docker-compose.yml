@@ -67,6 +67,21 @@ services:
     networks:
       - datasource
 
+  datasource-api-mobivia:
+    image: $CI_REGISTRY_IMAGE/fake-datasource/datasource-api:$CI_COMMIT_REF_SLUG
+    build: datasource-api
+    restart: always
+    environment:
+      - WEB_URL=$URL_MOBIVIA
+      - WEB_PORT=$PORT_MOBIVIA
+    ports:
+      - "$PORT_MOBIVIA:3000"
+    volumes:
+      - ./datasource-api/db-mobivia.json:/usr/src/app/db.json
+      - ./datasource-api/server.js:/usr/src/app/server.js
+    networks:
+      - datasource
+
 networks:
   datasource:
 

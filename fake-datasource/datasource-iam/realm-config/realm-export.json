@@ -411,7 +411,10 @@
         "maintenance-plans-Citroen-C2",
         "maintenance-plans-Citroen-C3",
         "maintenance-plans-Citroen-C4",
-        "maintenance-plans-Citroen-DS7"
+        "maintenance-plans-Citroen-DS7",
+        "referentials",
+        "workshop-analytics",
+        "customers-analytics"
       ]
     },
     {
@@ -1237,6 +1240,33 @@
     {
       "id": "1da0705b-9c8d-4425-a4c8-8b76405c5cbc",
       "name": "maintenance-plans-Citroen-DS7",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "a87b0f39-c9ec-401f-a11d-6a93b15cadc7",
+      "name": "referentials",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "559e88c2-8028-4122-ac20-b7f1e57a80bc",
+      "name": "workshop-analytics",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "true",
+        "display.on.consent.screen": "true"
+      }
+    },
+    {
+      "id": "76045f13-b0cb-4505-847d-10f23a95fb79",
+      "name": "customers-analytics",
       "protocol": "openid-connect",
       "attributes": {
         "include.in.token.scope": "true",
