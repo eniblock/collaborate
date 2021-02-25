@@ -1,0 +1,54 @@
+{
+  "metadata": [
+    {
+      "id": "mobivia1",
+      "title": "Centres Auto Norauto ouverts",
+      "scope": "referentials"
+    },
+    {
+      "id": "mobivia2",
+      "title": "Nombre de kilométrages saisis en atelier (par mois)",
+      "scope": "workshop-analytics"
+    },
+    {
+      "id": "mobivia3",
+      "title": "Part des clients identifiés sur les tickets (par mois)",
+      "scope": "customers-analytics"
+    },
+    {
+      "id": "mobivia4",
+      "title": "Données démographiques des clients Norauto",
+      "scope": "customers-analytics"
+    },
+    {
+      "id": "mobivia5",
+      "title": "Données démographiques des automobilistes chez Norauto (par constructeur)",
+      "scope": "customers-analytics"
+    },
+    {
+      "id": "mobivia6",
+      "title": "Contactabilité des clients Norauto (à date)",
+      "scope": "customers-analytics"
+    },
+    {
+      "id": "mobivia7",
+      "title": "Prestations atelier (quote part / mois)",
+      "scope": "workshop-analytics"
+    },
+    {
+      "id": "mobivia8",
+      "title": "Estimation kilométrage moyen parcouru (région / année)",
+      "scope": "workshop-analytics"
+    },
+    {
+      "id": "mobivia9",
+      "title": "Parc entrant (Age/Marque/modele/cylindrée) 2020",
+      "scope": "workshop-analytics"
+    },
+    {
+      "id": "mobivia10",
+      "title": "Univers produits (1er niveau du référentiel)",
+      "scope": "referentials"
+    }
+  ]
+}

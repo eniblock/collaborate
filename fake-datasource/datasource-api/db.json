@@ -1,57 +1,57 @@
 {
   "metadata": [
     {
-      "id": "1",
+      "id": "peugeot1",
       "title": "Maintenance Plan 2009",
       "scope": "maintenance-plans-Peugeot-3008"
     },
     {
-      "id": "2",
+      "id": "peugeot2",
       "title": "Maintenance Plan 2016",
       "scope": "maintenance-plans-Peugeot-3008"
     },
     {
-      "id": "3",
+      "id": "peugeot3",
       "title": "Maintenance Plan 1_2 THP",
       "scope": "maintenance-plans-Peugeot-5008"
     },
     {
-      "id": "4",
+      "id": "peugeot4",
       "title": "Maintenance Plan 1_6 THP",
       "scope": "maintenance-plans-Peugeot-5008"
     },
     {
-      "id": "5",
+      "id": "peugeot5",
       "title": "Maintenance Plan 1_6 VTi",
       "scope": "maintenance-plans-Peugeot-5008"
     },
     {
-      "id": "6",
+      "id": "peugeot6",
       "title": "Maintenance Plan 1_6 THP EAT6",
       "scope": "maintenance-plans-Peugeot-5008"
     },
     {
-      "id": "7",
+      "id": "peugeot7",
       "title": "Maintenance Plan 1_6 HDi FAP",
       "scope": "maintenance-plans-Peugeot-5008"
     },
     {
-      "id": "8",
+      "id": "peugeot8",
       "title": "Maintenance Plan 1_6 THP",
       "scope": "maintenance-plans-Peugeot-208"
     },
     {
-      "id": "9",
+      "id": "peugeot9",
       "title": "Maintenance Plan 1_6 BlueHDi",
       "scope": "maintenance-plans-Peugeot-208"
     },
     {
-      "id": "10",
+      "id": "peugeot10",
       "title": "Maintenance Plan 1_0 VTi",
       "scope": "maintenance-plans-Peugeot-108"
     },
     {
-      "id": "11",
+      "id": "peugeot11",
       "title": "Maintenance Plan 1_5 BlueHDi",
       "scope": "maintenance-plans-Peugeot-308"
     }
