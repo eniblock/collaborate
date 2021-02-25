@@ -148,7 +148,7 @@ public class DatasourceService {
         }
     }
 
-    @Scheduled(cron = "*/10 * * * * *")
+    @Scheduled(cron = "*/5 * * * * *")
     public void updateStatus() {
         List<Datasource> datasources = datasourceRepository.findByStatus(DatasourceStatus.SYNCHRONIZING);
 
