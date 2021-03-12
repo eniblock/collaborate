@@ -1,0 +1,96 @@
+api:
+  image:
+    repository: "k3d-registry.localhost:5000/collaborate/catalog/api"
+
+  rabbitmq:
+    auth:
+      password: randompwd
+
+  mongodb:
+    auth:
+      password: root
+
+iam:
+  image:
+    repository: "k3d-registry.localhost:5000/collaborate/catalog/iam"
+
+iam-db:
+  postgresqlPassword: randompwd
+
+rabbitmq:
+  ingress:
+    hostname: rabbitmq.catalog.collaborate.localhost
+    annotations:
+      cert-manager.io/common-name: rabbitmq.catalog.collaborate.localhost
+  auth:
+    password: randompwd
+
+mongodb:
+  auth:
+    password: root
+
+tezos-api-gateway:
+  image:
+    repository: "k3d-registry.localhost:5000/tezos-api-gateway"
+
+  db:
+    postgresqlPassword: randompwd
+
+  rabbitmq:
+    ingress:
+      hostname: rabbitmq.tezos-api-gateway.localhost
+      annotations:
+        cert-manager.io/common-name: rabbitmq.tezos-api-gateway.localhost
+    auth:
+      password: randompwd
+      tls:
+        existingSecret: rabbitmq.tezos-api-gateway.localhost-tls
+        sslOptionsVerify: verify_none
+
+  vault:
+    server:
+      dev:
+        enabled: true
+        devRootToken: myroot
+
+  api:
+    ingress:
+      annotations:
+        cert-manager.io/common-name: tezos-api-gateway.localhost
+      hosts:
+        - host: tezos-api-gateway.localhost
+          paths:
+            - path: "/"
+      tls:
+        - secretName: tezos-api-gateway.localhost-tls
+          hosts:
+            - tezos-api-gateway.localhost
+
+    rabbitmq:
+      auth:
+        password: randompwd
+
+    vault:
+      server:
+        dev:
+          devRootToken: myroot
+
+  checkOperationStatusWorker:
+    rabbitmq:
+      auth:
+        password: randompwd
+
+    vault:
+      server:
+        dev:
+          devRootToken: myroot
+
+  sendTransactionsWorker:
+    rabbitmq:
+      auth:
+        password: randompwd
+
+    vault:
+      server:
+        dev:
+          devRootToken: myroot

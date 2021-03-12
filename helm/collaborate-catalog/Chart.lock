@@ -1,0 +1,15 @@
+dependencies:
+- name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.2.5
+- name: rabbitmq
+  repository: https://charts.bitnami.com/bitnami
+  version: 8.8.0
+- name: mongodb
+  repository: https://charts.bitnami.com/bitnami
+  version: 10.10.0
+- name: tezos-api-gateway
+  repository: oci://registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/tezos-api-gateway/helm
+  version: 0.1.0
+digest: sha256:d4ae40698da4bcb9fcb38cc98be4c92a2c8e7ca706074af4582586994a761ed4
+generated: "2021-03-10T14:04:07.93041102+01:00"

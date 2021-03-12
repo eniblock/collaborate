@@ -16,8 +16,6 @@ server:
   port: 7773
   error:
     include-message: always
-  servlet:
-    context-path: /api/v1
 
 keycloak:
   auth-server-url: http://localhost:10080/auth
@@ -27,3 +25,12 @@ keycloak:
   bearer-only: true
   disable-trust-manager: true
   ssl-required: none
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  health:
+    probes:
+      enabled: true
