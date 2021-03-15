@@ -31,8 +31,9 @@ helm install \
   --set installCRDs=true
 ```
 
+Create gitlab registry secret
 ```shell script
-helm registry login registry.gitlab.com
+kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
 ```
 
 ```shell script
@@ -41,4 +42,8 @@ export HELM_EXPERIMENTAL_OCI=1
 
 ```shell script
 helm install collaborate-catalog ./helm/collaborate-catalog --values ./helm/collaborate-catalog/values-dev.yaml
+```
+
+```shell script
+helm install tezos-api-gateway ./helm/tezos-api-gateway --values ./helm/collaborate-catalog/values-dev.yaml
 ```
