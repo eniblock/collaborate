@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+global:
+  iam: {}
+
 nameOverride: ""
 fullnameOverride: ""
 
@@ -181,15 +184,6 @@ iam:
     postgresqlUsername: iam_db_user
 
   username: kcadmin
-  password: kcadmin
-
-  smtp:
-    host: maildev
-    auth: false
-    ssl: false
-
-  clientSecretPsa: 57936b16-2f90-434a-9eb4-843668a3a521
-  clientSecretMobivia: df6935e3-2816-4d02-9d65-16cd28b8adbe
 
 iam-db:
   postgresqlDatabase: iam
@@ -219,7 +213,6 @@ mongodb:
     enabled: true
     database: catalog
     username: root
-    rootPassword: root
   persistence:
     enabled: true
     size: 1Gi

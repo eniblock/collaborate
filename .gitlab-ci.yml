@@ -46,15 +46,46 @@ publish_docker_catalog_api:
   variables:
     CONTAINER_PATH: catalog/api
 
-publish_helm_catalog:
+publish_docker_catalog_iam:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: catalog/iam
+
+publish_docker_dapp_api:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: dapp/api
+
+publish_docker_dapp_iam:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: dapp/iam
+
+publish_docker_fake_datasource_api:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: fake-datasource/datasource-api
+
+publish_docker_fake_datasource_iam:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: fake-datasource/datasource-iam
+
+.publish_helm:
   stage: publish
   image:
     name: alpine/helm:3.5.2
     entrypoint: ["/bin/sh", "-c"]
   variables:
     HELM_EXPERIMENTAL_OCI: 1
-    HELM_IMAGE: $CI_REGISTRY_IMAGE/helm/collaborate-catalog:0.1.0
+    HELM_IMAGE: $CI_REGISTRY_IMAGE/$HELM_PATH:$HELM_VERSION
   script:
     - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - helm chart save ./helm/collaborate-catalog $HELM_IMAGE
     - helm chart push $HELM_IMAGE
+
+publish_helm_catalog:
+  extends: .publish_helm
+  variables:
+    HELM_PATH: /helm/collaborate-catalog
+    HELM_VERSION: 0.1.0

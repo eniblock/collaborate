@@ -40,7 +40,10 @@ spec:
             - name: KEYCLOAK_USER
               value: {{ .Values.iam.username | quote }}
             - name: KEYCLOAK_PASSWORD
-              value: {{ .Values.iam.password | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-iam"
+                  key: iam-password
             - name: DB_ADDR
               value: "{{ .Release.Name }}-{{ .Values.iam.postgresql.name }}"
             - name: DB_DATABASE
@@ -64,12 +67,21 @@ spec:
             - name: SMTP_USER
               value: {{ .Values.iam.smtp.username | quote }}
             - name: SMTP_PASSWORD
-              value: {{ .Values.iam.smtp.password | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-iam"
+                  key: smtp-password
             {{ end }}
             - name: CLIENT_SECRET_PSA
-              value: {{ .Values.iam.clientSecretPsa | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-iam"
+                  key: client-secret-psa
             - name: CLIENT_SECRET_MOBIVIA
-              value: {{ .Values.iam.clientSecretMobivia | quote }}
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-iam"
+                  key: client-secret-mobivia
           ports:
             - name: http
               containerPort: 8080
@@ -77,14 +89,6 @@ spec:
             - name: https
               containerPort: 8443
               protocol: TCP
-#          livenessProbe:
-#            httpGet:
-#              path: /actuator/prometheus
-#              port: http
-#          readinessProbe:
-#            httpGet:
-#              path: /actuator/prometheus
-#              port: http
           resources:
             {{- toYaml .Values.iam.resources | nindent 12 }}
       {{- with .Values.iam.nodeSelector }}
