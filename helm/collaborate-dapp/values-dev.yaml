@@ -1,0 +1,27 @@
+image:
+  repository: "k3d-registry.localhost:5000/collaborate-dapp"
+
+iam-db:
+  postgresqlPassword: randompwd
+
+postgresql:
+  postgresqlPassword: randompwd
+
+rabbitmq:
+  ingress:
+    hostname: rabbitmq.dapp.collaborate.localhost
+    annotations:
+      cert-manager.io/common-name: rabbitmq.dapp.collaborate.localhost
+  auth:
+    password: randompwd
+
+vault:
+  server:
+    debug: true
+
+    dev:
+      enabled: true
+      devRootToken: "myroot"
+
+    standalone:
+      enabled: false
