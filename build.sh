@@ -7,3 +7,9 @@ docker push k3d-registry.localhost:5000/collaborate/catalog/api:0.1.0
 
 docker build -t k3d-registry.localhost:5000/collaborate/catalog/iam:0.1.0 catalog/iam
 docker push k3d-registry.localhost:5000/collaborate/catalog/iam:0.1.0
+
+docker build -t k3d-registry.localhost:5000/collaborate/dapp/api:0.1.0 dapp/api
+docker push k3d-registry.localhost:5000/collaborate/dapp/api:0.1.0
+
+docker build -t k3d-registry.localhost:5000/collaborate/dapp/iam:0.1.0 dapp/iam
+docker push k3d-registry.localhost:5000/collaborate/dapp/iam:0.1.0

@@ -32,7 +32,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("datasources")
+@RequestMapping("/api/v1")
 public class DatasourceController {
 
     Logger logger = LoggerFactory.getLogger(DatasourceController.class);
@@ -50,7 +50,7 @@ public class DatasourceController {
 
     private static final ModelMapper modelMapper = new ModelMapper();
 
-    @GetMapping()
+    @GetMapping("datasources")
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
@@ -60,7 +60,7 @@ public class DatasourceController {
         return ResponseEntity.ok(datasourcePage);
     }
 
-    @PostMapping()
+    @PostMapping("datasources")
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
@@ -86,7 +86,7 @@ public class DatasourceController {
         return ResponseEntity.created(link.toUri()).build();
     }
 
-    @GetMapping("{id}")
+    @GetMapping("datasources/{id}")
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )

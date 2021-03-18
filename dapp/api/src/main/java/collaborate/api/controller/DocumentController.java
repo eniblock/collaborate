@@ -28,6 +28,7 @@ import java.io.OutputStream;
 import java.util.UUID;
 
 @RestController
+@RequestMapping("/api/v1")
 public class DocumentController {
 
     private final String OPERATOR_AUTHORIZATION = "hasRole('service_provider_operator')";

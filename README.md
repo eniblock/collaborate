@@ -45,5 +45,9 @@ helm install collaborate-catalog ./helm/collaborate-catalog --values ./helm/coll
 ```
 
 ```shell script
-helm install tezos-api-gateway ./helm/tezos-api-gateway --values ./helm/collaborate-catalog/values-dev.yaml
+helm install tezos-api-gateway ./helm/tezos-api-gateway --values ./helm/tezos-api-gateway/values-dev.yaml
+```
+
+```shell script
+helm install collaborate-dapp ./helm/collaborate-dapp --values ./helm/collaborate-dapp/values-dev.yaml
 ```

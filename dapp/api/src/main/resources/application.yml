@@ -71,8 +71,6 @@ server:
   port: 7772
   error:
     include-message: always
-  servlet:
-    context-path: /api/v1
 
 keycloak-admin-client-properties:
   base-url: http://localhost:8080/auth
@@ -108,3 +106,12 @@ feign:
     disableSslValidation: true
     enabled: false
   okhttp.enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  health:
+    probes:
+      enabled: true

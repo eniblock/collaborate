@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "collaborate-dapp.fullname" . }}-api
+  labels:
+    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  {{- if not .Values.api.autoscaling.enabled }}
+  replicas: {{ .Values.api.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      {{- with .Values.api.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "collaborate-dapp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+    spec:
+      {{- with .Values.api.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: collaborate-dapp-api
+      securityContext:
+        {{- toYaml .Values.api.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.api.securityContext | nindent 12 }}
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          env:
+            - name: API_PLATFORM
+              value: {{ .Values.api.platform | quote }}
+            - name: API_ORGANIZATION_ID
+              value: {{ .Values.api.organizationId | quote }}
+            - name: API_ORGANIZATION_NAME
+              value: {{ .Values.api.organizationName | quote }}
+            - name: API_ORGANIZATION_PRIVATE_KEY
+              value: {{ .Values.api.organizationPrivateKey | quote }}
+            - name: API_ORGANIZATION_PUBLIC_KEY_HASH
+              value: {{ .Values.api.organizationPublicKeyHash | quote }}
+            - name: API_CONTRACT_ADDRESS
+              value: {{ .Values.api.contractAddress | quote }}
+            {{- range $id, $organization := .Values.api.organizations }}
+            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_ID
+              value: {{ $id | quote }}
+            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_NAME
+              value: {{ $organization.name | quote }}
+            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_PUBLIC_KEY_HASH
+              value: {{ $organization.publicKeyHash | quote }}
+            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_PUBLIC_KEY
+              value: {{ $organization.publicKey | quote }}
+            {{- end }}
+            - name: API_CATALOG_API_URL
+              value: {{ .Values.api.catalogApiUrl | quote }}
+            - name: API_TEZOS_API_GATEWAY_URL
+              value: {{ .Values.api.tezosApiGatewayUrl | quote }}
+            - name: SPRING_RABBITMQ_HOST
+              value: "{{ .Release.Name }}-{{ .Values.api.rabbitmq.name }}"
+            - name: SPRING_RABBITMQ_PORT
+              value: {{ .Values.api.rabbitmq.port | quote }}
+            - name: SPRING_RABBITMQ_USERNAME
+              value: {{ .Values.api.rabbitmq.auth.username | quote }}
+            - name: SPRING_RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-{{ .Values.api.rabbitmq.name }}"
+                  key: rabbitmq-password
+            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_HOST
+              value: {{ .Values.api.multirabbitmq.tezosApiGateway.host | quote }}
+            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_PORT
+              value: {{ .Values.api.multirabbitmq.tezosApiGateway.port | quote }}
+            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_USERNAME
+              value: {{ .Values.api.multirabbitmq.tezosApiGateway.auth.username | quote }}
+            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_PASSWORD
+              value: {{ .Values.api.multirabbitmq.tezosApiGateway.auth.password | quote }}
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://{{ .Release.Name }}-{{ .Values.api.postgresql.name }}:5432/{{ .Values.api.postgresql.postgresqlDatabase }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: {{ .Values.api.postgresql.postgresqlUsername | quote }}
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-{{ .Values.api.postgresql.name }}"
+                  key: postgresql-password
+            - name: SPRING_CLOUD_VAULT_URI
+              value: "http://{{ .Release.Name }}-{{ .Values.api.vault.name }}:{{ .Values.api.vault.port }}"
+            - name: SPRING_CLOUD_VAULT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-{{ .Values.api.vault.name }}"
+                  key: vault-app-token
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CATALOG_CLIENT_ID
+              value: {{ .Values.api.iam.catalog.clientId | quote }}
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CATALOG_CLIENT_SECRET
+              value: {{ .Values.api.iam.catalog.clientSecret | quote }}
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_CATALOG_AUTHORIZATION_URI
+              value: "{{ .Values.api.iam.catalog.uri }}/auth/realms/catalog/protocol/openid-connect/auth"
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_CATALOG_TOKEN_URI
+              value: "{{ .Values.api.iam.catalog.uri }}/auth/realms/catalog/protocol/openid-connect/token"
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_COLLABORATE_CLIENT_ID
+              value: {{ .Values.api.iam.collaborate.clientId | quote }}
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_COLLABORATE_CLIENT_SECRET
+              value: {{ .Values.api.iam.collaborate.clientSecret | quote }}
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COLLABORATE_AUTHORIZATION_URI
+              value: "{{ .Values.api.iam.collaborate.uri }}/auth/realms/collaborate/protocol/openid-connect/auth"
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COLLABORATE_TOKEN_URI
+              value: "{{ .Values.api.iam.collaborate.uri }}/auth/realms/collaborate/protocol/openid-connect/token"
+            - name: KEYCLOAK_ADMIN_CLIENT_PROPERTIES_BASE_URL
+              value: "{{ .Values.api.iam.collaborate.uri }}/auth"
+            - name: KEYCLOAK_ADMIN_CLIENT_PROPERTIES_CLIENT_ID
+              value: {{ .Values.api.iam.collaborate.clientId | quote }}
+            - name: KEYCLOAK_ADMIN_CLIENT_PROPERTIES_CLIENT_SECRET
+              value: {{ .Values.api.iam.collaborate.clientSecret | quote }}
+            - name: KEYCLOAK_AUTH_SERVER_URL
+              value: "{{ .Values.api.iam.collaborate.uri }}/auth"
+            - name: KEYCLOAK_RESOURCE
+              value: {{ .Values.api.iam.collaborate.clientId | quote }}
+            - name: SPRINGDOC_SWAGGER_UI_OAUTH_CLIENT_ID
+              value: {{ .Values.api.iam.collaborate.clientId | quote }}
+            - name: SPRINGDOC_OAUTHFLOW_AUTHORIZATION_URL
+              value: "{{ .Values.api.iam.collaborate.uri }}/auth/realms/collaborate/protocol/openid-connect/auth"
+            - name: SPRINGDOC_OAUTHFLOW_TOKEN_URL
+              value: "{{ .Values.api.iam.collaborate.uri }}/auth/realms/collaborate/protocol/openid-connect/token"
+          ports:
+            - name: http
+              containerPort: 7772
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+      {{- with .Values.api.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.api.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.api.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

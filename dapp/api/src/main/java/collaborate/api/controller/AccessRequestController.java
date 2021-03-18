@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("access-requests")
+@RequestMapping("/api/v1")
 public class AccessRequestController {
     private final String OPERATOR_AUTHORIZATION = "hasRole('service_provider_operator')";
 
@@ -32,7 +32,7 @@ public class AccessRequestController {
     @Autowired
     private AccessRequestService accessRequestService;
 
-    @PostMapping()
+    @PostMapping("access-requests")
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
