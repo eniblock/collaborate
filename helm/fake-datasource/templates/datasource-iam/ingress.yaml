@@ -1,0 +1,41 @@
+{{- if .Values.datasourceIam.ingress.enabled -}}
+{{- $fullName := include "fake-datasource.fullname" . -}}
+{{- $svcPort := .Values.datasourceIam.service.port -}}
+{{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
+apiVersion: extensions/v1beta1
+{{- end }}
+kind: Ingress
+metadata:
+  name: {{ $fullName }}-datasource-iam
+  labels:
+    {{- include "fake-datasource.labels" . | nindent 4 }}
+  {{- with .Values.datasourceIam.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.datasourceIam.ingress.tls }}
+  tls:
+    {{- range .Values.datasourceIam.ingress.tls }}
+    - hosts:
+        {{- range .hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .secretName }}
+    {{- end }}
+  {{- end }}
+  rules:
+    {{- range .Values.datasourceIam.ingress.hosts }}
+    - host: {{ .host | quote }}
+      http:
+        paths:
+          {{- range .paths }}
+          - path: {{ .path }}
+            backend:
+              serviceName: {{ $fullName }}-datasource-iam
+              servicePort: {{ $svcPort }}
+          {{- end }}
+    {{- end }}
+  {{- end }}

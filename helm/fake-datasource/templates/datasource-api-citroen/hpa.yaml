@@ -1,0 +1,28 @@
+{{- if .Values.datasourceApiCitroen.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "fake-datasource.fullname" . }}-datasource-api-citroen
+  labels:
+    {{- include "fake-datasource.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "fake-datasource.fullname" . }}-datasource-api-citroen
+  minReplicas: {{ .Values.datasourceApiCitroen.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.datasourceApiCitroen.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.datasourceApiCitroen.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.datasourceApiCitroen.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.datasourceApiCitroen.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.datasourceApiCitroen.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

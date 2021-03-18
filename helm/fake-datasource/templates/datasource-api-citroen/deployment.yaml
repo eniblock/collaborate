@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fake-datasource.fullname" . }}-datasource-api-citroen
+  labels:
+    {{- include "fake-datasource.labels" . | nindent 4 }}
+    app.kubernetes.io/component: datasource-api-citroen
+spec:
+  {{- if not .Values.datasourceApiCitroen.autoscaling.enabled }}
+  replicas: {{ .Values.datasourceApiCitroen.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "fake-datasource.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: datasource-api-citroen
+  template:
+    metadata:
+      {{- with .Values.datasourceApiCitroen.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "fake-datasource.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: datasource-api-citroen
+    spec:
+      {{- with .Values.datasourceApiCitroen.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: fake-datasource-datasource-api-citroen
+      securityContext:
+        {{- toYaml .Values.datasourceApiCitroen.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.datasourceApiCitroen.securityContext | nindent 12 }}
+          image: "{{ .Values.datasourceApiCitroen.image.repository }}:{{ .Values.datasourceApiCitroen.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.datasourceApiCitroen.image.pullPolicy }}
+          env:
+            - name: WEB_URL
+              value: {{ .Values.datasourceApiCitroen.url | quote }}
+            - name: IAM_URL
+              value: {{ .Values.datasourceApiCitroen.iamUrl | quote }}
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: {{ .Values.datasourceApiCitroen.nodeTlsRejectUnauthorized | quote }}
+            - name: DB_PATH
+              value: {{ .Values.datasourceApiCitroen.dbPath | quote }}
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.datasourceApiCitroen.resources | nindent 12 }}
+      {{- with .Values.datasourceApiCitroen.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.datasourceApiCitroen.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.datasourceApiCitroen.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

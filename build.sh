@@ -13,3 +13,9 @@ docker push k3d-registry.localhost:5000/collaborate/dapp/api:0.1.0
 
 docker build -t k3d-registry.localhost:5000/collaborate/dapp/iam:0.1.0 dapp/iam
 docker push k3d-registry.localhost:5000/collaborate/dapp/iam:0.1.0
+
+docker build -t k3d-registry.localhost:5000/collaborate/fake-datasource/datasource-api:0.1.0 fake-datasource/datasource-api
+docker push k3d-registry.localhost:5000/collaborate/fake-datasource/datasource-api:0.1.0
+
+docker build -t k3d-registry.localhost:5000/collaborate/fake-datasource/datasource-iam:0.1.0 fake-datasource/datasource-iam
+docker push k3d-registry.localhost:5000/collaborate/fake-datasource/datasource-iam:0.1.0
