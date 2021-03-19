@@ -88,7 +88,7 @@ publish_docker_fake_datasource_iam:
 publish_helm_catalog:
   extends: .publish_helm
   variables:
-    HELM_PATH: /helm/collaborate-dapp
+    HELM_PATH: /helm/collaborate-catalog
     HELM_VERSION: 0.1.0
 
 publish_helm_dapp:
