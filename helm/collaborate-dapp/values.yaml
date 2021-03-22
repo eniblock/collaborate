@@ -10,7 +10,7 @@ fullnameOverride: ""
 
 api:
   image:
-    repository: ""
+    repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/dapp/api"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: "col-161-support-kubernetes-dev"
