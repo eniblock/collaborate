@@ -13,7 +13,7 @@ api:
     repository: ""
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    tag: "col-161-support-kubernetes-dev"
 
   imagePullSecrets:
     - name: gitlab-registry
