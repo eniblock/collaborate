@@ -137,12 +137,12 @@ spec:
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: http
+              port: https
               scheme: HTTPS
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: http
+              port: https
               scheme: HTTPS
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
