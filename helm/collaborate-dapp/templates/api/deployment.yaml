@@ -131,7 +131,7 @@ spec:
             - name: SPRINGDOC_OAUTHFLOW_TOKEN_URL
               value: "{{ .Values.api.iam.collaborate.uri }}/auth/realms/collaborate/protocol/openid-connect/token"
           ports:
-            - name: http
+            - name: https
               containerPort: 7772
               protocol: TCP
           livenessProbe:
