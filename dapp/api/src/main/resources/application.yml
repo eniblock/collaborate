@@ -69,6 +69,11 @@ spring:
             token-uri: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/token
 server:
   port: 7772
+  ssl:
+    key-store-type: PKCS12
+    key-store: "classpath:keystore/keyStoreFile.jks"
+    key-store-password: password
+    enabled: true
   error:
     include-message: always
 
