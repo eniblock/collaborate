@@ -12,6 +12,10 @@ spec:
       targetPort: http
       protocol: TCP
       name: http
+    - port: 8443
+      targetPort: https
+      protocol: TCP
+      name: https
   selector:
     {{- include "collaborate-dapp.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: iam
