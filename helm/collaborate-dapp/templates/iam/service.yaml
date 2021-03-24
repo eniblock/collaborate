@@ -9,10 +9,6 @@ spec:
   type: {{ .Values.iam.service.type }}
   ports:
     - port: {{ .Values.iam.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
-    - port: 8443
       targetPort: https
       protocol: TCP
       name: https
