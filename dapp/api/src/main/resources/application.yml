@@ -65,8 +65,8 @@ spring:
             authorization-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/auth
             token-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/token
           collaborate:
-            authorization-uri: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/auth
-            token-uri: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/token
+            authorization-uri: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/auth
+            token-uri: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/token
 server:
   port: 7772
   ssl:
@@ -74,11 +74,13 @@ server:
     key-store: "classpath:keystore/keyStoreFile.jks"
     key-store-password: password
     enabled: true
+    trust-store: "classpath:trust-store.jks"
+    trust-store-password: password
   error:
     include-message: always
 
 keycloak-admin-client-properties:
-  base-url: http://localhost:8080/auth
+  base-url: https://localhost:8443/auth
   realm: collaborate
   user:
   password:
@@ -88,7 +90,7 @@ keycloak-admin-client-properties:
   verify-hostname: false
 
 keycloak:
-  auth-server-url: http://localhost:8080/auth
+  auth-server-url: https://localhost:8443/auth
   realm: collaborate
   resource: collaborate-backend
   public-client: true
@@ -103,8 +105,8 @@ springdoc:
       clientId: collaborate-backend
       useBasicAuthenticationWithAccessCodeGrant: true
   oAuthFlow:
-    authorizationUrl: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/auth
-    tokenUrl: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/token
+    authorizationUrl: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/auth
+    tokenUrl: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/token
 
 feign:
   httpclient:

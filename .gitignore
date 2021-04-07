@@ -41,3 +41,4 @@ Info.plist*
 .env
 
 *.tgz
+reset.sh

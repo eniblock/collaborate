@@ -1,7 +1,4 @@
 api:
-  image:
-    repository: "k3d-registry.localhost:5000/collaborate/catalog/api"
-
   rabbitmq:
     auth:
       password: randompwd
@@ -11,9 +8,6 @@ api:
       password: root
 
 iam:
-  image:
-    repository: "k3d-registry.localhost:5000/collaborate/catalog/iam"
-
   password: kcadmin
 
   smtp:

@@ -1,7 +1,4 @@
 datasourceApiPeugeot:
-  image:
-    repository: "k3d-registry.localhost:5000/collaborate/fake-datasource/datasource-api"
-
   ingress:
     annotations:
       cert-manager.io/common-name: peugeot.fake-datasource.localhost
@@ -20,9 +17,6 @@ datasourceApiPeugeot:
   dbPath: db.json
 
 datasourceApiCitroen:
-  image:
-    repository: "k3d-registry.localhost:5000/collaborate/fake-datasource/datasource-api"
-
   ingress:
     annotations:
       cert-manager.io/common-name: citroen.fake-datasource.localhost
@@ -41,9 +35,6 @@ datasourceApiCitroen:
   dbPath: db-citroen.json
 
 datasourceApiMobivia:
-  image:
-    repository: "k3d-registry.localhost:5000/collaborate/fake-datasource/datasource-api"
-
   ingress:
     annotations:
       cert-manager.io/common-name: mobivia.fake-datasource.localhost
@@ -62,9 +53,6 @@ datasourceApiMobivia:
   dbPath: db-mobivia.json
 
 datasourceIam:
-  image:
-    repository: "k3d-registry.localhost:5000/collaborate/fake-datasource/datasource-iam"
-
   ingress:
     annotations:
       cert-manager.io/common-name: fake-datasource.localhost

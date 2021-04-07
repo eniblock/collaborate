@@ -64,7 +64,7 @@ services:
       - iam
       - app
     ports:
-      - "$IAM_PORT:8080"
+      - "$IAM_PORT:8443"
 
   maildev:
     image: djfarrelly/maildev

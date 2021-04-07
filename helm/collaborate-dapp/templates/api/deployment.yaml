@@ -159,3 +159,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+#      volumes:
+#        - name: secrets
+#          secret:
+#            secretName: "dapp.collaborate.localhost-tls"
+#            items:
+#              - key: keystore.jks
+#                path: keystore.jks
