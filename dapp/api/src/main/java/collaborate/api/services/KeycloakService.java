@@ -47,7 +47,7 @@ public class KeycloakService {
         try {
             responseDto = keycloakController.findByCriteria(userSearchCriteria);
         } catch (Exception e) {
-            LOG.error("Erreur à la récupération des Users de Keycloak");
+            LOG.error("Error retrieving Users from Keycloak");
             LOG.error(e.getMessage());
         }
         return responseToPage(responseDto, pageable);
