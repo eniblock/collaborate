@@ -5,6 +5,8 @@ import collaborate.api.services.dto.UserDTO;
 import collaborate.api.services.dto.UserSearchCriteria;
 import collaborate.api.services.dto.UserSearchResponseDTO;
 import org.keycloak.admin.client.Keycloak;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +19,8 @@ import java.util.UUID;
 
 @Service
 public class KeycloakService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(KeycloakService.class);
 
     private final IKeycloakController keycloakController;
     private final Keycloak keycloak;
@@ -38,8 +42,14 @@ public class KeycloakService {
     public Page<UserDTO> findAll(Pageable pageable) {
         UserSearchCriteria userSearchCriteria = new UserSearchCriteria();
         addPaginationInformation(userSearchCriteria, pageable);
-
-        UserSearchResponseDTO responseDto = keycloakController.findByCriteria(userSearchCriteria);
+        
+        UserSearchResponseDTO responseDto = new UserSearchResponseDTO(null, 0l);
+        try {
+            responseDto = keycloakController.findByCriteria(userSearchCriteria);
+        } catch (Exception e) {
+            LOG.error("Erreur à la récupération des Users de Keycloak");
+            LOG.error(e.getMessage());
+        }
         return responseToPage(responseDto, pageable);
     }
 

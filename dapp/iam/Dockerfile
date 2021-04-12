@@ -6,7 +6,7 @@ COPY kc-extension/src /home/app/src
 COPY kc-extension/pom.xml /home/app
 RUN mvn -f /home/app/pom.xml clean package -Dmaven.test.skip=true
 
-FROM jboss/keycloak
+FROM jboss/keycloak:11.0.3
 USER root
 RUN curl -sL https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-alpine-linux-amd64-v0.6.1.tar.gz | tar xvzC /usr/bin
 USER 1000
