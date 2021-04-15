@@ -1,28 +1,26 @@
 # Collaborate
 
-## Catalog
+## Requirements
 
-```shell script
-k3d cluster delete collaborate-catalog
-```
+- [Docker](https://docs.docker.com/engine/install/#server)
+- [k3d](https://k3d.io/#installation)
+- [Helm](https://helm.sh/docs/intro/install/)
+- [Tilt](https://docs.tilt.dev/install.html#linux)
 
-```shell script
-helm registry login registry.gitlab.com
-```
+## Installation
 
-```shell script
+Create a local registry
+```shell
 k3d registry create registry.localhost -p 5000
 ```
 
-```shell script
-bash build.sh
+Start a k3d cluster
+```shell
+k3d cluster create dev --port 80:80@loadbalancer --port 443:443@loadbalancer --port 5672:5672@loadbalancer --registry-use k3d-registry.localhost:5000
 ```
 
-```shell script
-k3d cluster create collaborate-catalog --port 80:80@loadbalancer --port 443:443@loadbalancer --registry-use k3d-registry.localhost:5000
-```
-
-```shell script
+Install the cert manager
+```shell
 helm install \
   cert-manager jetstack/cert-manager \
   --namespace cert-manager \
@@ -31,23 +29,35 @@ helm install \
   --set installCRDs=true
 ```
 
-Create gitlab registry secret
-```shell script
+Login to gitlab registry
+```shell
 kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=DOCKER_USER --docker-password=DOCKER_PASSWORD --docker-email=DOCKER_EMAIL
 ```
 
-```shell script
-export HELM_EXPERIMENTAL_OCI=1
+Export gitlab personal access token to connect to gitlab npm
+```shell
+export CI_JOB_TOKEN=youraccesstoken
 ```
 
-```shell script
-helm install collaborate-catalog ./helm/collaborate-catalog --values ./helm/collaborate-catalog/values-dev.yaml
+Enable Docker BuildKit
+```shell
+export DOCKER_BUILDKIT=1
 ```
 
-```shell script
-helm install tezos-api-gateway ./helm/tezos-api-gateway --values ./helm/tezos-api-gateway/values-dev.yaml
+Add custom domains DNS
+```shell
+hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+tezos-api-gateway\.localhost$/!p' -e '$a172.17.0.1 tezos-api-gateway.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
+hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+catalog\.collaborate\.localhost$/!p' -e '$a172.17.0.1 catalog.collaborate.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
+hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+dapp\.collaborate\.localhost$/!p' -e '$a172.17.0.1 dapp.collaborate.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
+hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+psa\.pcc\.localhost$/!p' -e '$a172.17.0.1 psa.pcc.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
+hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+fake-datasource\.localhost$/!p' -e '$a172.17.0.1 fake-datasource.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
+hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+peugeot\.fake-datasource\.localhost$/!p' -e '$a172.17.0.1 peugeot.fake-datasource.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
+hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+citroen\.fake-datasource\.localhost$/!p' -e '$a172.17.0.1 citroen.fake-datasource.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
+hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+mobivia\.fake-datasource\.localhost$/!p' -e '$a172.17.0.1 mobivia.fake-datasource.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
 ```
 
-```shell script
-helm install collaborate-dapp ./helm/collaborate-dapp --values ./helm/collaborate-dapp/values-dev.yaml
+Skip TLS verification inside the network 
+```shell
+traefik=$(kubectl get cm traefik -n kube-system --template='{{index .data "traefik.toml"}}' | sed -n -E -e '/insecureSkipVerify = true$/!p' -e '1i\insecureSkipVerify = true' | tr '\n' '^' | sed -E 's%"%\\"%g' | busybox xargs -0 printf '{"data": {"traefik.toml":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm traefik -n kube-system -p="$traefik"
+kubectl delete pod -l app=traefik -n kube-system --wait=false
 ```

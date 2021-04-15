@@ -18,31 +18,31 @@ import java.util.UUID;
 public interface ICatalogClient {
 
     @Operation(description = "Add document")
-    @PostMapping("organizations/{organizationId}/datasources/{datasourceId}/documents")
+    @PostMapping("/api/v1/organizations/{organizationId}/datasources/{datasourceId}/documents")
     Document add(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @RequestBody Document document);
 
     @Operation(description = "Delete documents by datasource")
-    @DeleteMapping("organizations/{organizationId}/datasources/{datasourceId}/documents")
+    @DeleteMapping("/api/v1/organizations/{organizationId}/datasources/{datasourceId}/documents")
     ResponseEntity<Void> delete(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId);
 
     @Operation(description = "Get documents by datasource")
-    @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/documents")
+    @GetMapping("/api/v1/organizations/{organizationId}/datasources/{datasourceId}/documents")
     Page<Document> get(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId);
 
     @Operation(description = "Get document by id")
-    @GetMapping("documents/{id}")
+    @GetMapping("/api/v1/documents/{id}")
     Document getDocumentById(@PathVariable("id") String documentId);
 
     @Operation(description = "Get scopes")
-    @GetMapping("scopes")
+    @GetMapping("/api/v1/scopes")
     List<Scope> getScopes(@RequestParam(name="sortingFields", required = false) String[] sortingFields);
 
     @Operation(description = "Get scope")
-    @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}")
+    @GetMapping("/api/v1/organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}")
     Scope getScope(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @PathVariable("scopeId") UUID scopeId);
 
     @Operation(description = "Get documents by scope")
-    @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}/documents")
+    @GetMapping("/api/v1/organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}/documents")
     @CollectionFormat(feign.CollectionFormat.CSV)
     Page<Document> getDocumentsByScope(
             @PathVariable("organizationId") String organizationId,
@@ -53,7 +53,7 @@ public interface ICatalogClient {
     );
 
     @Operation(description = "Get documents")
-    @GetMapping("documents")
+    @GetMapping("/api/v1/documents")
     @CollectionFormat(feign.CollectionFormat.CSV)
     Page<Document> getDocuments(
             Pageable pageable,
@@ -61,6 +61,6 @@ public interface ICatalogClient {
     );
 
     @Operation(description = "Get scope by Id")
-    @GetMapping("scopes/{scopeId}")
+    @GetMapping("/api/v1/scopes/{scopeId}")
     Scope getScopeById(@PathVariable("scopeId") UUID scopeId);
 }

@@ -9,9 +9,9 @@ spec:
   type: {{ .Values.iam.service.type }}
   ports:
     - port: {{ .Values.iam.service.port }}
-      targetPort: http
+      targetPort: https
       protocol: TCP
-      name: http
+      name: https
   selector:
     {{- include "collaborate-catalog.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: iam

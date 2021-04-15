@@ -83,9 +83,6 @@ spec:
                   name: "{{ .Release.Name }}-iam"
                   key: client-secret-mobivia
           ports:
-            - name: http
-              containerPort: 8080
-              protocol: TCP
             - name: https
               containerPort: 8443
               protocol: TCP

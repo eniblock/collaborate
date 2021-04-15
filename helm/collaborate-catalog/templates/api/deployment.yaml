@@ -59,6 +59,8 @@ spec:
                   key: mongodb-password
             - name: SPRING_DATA_MONGODB_DATABASE
               value: {{ .Values.api.mongodb.auth.database | quote }}
+            - name: KEYCLOAK_AUTH_SERVER_URL
+              value: "{{ .Values.api.iam.catalog.uri }}/auth"
           ports:
             - name: http
               containerPort: 7773

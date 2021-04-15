@@ -74,8 +74,6 @@ server:
     key-store: "classpath:keystore/keyStoreFile.jks"
     key-store-password: password
     enabled: true
-    trust-store: "classpath:trust-store.jks"
-    trust-store-password: password
   error:
     include-message: always
 
