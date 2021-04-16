@@ -46,12 +46,21 @@ datasourceApiPeugeot:
     type: ClusterIP
     port: 3000
 
-  ingress:
-    enabled: true
-    certManager: true
-    annotations:
-      kubernetes.io/tls-acme: "true"
-      cert-manager.io/cluster-issuer: fake-datasource
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: fake-datasource
+#      cert-manager.io/common-name: peugeot.fake-datasource.localhost
+#    hosts:
+#      - host: peugeot.fake-datasource.localhost
+#        paths:
+#          - path: "/"
+#    tls:
+#      - secretName: peugeot.fake-datasource.localhost-tls
+#        hosts:
+#          - peugeot.fake-datasource.localhost
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -116,12 +125,21 @@ datasourceApiCitroen:
     type: ClusterIP
     port: 3000
 
-  ingress:
-    enabled: true
-    certManager: true
-    annotations:
-      kubernetes.io/tls-acme: "true"
-      cert-manager.io/cluster-issuer: fake-datasource
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: fake-datasource
+#      cert-manager.io/common-name: citroen.fake-datasource.localhost
+#    hosts:
+#      - host: citroen.fake-datasource.localhost
+#        paths:
+#          - path: "/"
+#    tls:
+#      - secretName: citroen.fake-datasource.localhost-tls
+#        hosts:
+#          - citroen.fake-datasource.localhost
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -186,12 +204,21 @@ datasourceApiMobivia:
     type: ClusterIP
     port: 3000
 
-  ingress:
-    enabled: true
-    certManager: true
-    annotations:
-      kubernetes.io/tls-acme: "true"
-      cert-manager.io/cluster-issuer: fake-datasource
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: fake-datasource
+#      cert-manager.io/common-name: mobivia.fake-datasource.localhost
+#    hosts:
+#      - host: mobivia.fake-datasource.localhost
+#        paths:
+#          - path: "/"
+#    tls:
+#      - secretName: mobivia.fake-datasource.localhost-tls
+#        hosts:
+#          - mobivia.fake-datasource.localhost
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -256,12 +283,21 @@ datasourceIam:
     type: ClusterIP
     port: 8080
 
-  ingress:
-    enabled: true
-    certManager: true
-    annotations:
-      kubernetes.io/tls-acme: "true"
-      cert-manager.io/cluster-issuer: fake-datasource
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: fake-datasource
+#      cert-manager.io/common-name: fake-datasource.localhost
+#    hosts:
+#      - host: fake-datasource.localhost
+#        paths:
+#          - path: "/auth"
+#    tls:
+#      - secretName: fake-datasource.localhost-tls
+#        hosts:
+#          - fake-datasource.localhost
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious

@@ -46,17 +46,17 @@ api:
     type: ClusterIP
     port: 7773
 
-  ingress:
-    enabled: true
-    certManager: true
-    annotations:
-      kubernetes.io/tls-acme: "true"
-      cert-manager.io/cluster-issuer: collaborate-catalog
-      cert-manager.io/common-name: catalog.collaborate.localhost
-    hosts:
-      - host: catalog.collaborate.localhost
-        paths:
-          - path: "/api"
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: collaborate-catalog
+#      cert-manager.io/common-name: catalog.collaborate.localhost
+#    hosts:
+#      - host: catalog.collaborate.localhost
+#        paths:
+#          - path: "/api"
     tls:
       - secretName: catalog.collaborate.localhost-tls
         hosts:
@@ -137,21 +137,21 @@ iam:
     type: ClusterIP
     port: 8443
 
-  ingress:
-    enabled: true
-    certManager: true
-    annotations:
-      kubernetes.io/tls-acme: "true"
-      cert-manager.io/cluster-issuer: collaborate-catalog
-      cert-manager.io/common-name: catalog.collaborate.localhost
-    hosts:
-      - host: catalog.collaborate.localhost
-        paths:
-          - path: "/auth"
-    tls:
-      - secretName: catalog.collaborate.localhost-tls
-        hosts:
-          - catalog.collaborate.localhost
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: collaborate-catalog
+#      cert-manager.io/common-name: catalog.collaborate.localhost
+#    hosts:
+#      - host: catalog.collaborate.localhost
+#        paths:
+#          - path: "/auth"
+#    tls:
+#      - secretName: catalog.collaborate.localhost-tls
+#        hosts:
+#          - catalog.collaborate.localhost
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
@@ -195,12 +195,14 @@ iam-db:
     tag: 12.6.0-debian-10-r14
 
 rabbitmq:
-  ingress:
-    enabled: true
-    certManager: true
-    tls: true
-    annotations:
-      cert-manager.io/cluster-issuer: collaborate-catalog
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    tls: true
+#    hostname: rabbitmq.catalog.collaborate.localhost
+#    annotations:
+#      cert-manager.io/cluster-issuer: collaborate-catalog
+#      cert-manager.io/common-name: rabbitmq.catalog.collaborate.localhost
   auth:
     username: user
     erlangCookie: 94155874a93041aca19378c9a4ee28ac

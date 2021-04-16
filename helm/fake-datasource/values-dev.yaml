@@ -1,6 +1,10 @@
 datasourceApiPeugeot:
   ingress:
+    enabled: true
+    certManager: true
     annotations:
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: fake-datasource
       cert-manager.io/common-name: peugeot.fake-datasource.localhost
     hosts:
       - host: peugeot.fake-datasource.localhost
@@ -18,7 +22,11 @@ datasourceApiPeugeot:
 
 datasourceApiCitroen:
   ingress:
+    enabled: true
+    certManager: true
     annotations:
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: fake-datasource
       cert-manager.io/common-name: citroen.fake-datasource.localhost
     hosts:
       - host: citroen.fake-datasource.localhost
@@ -36,7 +44,11 @@ datasourceApiCitroen:
 
 datasourceApiMobivia:
   ingress:
+    enabled: true
+    certManager: true
     annotations:
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: fake-datasource
       cert-manager.io/common-name: mobivia.fake-datasource.localhost
     hosts:
       - host: mobivia.fake-datasource.localhost
@@ -54,7 +66,11 @@ datasourceApiMobivia:
 
 datasourceIam:
   ingress:
+    enabled: true
+    certManager: true
     annotations:
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: fake-datasource
       cert-manager.io/common-name: fake-datasource.localhost
     hosts:
       - host: fake-datasource.localhost

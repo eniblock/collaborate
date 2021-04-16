@@ -1,4 +1,16 @@
 api:
+  ingress:
+    enabled: true
+    certManager: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: collaborate-catalog
+      cert-manager.io/common-name: catalog.collaborate.localhost
+    hosts:
+      - host: catalog.collaborate.localhost
+        paths:
+          - path: "/api"
+
   rabbitmq:
     auth:
       password: randompwd
@@ -12,6 +24,22 @@ api:
       uri: https://catalog.collaborate.localhost
 
 iam:
+  ingress:
+    enabled: true
+    certManager: true
+    annotations:
+      kubernetes.io/tls-acme: "true"
+      cert-manager.io/cluster-issuer: collaborate-catalog
+      cert-manager.io/common-name: catalog.collaborate.localhost
+    hosts:
+      - host: catalog.collaborate.localhost
+        paths:
+          - path: "/auth"
+    tls:
+      - secretName: catalog.collaborate.localhost-tls
+        hosts:
+          - catalog.collaborate.localhost
+
   password: kcadmin
 
   smtp:
@@ -27,8 +55,12 @@ iam-db:
 
 rabbitmq:
   ingress:
+    enabled: true
+    certManager: true
+    tls: true
     hostname: rabbitmq.catalog.collaborate.localhost
     annotations:
+      cert-manager.io/cluster-issuer: collaborate-catalog
       cert-manager.io/common-name: rabbitmq.catalog.collaborate.localhost
   auth:
     password: randompwd
