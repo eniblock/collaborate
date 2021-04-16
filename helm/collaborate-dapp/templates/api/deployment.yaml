@@ -40,7 +40,9 @@ spec:
                   - "-c"
                   - >
                     keytool -importcert -alias catalog -file /etc/ssl/certs/catalog.crt -trustcacerts -cacerts -storepass changeit -noprompt;
-                    keytool -importcert -alias dapp -file /etc/ssl/certs/dapp.crt -trustcacerts -cacerts -storepass changeit -noprompt;
+                    {{- range .Values.api.ingress.tls }}
+                    keytool -importcert -alias {{ .secretName }} -file /etc/ssl/certs/{{ .secretName }}.crt -trustcacerts -cacerts -storepass changeit -noprompt;
+                    {{- end }}
                     keytool -importcert -alias fake-datasource -file /etc/ssl/certs/fake-datasource.crt -trustcacerts -cacerts -storepass changeit -noprompt;
                     keytool -importcert -alias fake-datasource-peugeot -file /etc/ssl/certs/fake-datasource-peugeot.crt -trustcacerts -cacerts -storepass changeit -noprompt;
           securityContext:
@@ -163,10 +165,12 @@ spec:
               mountPath: /etc/ssl/certs/catalog.crt
               subPath: catalog.crt
               readOnly: true
-            - name: dapp-cert
-              mountPath: /etc/ssl/certs/dapp.crt
-              subPath: dapp.crt
+            {{- range .Values.api.ingress.tls }}
+            - name: "{{ .secretName }}-cert"
+              mountPath: "/etc/ssl/certs/{{ .secretName }}.crt"
+              subPath: "{{ .secretName }}.crt"
               readOnly: true
+            {{- end }}
             - name: fake-datasource-cert
               mountPath: /etc/ssl/certs/fake-datasource.crt
               subPath: fake-datasource.crt
@@ -194,12 +198,14 @@ spec:
             items:
               - key: ca.crt
                 path: catalog.crt
-        - name: dapp-cert
+        {{- range .Values.api.ingress.tls }}
+        - name: "{{ .secretName }}-cert"
           secret:
-            secretName: "dapp.collaborate.localhost-tls"
+            secretName: {{ .secretName }}
             items:
               - key: ca.crt
                 path: dapp.crt
+        {{- end }}
         - name: fake-datasource-cert
           secret:
             secretName: "fake-datasource.localhost-tls"
