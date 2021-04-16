@@ -32,6 +32,14 @@ spec:
         {{- toYaml .Values.iam.podSecurityContext | nindent 8 }}
       containers:
         - name: {{ .Chart.Name }}
+          lifecycle:
+            postStart:
+              exec:
+                command:
+                  - "sh"
+                  - "-c"
+                  - >
+                    keytool -importcert -alias fake-datasource -file /etc/ssl/certs/fake-datasource.crt -trustcacerts -cacerts -storepass changeit -noprompt;
           securityContext:
             {{- toYaml .Values.iam.securityContext | nindent 12 }}
           image: "{{ .Values.iam.image.repository }}:{{ .Values.iam.image.tag | default .Chart.AppVersion }}"
@@ -83,6 +91,11 @@ spec:
               protocol: TCP
           resources:
             {{- toYaml .Values.iam.resources | nindent 12 }}
+          volumeMounts:
+            - name: fake-datasource-cert
+              mountPath: /etc/ssl/certs/fake-datasource.crt
+              subPath: fake-datasource.crt
+              readOnly: true
       {{- with .Values.iam.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -95,3 +108,10 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      volumes:
+        - name: fake-datasource-cert
+          secret:
+            secretName: "fake-datasource.localhost-tls"
+            items:
+              - key: ca.crt
+                path: fake-datasource.crt
