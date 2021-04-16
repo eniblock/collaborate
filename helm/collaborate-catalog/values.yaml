@@ -57,10 +57,10 @@ api:
 #      - host: catalog.collaborate.localhost
 #        paths:
 #          - path: "/api"
-    tls:
-      - secretName: catalog.collaborate.localhost-tls
-        hosts:
-          - catalog.collaborate.localhost
+#    tls:
+#      - secretName: catalog.collaborate.localhost-tls
+#        hosts:
+#          - catalog.collaborate.localhost
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious
