@@ -39,7 +39,7 @@ spec:
                   - "sh"
                   - "-c"
                   - >
-                    keytool -importcert -alias fake-datasource -file /etc/ssl/certs/fake-datasource.crt -trustcacerts -cacerts -storepass changeit -noprompt;
+                    keytool -importcert -alias fake-datasource -file /etc/ssl/certs/fake-datasource.crt -trustcacerts -storepass changeit -noprompt;
           securityContext:
             {{- toYaml .Values.iam.securityContext | nindent 12 }}
           image: "{{ .Values.iam.image.repository }}:{{ .Values.iam.image.tag | default .Chart.AppVersion }}"
