@@ -3,11 +3,11 @@ package collaborate.api.controller;
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.domain.AccessRequest;
 import collaborate.api.domain.Document;
-import collaborate.api.domain.Scope;
 import collaborate.api.domain.DownloadDocument;
+import collaborate.api.domain.Scope;
 import collaborate.api.restclient.ICatalogClient;
-import collaborate.api.services.ScopeService;
 import collaborate.api.services.DocumentService;
+import collaborate.api.services.ScopeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.apache.commons.io.IOUtils;
@@ -22,11 +22,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.UUID;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
 
 @RestController
 public class DocumentController {
@@ -97,20 +94,7 @@ public class DocumentController {
         response.setHeader("Content-Disposition", "attachment; filename=download.zip");
         response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
 
-        ZipOutputStream zipOutputStream = new ZipOutputStream(response.getOutputStream());
-        for (String documentId : documentIds) {
-            DownloadDocument downloadDocument = documentService.downloadDocument(documentId);
-            zipOutputStream.putNextEntry(new ZipEntry(downloadDocument.getFileName()));
-            FileInputStream fileInputStream = new FileInputStream(downloadDocument.getFile());
-
-            IOUtils.copy(fileInputStream, zipOutputStream);
-
-            fileInputStream.close();
-            zipOutputStream.closeEntry();
-
-            downloadDocument.getFile().delete();
-        }
-
-        zipOutputStream.close();
+        documentService.buildDocumentsZip(documentIds, response.getOutputStream());
     }
+
 }
