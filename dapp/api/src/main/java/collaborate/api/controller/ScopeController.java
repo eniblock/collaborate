@@ -1,5 +1,6 @@
 package collaborate.api.controller;
 
+import collaborate.api.comparator.ScopeComparator;
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.config.properties.ApiProperties;
 import collaborate.api.domain.Scope;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -47,6 +49,10 @@ public class ScopeController {
         for (Scope scope : scopes) {
             scope.setStatusFromAccessRequest(scopeService.getAccessRequest(scope));
         }
+
+        Collections.sort(scopes, new ScopeComparator.StatusSorter()
+                .thenComparing(new ScopeComparator.OrganisationSorter())
+                .thenComparing(new ScopeComparator.NameSorter()));
 
         return ResponseEntity.ok(scopes);
     }
