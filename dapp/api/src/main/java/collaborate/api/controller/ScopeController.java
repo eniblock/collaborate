@@ -44,15 +44,14 @@ public class ScopeController {
     )
     @PreAuthorize(OPERATOR_AUTHORIZATION)
     public HttpEntity<List<Scope>> list() {
-        List<Scope> scopes = catalogClient.getScopes();
+        String[] sortingFields = new String[] {"organizationId", "scope"};
+        List<Scope> scopes = catalogClient.getScopes(sortingFields);
 
         for (Scope scope : scopes) {
             scope.setStatusFromAccessRequest(scopeService.getAccessRequest(scope));
         }
 
-        Collections.sort(scopes, new ScopeComparator.StatusSorter()
-                .thenComparing(new ScopeComparator.OrganisationSorter())
-                .thenComparing(new ScopeComparator.NameSorter()));
+        Collections.sort(scopes, new ScopeComparator.StatusSorter());
 
         return ResponseEntity.ok(scopes);
     }
