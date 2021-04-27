@@ -14,6 +14,8 @@ import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +46,11 @@ public class DocumentController {
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
     @PreAuthorize(OPERATOR_AUTHORIZATION)
-    public HttpEntity<Page<Document>> listByScope(@PathVariable("organizationId") String organizationId, @PathVariable("datasourceId") Long datasourceId, @PathVariable("scopeId") UUID scopeId, Pageable pageable, @RequestParam(required = false, defaultValue = "") String q) {
+    public HttpEntity<Page<Document>> listByScope(@PathVariable("organizationId") String organizationId,
+                                                  @PathVariable("datasourceId") Long datasourceId,
+                                                  @PathVariable("scopeId") UUID scopeId,
+                                                  @SortDefault(sort = "title", direction = Sort.Direction.ASC) Pageable pageable,
+                                                  @RequestParam(required = false, defaultValue = "") String q) {
         Page<Document> documents = catalogClient.getDocumentsByScope(organizationId, datasourceId, scopeId, pageable, q);
 
         return ResponseEntity.ok(documents);
@@ -55,7 +61,8 @@ public class DocumentController {
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
     @PreAuthorize(OPERATOR_AUTHORIZATION)
-    public HttpEntity<Page<Document>> list(Pageable pageable, @RequestParam(required = false, defaultValue = "") String q) {
+    public HttpEntity<Page<Document>> list(@SortDefault(sort = "title", direction = Sort.Direction.ASC) Pageable pageable,
+                                           @RequestParam(required = false, defaultValue = "") String q) {
         Page<Document> documents = catalogClient.getDocuments(pageable, q);
 
         for (Document document : documents) {

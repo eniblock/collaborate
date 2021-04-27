@@ -1,5 +1,6 @@
 package collaborate.api.controller;
 
+import collaborate.api.comparator.ScopeComparator;
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.config.properties.ApiProperties;
 import collaborate.api.domain.Scope;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -42,11 +44,14 @@ public class ScopeController {
     )
     @PreAuthorize(OPERATOR_AUTHORIZATION)
     public HttpEntity<List<Scope>> list() {
-        List<Scope> scopes = catalogClient.getScopes();
+        String[] sortingFields = new String[] {"organizationId", "scope"};
+        List<Scope> scopes = catalogClient.getScopes(sortingFields);
 
         for (Scope scope : scopes) {
             scope.setStatusFromAccessRequest(scopeService.getAccessRequest(scope));
         }
+
+        Collections.sort(scopes, new ScopeComparator.StatusSorter());
 
         return ResponseEntity.ok(scopes);
     }

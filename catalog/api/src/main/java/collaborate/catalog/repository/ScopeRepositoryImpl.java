@@ -2,10 +2,13 @@ package collaborate.catalog.repository;
 
 import collaborate.catalog.domain.Scope;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.*;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.http.HttpStatus;
+import org.springframework.util.ObjectUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,12 +26,18 @@ public class ScopeRepositoryImpl implements ScopeRepository {
     }
 
     @Override
-    public List<Scope> findScopes() {
+    public List<Scope> findScopes(String[] sortingFields) {
         MatchOperation matchOperation = Aggregation.match(Criteria.where("type").is("metadata"));
         ProjectionOperation projectOperation = Aggregation.project("organizationId", "organizationName", "datasourceId", "scope", "scopeId");
         GroupOperation groupOperation = Aggregation.group("organizationId", "organizationName", "datasourceId", "scope", "scopeId");
-
-        Aggregation aggregation = Aggregation.newAggregation(matchOperation, groupOperation, projectOperation);
+        SortOperation sortOperation = null;
+        Aggregation aggregation = null;
+        if (!ObjectUtils.isEmpty(sortingFields)) {
+            sortOperation = Aggregation.sort(Sort.Direction.ASC, sortingFields);
+            aggregation = Aggregation.newAggregation(matchOperation, groupOperation, sortOperation, projectOperation);
+        } else {
+            aggregation = Aggregation.newAggregation(matchOperation, groupOperation, projectOperation);
+        }
         AggregationResults<Scope> groupResults = mongoTemplate.aggregate(aggregation, "document", Scope.class);
 
         return groupResults.getMappedResults();

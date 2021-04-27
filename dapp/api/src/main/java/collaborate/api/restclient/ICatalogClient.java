@@ -33,10 +33,9 @@ public interface ICatalogClient {
     @GetMapping("documents/{id}")
     Document getDocumentById(@PathVariable("id") String documentId);
 
-
     @Operation(description = "Get scopes")
     @GetMapping("scopes")
-    List<Scope> getScopes();
+    List<Scope> getScopes(@RequestParam(name="sortingFields", required = false) String[] sortingFields);
 
     @Operation(description = "Get scope")
     @GetMapping("organizations/{organizationId}/datasources/{datasourceId}/scopes/{scopeId}")
