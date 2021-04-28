@@ -43,6 +43,10 @@ services:
     environment:
       - APPLICATION_NAME
       - BACKEND_SECRET
+      - IDP_CLIENT_ID
+      - IDP_CLIENT_SECRET
+      - IDP_NAME
+      - IDP_URI
       - KEYCLOAK_USER=kcadmin
       - KEYCLOAK_PASSWORD
       - DB_VENDOR=postgres
@@ -50,8 +54,6 @@ services:
       - DB_DATABASE=iam
       - DB_USER=iam_db_user
       - DB_PASSWORD
-      - GOOGLE_AUTH_CLIENT_ID
-      - GOOGLE_AUTH_CLIENT_SECRET
       - IDP_ADMIN_ROLE
       - ROLE_ATTRIBUTE_KEY
       - ROLE_ATTRIBUTE_VALUE

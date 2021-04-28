@@ -83,6 +83,12 @@ iam:
 
   backendSecret: 572255bd-1504-4d51-8389-967d8cc668f8
 
+  idp:
+    name: PSA
+    clientId: collaborate
+    clientSecret: 572255bd-1504-4d51-8389-967d8cc668f8
+    uri: https://fake-datasource.localhost
+
 iam-db:
   postgresqlPassword: randompwd
 
