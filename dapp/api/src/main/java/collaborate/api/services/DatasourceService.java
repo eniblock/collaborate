@@ -8,6 +8,8 @@ import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.connectors.DatasourceConnectorFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -34,6 +36,9 @@ import java.util.Set;
 
 @Service
 public class DatasourceService {
+
+    private static final Logger log = LoggerFactory.getLogger(DatasourceService.class);
+
     @Autowired
     private RestTemplate restTemplate;
 
@@ -101,10 +106,8 @@ public class DatasourceService {
 
     public void testConnection(Datasource datasource, DatasourceClientSecret datasourceClientSecret) {
         DatasourceConnector connector = datasourceConnectorFactory.create(datasource);
-
         AuthorizationServerMetadata authorizationServerMetadata;
         AccessTokenResponse accessTokenResponse;
-
         try {
             authorizationServerMetadata = connector.getAuthorizationServerMetadata(datasource);
             Set<ConstraintViolation<AuthorizationServerMetadata>> violations = validator.validate(authorizationServerMetadata);

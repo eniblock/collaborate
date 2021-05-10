@@ -6,14 +6,19 @@ import collaborate.api.domain.DatasourceClientSecret;
 import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.services.DatasourceService;
+import collaborate.api.services.TransactionsEventConsumerService;
 import collaborate.api.services.dto.DatasourceDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.hateoas.Link;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
@@ -29,6 +34,8 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("datasources")
 public class DatasourceController {
+
+    Logger logger = LoggerFactory.getLogger(DatasourceController.class);
 
     private final String ADMIN_AUTHORIZATION = "hasRole('service_provider_administrator')";
 
@@ -48,9 +55,9 @@ public class DatasourceController {
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
     @PreAuthorize(ADMIN_AUTHORIZATION)
-    public HttpEntity<Page<Datasource>> list(Pageable pageable) {
-
-        return ResponseEntity.ok(datasourceRepository.findAll(pageable));
+    public HttpEntity<Page<Datasource>> list(@SortDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(required = false, defaultValue = "") String q) {
+        Page<Datasource> datasourcePage = datasourceRepository.findByNameIgnoreCaseLike(pageable, q);
+        return ResponseEntity.ok(datasourcePage);
     }
 
     @PostMapping()
