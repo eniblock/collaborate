@@ -77,7 +77,7 @@ spec:
             - name: DB_VENDOR
               value: postgres
             - name: SMTP_HOST
-              value: {{ .Values.iam.smtp.host | quote }}
+              value: "{{ .Release.Name }}-{{ .Values.iam.smtp.name }}"
             - name: SMTP_AUTH
               value: {{ .Values.iam.smtp.auth | quote }}
             - name: SMTP_SSL

@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "collaborate-dapp.fullname" . }}-maildev
+  labels:
+    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: maildev
+spec:
+  type: {{ .Values.maildev.service.type }}
+  ports:
+    - port: {{ .Values.maildev.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+    - port: 25
+      targetPort: smtp
+      protocol: TCP
+      name: smtp
+  selector:
+    {{- include "collaborate-dapp.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: maildev

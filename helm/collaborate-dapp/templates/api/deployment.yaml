@@ -104,6 +104,10 @@ spec:
                 secretKeyRef:
                   name: "{{ .Release.Name }}-{{ .Values.api.postgresql.name }}"
                   key: postgresql-password
+            - name: SPRING_MAIL_HOST
+              value: "{{ .Release.Name }}-{{ .Values.api.maildev.name }}"
+            - name: SPRING_MAIL_PORT
+              value: {{ .Values.api.maildev.port | quote }}
             - name: SPRING_CLOUD_VAULT_URI
               value: "http://{{ .Release.Name }}-{{ .Values.api.vault.name }}:{{ .Values.api.vault.port }}"
             - name: SPRING_CLOUD_VAULT_TOKEN

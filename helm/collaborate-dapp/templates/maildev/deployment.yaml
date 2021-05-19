@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "collaborate-dapp.fullname" . }}-maildev
+  labels:
+    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: maildev
+spec:
+  {{- if not .Values.maildev.autoscaling.enabled }}
+  replicas: {{ .Values.maildev.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: maildev
+  template:
+    metadata:
+      {{- with .Values.maildev.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "collaborate-dapp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: maildev
+    spec:
+      {{- with .Values.maildev.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: collaborate-dapp-maildev
+      securityContext:
+        {{- toYaml .Values.maildev.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.maildev.securityContext | nindent 12 }}
+          image: "{{ .Values.maildev.image.repository }}:{{ .Values.maildev.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.maildev.image.pullPolicy }}
+          env:
+            - name: API_PLATFORM
+              value: {{ .Values.maildev.platform | quote }}
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+              scheme: HTTP
+            - name: smtp
+              containerPort: 25
+              protocol: TCP
+          resources:
+            {{- toYaml .Values.maildev.resources | nindent 12 }}
+      {{- with .Values.maildev.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.maildev.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.maildev.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
