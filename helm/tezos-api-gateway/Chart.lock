@@ -1,6 +1,6 @@
 dependencies:
 - name: tezos-api-gateway
-  repository: oci://registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/tezos-api-gateway/helm
+  repository: oci://registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/tezos-api-gateway/helm
   version: 0.1.0
-digest: sha256:9762e853bc62a0f50541857c3d0d62e5a94ad8535f5bba114a5deec13b143a54
-generated: "2021-03-15T17:26:01.634464683+01:00"
+digest: sha256:85431079c48dc5a4d7cb3ce57950341c59bb9dcd466f999df74be8bf9fa2b1f0
+generated: "2021-05-19T15:09:13.434631178+02:00"

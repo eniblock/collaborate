@@ -26,4 +26,4 @@ appVersion: "0.1.0"
 dependencies:
   - name: tezos-api-gateway
     version: "0.1.0"
-    repository: "oci://registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/tezos-api-gateway/helm"
+    repository: "oci://registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/tezos-api-gateway/helm"
