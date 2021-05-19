@@ -11,9 +11,17 @@ helm install \
   --namespace cert-manager \
   --version v1.2.0 \
   --create-namespace \
-  --set installCRDs=true
+  --set installCRDs=true \
+  --set ingressShim.defaultIssuerName=local \
+  --set ingressShim.defaultIssuerKind=ClusterIssuer \
+  --wait
 
-kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=maximevanmeerbeck --docker-password=EiYysZYicx7n4tbkWYua --docker-email=mvanmeerbeck@theblockchainxdev.com
+kubectl apply -n cert-manager -f ./helm/local.yaml
+
+kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=${GITLAB_USER} --docker-password=${GITLAB_PASSWORD}
+
+export DOCKER_BUILDKIT=1
+export HELM_EXPERIMENTAL_OCI=1
 
 hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+tezos-api-gateway\.localhost$/!p' -e '$a172.17.0.1 tezos-api-gateway.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
 hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+catalog\.collaborate\.localhost$/!p' -e '$a172.17.0.1 catalog.collaborate.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
@@ -24,10 +32,10 @@ hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' |
 hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+citroen\.fake-datasource\.localhost$/!p' -e '$a172.17.0.1 citroen.fake-datasource.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
 hosts=$(kubectl get cm coredns -n kube-system --template='{{.data.NodeHosts}}' | sed -n -E -e '/[0-9\.]{4,12}\s+mobivia\.fake-datasource\.localhost$/!p' -e '$a172.17.0.1 mobivia.fake-datasource.localhost' | tr '\n' '^' | busybox xargs -0 printf '{"data": {"NodeHosts":"%s"}}'| sed -E 's%\^%\\n%g') && kubectl patch cm coredns -n kube-system -p="$hosts"
 
-HELM_EXPERIMENTAL_OCI=1 helm dependency update ./helm/collaborate-catalog
-HELM_EXPERIMENTAL_OCI=1 helm dependency update ./helm/collaborate-dapp
-HELM_EXPERIMENTAL_OCI=1 helm dependency update ./helm/fake-datasource
-HELM_EXPERIMENTAL_OCI=1 helm dependency update ./helm/tezos-api-gateway
+helm dependency update ./helm/collaborate-catalog
+helm dependency update ./helm/collaborate-dapp
+helm dependency update ./helm/fake-datasource
+helm dependency update ./helm/tezos-api-gateway
 
 until kubectl get cm traefik -n kube-system
 do

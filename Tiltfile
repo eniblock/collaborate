@@ -1,7 +1,7 @@
 k8s_yaml(
     helm(
         'helm/tezos-api-gateway',
-        values=['./helm/tezos-api-gateway/values-dev.yaml'],
+        values=['./helm/tezos-api-gateway/values-dev.yaml', './helm/tezos-api-gateway/values-expose.yaml'],
         name="tezos-api-gateway",
     )
 )
