@@ -76,6 +76,10 @@ spec:
               value: {{ .Values.iam.postgresql.postgresqlUsername | quote }}
             - name: DB_VENDOR
               value: postgres
+            - name: ROLE_ATTRIBUTE_KEY
+              value: type
+            - name: ROLE_ATTRIBUTE_VALUE
+              value: collaborate
             - name: SMTP_HOST
               value: "{{ .Release.Name }}-{{ .Values.iam.smtp.name }}"
             - name: SMTP_AUTH
