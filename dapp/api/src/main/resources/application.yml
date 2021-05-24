@@ -65,17 +65,20 @@ spring:
             authorization-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/auth
             token-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/token
           collaborate:
-            authorization-uri: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/auth
-            token-uri: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/token
+            authorization-uri: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/auth
+            token-uri: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/token
 server:
   port: 7772
+  ssl:
+    key-store-type: PKCS12
+    key-store: "classpath:keystore/keyStoreFile.jks"
+    key-store-password: password
+    enabled: true
   error:
     include-message: always
-  servlet:
-    context-path: /api/v1
 
 keycloak-admin-client-properties:
-  base-url: http://localhost:8080/auth
+  base-url: https://localhost:8443/auth
   realm: collaborate
   user:
   password:
@@ -85,7 +88,7 @@ keycloak-admin-client-properties:
   verify-hostname: false
 
 keycloak:
-  auth-server-url: http://localhost:8080/auth
+  auth-server-url: https://localhost:8443/auth
   realm: collaborate
   resource: collaborate-backend
   public-client: true
@@ -100,11 +103,20 @@ springdoc:
       clientId: collaborate-backend
       useBasicAuthenticationWithAccessCodeGrant: true
   oAuthFlow:
-    authorizationUrl: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/auth
-    tokenUrl: http://localhost:8080/auth/realms/collaborate/protocol/openid-connect/token
+    authorizationUrl: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/auth
+    tokenUrl: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/token
 
 feign:
   httpclient:
     disableSslValidation: true
     enabled: false
   okhttp.enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  health:
+    probes:
+      enabled: true

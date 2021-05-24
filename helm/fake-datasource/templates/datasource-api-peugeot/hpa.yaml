@@ -1,0 +1,28 @@
+{{- if .Values.datasourceApiPeugeot.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "fake-datasource.fullname" . }}-datasource-api-peugeot
+  labels:
+    {{- include "fake-datasource.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "fake-datasource.fullname" . }}-datasource-api-peugeot
+  minReplicas: {{ .Values.datasourceApiPeugeot.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.datasourceApiPeugeot.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.datasourceApiPeugeot.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.datasourceApiPeugeot.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.datasourceApiPeugeot.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.datasourceApiPeugeot.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

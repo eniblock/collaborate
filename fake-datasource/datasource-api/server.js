@@ -1,15 +1,17 @@
 const jsonServer = require('json-server')
 const hal = require('hal');
 const server = jsonServer.create()
-const router = jsonServer.router('db.json')
 const middlewares = jsonServer.defaults()
 const jwt = require('jsonwebtoken');
 const keycloakCerts = require('get-keycloak-public-key');
-const kc = new keycloakCerts('http://datasource-iam:8080', 'datasource');
 const fs = require('fs');
 
-const URL = process.env.WEB_URL || 'http://localhost';
-const PORT = parseInt(process.env.WEB_PORT || '3000', 10);
+const DB_PATH = process.env.DB_PATH || 'db.json';
+const URL = process.env.WEB_URL || 'http://localhost:3000';
+const IAM_URL = process.env.IAM_URL || 'http://datasource-iam:8080';
+
+const router = jsonServer.router(DB_PATH)
+const kc = new keycloakCerts(IAM_URL, 'datasource');
 
 server.use(middlewares);
 server.get('/metadata/:id/download', (req, res) => {
@@ -70,13 +72,13 @@ router.render = async function (req, res) {
 
     if (req.path == '/metadata') {
         var scope = "metadata";
-        var resource = new hal.Resource({}, `${URL}:${PORT}${req.path}`);
+        var resource = new hal.Resource({}, `${URL}${req.path}`);
         var rows = [];
 
         for (const row of res.locals.data) {
-            var embeddedResource = new hal.Resource(row, `${URL}:${PORT}/metadata/${row.id}`);
+            var embeddedResource = new hal.Resource(row, `${URL}/metadata/${row.id}`);
 
-            embeddedResource.link('download', `${URL}:${PORT}/metadata/${row.id}/download`);
+            embeddedResource.link('download', `${URL}/metadata/${row.id}/download`);
 
             rows.push(embeddedResource);
         }
@@ -87,9 +89,9 @@ router.render = async function (req, res) {
     if (req.route.path == '/:id') {
         var scope = res.locals.data.scope;
 
-        var resource = new hal.Resource(res.locals.data, `${URL}:${PORT}${req.path}`);
+        var resource = new hal.Resource(res.locals.data, `${URL}${req.path}`);
 
-        resource.link('download', `${URL}:${PORT}/metadata/${res.locals.data.id}/download`);
+        resource.link('download', `${URL}/metadata/${res.locals.data.id}/download`);
     }
 
     auth(req, res, scope, function () {

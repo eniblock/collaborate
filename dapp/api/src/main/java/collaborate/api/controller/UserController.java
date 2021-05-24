@@ -17,7 +17,7 @@ import javax.validation.Valid;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("users")
+@RequestMapping("/api/v1")
 public class UserController {
     private final UserService userService;
 
@@ -27,7 +27,7 @@ public class UserController {
         this.userService = service;
     }
 
-    @GetMapping()
+    @GetMapping("users")
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
@@ -36,7 +36,7 @@ public class UserController {
         return userService.listUsers(pageable);
     }
 
-    @GetMapping("{id}")
+    @GetMapping("users/{id}")
     @Operation(
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
     )
@@ -52,7 +52,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("{id}")
+    @PostMapping("users/{id}")
     @Operation(
             description = "Set the roles of the user.",
             security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)

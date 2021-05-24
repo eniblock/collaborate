@@ -1,5 +1,11 @@
+image: docker:19.03.10
+
 stages:
   - test
+  - publish
+
+services:
+  - docker:dind
 
 test_catalog_api:
   stage: test
@@ -16,3 +22,83 @@ test_dapp_api:
     - cd dapp/api
   script:
     - ./mvnw test
+
+.publish_docker:
+  stage: publish
+  variables:
+    CONTAINER_REF_IMAGE: $CI_REGISTRY_IMAGE/$CONTAINER_PATH:$CI_COMMIT_REF_SLUG
+    CONTAINER_SHA_IMAGE: $CI_REGISTRY_IMAGE/$CONTAINER_PATH:$CI_COMMIT_SHORT_SHA
+    CONTAINER_REF_SHA_IMAGE: $CI_REGISTRY_IMAGE/$CONTAINER_PATH:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --pull
+      -t $CONTAINER_REF_IMAGE
+      -t $CONTAINER_SHA_IMAGE
+      -t $CONTAINER_REF_SHA_IMAGE
+      $CONTAINER_PATH
+    - docker push $CONTAINER_REF_IMAGE
+    - docker push $CONTAINER_SHA_IMAGE
+    - docker push $CONTAINER_REF_SHA_IMAGE
+
+publish_docker_catalog_api:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: catalog/api
+
+publish_docker_catalog_iam:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: catalog/iam
+
+publish_docker_dapp_api:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: dapp/api
+
+publish_docker_dapp_iam:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: dapp/iam
+
+publish_docker_fake_datasource_api:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: fake-datasource/datasource-api
+
+publish_docker_fake_datasource_iam:
+  extends: .publish_docker
+  variables:
+    CONTAINER_PATH: fake-datasource/datasource-iam
+
+.publish_helm:
+  stage: publish
+  image:
+    name: alpine/helm:3.5.2
+    entrypoint: ["/bin/sh", "-c"]
+  variables:
+    HELM_EXPERIMENTAL_OCI: 1
+    HELM_IMAGE: $CI_REGISTRY_IMAGE/$HELM_PATH:$HELM_VERSION
+  script:
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - helm dependency update $HELM_PATH
+    - helm chart save $HELM_PATH $HELM_IMAGE
+    - helm chart push $HELM_IMAGE
+
+publish_helm_catalog:
+  extends: .publish_helm
+  variables:
+    HELM_PATH: helm/collaborate-catalog
+    HELM_VERSION: 0.1.0
+
+publish_helm_dapp:
+  extends: .publish_helm
+  variables:
+    HELM_PATH: helm/collaborate-dapp
+    HELM_VERSION: 0.1.0
+
+publish_helm_fake_datasource:
+  extends: .publish_helm
+  variables:
+    HELM_PATH: helm/fake-datasource
+    HELM_VERSION: 0.1.0

@@ -1,0 +1,28 @@
+{{- if .Values.datasourceApiMobivia.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "fake-datasource.fullname" . }}-datasource-api-mobivia
+  labels:
+    {{- include "fake-datasource.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "fake-datasource.fullname" . }}-datasource-api-mobivia
+  minReplicas: {{ .Values.datasourceApiMobivia.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.datasourceApiMobivia.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.datasourceApiMobivia.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.datasourceApiMobivia.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.datasourceApiMobivia.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.datasourceApiMobivia.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

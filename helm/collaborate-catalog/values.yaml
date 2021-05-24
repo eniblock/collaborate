@@ -1,0 +1,220 @@
+# Default values for collaborate-catalog.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  iam: {}
+
+nameOverride: ""
+fullnameOverride: ""
+
+api:
+  image:
+    repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/catalog/api"
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "col-161-support-kubernetes-dev"
+
+  imagePullSecrets:
+    - name: gitlab-registry
+
+  replicaCount: 1
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+    # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 7773
+
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: collaborate-catalog
+#      cert-manager.io/common-name: catalog.collaborate.localhost
+#    hosts:
+#      - host: catalog.collaborate.localhost
+#        paths:
+#          - path: "/api"
+#    tls:
+#      - secretName: catalog.collaborate.localhost-tls
+#        hosts:
+#          - catalog.collaborate.localhost
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  rabbitmq:
+    name: rabbitmq
+    port: 5672
+    auth:
+      username: user
+
+  mongodb:
+    name: mongodb
+    auth:
+      database: catalog
+      username: root
+
+iam:
+  image:
+    repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/catalog/iam"
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "col-161-support-kubernetes-dev"
+
+  imagePullSecrets:
+    - name: gitlab-registry
+
+  replicaCount: 1
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 8443
+
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: collaborate-catalog
+#      cert-manager.io/common-name: catalog.collaborate.localhost
+#    hosts:
+#      - host: catalog.collaborate.localhost
+#        paths:
+#          - path: "/auth"
+#    tls:
+#      - secretName: catalog.collaborate.localhost-tls
+#        hosts:
+#          - catalog.collaborate.localhost
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+  #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  postgresql:
+    name: iam-db
+    postgresqlDatabase: iam
+    postgresqlUsername: iam_db_user
+
+  username: kcadmin
+
+iam-db:
+  postgresqlDatabase: iam
+  postgresqlUsername: iam_db_user
+  persistence:
+    enabled: true
+    size: 1Gi
+  image:
+    tag: 12.6.0-debian-10-r14
+
+rabbitmq:
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    tls: true
+#    hostname: rabbitmq.catalog.collaborate.localhost
+#    annotations:
+#      cert-manager.io/cluster-issuer: collaborate-catalog
+#      cert-manager.io/common-name: rabbitmq.catalog.collaborate.localhost
+  auth:
+    username: user
+    erlangCookie: 94155874a93041aca19378c9a4ee28ac
+  persistence:
+    enabled: true
+    size: 1Gi
+
+mongodb:
+  auth:
+    enabled: true
+    database: catalog
+    username: root
+  persistence:
+    enabled: true
+    size: 1Gi

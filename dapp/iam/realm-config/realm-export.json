@@ -1542,9 +1542,10 @@
   "adminEventsDetailsEnabled": false,
   "identityProviders": [
     {
-      "alias": "google",
-      "internalId": "980b73aa-a3c8-46f4-ba55-2fab36139d24",
-      "providerId": "google",
+      "alias": "keycloak-oidc",
+      "displayName": "{{.Env.IDP_NAME}}",
+      "internalId": "e3f1994b-fe73-4978-a7ef-2798b2684f38",
+      "providerId": "keycloak-oidc",
       "enabled": true,
       "updateProfileFirstLoginMode": "on",
       "trustEmail": false,
@@ -1554,10 +1555,18 @@
       "linkOnly": false,
       "firstBrokerLoginFlowAlias": "first broker login",
       "config": {
+        "userInfoUrl": "{{.Env.IDP_URI}}/auth/realms/datasource/protocol/openid-connect/userinfo",
+        "validateSignature": "true",
+        "clientId": "{{.Env.IDP_CLIENT_ID}}",
+        "tokenUrl": "{{.Env.IDP_URI}}/auth/realms/datasource/protocol/openid-connect/token",
+        "jwksUrl": "{{.Env.IDP_URI}}/auth/realms/datasource/protocol/openid-connect/certs",
+        "issuer": "{{.Env.IDP_URI}}/auth/realms/datasource",
+        "useJwksUrl": "true",
+        "authorizationUrl": "{{.Env.IDP_URI}}/auth/realms/datasource/protocol/openid-connect/auth",
+        "clientAuthMethod": "client_secret_post",
+        "logoutUrl": "{{.Env.IDP_URI}}/auth/realms/datasource/protocol/openid-connect/logout",
         "syncMode": "IMPORT",
-        "clientSecret": "{{.Env.GOOGLE_AUTH_CLIENT_SECRET}}",
-        "clientId": "{{.Env.GOOGLE_AUTH_CLIENT_ID}}",
-        "useJwksUrl": "true"
+        "clientSecret": "{{.Env.IDP_CLIENT_SECRET}}"
       }
     }
   ],

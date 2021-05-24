@@ -1,0 +1,28 @@
+{{- if .Values.iam.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "collaborate-catalog.fullname" . }}-iam
+  labels:
+    {{- include "collaborate-catalog.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "collaborate-catalog.fullname" . }}-iam
+  minReplicas: {{ .Values.iam.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.iam.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.iam.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.iam.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.iam.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.iam.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}

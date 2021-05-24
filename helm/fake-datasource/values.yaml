@@ -1,0 +1,341 @@
+# Default values for collaborate-dapp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  iam: {}
+
+nameOverride: ""
+fullnameOverride: ""
+
+datasourceApiPeugeot:
+  image:
+    repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/datasource-api"
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "col-161-support-kubernetes-dev"
+
+  imagePullSecrets:
+    - name: gitlab-registry
+
+  replicaCount: 1
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: fake-datasource
+#      cert-manager.io/common-name: peugeot.fake-datasource.localhost
+#    hosts:
+#      - host: peugeot.fake-datasource.localhost
+#        paths:
+#          - path: "/"
+#    tls:
+#      - secretName: peugeot.fake-datasource.localhost-tls
+#        hosts:
+#          - peugeot.fake-datasource.localhost
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+datasourceApiCitroen:
+  image:
+    repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/datasource-api"
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "col-161-support-kubernetes-dev"
+
+  imagePullSecrets:
+    - name: gitlab-registry
+
+  replicaCount: 1
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: fake-datasource
+#      cert-manager.io/common-name: citroen.fake-datasource.localhost
+#    hosts:
+#      - host: citroen.fake-datasource.localhost
+#        paths:
+#          - path: "/"
+#    tls:
+#      - secretName: citroen.fake-datasource.localhost-tls
+#        hosts:
+#          - citroen.fake-datasource.localhost
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+datasourceApiMobivia:
+  image:
+    repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/datasource-api"
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "col-161-support-kubernetes-dev"
+
+  imagePullSecrets:
+    - name: gitlab-registry
+
+  replicaCount: 1
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: fake-datasource
+#      cert-manager.io/common-name: mobivia.fake-datasource.localhost
+#    hosts:
+#      - host: mobivia.fake-datasource.localhost
+#        paths:
+#          - path: "/"
+#    tls:
+#      - secretName: mobivia.fake-datasource.localhost-tls
+#        hosts:
+#          - mobivia.fake-datasource.localhost
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+datasourceIam:
+  image:
+    repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/datasource-iam"
+    pullPolicy: Always
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "col-161-support-kubernetes-dev"
+
+  imagePullSecrets:
+    - name: gitlab-registry
+
+  replicaCount: 1
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress: {}
+#    enabled: true
+#    certManager: true
+#    annotations:
+#      kubernetes.io/tls-acme: "true"
+#      cert-manager.io/cluster-issuer: fake-datasource
+#      cert-manager.io/common-name: fake-datasource.localhost
+#    hosts:
+#      - host: fake-datasource.localhost
+#        paths:
+#          - path: "/auth"
+#    tls:
+#      - secretName: fake-datasource.localhost-tls
+#        hosts:
+#          - fake-datasource.localhost
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  postgresql:
+    name: iam-db
+    postgresqlDatabase: iam
+    postgresqlUsername: iam_db_user
+
+  username: kcadmin
+
+iam-db:
+  postgresqlDatabase: iam
+  postgresqlUsername: iam_db_user
+  persistence:
+    enabled: true
+    size: 1Gi
+  image:
+    tag: 12.6.0-debian-10-r14

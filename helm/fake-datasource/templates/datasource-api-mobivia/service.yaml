@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "fake-datasource.fullname" . }}-datasource-api-mobivia
+  labels:
+    {{- include "fake-datasource.labels" . | nindent 4 }}
+    app.kubernetes.io/component: datasource-api-mobivia
+spec:
+  type: {{ .Values.datasourceApiMobivia.service.type }}
+  ports:
+    - port: {{ .Values.datasourceApiMobivia.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    {{- include "fake-datasource.selectorLabels" . | nindent 4 }}
+    app.kubernetes.io/component: datasource-api-mobivia

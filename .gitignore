@@ -39,3 +39,5 @@ Info.plist*
 *.pem
 
 .env
+
+*.tgz
