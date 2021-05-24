@@ -47,7 +47,7 @@ iam:
   password: kcadmin
 
   smtp:
-    host: maildev
+    name: maildev
     auth: false
     ssl: false
 
