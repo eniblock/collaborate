@@ -13,7 +13,7 @@ api:
     repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/catalog/api"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "col-161-support-kubernetes-dev"
+    tag: "develop"
 
   imagePullSecrets:
     - name: gitlab-registry
@@ -104,7 +104,7 @@ iam:
     repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/catalog/iam"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "col-161-support-kubernetes-dev"
+    tag: "develop"
 
   imagePullSecrets:
     - name: gitlab-registry

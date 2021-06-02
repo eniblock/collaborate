@@ -13,7 +13,7 @@ datasourceApiPeugeot:
     repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/datasource-api"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "col-161-support-kubernetes-dev"
+    tag: "develop"
 
   imagePullSecrets:
     - name: gitlab-registry
@@ -92,7 +92,7 @@ datasourceApiCitroen:
     repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/datasource-api"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "col-161-support-kubernetes-dev"
+    tag: "develop"
 
   imagePullSecrets:
     - name: gitlab-registry
@@ -171,7 +171,7 @@ datasourceApiMobivia:
     repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/datasource-api"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "col-161-support-kubernetes-dev"
+    tag: "develop"
 
   imagePullSecrets:
     - name: gitlab-registry
@@ -250,7 +250,7 @@ datasourceIam:
     repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/datasource-iam"
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "col-161-support-kubernetes-dev"
+    tag: "develop"
 
   imagePullSecrets:
     - name: gitlab-registry
