@@ -1,0 +1,837 @@
+{
+	"info": {
+		"_postman_id": "30a4af7c-e3af-4c7e-8d79-0c6f1cda390d",
+		"name": "Collaborate",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "dApp",
+			"item": [
+				{
+					"name": "Keycloak API",
+					"item": [
+						{
+							"name": "Get Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let response = pm.response.json();",
+											"pm.environment.set(\"dAppToken\", response.access_token);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "{{dAppKeycloakUsername}}",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "{{dAppKeycloakPassword}}",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "collaborate-frontend",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+									"host": [
+										"{{dAppKeycloakUrl}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"{{dAppKeycloakRealm}}",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Authorization Server Metadata",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/.well-known/openid-configuration",
+									"host": [
+										"{{dAppKeycloakUrl}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"{{dAppKeycloakRealm}}",
+										".well-known",
+										"openid-configuration"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{dAppKeycloakUrl}}/auth/realms/collaborate/custom-api/users?paged=true&sorted=false&pageNumber=0&offset=0&pageSize=10",
+									"host": [
+										"{{dAppKeycloakUrl}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"collaborate",
+										"custom-api",
+										"users"
+									],
+									"query": [
+										{
+											"key": "paged",
+											"value": "true"
+										},
+										{
+											"key": "sorted",
+											"value": "false"
+										},
+										{
+											"key": "pageNumber",
+											"value": "0"
+										},
+										{
+											"key": "offset",
+											"value": "0"
+										},
+										{
+											"key": "pageSize",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{dAppToken}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Collaborate API",
+					"item": [
+						{
+							"name": "Add datasource",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"name\": \"Datasource 1\",    \n    \"type\": \"WEBSERVER\",    \n    \"apiURI\": \"{{fakeDatasourceApiUrl}}/metadata\",    \n    \"accessMethod\": \"OAUTH2_CLIENT_CREDENTIALS_GRANT\",\n    \"issuerIdentifierURI\": \"{{fakeDatasourceKeycloakUrl}}/auth/realms/datasource\",\n    \"wellKnownURIPathSuffix\": \"/.well-known/openid-configuration\",    \n    \"clientId\": \"collaborate\",\n    \"clientSecret\": \"57936b16-2f90-434a-9eb4-843668a3a521\",    \n    \"transferMethod\": \"OAUTH2_CLIENT_CREDENTIALS_GRANT\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{dAppApiUrl}}/api/v1/datasources",
+									"host": [
+										"{{dAppApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"datasources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Add access requests",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "[\n    {\n        \"organizationId\":\"psa\",\n        \"organizationName\":\"PSA Groupe\",\n        \"datasourceId\":1,\n        \"scope\":\"maintenance-plans:read\",\n        \"scopeId\":\"7a9c19f0-5f20-3166-a8d4-2dd3aad49330\",\n        \"status\":\"LOCKED\"\n    },\n    {\n        \"organizationId\":\"psa\",\n        \"organizationName\":\"PSA Groupe\",\n        \"datasourceId\":1,\n        \"scope\":\"insurance-offers:read\",\n        \"scopeId\":\"7bd07a72-d272-38a6-895b-70c15ae74269\",\n        \"status\":\"LOCKED\"\n    }\n]",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{dAppApiUrl}}/api/v1/access-requests",
+									"host": [
+										"{{dAppApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"access-requests"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get datasource",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{dAppApiUrl}}/api/v1/datasources/{{datasourceId}}",
+									"host": [
+										"{{dAppApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"datasources",
+										"{{datasourceId}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get datasources",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{dAppApiUrl}}/api/v1/datasources",
+									"host": [
+										"{{dAppApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"datasources"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get documents",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{dAppApiUrl}}/api/v1/documents?sort=title,desc",
+									"host": [
+										"{{dAppApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"documents"
+									],
+									"query": [
+										{
+											"key": "sort",
+											"value": "title,desc"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get users",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{dAppApiUrl}}/api/v1/users?page=0&size=10",
+									"host": [
+										"{{dAppApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"users"
+									],
+									"query": [
+										{
+											"key": "page",
+											"value": "0"
+										},
+										{
+											"key": "size",
+											"value": "10"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{dAppToken}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			]
+		},
+		{
+			"name": "Catalog",
+			"item": [
+				{
+					"name": "Keycloak API",
+					"item": [
+						{
+							"name": "Get Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let response = pm.response.json();",
+											"pm.environment.set(\"catalogToken\", response.access_token);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{catalogKeycloakClientId}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{catalogKeycloakClientSecret}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{catalogKeycloakUrl}}/auth/realms/{{catalogKeycloakRealm}}/protocol/openid-connect/token",
+									"host": [
+										"{{catalogKeycloakUrl}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"{{catalogKeycloakRealm}}",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Catalog API",
+					"item": [
+						{
+							"name": "Add document",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"organizationId\": \"psa\",\n    \"organizationName\": \"PSA\",\n    \"datasourceId\": 1,\n    \"documentId\": \"1\",\n    \"title\": \"title\",    \n    \"scope\": \"scope\",\n    \"scopeId\": \"80380472-f235-44fe-9f62-60f86fb87bbf\",\n    \"type\": \"metadata\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{catalogApiUrl}}/api/v1/organizations/{{organizationId}}/datasources/{{datasourceId}}/documents",
+									"host": [
+										"{{catalogApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations",
+										"{{organizationId}}",
+										"datasources",
+										"{{datasourceId}}",
+										"documents"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get documents by datasource",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{catalogApiUrl}}/api/v1/organizations/{{organizationId}}/datasources/{{datasourceId}}/documents",
+									"host": [
+										"{{catalogApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations",
+										"{{organizationId}}",
+										"datasources",
+										"{{datasourceId}}",
+										"documents"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get documents by scope",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{catalogApiUrl}}/api/v1/organizations/{{organizationId}}/datasources/{{datasourceId}}/scopes/{{scopeId}}/documents",
+									"host": [
+										"{{catalogApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations",
+										"{{organizationId}}",
+										"datasources",
+										"{{datasourceId}}",
+										"scopes",
+										"{{scopeId}}",
+										"documents"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get documents",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{catalogApiUrl}}/api/v1/documents?q=&sort=title,desc",
+									"host": [
+										"{{catalogApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"documents"
+									],
+									"query": [
+										{
+											"key": "q",
+											"value": ""
+										},
+										{
+											"key": "sort",
+											"value": "title,desc"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get scope list",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{catalogApiUrl}}/api/v1/scopes?sortingFields=organizationName",
+									"host": [
+										"{{catalogApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"scopes"
+									],
+									"query": [
+										{
+											"key": "sortingFields",
+											"value": "organizationName"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"auth": {
+						"type": "bearer",
+						"bearer": [
+							{
+								"key": "token",
+								"value": "{{catalogToken}}",
+								"type": "string"
+							}
+						]
+					},
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Fake Datasource",
+			"item": [
+				{
+					"name": "Keycloak API",
+					"item": [
+						{
+							"name": "Get Token",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let response = pm.response.json();",
+											"pm.environment.set(\"fakeDatasourceToken\", response.access_token);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "client_credentials",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{fakeDatasourceKeycloakClientId}}",
+											"type": "text"
+										},
+										{
+											"key": "client_secret",
+											"value": "{{fakeDatasourceKeycloakClientSecret}}",
+											"type": "text"
+										},
+										{
+											"key": "scope",
+											"value": "{{scope}} maintenance-plans-Peugeot-3008",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{fakeDatasourceKeycloakUrl}}/auth/realms/{{fakeDatasourceKeycloakRealm}}/protocol/openid-connect/token",
+									"host": [
+										"{{fakeDatasourceKeycloakUrl}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"{{fakeDatasourceKeycloakRealm}}",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Authorization Server Metadata",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{fakeDatasourceKeycloakUrl}}/auth/realms/{{fakeDatasourceKeycloakRealm}}/.well-known/openid-configuration",
+									"host": [
+										"{{fakeDatasourceKeycloakUrl}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"{{fakeDatasourceKeycloakRealm}}",
+										".well-known",
+										"openid-configuration"
+									]
+								}
+							},
+							"response": []
+						}
+					],
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						},
+						{
+							"listen": "test",
+							"script": {
+								"type": "text/javascript",
+								"exec": [
+									""
+								]
+							}
+						}
+					]
+				},
+				{
+					"name": "Fake Datasource API",
+					"item": [
+						{
+							"name": "List metadata",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{fakeDatasourceApiUrl}}/metadata",
+									"host": [
+										"{{fakeDatasourceApiUrl}}"
+									],
+									"path": [
+										"metadata"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get metadata",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{fakeDatasourceApiUrl}}/metadata/{{metadata}}",
+									"host": [
+										"{{fakeDatasourceApiUrl}}"
+									],
+									"path": [
+										"metadata",
+										"{{metadata}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Download metadata",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{fakeDatasourceApiUrl}}/metadata/{{metadata}}/download",
+									"host": [
+										"{{fakeDatasourceApiUrl}}"
+									],
+									"path": [
+										"metadata",
+										"{{metadata}}",
+										"download"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{fakeDatasourceToken}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	]
+}
