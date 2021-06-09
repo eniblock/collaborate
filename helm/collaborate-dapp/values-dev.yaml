@@ -130,7 +130,6 @@ vault:
 
     dev:
       enabled: true
-      devRootToken: "myroot"
 
     standalone:
       enabled: false

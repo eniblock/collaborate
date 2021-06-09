@@ -114,7 +114,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: "{{ .Release.Name }}-{{ .Values.api.vault.name }}"
-                  key: vault-app-token
+                  key: VAULT_ROOT_TOKEN
             - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CATALOG_CLIENT_ID
               value: {{ .Values.api.iam.catalog.clientId | quote }}
             - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_CATALOG_CLIENT_SECRET
