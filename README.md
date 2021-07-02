@@ -98,3 +98,22 @@ tilt up
 ```shell script
 tilt down
 ```
+
+# Debugging
+## Java API
+To enable _remote_ debug on Java dockerized application:
+* `"-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5000"` argument has to be given to the JVM in charge of executing the Java application in the container.
+  _Where `5000` is the debug port_
+* The `Tiltfile` has to bind the container debug port to a local port (see: [Tilt API doc](https://docs.tilt.dev/api.html)), for an example:
+```python
+k8s_resource(
+    'collaborate-dapp-api',
+    port_forwards=['5001:5000']
+)
+```
+* In your IDE configure a _remote JVM debug_ configuration, for an example in IntelliJ:
+  * Edit Configurations... / Remote JVM Debug
+  * Specify the command line: `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5001`
+  * OK
+  * Then, select the created run configuration and click on the Debug button  
+    
