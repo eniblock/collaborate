@@ -15,6 +15,12 @@ COPY realm-config/realm-export.json /realm-export.json.tpl
 COPY standalone/standalone-ha.xml /opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
 COPY --from=KeycloakExtension /home/app/src/kc-extension-ear/target/kc-extension-ear.ear /opt/jboss/keycloak/standalone/deployments/
 
+COPY custom-theme/custom-keycloak/ /opt/jboss/keycloak/themes/custom-keycloak/
+COPY custom-theme/logical-pictures/ /opt/jboss/keycloak/themes/logical-pictures/
+COPY custom-theme/tokenize/ /opt/jboss/keycloak/themes/tokenize/
+
+
+
 # the SMTP configuration variables
 # SMTP_AUTH, SMTP_STARTTLS and SMTP_SSL are boolean that should be either true, false or an empty string
 ENV SMTP_FROM=noreply@theblockchainxdev.com \
