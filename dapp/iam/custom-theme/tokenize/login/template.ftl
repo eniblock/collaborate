@@ -42,7 +42,7 @@
   <div id="kc-container" class="${properties.kcContainerClass!}">
     <div id="kc-container-wrapper" class="${properties.kcContainerWrapperClass!}">
 
-      <img src="${url.resourcesPath}/img/tokenize-logo.png" alt="tokenize" class="kc-logo">
+      <img src="${url.resourcesPath}/img/pcc-logo.png" alt="pcc" class="kc-logo">
 
       <div id="kc-content" class="${properties.kcContentClass!}">
         <div id="kc-content-wrapper" class="${properties.kcContentWrapperClass!}">
