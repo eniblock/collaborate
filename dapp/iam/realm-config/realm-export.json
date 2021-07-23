@@ -1464,6 +1464,7 @@
     "user": "{{.Env.SMTP_USER}}",
     "password": "{{.Env.SMTP_PASSWORD}}"
   },
+  "loginTheme": "collaborate",
   "eventsEnabled": true,
   "eventsListeners": [
     "jboss-logging",
