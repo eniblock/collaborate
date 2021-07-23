@@ -565,7 +565,7 @@
                 <cacheThemes>true</cacheThemes>
                 <cacheTemplates>true</cacheTemplates>
                 <dir>${jboss.home.dir}/themes</dir>
-                <welcomeTheme>tokenize</welcomeTheme>
+                <welcomeTheme>collaborate</welcomeTheme>
 
             </theme>
             <spi name="eventsStore">

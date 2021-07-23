@@ -42,25 +42,37 @@
   <div id="kc-container" class="${properties.kcContainerClass!}">
     <div id="kc-container-wrapper" class="${properties.kcContainerWrapperClass!}">
 
-      <img src="${url.resourcesPath}/img/pcc-logo.png" alt="pcc" class="kc-logo">
+      <img src="${url.resourcesPath}/img/collaborate-logo.png" alt="collaborate" class="kc-logo">
 
       <div id="kc-content" class="${properties.kcContentClass!}">
         <div id="kc-content-wrapper" class="${properties.kcContentWrapperClass!}">
 
-          <#if displayMessage && message?has_content>
+          <#-- App-initiated actions should not see warning messages about the need to complete the action -->
+          <#-- during login.                                                                               -->
+
+          <#--  ---------------------------------------------------------------------------------------------------- -->
+          <#--        Differences with base template.ftl starts here                                                 -->
+          <#--        Warning messages are removed to avoid showing default message since we already have it         -->
+          <#--        in a more detailed way in login-update-password.ftl                                            -->
+          <#--  ---------------------------------------------------------------------------------------------------- -->
+
+          <#if displayMessage && message?has_content && message.type != 'warning'>
             <div class="${properties.kcFeedbackAreaClass!}">
               <div class="alert alert-${message.type}">
                 <#if message.type = 'success'><span
                   class="${properties.kcFeedbackSuccessIcon!}"></span></#if>
-                <#if message.type = 'warning'><span
-                  class="${properties.kcFeedbackWarningIcon!}"></span></#if>
                 <#if message.type = 'error'><span
                   class="${properties.kcFeedbackErrorIcon!}"></span></#if>
-                <#if message.type = 'info'><span class="${properties.kcFeedbackInfoIcon!}"></span></#if>
+                <#if message.type = 'info'><span
+                  class="${properties.kcFeedbackInfoIcon!}"></span></#if>
                 <span class="kc-feedback-text">${message.summary}</span>
               </div>
             </div>
           </#if>
+
+          <#--  ---------------------------------------------------------------------------------------------------- -->
+          <#--        End of modifications                                                                           -->
+          <#--  ---------------------------------------------------------------------------------------------------- -->
 
           <div id="kc-form" class="${properties.kcFormAreaClass!}">
             <div id="kc-form-wrapper" class="${properties.kcFormAreaWrapperClass!}">

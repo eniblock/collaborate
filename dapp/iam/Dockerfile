@@ -17,7 +17,7 @@ COPY --from=KeycloakExtension /home/app/src/kc-extension-ear/target/kc-extension
 
 COPY custom-theme/custom-keycloak/ /opt/jboss/keycloak/themes/custom-keycloak/
 COPY custom-theme/logical-pictures/ /opt/jboss/keycloak/themes/logical-pictures/
-COPY custom-theme/tokenize/ /opt/jboss/keycloak/themes/tokenize/
+COPY custom-theme/collaborate/ /opt/jboss/keycloak/themes/collaborate/
 
 
 
