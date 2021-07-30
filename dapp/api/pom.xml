@@ -172,7 +172,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.11.2</version>
+            <version>${jackson.version}</version>
         </dependency>
 
         <dependency>
@@ -226,6 +226,19 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
             <version>1.6.4</version>
         </dependency>
+
+        <dependency>
+            <artifactId>lombok</artifactId>
+            <groupId>org.projectlombok</groupId>
+        </dependency>
+
+        <dependency>
+            <artifactId>assertj-core</artifactId>
+            <groupId>org.assertj</groupId>
+            <scope>test</scope>
+            <version>${assertj.version}</version>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -234,12 +247,29 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 
     <properties>
-        <keycloak-adapter-bom.version>11.0.3</keycloak-adapter-bom.version>
+        <assertj.version>3.20.2</assertj.version>
+        <jackson.version>2.11.2</jackson.version>
         <java.version>11</java.version>
+        <keycloak-adapter-bom.version>11.0.3</keycloak-adapter-bom.version>
+        <lombok.version>1.18.20</lombok.version>
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
     </properties>
 
