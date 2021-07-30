@@ -1,4 +1,4 @@
-image: docker:19.03.10
+image: docker:20.10.7
 
 stages:
   - test
@@ -29,7 +29,10 @@ test_dapp_api:
     CONTAINER_REF_IMAGE: $CI_REGISTRY_IMAGE/$CONTAINER_PATH:$CI_COMMIT_REF_SLUG
     CONTAINER_SHA_IMAGE: $CI_REGISTRY_IMAGE/$CONTAINER_PATH:$CI_COMMIT_SHORT_SHA
     CONTAINER_REF_SHA_IMAGE: $CI_REGISTRY_IMAGE/$CONTAINER_PATH:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+    DOCKER_HOST : "tcp://docker:2375"
+    DOCKER_DRIVER : overlay2
   before_script:
+    - while ! nc -z docker 2375; do sleep 1; done
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker build --pull
