@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "30a4af7c-e3af-4c7e-8d79-0c6f1cda390d",
+		"_postman_id": "118b64d2-9d46-4df4-aebb-24e5280d2f94",
 		"name": "Collaborate",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -316,6 +316,25 @@
 											"key": "size",
 											"value": "10"
 										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get organizations",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{dAppApiUrl}}/api/v1/organizations",
+									"host": [
+										"{{dAppApiUrl}}"
+									],
+									"path": [
+										"api",
+										"v1",
+										"organizations"
 									]
 								}
 							},
@@ -830,6 +849,415 @@
 							""
 						]
 					}
+				}
+			]
+		},
+		{
+			"name": "TAG",
+			"item": [
+				{
+					"name": "User creation",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"userIdList\": [\n    \"psa\", \"mobivia\"\n  ],\n  \"secureKeyName\": \"admin\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/user/create",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user by id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/user?userIdList=master&userIdList=psa&userIdList=mobivia",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"user"
+							],
+							"query": [
+								{
+									"key": "userIdList",
+									"value": "master"
+								},
+								{
+									"key": "userIdList",
+									"value": "psa"
+								},
+								{
+									"key": "userIdList",
+									"value": "mobivia"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get user address",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/user/address?userAddressList=tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW&userAddressList=tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"user",
+								"address"
+							],
+							"query": [
+								{
+									"key": "userAddressList",
+									"value": "tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW"
+								},
+								{
+									"key": "userAddressList",
+									"value": "tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Entrypoints of a smartcontract",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/entrypoints/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"entrypoints",
+								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Entrypoint \"requestAccess\" of a smartcontract",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/entrypoints/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR?entryPoints=requestAccess",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"entrypoints",
+								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+							],
+							"query": [
+								{
+									"key": "entryPoints",
+									"value": "requestAccess"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Storage - all",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"tezos_node",
+								"storage",
+								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Storage - one field",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dataFields\": [\n        \"organizations\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"tezos_node",
+								"storage",
+								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Storage - map",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dataFields\": [\n        {\n            \"organizations\" : [\n                { \"key\": \"tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm\" }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"tezos_node",
+								"storage",
+								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Storage - bigmap",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"dataFields\": [\n        {\n            \"accessRequests\" : [\n                { \"key\": {\n                        \"datasourceId\": 12,\n                        \"providerAddress\": \"tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW\",\n                        \"requesterAddress\": \"tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm\",\n                        \"scopeId\": \"13\"\n                    }\n                }\n            ]\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"tezos_node",
+								"storage",
+								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Forge - not use it",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR\",\n      \"entryPoint\": \"requestAccess\",\n      \"entryPointParams\": {\n            \"datasourceId\": 12,\n            \"providerAddress\": \"tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW\",\n            \"requesterAddress\": \"tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm\",\n            \"scopeId\": \"13\"\n      }\n    }\n  ],\n  \"callerId\": \"string\",\n  \"sourceAddress\": \"tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/forge/jobs",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"forge",
+								"jobs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Inject - not use it",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "=> sign the transaction and call the endpoint...",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": ""
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR\",\n      \"entryPoint\": \"requestAccess\",\n      \"entryPointParams\": {\n            \"datasourceId\": 12,\n            \"providerAddress\": \"tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW\",\n            \"requesterAddress\": \"tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm\",\n            \"scopeId\": \"13\"\n      }\n    }\n  ],\n  \"callerId\": \"string\",\n  \"secureKeyName\": \"mobivia\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/send/jobs",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"send",
+								"jobs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Job",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{tagUrl}}/api/job/1",
+							"host": [
+								"{{tagUrl}}"
+							],
+							"path": [
+								"api",
+								"job",
+								"1"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		}
