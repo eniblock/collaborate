@@ -1,13 +1,30 @@
 package collaborate.api.services;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.*;
+import collaborate.api.domain.AccessTokenResponse;
+import collaborate.api.domain.AuthorizationServerMetadata;
+import collaborate.api.domain.BearerHttpHeaders;
+import collaborate.api.domain.Datasource;
+import collaborate.api.domain.DatasourceClientSecret;
+import collaborate.api.domain.Document;
 import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.domain.enumeration.DatasourceStatus;
 import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.connectors.DatasourceConnectorFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.net.URI;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import javax.validation.Validator;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -20,19 +37,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
-import org.springframework.vault.core.VaultKeyValueOperations;
-import org.springframework.vault.support.VaultResponseSupport;
 import org.springframework.web.client.RestTemplate;
-
-import javax.validation.Validator;
-import java.net.URI;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class DatasourceServiceTest {
@@ -67,7 +72,7 @@ class DatasourceServiceTest {
     private DatasourceConnectorFactory datasourceConnectorFactory;
 
     @Mock
-    private VaultKeyValueOperations vaultKeyValueOperations;
+    private VaultService vaultService;
 
     @Test()
     void produce() {
@@ -91,15 +96,13 @@ class DatasourceServiceTest {
         ResponseEntity<Void> deleteEntity = ResponseEntity.noContent().build();
         DatasourceConnector connector = mock(DatasourceConnector.class);
         DatasourceClientSecret datasourceClientSecret = new DatasourceClientSecret();
-        VaultResponseSupport<DatasourceClientSecret> datasourceClientSecretVaultResponseSupport = new VaultResponseSupport<>();
-        datasourceClientSecretVaultResponseSupport.setData(datasourceClientSecret);
 
         when(datasourceRepository.findById(datasource.getId())).thenReturn(optionalDatasource);
         when(apiProperties.getOrganizationId()).thenReturn("psa");
         when(catalogClient.delete(apiProperties.getOrganizationId(), datasource.getId())).thenReturn(deleteEntity);
         when(datasourceConnectorFactory.create(datasource)).thenReturn(connector);
         when(connector.synchronize(datasource, datasourceClientSecret)).thenReturn(1);
-        when(vaultKeyValueOperations.get("datasources/" + datasource.getId(), DatasourceClientSecret.class)).thenReturn(datasourceClientSecretVaultResponseSupport);
+        when(vaultService.get("datasources/" + datasource.getId(), DatasourceClientSecret.class)).thenReturn(datasourceClientSecret);
 
         datasourceService.synchronize(datasource);
 

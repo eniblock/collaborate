@@ -1,12 +1,15 @@
 package collaborate.api.controller;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.domain.Datasource;
 import collaborate.api.domain.DatasourceClientSecret;
 import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.services.DatasourceService;
-import collaborate.api.services.TransactionsEventConsumerService;
+import collaborate.api.services.VaultService;
 import collaborate.api.services.dto.DatasourceDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,12 +27,14 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.vault.core.VaultKeyValueOperations;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -46,7 +51,7 @@ public class DatasourceController {
     private DatasourceService datasourceService;
 
     @Autowired
-    private VaultKeyValueOperations vaultKeyValueOperations;
+    private VaultService vaultService;
 
     private static final ModelMapper modelMapper = new ModelMapper();
 
@@ -69,14 +74,14 @@ public class DatasourceController {
         Datasource datasource = modelMapper.map(datasourceDTO, Datasource.class);
         DatasourceClientSecret datasourceClientSecret = modelMapper.map(datasourceDTO, DatasourceClientSecret.class);
 
-        // Test datasource connection
+        // Test datasource connection@Ignore
         datasourceService.testConnection(datasource, datasourceClientSecret);
 
         // Save the datasource in DB
         datasource = datasourceRepository.save(datasource);
 
         // Save client secret in vault
-        vaultKeyValueOperations.put("datasources/" + datasource.getId(), datasourceClientSecret);
+        vaultService.put("datasources/" + datasource.getId(), datasourceClientSecret);
 
         // Send synchronize datasource message
         datasourceService.produce(datasource, DatasourceEvent.CREATED);
