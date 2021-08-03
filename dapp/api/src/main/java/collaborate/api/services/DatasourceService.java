@@ -1,13 +1,25 @@
 package collaborate.api.services;
 
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.*;
+import collaborate.api.domain.AccessTokenResponse;
+import collaborate.api.domain.AuthorizationServerMetadata;
+import collaborate.api.domain.BearerHttpHeaders;
+import collaborate.api.domain.Datasource;
+import collaborate.api.domain.DatasourceClientSecret;
+import collaborate.api.domain.Document;
 import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.domain.enumeration.DatasourceStatus;
 import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.connectors.DatasourceConnectorFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.core.TopicExchange;
@@ -21,18 +33,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.vault.core.VaultKeyValueOperations;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validator;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class DatasourceService {
@@ -67,7 +70,7 @@ public class DatasourceService {
     private DatasourceConnectorFactory datasourceConnectorFactory;
 
     @Autowired
-    private VaultKeyValueOperations vaultKeyValueOperations;
+    private VaultService vaultService;
 
     public void produce(Datasource datasource, DatasourceEvent event) {
         rabbitTemplate.convertAndSend(
@@ -92,7 +95,7 @@ public class DatasourceService {
 
                 catalogClient.delete(this.apiProperties.getOrganizationId(), datasource.getId());
 
-                DatasourceClientSecret datasourceClientSecret = vaultKeyValueOperations.get("datasources/" + datasource.getId(), DatasourceClientSecret.class).getData();
+                DatasourceClientSecret datasourceClientSecret = vaultService.get("datasources/" + datasource.getId(), DatasourceClientSecret.class);
 
                 DatasourceConnector connector = datasourceConnectorFactory.create(datasource);
                 Integer documentCount = connector.synchronize(datasource, datasourceClientSecret);

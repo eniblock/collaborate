@@ -1,6 +1,0 @@
-spring:
-  cloud:
-    vault:
-      uri: http://localhost:8200
-      token: myroot
-      kvVersion: 2

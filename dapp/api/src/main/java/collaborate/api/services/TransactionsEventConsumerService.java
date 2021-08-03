@@ -1,25 +1,36 @@
 package collaborate.api.services;
 
 import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.*;
+import collaborate.api.domain.AccessGrantParams;
+import collaborate.api.domain.AccessRequest;
+import collaborate.api.domain.AccessTokenResponse;
+import collaborate.api.domain.AuthorizationServerMetadata;
+import collaborate.api.domain.Datasource;
+import collaborate.api.domain.DatasourceClientSecret;
+import collaborate.api.domain.GrantAccessValue;
+import collaborate.api.domain.RequestAccessValue;
+import collaborate.api.domain.Scope;
+import collaborate.api.domain.TransactionsEventMessage;
 import collaborate.api.domain.enumeration.AccessRequestStatus;
 import collaborate.api.repository.AccessRequestRepository;
 import collaborate.api.repository.DatasourceRepository;
 import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.connectors.DatasourceConnectorFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.amqp.rabbit.annotation.*;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Service;
-import org.springframework.vault.core.VaultKeyValueOperations;
-import org.springframework.web.server.ResponseStatusException;
-
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.util.Optional;
 import java.util.UUID;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.amqp.rabbit.annotation.Argument;
+import org.springframework.amqp.rabbit.annotation.Exchange;
+import org.springframework.amqp.rabbit.annotation.Queue;
+import org.springframework.amqp.rabbit.annotation.QueueBinding;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class TransactionsEventConsumerService {
@@ -38,9 +49,6 @@ public class TransactionsEventConsumerService {
     private DatasourceConnectorFactory datasourceConnectorFactory;
 
     @Autowired
-    private VaultKeyValueOperations vaultKeyValueOperations;
-
-    @Autowired
     private AccessGrantService accessGrantService;
 
     @Autowired
@@ -48,6 +56,9 @@ public class TransactionsEventConsumerService {
 
     @Autowired
     private ICatalogClient catalogClient;
+
+    @Autowired
+    private VaultService vaultService;
 
     @RabbitListener(containerFactory = "tezos-api-gateway", bindings = @QueueBinding(
             value = @Queue(
@@ -90,7 +101,7 @@ public class TransactionsEventConsumerService {
 
         DatasourceConnector connector = datasourceConnectorFactory.create(datasource);
 
-        DatasourceClientSecret datasourceClientSecret = vaultKeyValueOperations.get("datasources/" + datasource.getId(), DatasourceClientSecret.class).getData();
+        DatasourceClientSecret datasourceClientSecret = vaultService.get("datasources/" + datasource.getId(), DatasourceClientSecret.class);
 
         AuthorizationServerMetadata authorizationServerMetadata = connector.getAuthorizationServerMetadata(datasource);
 
