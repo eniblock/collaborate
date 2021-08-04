@@ -41,3 +41,5 @@ Info.plist*
 .env
 
 *.tgz
+
+.history
