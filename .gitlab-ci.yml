@@ -1,13 +1,20 @@
-image: docker:20.10.7
-
 stages:
   - test
-  - publish
+  - docker
+  - helm
 
-services:
-  - docker:dind
+variables:
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
 
-test_catalog_api:
+cache:
+  key: "$CI_JOB_NAME"
+  paths:
+    - .m2/repository
+
+# catalog
+
+test-catalog-api:
   stage: test
   image: openjdk:11-jdk-slim
   before_script:
@@ -15,7 +22,34 @@ test_catalog_api:
   script:
     - ./mvnw test
 
-test_dapp_api:
+docker-catalog-api:
+  stage: docker
+  image:
+    name: tbxdev/build-docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/catalog/api helm/collaborate-catalog catalog/api
+
+docker-catalog-iam:
+  stage: docker
+  image:
+    name: tbxdev/build-docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/catalog/iam helm/collaborate-catalog catalog/iam
+
+helm-catalog:
+  stage: helm
+  image: tbxdev/build-helm
+  script:
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - helm dependency update ./helm/collaborate-catalog
+    - build $CI_REGISTRY_IMAGE/helm/collaborate-catalog ./helm/collaborate-catalog .keycloak.image.tag
+
+
+# dapp
+
+test-dapp-api:
   stage: test
   image: openjdk:11-jdk-slim
   before_script:
@@ -23,85 +57,53 @@ test_dapp_api:
   script:
     - ./mvnw test
 
-.publish_docker:
-  stage: publish
-  variables:
-    CONTAINER_REF_IMAGE: $CI_REGISTRY_IMAGE/$CONTAINER_PATH:$CI_COMMIT_REF_SLUG
-    CONTAINER_SHA_IMAGE: $CI_REGISTRY_IMAGE/$CONTAINER_PATH:$CI_COMMIT_SHORT_SHA
-    CONTAINER_REF_SHA_IMAGE: $CI_REGISTRY_IMAGE/$CONTAINER_PATH:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
-    DOCKER_HOST : "tcp://docker:2375"
-    DOCKER_DRIVER : overlay2
-  before_script:
-    - while ! nc -z docker 2375; do sleep 1; done
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker build --pull
-      -t $CONTAINER_REF_IMAGE
-      -t $CONTAINER_SHA_IMAGE
-      -t $CONTAINER_REF_SHA_IMAGE
-      $CONTAINER_PATH
-    - docker push $CONTAINER_REF_IMAGE
-    - docker push $CONTAINER_SHA_IMAGE
-    - docker push $CONTAINER_REF_SHA_IMAGE
-
-publish_docker_catalog_api:
-  extends: .publish_docker
-  variables:
-    CONTAINER_PATH: catalog/api
-
-publish_docker_catalog_iam:
-  extends: .publish_docker
-  variables:
-    CONTAINER_PATH: catalog/iam
-
-publish_docker_dapp_api:
-  extends: .publish_docker
-  variables:
-    CONTAINER_PATH: dapp/api
-
-publish_docker_dapp_iam:
-  extends: .publish_docker
-  variables:
-    CONTAINER_PATH: dapp/iam
-
-publish_docker_fake_datasource_api:
-  extends: .publish_docker
-  variables:
-    CONTAINER_PATH: fake-datasource/datasource-api
-
-publish_docker_fake_datasource_iam:
-  extends: .publish_docker
-  variables:
-    CONTAINER_PATH: fake-datasource/datasource-iam
-
-.publish_helm:
-  stage: publish
+docker-dapp-api:
+  stage: docker
   image:
-    name: alpine/helm:3.5.2
-    entrypoint: ["/bin/sh", "-c"]
-  variables:
-    HELM_EXPERIMENTAL_OCI: 1
-    HELM_IMAGE: $CI_REGISTRY_IMAGE/$HELM_PATH:$HELM_VERSION
+    name: tbxdev/build-docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/api helm/collaborate-dapp dapp/api
+
+docker-dapp-iam:
+  image:
+    name: tbxdev/build-docker
+  stage: docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/iam helm/collaborate-dapp dapp/iam
+
+helm-dapp:
+  stage: helm
+  image: tbxdev/build-helm
   script:
     - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - helm dependency update $HELM_PATH
-    - helm chart save $HELM_PATH $HELM_IMAGE
-    - helm chart push $HELM_IMAGE
+    - helm dependency update ./helm/collaborate-dapp
+    - build $CI_REGISTRY_IMAGE/helm/collaborate-dapp ./helm/collaborate-dapp .keycloak.image.tag
 
-publish_helm_catalog:
-  extends: .publish_helm
-  variables:
-    HELM_PATH: helm/collaborate-catalog
-    HELM_VERSION: 0.1.0
 
-publish_helm_dapp:
-  extends: .publish_helm
-  variables:
-    HELM_PATH: helm/collaborate-dapp
-    HELM_VERSION: 0.1.0
+# fake datasource
 
-publish_helm_fake_datasource:
-  extends: .publish_helm
-  variables:
-    HELM_PATH: helm/fake-datasource
-    HELM_VERSION: 0.1.0
+docker-fake-datasource-api:
+  stage: docker
+  image:
+    name: tbxdev/build-docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/fake-datasource/api helm/fake-datasource fake-datasource/datasource-api
+
+docker-fake-datasource-iam:
+  stage: docker
+  image:
+    name: tbxdev/build-docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/fake-datasource/iam helm/fake-datasource fake-datasource/datasource-iam
+
+helm-fake-datasource:
+  stage: helm
+  image: tbxdev/build-helm
+  script:
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - helm dependency update ./helm/fake-datasource
+    - build $CI_REGISTRY_IMAGE/helm/fake-datasource ./helm/fake-datasource .keycloak.image.tag
