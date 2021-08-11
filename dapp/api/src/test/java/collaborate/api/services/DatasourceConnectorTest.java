@@ -1,8 +1,15 @@
 package collaborate.api.services;
 
-import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.*;
-import collaborate.api.restclient.ICatalogClient;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.when;
+
+import collaborate.api.config.api.ApiProperties;
+import collaborate.api.domain.AccessTokenResponse;
+import collaborate.api.domain.AuthorizationServerMetadata;
+import collaborate.api.domain.ClientCredentialsHttpEntityBody;
+import collaborate.api.domain.Datasource;
+import collaborate.api.domain.DatasourceClientSecret;
+import java.net.URI;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -14,11 +21,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
-
 @ExtendWith(MockitoExtension.class)
 class DatasourceConnectorTest {
 
@@ -27,9 +29,6 @@ class DatasourceConnectorTest {
 
     @Mock
     protected RabbitTemplate rabbitTemplate;
-
-    @Mock
-    protected ICatalogClient catalogClient;
 
     @Mock
     protected ApiProperties apiProperties;
@@ -43,7 +42,7 @@ class DatasourceConnectorTest {
         DatasourceConnector connector = Mockito.mock(
                 DatasourceConnector.class,
                 Mockito.withSettings()
-                        .useConstructor(restTemplate, rabbitTemplate, catalogClient, apiProperties)
+                        .useConstructor(restTemplate, rabbitTemplate, apiProperties)
                         .defaultAnswer(Mockito.CALLS_REAL_METHODS)
         );
 
@@ -70,7 +69,7 @@ class DatasourceConnectorTest {
         DatasourceConnector connector = Mockito.mock(
                 DatasourceConnector.class,
                 Mockito.withSettings()
-                        .useConstructor(restTemplate, rabbitTemplate, catalogClient, apiProperties)
+                        .useConstructor(restTemplate, rabbitTemplate, apiProperties)
                         .defaultAnswer(Mockito.CALLS_REAL_METHODS)
         );
 

@@ -1,6 +1,6 @@
 package collaborate.api.services;
 
-import collaborate.api.config.properties.ApiProperties;
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.domain.AccessRequest;
 import collaborate.api.domain.Organization;
 import collaborate.api.domain.Scope;

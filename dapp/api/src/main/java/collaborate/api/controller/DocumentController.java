@@ -1,15 +1,19 @@
 package collaborate.api.controller;
 
+import collaborate.api.catalog.CatalogService;
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.domain.AccessRequest;
 import collaborate.api.domain.Document;
 import collaborate.api.domain.DownloadDocument;
 import collaborate.api.domain.Scope;
-import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.DocumentService;
 import collaborate.api.services.ScopeService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.io.FileInputStream;
+import java.io.OutputStream;
+import java.util.UUID;
+import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,12 +24,13 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.FileInputStream;
-import java.io.OutputStream;
-import java.util.UUID;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1")
@@ -34,7 +39,7 @@ public class DocumentController {
     private final String OPERATOR_AUTHORIZATION = "hasRole('service_provider_operator')";
 
     @Autowired
-    private ICatalogClient catalogClient;
+    private CatalogService catalogService;
 
     @Autowired
     private ScopeService scopeService;
@@ -52,7 +57,7 @@ public class DocumentController {
                                                   @PathVariable("scopeId") UUID scopeId,
                                                   @SortDefault(sort = "title", direction = Sort.Direction.ASC) Pageable pageable,
                                                   @RequestParam(required = false, defaultValue = "") String q) {
-        Page<Document> documents = catalogClient.getDocumentsByScope(organizationId, datasourceId, scopeId, pageable, q);
+        Page<Document> documents = catalogService.getDocumentsByScope(organizationId, datasourceId, scopeId, pageable, q);
 
         return ResponseEntity.ok(documents);
     }
@@ -64,7 +69,7 @@ public class DocumentController {
     @PreAuthorize(OPERATOR_AUTHORIZATION)
     public HttpEntity<Page<Document>> list(@SortDefault(sort = "title", direction = Sort.Direction.ASC) Pageable pageable,
                                            @RequestParam(required = false, defaultValue = "") String q) {
-        Page<Document> documents = catalogClient.getDocuments(pageable, q);
+        Page<Document> documents = catalogService.getDocuments(pageable, q);
 
         for (Document document : documents) {
             Scope scope = Scope.createFromDocument(document);

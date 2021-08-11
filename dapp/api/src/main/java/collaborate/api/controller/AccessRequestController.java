@@ -1,7 +1,7 @@
 package collaborate.api.controller;
 
 import collaborate.api.config.OpenApiConfig;
-import collaborate.api.config.properties.ApiProperties;
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.domain.Scope;
 import collaborate.api.repository.AccessRequestRepository;
 import collaborate.api.restclient.ITezosApiGatewayClient;

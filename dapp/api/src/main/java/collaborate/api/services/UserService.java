@@ -1,17 +1,27 @@
 package collaborate.api.services;
 
-import collaborate.api.config.properties.ApiProperties;
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.errors.UserIdNotFoundException;
+import collaborate.api.helper.SetRolesNotificationEmailHelper;
 import collaborate.api.services.dto.EditUserDTO;
 import collaborate.api.services.dto.UserDTO;
-import collaborate.api.helper.SetRolesNotificationEmailHelper;
-import org.keycloak.admin.client.resource.*;
-
+import java.io.IOException;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import javax.mail.MessagingException;
+import javax.ws.rs.NotFoundException;
+import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.RoleResource;
+import org.keycloak.admin.client.resource.RoleScopeResource;
+import org.keycloak.admin.client.resource.RolesResource;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.data.domain.Page;
@@ -21,12 +31,6 @@ import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ServerErrorException;
-
-import javax.mail.MessagingException;
-import javax.ws.rs.NotFoundException;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class UserService {

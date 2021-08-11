@@ -1,9 +1,15 @@
 package collaborate.api.services.connectors.fakedatasource;
 
-import collaborate.api.config.properties.ApiProperties;
-import collaborate.api.domain.*;
-import collaborate.api.restclient.ICatalogClient;
+import collaborate.api.config.api.ApiProperties;
+import collaborate.api.domain.AccessTokenResponse;
+import collaborate.api.domain.AuthorizationServerMetadata;
+import collaborate.api.domain.BearerHttpHeaders;
+import collaborate.api.domain.Datasource;
+import collaborate.api.domain.DatasourceClientSecret;
+import collaborate.api.domain.Document;
 import collaborate.api.services.DatasourceConnector;
+import java.util.UUID;
+import org.apache.commons.lang.NotImplementedException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.hateoas.CollectionModel;
@@ -12,17 +18,14 @@ import org.springframework.hateoas.client.Traverson;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.UUID;
-
 @Service
 public class FakeDatasourceConnector extends DatasourceConnector {
     public FakeDatasourceConnector(
             RestTemplate restTemplate,
             RabbitTemplate rabbitTemplate,
-            ICatalogClient catalogClient,
             ApiProperties apiProperties
     ) {
-        super(restTemplate, rabbitTemplate, catalogClient, apiProperties);
+        super(restTemplate, rabbitTemplate,  apiProperties);
     }
 
     public Integer synchronize(Datasource datasource, DatasourceClientSecret datasourceClientSecret) {
@@ -59,8 +62,9 @@ public class FakeDatasourceConnector extends DatasourceConnector {
                 document.setType("metadata");
                 document.setSynchronizedAt(datasource.getSynchronizedAt());
 
-                catalogClient.add(document.getOrganizationId(), document.getDatasourceId(), document);
+                // catalogClient.add(document.getOrganizationId(), document.getDatasourceId(), document);
                 documentCount++;
+                throw new NotImplementedException();
             }
         }
 
