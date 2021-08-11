@@ -25,18 +25,11 @@ appVersion: "0.1.0"
 
 dependencies:
   - name: postgresql
-    alias: iam-db
     version: "10.2.5"
     repository: "https://charts.bitnami.com/bitnami"
-  - name: postgresql
-    version: "10.2.5"
+  - name: keycloak
+    version: "2.4.3"
     repository: "https://charts.bitnami.com/bitnami"
-  - name: rabbitmq
-    version: "8.16.3"
-    repository: "https://charts.bitnami.com/bitnami"
-#  - name: maildev
-#    version: "0.1.2"
-#    repository: "https://maildev.github.io/helm"
-  - name: vault
-    version: "1.0.2-develop"
-    repository: "oci://registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/vault/helm"
+  - name: tezos-api-gateway
+    version: "0.3.0-develop.302"
+    repository: "oci://registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/tezos-api-gateway/helm"

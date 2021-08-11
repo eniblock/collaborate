@@ -1,50 +1,16 @@
-#
-# Build event listener
-#
-FROM maven:3.6.3-jdk-11-slim AS KeycloakExtension
-COPY kc-extension/src /home/app/src
-COPY kc-extension/pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package -Dmaven.test.skip=true
+FROM maven:3.6.3-jdk-11-slim as build
+WORKDIR /workspace/app
 
-FROM jboss/keycloak:11.0.3
-USER root
-RUN curl -sL https://github.com/jwilder/dockerize/releases/download/v0.6.1/dockerize-alpine-linux-amd64-v0.6.1.tar.gz | tar xvzC /usr/bin
-USER 1000
-COPY certs/ /etc/x509/https/
-COPY realm-config/realm-export.json /realm-export.json.tpl
-COPY standalone/standalone-ha.xml /opt/jboss/keycloak/standalone/configuration/standalone-ha.xml
-COPY --from=KeycloakExtension /home/app/src/kc-extension-ear/target/kc-extension-ear.ear /opt/jboss/keycloak/standalone/deployments/
+COPY pom.xml iam/
+COPY authenticator/pom.xml iam/authenticator/
+RUN mvn --batch-mode dependency:go-offline install -DskipTests -B -f iam
 
-COPY custom-theme/custom-keycloak/ /opt/jboss/keycloak/themes/custom-keycloak/
-COPY custom-theme/logical-pictures/ /opt/jboss/keycloak/themes/logical-pictures/
-COPY custom-theme/collaborate/ /opt/jboss/keycloak/themes/collaborate/
+COPY authenticator/src iam/authenticator/src
+RUN mvn --batch-mode install -DskipTests -f iam/authenticator
 
-
-
-# the SMTP configuration variables
-# SMTP_AUTH, SMTP_STARTTLS and SMTP_SSL are boolean that should be either true, false or an empty string
-ENV SMTP_FROM=noreply@theblockchainxdev.com \
-  SMTP_HOST=maildev \
-  SMTP_AUTH= \
-  SMTP_STARTTLS= \
-  SMTP_SSL= \
-  SMTP_USER= \
-  SMTP_PASSWORD=
-# to be activated for dev only
-ENV INSERT_TEST_USERS=false
-ENV REALM=collaborate \
-  KEYCLOAK_IMPORT=/realm-export.json \
-  KEYCLOAK_USER=kcadmin \
-  KEYCLOAK_PASSWORD=kcadmin
-
-ENV IDP_ADMIN_ROLE=service_identity_provider_administrator
-ENV ADMIN_ROLE=service_provider_administrator
-
-ENTRYPOINT []
-CMD ["dockerize", "-template", "/realm-export.json.tpl:/tmp/realm-export.json", \
-     "/opt/jboss/tools/docker-entrypoint.sh", \
-     "-b", "0.0.0.0", \
-     "-Dkeycloak.migration.action=import", \
-     "-Dkeycloak.migration.provider=singleFile", \
-     "-Dkeycloak.migration.file=/tmp/realm-export.json", \
-     "-Dkeycloak.migration.strategy=IGNORE_EXISTING"]
+FROM registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/keycloak:develop.53
+COPY --from=build /workspace/app/iam/authenticator/target/authenticator-email.jar /opt/bitnami/keycloak/standalone/deployments/authenticator-email.jar
+COPY custom-theme/custom-keycloak/ /opt/bitnami/keycloak/themes/custom-keycloak/
+COPY custom-theme/logical-pictures/ /opt/bitnami/keycloak/themes/logical-pictures/
+COPY custom-theme/collaborate/ /opt/bitnami/keycloak/themes/collaborate/
+COPY realm-config /realm-config/

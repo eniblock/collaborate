@@ -1,36 +1,22 @@
 package collaborate.api.controller;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.domain.Datasource;
-import collaborate.api.domain.DatasourceClientSecret;
-import collaborate.api.domain.enumeration.DatasourceEvent;
 import collaborate.api.repository.DatasourceRepository;
-import collaborate.api.services.DatasourceService;
-import collaborate.api.services.VaultService;
-import collaborate.api.services.dto.DatasourceDTO;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.modelmapper.ModelMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.SortDefault;
-import org.springframework.hateoas.Link;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,18 +26,10 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/v1")
 public class DatasourceController {
 
-    Logger logger = LoggerFactory.getLogger(DatasourceController.class);
-
     private final String ADMIN_AUTHORIZATION = "hasRole('service_provider_administrator')";
 
     @Autowired
     private DatasourceRepository datasourceRepository;
-
-    @Autowired
-    private DatasourceService datasourceService;
-
-    @Autowired
-    private VaultService vaultService;
 
     private static final ModelMapper modelMapper = new ModelMapper();
 
@@ -63,32 +41,6 @@ public class DatasourceController {
     public HttpEntity<Page<Datasource>> list(@SortDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable, @RequestParam(required = false, defaultValue = "") String q) {
         Page<Datasource> datasourcePage = datasourceRepository.findByNameIgnoreCaseLike(pageable, q);
         return ResponseEntity.ok(datasourcePage);
-    }
-
-    @PostMapping("datasources")
-    @Operation(
-            security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
-    )
-    @PreAuthorize(ADMIN_AUTHORIZATION)
-    public ResponseEntity<Datasource> create(@RequestBody DatasourceDTO datasourceDTO) throws JsonProcessingException {
-        Datasource datasource = modelMapper.map(datasourceDTO, Datasource.class);
-        DatasourceClientSecret datasourceClientSecret = modelMapper.map(datasourceDTO, DatasourceClientSecret.class);
-
-        // Test datasource connection@Ignore
-        datasourceService.testConnection(datasource, datasourceClientSecret);
-
-        // Save the datasource in DB
-        datasource = datasourceRepository.save(datasource);
-
-        // Save client secret in vault
-        vaultService.put("datasources/" + datasource.getId(), datasourceClientSecret);
-
-        // Send synchronize datasource message
-        datasourceService.produce(datasource, DatasourceEvent.CREATED);
-
-        Link link = linkTo(methodOn(DatasourceController.class).get(datasource.getId())).withSelfRel();
-
-        return ResponseEntity.created(link.toUri()).build();
     }
 
     @GetMapping("datasources/{id}")

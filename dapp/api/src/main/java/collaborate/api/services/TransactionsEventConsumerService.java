@@ -1,6 +1,7 @@
 package collaborate.api.services;
 
-import collaborate.api.config.properties.ApiProperties;
+import collaborate.api.catalog.CatalogService;
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.domain.AccessGrantParams;
 import collaborate.api.domain.AccessRequest;
 import collaborate.api.domain.AccessTokenResponse;
@@ -14,7 +15,6 @@ import collaborate.api.domain.TransactionsEventMessage;
 import collaborate.api.domain.enumeration.AccessRequestStatus;
 import collaborate.api.repository.AccessRequestRepository;
 import collaborate.api.repository.DatasourceRepository;
-import collaborate.api.restclient.ICatalogClient;
 import collaborate.api.services.connectors.DatasourceConnectorFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -55,7 +55,7 @@ public class TransactionsEventConsumerService {
     private CipherService cipherService;
 
     @Autowired
-    private ICatalogClient catalogClient;
+    private CatalogService catalogService;
 
     @Autowired
     private VaultService vaultService;
@@ -95,7 +95,7 @@ public class TransactionsEventConsumerService {
 
         // Find scope by id
         UUID scopeId = value.getRequestAccess().getScopeId();
-        Scope scope = catalogClient.getScopeById(scopeId);
+        Scope scope = catalogService.getScopeById(scopeId);
 
         logger.info("Found scope: " + scope.getScope());
 

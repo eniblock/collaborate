@@ -1,11 +1,20 @@
 package collaborate.api.services;
 
-import collaborate.api.config.properties.ApiProperties;
+import collaborate.api.catalog.CatalogService;
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.domain.AccessRequest;
 import collaborate.api.domain.Document;
 import collaborate.api.domain.DownloadDocument;
 import collaborate.api.domain.Scope;
-import collaborate.api.restclient.ICatalogClient;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.security.PrivateKey;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.servlet.ServletOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,23 +26,13 @@ import org.springframework.util.StreamUtils;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
-import javax.servlet.ServletOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.security.PrivateKey;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
-
 @Service
 public class DocumentService {
 
     private static final Logger LOG = LoggerFactory.getLogger(DocumentService.class);
 
     @Autowired
-    private ICatalogClient catalogClient;
+    private CatalogService catalogService;
 
     @Autowired
     private ScopeService scopeService;
@@ -48,7 +47,7 @@ public class DocumentService {
     private RestTemplate restTemplate;
 
     public DownloadDocument downloadDocument(String documentId) throws Exception {
-        Document document = catalogClient.getDocumentById(documentId);
+        Document document = catalogService.getDocumentById(documentId);
 
         if (document == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND);

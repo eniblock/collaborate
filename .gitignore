@@ -43,3 +43,5 @@ Info.plist*
 *.tgz
 
 .history
+helm/**/charts
+*~

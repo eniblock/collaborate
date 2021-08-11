@@ -15,18 +15,11 @@ spring:
     oauth2:
       client:
         registration:
-          catalog:
-            client-id: mobivia
-            client-secret: df6935e3-2816-4d02-9d65-16cd28b8adbe
-            authorization-grant-type: client_credentials
           collaborate:
             client-id: collaborate-backend
             client-secret: 572255bd-1504-4d51-8389-967d8cc668f8
             authorization-grant-type: client_credentials
         provider:
-          catalog:
-            authorization-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/auth
-            token-uri: http://localhost:10080/auth/realms/catalog/protocol/openid-connect/token
           collaborate:
             authorization-uri: http://localhost:18080/auth/realms/collaborate/protocol/openid-connect/auth
             token-uri: http://localhost:18080/auth/realms/collaborate/protocol/openid-connect/token
