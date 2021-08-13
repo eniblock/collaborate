@@ -1,6 +1,6 @@
 package collaborate.api.config.security;
 
-import collaborate.api.services.UserService;
+import collaborate.api.user.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.event.ContextRefreshedEvent;

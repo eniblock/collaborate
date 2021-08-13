@@ -17,7 +17,7 @@ api:
       name: Mobivia
       publicKeyHash: tz1deMfzt2hK1KVUjbkn7Ea9kykSsmh2YXoL
       publicKey: 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
-  tezos-api-gateway-url: http://localhost:3333/api
+
 spring:
   rabbitmq:
     host: localhost
@@ -43,6 +43,7 @@ spring:
         smtp:
           auth: false
       addressFrom: noreply@theblockchainxdev.com
+  mvc.async.request-timeout: 90000
   jpa:
     hibernate:
       ddl-auto: update
@@ -81,12 +82,16 @@ keycloak-admin-client-properties:
 
 keycloak:
   auth-server-url: https://localhost:8443/auth
-  realm: collaborate
+  realm: collaborate-dapp
   resource: collaborate-backend
   public-client: true
   bearer-only: true
   disable-trust-manager: true
   ssl-required: none
+
+tezos-api-gateway:
+  url: http://localhost:3333/api
+  secureKeyname: 'admin'
 
 springdoc:
   version: '@springdoc.version@'
@@ -103,6 +108,11 @@ feign:
     disableSslValidation: true
     enabled: false
   okhttp.enabled: true
+  client:
+    config:
+      tag-user-client:
+        connectTimeout: 10000
+        readTimeout: 90000
 
 management:
   endpoints:
@@ -116,3 +126,5 @@ management:
 logging:
   level:
     collaborate.api: DEBUG
+
+

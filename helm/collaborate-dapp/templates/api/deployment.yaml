@@ -61,7 +61,7 @@ spec:
             {{- end }}
 
             # tezos-api-gateway config
-            - name: API_TEZOS_API_GATEWAY_URL
+            - name: TEZOS_API_GATEWAY_URL
               value: "{{ .Release.Name }}-tag-api:3333"
             - name: SPRING_RABBITMQ_HOST
               value: "{{ .Release.Name }}-rabbitmq"
@@ -129,7 +129,7 @@ spec:
             # keycloak configuration
             - name: KEYCLOAK_AUTH_SERVER_URL
               value: "https://{{ .Values.ingress.host }}/auth"
-            - name: KEYCLOAK_REAM
+            - name: KEYCLOAK_REALM
               value: "collaborate-dapp"
             - name: KEYCLOAK_RESOURCE
               value: backend

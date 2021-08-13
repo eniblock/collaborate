@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "118b64d2-9d46-4df4-aebb-24e5280d2f94",
+		"_postman_id": "0a9144e0-a199-4edf-a055-7418373d635d",
 		"name": "Collaborate",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -12,7 +12,7 @@
 					"name": "Keycloak API",
 					"item": [
 						{
-							"name": "Get Token",
+							"name": "Get Token - Admin",
 							"event": [
 								{
 									"listen": "test",
@@ -51,7 +51,69 @@
 										},
 										{
 											"key": "client_id",
-											"value": "collaborate-frontend",
+											"value": "{{dAppKeycloakFrontendClientId}}",
+											"type": "text"
+										}
+									]
+								},
+								"url": {
+									"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+									"host": [
+										"{{dAppKeycloakUrl}}"
+									],
+									"path": [
+										"auth",
+										"realms",
+										"{{dAppKeycloakRealm}}",
+										"protocol",
+										"openid-connect",
+										"token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get Token - Alice Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"let response = pm.response.json();",
+											"pm.environment.set(\"dAppToken\", response.access_token);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"auth": {
+									"type": "noauth"
+								},
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "urlencoded",
+									"urlencoded": [
+										{
+											"key": "grant_type",
+											"value": "password",
+											"type": "text"
+										},
+										{
+											"key": "username",
+											"value": "alice",
+											"type": "text"
+										},
+										{
+											"key": "password",
+											"value": "admin",
+											"type": "text"
+										},
+										{
+											"key": "client_id",
+											"value": "{{dAppKeycloakFrontendClientId}}",
 											"type": "text"
 										}
 									]
@@ -100,14 +162,14 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{dAppKeycloakUrl}}/auth/realms/collaborate/custom-api/users?paged=true&sorted=false&pageNumber=0&offset=0&pageSize=10",
+									"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/custom-api/users?paged=true&sorted=false&pageNumber=0&offset=0&pageSize=10",
 									"host": [
 										"{{dAppKeycloakUrl}}"
 									],
 									"path": [
 										"auth",
 										"realms",
-										"collaborate",
+										"{{dAppKeycloakRealm}}",
 										"custom-api",
 										"users"
 									],
@@ -172,6 +234,61 @@
 				{
 					"name": "Collaborate API",
 					"item": [
+						{
+							"name": "User",
+							"item": [
+								{
+									"name": "Create TAG user",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/users/tag/asset-owner",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"tag",
+												"asset-owner"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get users",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/users?page=0&size=10",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "0"
+												},
+												{
+													"key": "size",
+													"value": "10"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
 						{
 							"name": "Add datasource",
 							"request": {
@@ -293,35 +410,6 @@
 							"response": []
 						},
 						{
-							"name": "Get users",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{dAppApiUrl}}/api/v1/users?page=0&size=10",
-									"host": [
-										"{{dAppApiUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"users"
-									],
-									"query": [
-										{
-											"key": "page",
-											"value": "0"
-										},
-										{
-											"key": "size",
-											"value": "10"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "Get organizations",
 							"request": {
 								"method": "GET",
@@ -371,498 +459,411 @@
 							}
 						}
 					]
-				}
-			]
-		},
-		{
-			"name": "Catalog",
-			"item": [
+				},
 				{
-					"name": "Keycloak API",
+					"name": "Tests suites",
 					"item": [
 						{
-							"name": "Get Token",
-							"event": [
+							"name": "COL-215 Asset owner first login",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let response = pm.response.json();",
-											"pm.environment.set(\"catalogToken\", response.access_token);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "urlencoded",
-									"urlencoded": [
+									"name": "Setup - Get Keycloak Admin token",
+									"event": [
 										{
-											"key": "grant_type",
-											"value": "client_credentials",
-											"type": "text"
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													"pm.environment.set(\"keycloak-admin-token\", response.access_token);",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
 										},
-										{
-											"key": "client_id",
-											"value": "{{catalogKeycloakClientId}}",
-											"type": "text"
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "username",
+													"value": "kcadmin",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "kcadmin",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "admin-cli",
+													"type": "text"
+												},
+												{
+													"key": "grant_type",
+													"value": "password",
+													"type": "text"
+												}
+											]
 										},
-										{
-											"key": "client_secret",
-											"value": "{{catalogKeycloakClientSecret}}",
-											"type": "text"
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"master",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
 										}
-									]
+									},
+									"response": []
 								},
-								"url": {
-									"raw": "{{catalogKeycloakUrl}}/auth/realms/{{catalogKeycloakRealm}}/protocol/openid-connect/token",
-									"host": [
-										"{{catalogKeycloakUrl}}"
-									],
-									"path": [
-										"auth",
-										"realms",
-										"{{catalogKeycloakRealm}}",
-										"protocol",
-										"openid-connect",
-										"token"
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				},
-				{
-					"name": "Catalog API",
-					"item": [
-						{
-							"name": "Add document",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"organizationId\": \"psa\",\n    \"organizationName\": \"PSA\",\n    \"datasourceId\": 1,\n    \"documentId\": \"1\",\n    \"title\": \"title\",    \n    \"scope\": \"scope\",\n    \"scopeId\": \"80380472-f235-44fe-9f62-60f86fb87bbf\",\n    \"type\": \"metadata\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{catalogApiUrl}}/api/v1/organizations/{{organizationId}}/datasources/{{datasourceId}}/documents",
-									"host": [
-										"{{catalogApiUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"organizations",
-										"{{organizationId}}",
-										"datasources",
-										"{{datasourceId}}",
-										"documents"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get documents by datasource",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{catalogApiUrl}}/api/v1/organizations/{{organizationId}}/datasources/{{datasourceId}}/documents",
-									"host": [
-										"{{catalogApiUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"organizations",
-										"{{organizationId}}",
-										"datasources",
-										"{{datasourceId}}",
-										"documents"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get documents by scope",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{catalogApiUrl}}/api/v1/organizations/{{organizationId}}/datasources/{{datasourceId}}/scopes/{{scopeId}}/documents",
-									"host": [
-										"{{catalogApiUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"organizations",
-										"{{organizationId}}",
-										"datasources",
-										"{{datasourceId}}",
-										"scopes",
-										"{{scopeId}}",
-										"documents"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get documents",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{catalogApiUrl}}/api/v1/documents?q=&sort=title,desc",
-									"host": [
-										"{{catalogApiUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"documents"
-									],
-									"query": [
-										{
-											"key": "q",
-											"value": ""
-										},
-										{
-											"key": "sort",
-											"value": "title,desc"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get scope list",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{catalogApiUrl}}/api/v1/scopes?sortingFields=organizationName",
-									"host": [
-										"{{catalogApiUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"scopes"
-									],
-									"query": [
-										{
-											"key": "sortingFields",
-											"value": "organizationName"
-										}
-									]
-								}
-							},
-							"response": []
-						}
-					],
-					"auth": {
-						"type": "bearer",
-						"bearer": [
-							{
-								"key": "token",
-								"value": "{{catalogToken}}",
-								"type": "string"
-							}
-						]
-					},
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						}
-					]
-				}
-			],
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				}
-			]
-		},
-		{
-			"name": "Fake Datasource",
-			"item": [
-				{
-					"name": "Keycloak API",
-					"item": [
-						{
-							"name": "Get Token",
-							"event": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let response = pm.response.json();",
-											"pm.environment.set(\"fakeDatasourceToken\", response.access_token);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "urlencoded",
-									"urlencoded": [
+									"name": "Setup - Create asset owner user",
+									"event": [
 										{
-											"key": "grant_type",
-											"value": "client_credentials",
-											"type": "text"
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let user = pm.environment.get(\"test-asset-owner-email\");",
+													"tests['Creation of ' + user + ' resulted in 201 OK'] = responseCode.code === 201;"
+												],
+												"type": "text/javascript"
+											}
 										},
 										{
-											"key": "client_id",
-											"value": "{{fakeDatasourceKeycloakClientId}}",
-											"type": "text"
-										},
-										{
-											"key": "client_secret",
-											"value": "{{fakeDatasourceKeycloakClientSecret}}",
-											"type": "text"
-										},
-										{
-											"key": "scope",
-											"value": "{{scope}} maintenance-plans-Peugeot-3008",
-											"type": "text"
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"function generateEmail(){",
+													"    let timestamp = new Date().getTime();",
+													"    return \"email@\"+timestamp+\".test\";",
+													"}",
+													"",
+													"let email = generateEmail();",
+													"pm.environment.set(\"test-asset-owner-email\", email);",
+													"pm.environment.set(\"test-asset-owner-username\", email);",
+													"pm.environment.set(\"test-asset-owner-password\", \"password\");",
+													"",
+													"// Roles must be assigned in a separate request"
+												],
+												"type": "text/javascript"
+											}
 										}
-									]
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"{{test-asset-owner-email}}\",\n    \"username\": \"{{test-asset-owner-email}}\",\n    \"enabled\": true,\n    \"emailVerified\": true,\n    \"credentials\":[{\n        \"type\": \"password\",\n        \"value\":\"{{test-asset-owner-password}}\",\n        \"temporary\":false\n    }],\n    \"realmRoles\":[\"pending_asset_owner\", \"uma_authorization\", \"offline_access\"]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"users"
+											]
+										}
+									},
+									"response": []
 								},
-								"url": {
-									"raw": "{{fakeDatasourceKeycloakUrl}}/auth/realms/{{fakeDatasourceKeycloakRealm}}/protocol/openid-connect/token",
-									"host": [
-										"{{fakeDatasourceKeycloakUrl}}"
+								{
+									"name": "Setup - Get asset owner id",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"let userId = response[0].id;",
+													"let email = pm.environment.get(\"test-asset-owner-email\")",
+													"",
+													"tests['Id of ' + email + ' is '+ userId] = responseCode.code === 200;",
+													"pm.environment.set(\"test-asset-owner-id\", userId)"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
 									],
-									"path": [
-										"auth",
-										"realms",
-										"{{fakeDatasourceKeycloakRealm}}",
-										"protocol",
-										"openid-connect",
-										"token"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get Authorization Server Metadata",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{fakeDatasourceKeycloakUrl}}/auth/realms/{{fakeDatasourceKeycloakRealm}}/.well-known/openid-configuration",
-									"host": [
-										"{{fakeDatasourceKeycloakUrl}}"
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"email\": \"{{test-asset-owner-email}}\",\n    \"username\": \"{{test-asset-owner-email}}\",\n    \"enabled\": true,\n    \"emailVerified\": true,\n    \"credentials\":[{\n        \"value\":\"{{test-asset-owner-password}}\",\n        \"temporary\":false\n    }],\n    \"realmRoles\":[\"pending_asset_owner\"]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email={{test-asset-owner-email}}",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"users"
+											],
+											"query": [
+												{
+													"key": "email",
+													"value": "{{test-asset-owner-email}}"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Setup - Update asset owner roles",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let user = pm.environment.get(\"test-asset-owner-email\");",
+													"tests['Update of ' + user + 'roles resulted in 204 OK'] = responseCode.code === 204;"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"// Roles must be assigned in a separate request",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
 									],
-									"path": [
-										"auth",
-										"realms",
-										"{{fakeDatasourceKeycloakRealm}}",
-										".well-known",
-										"openid-configuration"
-									]
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[{\n        \"id\":\"d7732aa5-f408-4248-96aa-f0ec4c7fd41a\",\n        \"name\": \"pending_asset_owner\",\n        \"composite\": false,\n        \"clientRole\": false,\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n}]\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/{{test-asset-owner-id}}/role-mappings/realm",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"users",
+												"{{test-asset-owner-id}}",
+												"role-mappings",
+												"realm"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Setup - Get asset owner token",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.environment.set(\"test-asset-owner-toekn\", response.access_token);",
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "grant_type",
+													"value": "password",
+													"type": "text"
+												},
+												{
+													"key": "username",
+													"value": "{{test-asset-owner-username}}",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "{{test-asset-owner-password}}",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "{{dAppKeycloakFrontendClientId}}",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "As pending asset owner,  I create my TAG user AND get asset_owner role",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let user = pm.environment.get(\"test-asset-owner-email\");",
+													"tests['Update of ' + user + 'results in 200 OK'] = responseCode.code === 200;"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{dAppToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/users/tag/asset-owner",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"tag",
+												"asset-owner"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
-						}
-					],
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
-						},
-						{
-							"listen": "test",
-							"script": {
-								"type": "text/javascript",
-								"exec": [
-									""
-								]
-							}
+							]
 						}
 					]
-				},
-				{
-					"name": "Fake Datasource API",
-					"item": [
-						{
-							"name": "List metadata",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{fakeDatasourceApiUrl}}/metadata",
-									"host": [
-										"{{fakeDatasourceApiUrl}}"
-									],
-									"path": [
-										"metadata"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get metadata",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{fakeDatasourceApiUrl}}/metadata/{{metadata}}",
-									"host": [
-										"{{fakeDatasourceApiUrl}}"
-									],
-									"path": [
-										"metadata",
-										"{{metadata}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Download metadata",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{fakeDatasourceApiUrl}}/metadata/{{metadata}}/download",
-									"host": [
-										"{{fakeDatasourceApiUrl}}"
-									],
-									"path": [
-										"metadata",
-										"{{metadata}}",
-										"download"
-									]
-								}
-							},
-							"response": []
-						}
-					]
-				}
-			],
-			"auth": {
-				"type": "bearer",
-				"bearer": [
-					{
-						"key": "token",
-						"value": "{{fakeDatasourceToken}}",
-						"type": "string"
-					}
-				]
-			},
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
 				}
 			]
 		},
 		{
-			"name": "TAG",
+			"name": "Tezos Api Gateway",
 			"item": [
 				{
-					"name": "User creation",
+					"name": "Create user",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"userIdList\": [\n    \"psa\", \"mobivia\"\n  ],\n  \"secureKeyName\": \"admin\"\n}",
+							"raw": "{\n  \"userIdList\": [\n    \"pcc-developmenttheblockchainxdev.com\"\n  ],\n  \"secureKeyName\": \"admin\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -870,9 +871,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/user/create",
+							"raw": "{{tagApiUrl}}/api/user/create",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -901,9 +902,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/user?userIdList=master&userIdList=psa&userIdList=mobivia",
+							"raw": "{{tagApiUrl}}/api/user?userIdList=admin&userIdList=psa&userIdList=mobivia",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -912,7 +913,7 @@
 							"query": [
 								{
 									"key": "userIdList",
-									"value": "master"
+									"value": "admin"
 								},
 								{
 									"key": "userIdList",
@@ -945,9 +946,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/user/address?userAddressList=tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW&userAddressList=tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm",
+							"raw": "{{tagApiUrl}}/api/user/address?userAddressList=tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW&userAddressList=tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -986,9 +987,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/entrypoints/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"raw": "{{tagApiUrl}}/api/entrypoints/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -1017,9 +1018,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/entrypoints/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR?entryPoints=requestAccess",
+							"raw": "{{tagApiUrl}}/api/entrypoints/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR?entryPoints=requestAccess",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -1051,9 +1052,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -1080,9 +1081,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -1109,9 +1110,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -1138,9 +1139,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -1167,9 +1168,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/forge/jobs",
+							"raw": "{{tagApiUrl}}/api/forge/jobs",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -1215,9 +1216,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/send/jobs",
+							"raw": "{{tagApiUrl}}/api/send/jobs",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
@@ -1246,9 +1247,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagUrl}}/api/job/1",
+							"raw": "{{tagApiUrl}}/api/job/1",
 							"host": [
-								"{{tagUrl}}"
+								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",

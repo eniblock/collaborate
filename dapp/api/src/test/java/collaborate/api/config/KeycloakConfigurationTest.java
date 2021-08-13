@@ -1,5 +1,8 @@
 package collaborate.api.config;
 
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.when;
+
 import collaborate.api.ApiApplication;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -7,26 +10,18 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
-import org.keycloak.adapters.springboot.client.KeycloakSecurityContextClientRequestInterceptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.Spy;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import static org.junit.Assert.assertNotNull;
-import static org.mockito.Mockito.when;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = ApiApplication.class)
 @Ignore
 public class KeycloakConfigurationTest {
-
-    @Spy
-    private KeycloakSecurityContextClientRequestInterceptor factory;
 
     private MockHttpServletRequest servletRequest;
 

@@ -7,8 +7,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "tezos-api-gateway-client", url = "${api.tezos-api-gateway-url}")
-public interface ITezosApiGatewayClient {
+@FeignClient(name = "tag-client", url = "${tezos-api-gateway.url}/api")
+public interface TezosApiGatewayClient {
 
     @Operation(description = "Send transaction batch")
     @PostMapping("send/jobs")

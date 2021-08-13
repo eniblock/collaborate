@@ -135,13 +135,6 @@ keycloak:
       - gitlab-registry
   auth:
     adminUser: kcadmin
-  extraEnvVars:
-    - name: REALM
-      value: "collaborate-dapp"
-    - name: ROLE_ATTRIBUTE_KEY
-      value: "type"
-    - name: ROLE_ATTRIBUTE_VALUE
-      value: "collaborate-dapp"
   extraEnvVarsSecret: '{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets'
   resources:
     requests:

@@ -2,6 +2,7 @@ package collaborate.api.config.api;
 
 import com.fasterxml.jackson.databind.Module;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.web.client.RestTemplateCustomizer;
 import org.springframework.cloud.openfeign.support.PageJacksonModule;
@@ -42,5 +43,10 @@ public class ApiConfig {
   @Bean
   public String contractAddress() {
     return apiProperties.getContractAddress();
+  }
+
+  @Bean
+  public ModelMapper modelMapper(){
+    return new ModelMapper();
   }
 }
