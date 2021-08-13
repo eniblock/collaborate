@@ -54,6 +54,7 @@
             <version>11.0.3</version>
         </dependency>
 
+
         <!-- Spring framework dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -112,6 +113,12 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.ws.rs</groupId>
+                    <artifactId>jsr311-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Thymeleaf -->
