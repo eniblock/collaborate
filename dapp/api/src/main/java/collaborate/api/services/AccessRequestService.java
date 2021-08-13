@@ -9,7 +9,7 @@ import collaborate.api.domain.Transaction;
 import collaborate.api.domain.TransactionBatch;
 import collaborate.api.domain.enumeration.AccessRequestStatus;
 import collaborate.api.repository.AccessRequestRepository;
-import collaborate.api.restclient.ITezosApiGatewayClient;
+import collaborate.api.restclient.TezosApiGatewayClient;
 import feign.FeignException;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class AccessRequestService {
     private ApiProperties apiProperties;
 
     @Autowired
-    private ITezosApiGatewayClient tezosApiGatewayClient;
+    private TezosApiGatewayClient tezosApiGatewayClient;
 
     @Autowired
     private AccessRequestService accessRequestService;

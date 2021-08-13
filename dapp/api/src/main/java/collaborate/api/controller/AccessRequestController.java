@@ -4,7 +4,7 @@ import collaborate.api.config.OpenApiConfig;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.domain.Scope;
 import collaborate.api.repository.AccessRequestRepository;
-import collaborate.api.restclient.ITezosApiGatewayClient;
+import collaborate.api.restclient.TezosApiGatewayClient;
 import collaborate.api.services.AccessRequestService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -27,7 +27,7 @@ public class AccessRequestController {
     private ApiProperties apiProperties;
 
     @Autowired
-    private ITezosApiGatewayClient tezosApiGatewayClient;
+    private TezosApiGatewayClient tezosApiGatewayClient;
 
     @Autowired
     private AccessRequestService accessRequestService;

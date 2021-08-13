@@ -4,7 +4,7 @@ import collaborate.api.config.api.ApiProperties;
 import collaborate.api.domain.AccessGrantParams;
 import collaborate.api.domain.Transaction;
 import collaborate.api.domain.TransactionBatch;
-import collaborate.api.restclient.ITezosApiGatewayClient;
+import collaborate.api.restclient.TezosApiGatewayClient;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,7 +16,7 @@ public class AccessGrantService {
     private ApiProperties apiProperties;
 
     @Autowired
-    private ITezosApiGatewayClient tezosApiGatewayClient;
+    private TezosApiGatewayClient tezosApiGatewayClient;
 
     TransactionBatch<AccessGrantParams> transactionBatch = new TransactionBatch<AccessGrantParams>();
 

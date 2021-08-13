@@ -1,5 +1,6 @@
 package collaborate.api.services.dto;
 
+import collaborate.api.user.model.UserDTO;
 import java.util.List;
 
 public class UserSearchResponseDTO {
