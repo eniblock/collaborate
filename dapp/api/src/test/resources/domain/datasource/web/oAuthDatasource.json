@@ -1,0 +1,22 @@
+{
+  "type" : "WEBSERVER",
+  "id" : 1,
+  "name" : "PSA Digital Passport",
+  "status" : "CREATED",
+  "baseUrl" : "http://psa.pcc.localhost",
+  "authMethod" : {
+    "type" : "OAuth",
+    "accessMethod" : "OAUTH2_CLIENT_CREDENTIALS_GRANT",
+    "clientId" : "collaborate",
+    "clientSecret" : "secret",
+    "issuerIdentifierUri" : "http://psa.pcc.localhost",
+    "wellKnownURIPathSuffix" : "/.well-known",
+    "transferMethod" : "OAUTH2_CLIENT_CREDENTIALS_GRANT"
+  },
+  "keywords" : [ "vehicles", "digital-passport" ],
+  "resources" : [ {
+    "description" : "Datasource documents",
+    "keywords" : [ "routing-key:documents", "scope:business_data" ],
+    "path" : "https://developer.groupe-psa.io/webapi/b2b/api-reference-v3/specification/"
+  } ]
+}
