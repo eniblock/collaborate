@@ -1,0 +1,24 @@
+{
+  "type" : "WebServerDatasource",
+  "baseUrl" : "https://www.google.fr",
+  "name" : "Test - Google",
+  "status" : "CREATED",
+  "authMethod" : {
+    "host" : "api-cert-preprod.groupe-psa.com",
+    "passphrase" : "password",
+    "caEmail" : "certificate@authority.email",
+    "type" : "CertificateBasedBasicAuth",
+    "user" : "myUser",
+    "password" : "password",
+    "queryParams" : [ {
+      "key" : "client_id",
+      "value" : "c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
+    } ]
+  },
+  "keywords" : [ "vehicles", "digital-passport" ],
+  "resources" : [ {
+    "description" : "Vehicles list",
+    "keywords" : [ "routing-key:vehicles", "assets" ],
+    "url" : "/search?q=test"
+  } ]
+}

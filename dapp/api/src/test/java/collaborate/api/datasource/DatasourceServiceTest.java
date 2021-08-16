@@ -2,131 +2,103 @@ package collaborate.api.datasource;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.datasource.domain.BasicAuthDto;
-import collaborate.api.datasource.domain.DataSource;
-import collaborate.api.datasource.domain.DatasourceClientSecret;
-import collaborate.api.datasource.domain.authentication.Authentication;
-import collaborate.api.datasource.domain.authentication.BasicAuth;
-import collaborate.api.datasource.domain.authentication.Oauth;
+import collaborate.api.datasource.domain.Datasource;
 import collaborate.api.datasource.domain.web.WebServerDatasource;
+import collaborate.api.datasource.domain.web.authentication.Authentication;
+import collaborate.api.datasource.domain.web.authentication.OAuth2;
 import collaborate.api.datasource.repository.DataSourceRepository;
-import collaborate.api.security.VaultService;
+import collaborate.api.datasource.security.SaveAuthenticationVisitor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.assertj.core.api.Assertions;
+import java.util.UUID;
+import javax.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.web.server.ResponseStatusException;
 
 @ExtendWith(MockitoExtension.class)
 class DatasourceServiceTest {
 
   @Mock
-  private VaultService vaultService;
-
-  @Mock
   private DataSourceRepository dataSourceRepository;
-
   @Mock
-  private ModelMapper modelMapper;
-
+  private SaveAuthenticationVisitor saveAuthenticationVisitor;
+  @Mock
+  private EntityManager entityManager;
   @InjectMocks
   private DatasourceService datasourceService;
 
+  private final UUID datasourceUUID = UUID.fromString("50631325-f40d-4e45-be29-4dd44d54fc12");
+
   @Test
-  void create_ok() {
-    //GIVEN
-    Authentication oauth = new Oauth();
-    DataSource dataSource = WebServerDatasource.builder().authMethod(oauth).build();
-    when(dataSourceRepository.save(any(DataSource.class))).thenReturn(dataSource);
-    doNothing().when(vaultService).put(anyString(), any(DatasourceClientSecret.class));
-    //WHEN
+  void create_shouldCallExpectedServices_withValidOAuth() {
+    // GIVEN
+    Authentication oauth = new OAuth2();
+    Datasource dataSource = WebServerDatasource.builder()
+        .id(datasourceUUID)
+        .authMethod(oauth).build();
+
+    when(dataSourceRepository.saveAndFlush(any(Datasource.class))).thenReturn(dataSource);
+    doNothing().when(saveAuthenticationVisitor).visitOAuth2((OAuth2) dataSource.getAuthMethod());
+    doNothing().when(entityManager).refresh(dataSource);
+    // WHEN
     datasourceService.create(dataSource);
-    //THEN
-    verify(dataSourceRepository, times(1)).save(any(DataSource.class));
-    verify(vaultService, times(1)).put(anyString(), any(DatasourceClientSecret.class));
+    // THEN
+    verify(dataSourceRepository, times(1)).saveAndFlush(dataSource);
+    verify(saveAuthenticationVisitor, times(1)).visitOAuth2((OAuth2) dataSource.getAuthMethod());
   }
 
   @Test
-  void search_ok() {
-    //GIVEN
-    List<DataSource> list = new ArrayList<>();
+  void search_shouldCallDatasourceRepository() {
+    // GIVEN
+    List<Datasource> list = new ArrayList<>();
     Pageable pageable = PageRequest.of(0, 20);
     String query = "";
-    Page<DataSource> datasourcePage = new PageImpl<>(list, pageable, 0);
-    when(dataSourceRepository
-        .findByNameIgnoreCaseLike(pageable, query)).thenReturn(datasourcePage);
+    Page<Datasource> datasourcePage = new PageImpl<>(list, pageable, 0);
+    when(dataSourceRepository.findByNameIgnoreCaseLike(pageable, query)).thenReturn(datasourcePage);
 
-    //WHEN
+    // WHEN
     datasourceService.search(pageable, query);
-    //THEN
+    // THEN
     verify(dataSourceRepository, times(1))
         .findByNameIgnoreCaseLike(any(Pageable.class), anyString());
   }
 
   @Test
-  void findById() {
-    //GIVEN
-    DataSource datasource = WebServerDatasource.builder().id(1L).build();
-    when(dataSourceRepository.findById(anyLong())).thenReturn(Optional.of(datasource));
-    //WHEN
-    DataSource actual = datasourceService.findById(1L);
-    //THEN
-    assertThat(actual.getId()).isEqualTo(datasource.getId());
+  void findById_shouldReturnExpectedDatasource_withExisingDatasource() {
+    // GIVEN
+    Datasource datasource = WebServerDatasource.builder()
+        .id(datasourceUUID)
+        .build();
+    when(dataSourceRepository.findById(datasourceUUID)).thenReturn(Optional.of(datasource));
+    // WHEN
+    Optional<Datasource> actual = datasourceService.findById(datasourceUUID);
+    // THEN
+    assertThat(actual).isPresent();
+    assertThat(actual.get().getId()).isEqualTo(datasourceUUID);
   }
 
   @Test
-  void findById_should_throw_NotFound_Exception() {
-    //GIVEN
-    when(dataSourceRepository.findById(anyLong())).thenReturn(Optional.empty());
-    //WHEN //THEN
-    Assertions.assertThatThrownBy(() -> datasourceService.findById(1L)).isInstanceOf(
-        ResponseStatusException.class);
-
-  }
-
-  @Test
-  void saveBasicAuthCredentials_should_trigger_vaultService() {
-    //GIVEN
-    BasicAuth basicAuth = new BasicAuth();
-    BasicAuthDto dto = new BasicAuthDto();
-    dto.setUser("user");
-    dto.setPassword("password");
-    DataSource datasource = WebServerDatasource.builder().id(1L).authMethod(basicAuth).build();
-    when(modelMapper.map(any(), any())).thenReturn(dto);
-    //WHEN
-    datasourceService.saveBasicAuthCredentials(datasource);
-    //THEN
-    verify(vaultService, times(1)).put(anyString(), any(BasicAuthDto.class));
-  }
-
-  @Test
-  void saveOAuthCredentials_should_trigger_vaultService() {
-    //GIVEN
-    Oauth oauth = new Oauth();
-    oauth.setClientId("clientId");
-    oauth.setClientSecret("clientSecret");
-    DataSource datasource = WebServerDatasource.builder().id(1L).authMethod(oauth).build();
-    //WHEN
-    datasourceService.saveOAuthCredentials(datasource);
-    //THEN
-    verify(vaultService, times(1)).put(anyString(), any(DatasourceClientSecret.class));
+  void findById_shouldReturnNone_withUnexistingDatasource() {
+    // GIVEN
+    when(dataSourceRepository.findById(datasourceUUID)).thenReturn(Optional.empty());
+    // WHEN
+    var actualDatasource = datasourceService.findById(datasourceUUID);
+    // THEN
+    assertThat(actualDatasource).isNotPresent();
   }
 
 }

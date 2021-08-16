@@ -4,10 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
-
 import org.jboss.logging.Logger;
 import org.keycloak.authentication.AuthenticationFlowContext;
 import org.keycloak.authentication.AuthenticationFlowError;
@@ -33,7 +31,7 @@ public class EmailAuthenticator implements Authenticator /*, CredentialValidator
     public void authenticate(AuthenticationFlowContext context) {        
         Integer codeLength = ConfigurationUtil.getConfigInteger(context.getAuthenticatorConfig(), Constants.CONF_MAIL_CODE_LENGTH);
         
-        // TODO Check if "RandomString.randomCode(8);" should work AND delete RandomString if it is ok
+        // TODO v0.1.0 Check if "RandomString.randomCode(8);" should work AND delete RandomString if it is ok
         String code = new RandomString(codeLength).nextString();
 
         EmailTemplateProvider emailTemplateProvider = context.getSession().getProvider(EmailTemplateProvider.class);

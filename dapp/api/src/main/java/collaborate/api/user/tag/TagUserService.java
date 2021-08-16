@@ -50,9 +50,10 @@ public class TagUserService {
   }
 
   private String cleanUserId(String userID) {
-    String cleaned = userID.replace('@', '_');
+    String cleaned = userID.replace("@", "_._xdev-at_._");
     log.debug("userId {{}} cleaned as {{}}", userID, cleaned);
     return cleaned;
   }
+
 
 }

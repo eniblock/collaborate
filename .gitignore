@@ -45,3 +45,7 @@ Info.plist*
 .history
 helm/**/charts
 *~
+
+# Tests resources
+postman/data/datasource/psa-valid.json
+postman/data/datasource/MWPDRV01.pfx

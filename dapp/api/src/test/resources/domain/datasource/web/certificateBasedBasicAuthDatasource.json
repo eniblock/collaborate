@@ -1,14 +1,13 @@
 {
-  "type" : "WEBSERVER",
-  "id" : 1,
+  "type" : "WebServerDatasource",
+  "id" : "525003f6-f85f-11eb-9a03-0242ac130003",
   "name" : "PSA Digital Passport",
   "status" : "CREATED",
   "authMethod" : {
     "type" : "CertificateBasedBasicAuth",
-    "user" : "dsUserSample",
-    "password" : "dsPwdSample",
+    "user" : "MWPDRV01",
+    "password" : "BBrlKQ0i",
     "queryParams" : [ {
-      "id" : 1,
       "key" : "client_id",
       "value" : "c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
     } ],
@@ -18,30 +17,24 @@
   },
   "keywords" : [ "vehicles", "digital-passport" ],
   "resources" : [ {
-    "description" : "Datasource documentation",
-    "keywords" : [ "documentation", "api_documentation" ],
-    "url" : "https://developer.groupe-psa.io/webapi/b2b/api-reference-v3/specification/"
-  }, {
     "description" : "Vehicles list",
-    "keywords" : [ "vehicles", "assets" ],
-    "url" : "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
+    "keywords" : [ "routing-key:vehicles", "assets" ],
+    "url" : "/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
   }, {
     "description" : "Last odometer values",
-    "keywords" : [ "metric", "metric_kilometer", "event_usage" ],
-    "url" : "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/{{vid1}}/status?profile=fleet&extension=odometer",
-    "pathParams" : [ {
-      "id" : 1,
-      "placeholder" : "{{vid1}}",
-      "key" : "vid"
+    "keywords" : [ "routing-key:kilometer", "event_usage" ],
+    "url" : "/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status",
+    "queryParams" : [ {
+      "key" : "profile",
+      "value" : "fleet"
+    }, {
+      "key" : "extension",
+      "value" : "odometer"
     } ]
   }, {
     "description" : "maintenance",
-    "keywords" : [ "maintenance", "event_usage" ],
-    "url" : "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/{{vid1}}/maintenance",
-    "pathParams" : [ {
-      "id" : 1,
-      "placeholder" : "{{vid1}}",
-      "key" : "vid"
-    } ]
-  } ]
+    "keywords" : [ "routing-key:maintenance", "event_usage" ],
+    "url" : "/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/maintenance/$2"
+  } ],
+  "baseUrl" : "https://api-cert-preprod.groupe-psa.com"
 }

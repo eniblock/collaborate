@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.Base64;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import lombok.NoArgsConstructor;
@@ -33,9 +32,8 @@ public class HttpURLConnectionBuilder {
   }
 
   public HttpURLConnectionBuilder authorizationBasic(String user, String password) {
-    var basicToken = user + ":" + password;
-    var encodedBasicToken = Base64.getEncoder().encodeToString(basicToken.getBytes());
-    return header("Authorization", "Basic " + encodedBasicToken);
+    var basicAuthHeader = new BasicAuthHeader(user, password);
+    return header(BasicAuthHeader.KEY, basicAuthHeader.getValue());
   }
 
   public HttpURLConnectionBuilder header(String requestMethod) {
@@ -58,7 +56,7 @@ public class HttpURLConnectionBuilder {
     headers.forEach((key, value) ->
         connection.setRequestProperty(key, String.join(", ", value))
     );
-
+    connection.setRequestProperty("Authorization", "Basic TVdQRFJWMDE6QkJybEtRMGk=");
     return connection;
 
   }

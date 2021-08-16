@@ -1,29 +1,22 @@
 package collaborate.api.datasource;
 
-
-import static java.nio.charset.StandardCharsets.*;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import collaborate.api.config.KeycloakTestConfig;
 import collaborate.api.config.NoSecurityTestConfig;
-import collaborate.api.datasource.domain.DataSource;
 import collaborate.api.datasource.domain.web.CertificateBasedBasicAuthDatasourceFeatures;
-import collaborate.api.datasource.domain.web.OAuthDatasourceFeatures;
-
-import collaborate.api.datasource.domain.web.WebServerDatasource;
+import collaborate.api.datasource.domain.web.OAuth2DatasourceFeatures;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -38,118 +31,73 @@ import org.springframework.test.web.servlet.MockMvc;
 @ExtendWith(SpringExtension.class)
 class DatasourceControllerIT {
 
+  public static final String API_V1_DATASOURCES = "/api/v1/datasources";
   @Autowired
   private MockMvc mockMvc;
 
   @MockBean
-  DatasourceTestConnectionFactory datasourceTestConnectionFactory;
+  TestConnectionFactory testConnectionFactory;
   @MockBean
   DatasourceService datasourceService;
 
-  @Captor
-  ArgumentCaptor<DataSource> datasourceCaptor;
+  final MockMultipartFile oAuth2Datasource = new MockMultipartFile(
+      "datasource",
+      "",
+      APPLICATION_JSON,
+      OAuth2DatasourceFeatures.getInstance().datasourceJson.getBytes()
+  );
+  final MockMultipartFile basicAuthDatasource = new MockMultipartFile(
+      "datasource",
+      "",
+      APPLICATION_JSON,
+      CertificateBasedBasicAuthDatasourceFeatures.getInstance().datasourceJson.getBytes()
+  );
+  final MockMultipartFile pfxFile = new MockMultipartFile(
+      "pfxFile",
+      "hello.txt",
+      TEXT_PLAIN_VALUE,
+      "Hello, World!".getBytes()
+  );
 
   @Test
-  void postDatasource_with_oauth_should_return_IS_CREATED() throws Exception {
+  void postDatasource_shouldReturnCreatedStatus_withOAuth2() throws Exception {
     // GIVEN
-    MediaType APPLICATION_JSON_UTF8 =
-        new MediaType(
-            MediaType.APPLICATION_JSON.getType(),
-            MediaType.APPLICATION_JSON.getSubtype(),
-            UTF_8
-        );
+    when(datasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
     mockMvc.perform(
-            post("/api/v2/datasources/oauth")
-                .contentType(APPLICATION_JSON_UTF8)
-                .content(OAuthDatasourceFeatures.getInstance().datasourceJson.getBytes())
+        multipart(API_V1_DATASOURCES)
+            .file(oAuth2Datasource)
+        // THEN
+    ).andExpect(status().isCreated());
+  }
 
-        )// THEN
+
+  @Test
+  void postDatasource_shouldReturnCreated_withCertifacteBasedBasicAuth()
+      throws Exception {
+    // GIVEN
+    when(datasourceService.testConnection(any(), any())).thenReturn(true);
+    // WHEN
+    mockMvc.perform(
+        multipart(API_V1_DATASOURCES)
+            .file(pfxFile)
+            .file(basicAuthDatasource)
+    )// THEN
         .andExpect(status().isCreated());
   }
 
   @Test
-  void postDatasource_basicAuth_should_return_IS_CREATED_when_testConnection_succeed()
+  void postDatasource_shouldReturnBadRequest_withTestConnectionFailure()
       throws Exception {
     // GIVEN
-    when(datasourceService.testBasicAuthConnection(any(), any())).thenReturn(true);
-    String pfxFileContent = "Hello, World!";
-    MockMultipartFile file = new MockMultipartFile(
-        "pfxFile",
-        "hello.txt",
-        MediaType.TEXT_PLAIN_VALUE,
-        pfxFileContent.getBytes()
-    );
-    MockMultipartFile datasourceJson = new MockMultipartFile(
-        "datasource",
-        "",
-        "application/json",
-        CertificateBasedBasicAuthDatasourceFeatures.getInstance().datasourceJson.getBytes()
-    );
-
+    when(datasourceService.testConnection(any(), any())).thenReturn(false);
     // WHEN
     mockMvc.perform(
-            multipart("/api/v2/datasources/basic-auth")
-                .file(file)
-                .file(datasourceJson)
-        )// THEN
-        .andExpect(status().isCreated());
-  }
-
-  @Test
-  void postDatasource_basicAuth_should_return_BAD_REQUEST_when_testConnection_fail()
-      throws Exception {
-    // GIVEN
-    when(datasourceService.testBasicAuthConnection(any(), any())).thenReturn(false);
-    String pfxFileContent = "Hello, World!";
-    MockMultipartFile file = new MockMultipartFile(
-        "pfxFile",
-        "hello.txt",
-        MediaType.TEXT_PLAIN_VALUE,
-        pfxFileContent.getBytes()
-    );
-    MockMultipartFile datasourceJson = new MockMultipartFile(
-        "datasource",
-        "",
-        "application/json",
-        CertificateBasedBasicAuthDatasourceFeatures.getInstance().datasourceJson.getBytes()
-    );
-
-    // WHEN
-    mockMvc.perform(
-            multipart("/api/v2/datasources/basic-auth")
-                .file(file)
-                .file(datasourceJson)
-        )// THEN
+        multipart(API_V1_DATASOURCES)
+            .file(pfxFile)
+            .file(basicAuthDatasource)
+    )// THEN
         .andExpect(status().isBadRequest());
   }
 
-  @Test
-  void testConnection_should_be_ok_with_good_parameters()
-      throws Exception {
-    // GIVEN
-    String pfxFileContent = "Hello, World!";
-    MockMultipartFile file = new MockMultipartFile(
-        "pfxFile",
-        "hello.txt",
-        MediaType.TEXT_PLAIN_VALUE,
-        pfxFileContent.getBytes()
-    );
-    MockMultipartFile datasourceJson = new MockMultipartFile(
-        "datasource",
-        "",
-        "application/json",
-        CertificateBasedBasicAuthDatasourceFeatures.getInstance().datasourceJson.getBytes()
-    );
-    when(datasourceService.testBasicAuthConnection(datasourceCaptor.capture(), any())).thenReturn(
-        true);
-    when(datasourceService.create(any())).thenReturn(new WebServerDatasource());
-    // WHEN
-    mockMvc.perform(
-            multipart("/api/v2/datasources/test-connection")
-                .file(file)
-                .file(datasourceJson)
-        )// THEN
-        .andExpect(status().isOk());
-  }
 }

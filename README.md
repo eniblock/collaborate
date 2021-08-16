@@ -10,9 +10,12 @@
 Install your local kubernetes cluster with:
 
 ```shell script
-curl -sSL https://bit.ly/3ii011L | env CLK_RECIPES=k8s bash
+sudo apt-get install pip
+curl -sSL https://bit.ly/3ii011L | env CLK_EXTENSIONS=k8s bash
+clk k8s install-dependency k3d
 clk k8s flow
 ```
+
 
 Give access to gitlab registries to your local kubernetes instance by generating an access token with the `read_api`
 scope at https://gitlab.com/-/profile/personal_access_token, and running
@@ -64,3 +67,19 @@ k8s_resource(
   * Specify the command line: `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5001`
   * OK
   * Then, select the created run configuration and click on the Debug button
+
+# Testing
+## Postman
+Postman collections contains some file data, configure your workspace:
+
+* Open Postman
+* File > Settings > General
+  * Working directory > Location: _select ths postman directory of this repository_  
+
+## Newman
+### Setup
+`sudo npm install -g newman`
+
+### Run
+Following command will execute the `"COL-148 As a DSP, I want to create a BasicAuth Datasource"` requests folder using the `col.localhost.postman_environment.json`environment:  
+`newman run Collaborate.postman_collection.json -e col.localhost.postman_environment.json --folder "COL-148 As a DSP, I want to create a BasicAuth Datasource" --insecure`
