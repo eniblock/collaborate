@@ -154,7 +154,7 @@
             <version>42.2.16</version>
         </dependency>
 
-        <!-- Test containers dependencies-->
+        <!-- Test dependencies-->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>

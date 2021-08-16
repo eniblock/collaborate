@@ -1,5 +1,6 @@
 package collaborate.api.domain;
 
+import collaborate.api.datasource.domain.DatasourceClientSecret;
 import collaborate.api.domain.enumeration.GrantType;
 import org.springframework.util.LinkedMultiValueMap;
 
