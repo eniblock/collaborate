@@ -18,7 +18,6 @@ import collaborate.api.datasource.domain.authentication.Oauth;
 import collaborate.api.datasource.domain.web.WebServerDatasource;
 import collaborate.api.datasource.repository.DataSourceRepository;
 import collaborate.api.security.VaultService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -27,7 +26,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -46,12 +44,6 @@ class DatasourceServiceTest {
   private DataSourceRepository dataSourceRepository;
 
   @Mock
-  private DatasourceTestConnectionFactory datasourceTestConnectionFactory;
-
-  @Mock
-  private ObjectMapper objectMapper;
-
-  @Mock
   private ModelMapper modelMapper;
 
   @InjectMocks
@@ -59,17 +51,16 @@ class DatasourceServiceTest {
 
   @Test
   void create_ok() {
-    // fixme test broken
-//    //GIVEN
-//    Authentication oauth = new Oauth();
-//    DataSource dataSource = WebServerDatasource.builder().authMethod(oauth).build();
-//    when(dataSourceRepository.save(any(DataSource.class))).thenReturn(dataSource);
-//    doNothing().when(vaultService).saveClientSecret(anyString(), any(DatasourceClientSecret.class));
-//    //WHEN
-//    datasourceService.create(dataSource);
-//    //THEN
-//    verify(dataSourceRepository, times(1)).save(any(DataSource.class));
-//    verify(vaultService, times(1)).saveClientSecret(anyString(), any(DatasourceClientSecret.class));
+    //GIVEN
+    Authentication oauth = new Oauth();
+    DataSource dataSource = WebServerDatasource.builder().authMethod(oauth).build();
+    when(dataSourceRepository.save(any(DataSource.class))).thenReturn(dataSource);
+    doNothing().when(vaultService).put(anyString(), any(DatasourceClientSecret.class));
+    //WHEN
+    datasourceService.create(dataSource);
+    //THEN
+    verify(dataSourceRepository, times(1)).save(any(DataSource.class));
+    verify(vaultService, times(1)).put(anyString(), any(DatasourceClientSecret.class));
   }
 
   @Test
@@ -78,12 +69,12 @@ class DatasourceServiceTest {
     List<DataSource> list = new ArrayList<>();
     Pageable pageable = PageRequest.of(0, 20);
     String query = "";
-    Page<DataSource> datasourcePage = new PageImpl<>(list, pageable, list.size());
+    Page<DataSource> datasourcePage = new PageImpl<>(list, pageable, 0);
     when(dataSourceRepository
         .findByNameIgnoreCaseLike(pageable, query)).thenReturn(datasourcePage);
 
     //WHEN
-    Page<DataSource> actual = datasourceService.search(pageable, query);
+    datasourceService.search(pageable, query);
     //THEN
     verify(dataSourceRepository, times(1))
         .findByNameIgnoreCaseLike(any(Pageable.class), anyString());
@@ -122,7 +113,7 @@ class DatasourceServiceTest {
     //WHEN
     datasourceService.saveBasicAuthCredentials(datasource);
     //THEN
-    verify(vaultService, times(1)).saveSecret(anyString(), any(BasicAuthDto.class));
+    verify(vaultService, times(1)).put(anyString(), any(BasicAuthDto.class));
   }
 
   @Test
@@ -135,16 +126,7 @@ class DatasourceServiceTest {
     //WHEN
     datasourceService.saveOAuthCredentials(datasource);
     //THEN
-    verify(vaultService, times(1)).saveClientSecret(anyString(), any(DatasourceClientSecret.class));
+    verify(vaultService, times(1)).put(anyString(), any(DatasourceClientSecret.class));
   }
 
-  @Test
-  void testBasicAuthConnection() {
-    // TODO implement
-    //GIVEN
-
-    //WHEN
-
-    //THEN
-  }
 }

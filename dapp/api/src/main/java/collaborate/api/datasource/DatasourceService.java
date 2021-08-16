@@ -2,11 +2,11 @@ package collaborate.api.datasource;
 
 import collaborate.api.datasource.domain.BasicAuthDto;
 import collaborate.api.datasource.domain.DataSource;
+import collaborate.api.datasource.domain.DatasourceClientSecret;
 import collaborate.api.datasource.domain.authentication.BasicAuth;
 import collaborate.api.datasource.domain.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.domain.authentication.Oauth;
 import collaborate.api.datasource.repository.DataSourceRepository;
-import collaborate.api.datasource.domain.DatasourceClientSecret;
 import collaborate.api.http.security.SSLContextException;
 import collaborate.api.security.VaultService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +17,6 @@ import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -62,7 +61,7 @@ public class DatasourceService {
   void saveBasicAuthCredentials(DataSource datasource) {
     BasicAuthDto datasourceBasicAuthDto = modelMapper
         .map(datasource.getAuthMethod(), BasicAuthDto.class);
-    vaultService.saveSecret("datasource/" + datasource.getId() + "/authentication",
+    vaultService.put("datasource/" + datasource.getId() + "/authentication",
         datasourceBasicAuthDto);
   }
 
@@ -74,7 +73,7 @@ public class DatasourceService {
         .clientSecret(authentication.getClientSecret())
         .build();
 
-    vaultService.saveClientSecret("datasources/" + datasource.getId(), datasourceClientSecret);
+    vaultService.put("datasources/" + datasource.getId(), datasourceClientSecret);
   }
 
   public boolean testBasicAuthConnection(DataSource datasource, byte[] pfxFileContent)
