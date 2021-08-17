@@ -1455,6 +1455,7 @@
     "user": "{{.Env.SMTP_USER}}",
     "password": "{{.Env.SMTP_PASSWORD}}"
   },
+  "loginTheme": "collaborate",
   "eventsEnabled": true,
   "eventsListeners": [
     "send_email_after_register",
