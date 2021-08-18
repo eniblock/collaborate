@@ -1538,7 +1538,7 @@
       "internalId": "58981db9-2856-4e07-ad20-36e718fc8501",
       "displayName": "{{.Env.ASSET_OWNER_IDENTITY_PROVIDER_DISPLAY_NAME}}",
       "providerId": "github",
-      "enabled": true,
+      "enabled": "{{.Env.ENABLE_OR_DISABLE_BROKER}}",
       "updateProfileFirstLoginMode": "on",
       "trustEmail": true,
       "storeToken": false,
