@@ -7,6 +7,6 @@ dependencies:
   version: 2.4.3
 - name: tezos-api-gateway
   repository: oci://registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/tezos-api-gateway/helm
-  version: 0.3.0-develop.302
-digest: sha256:f35aec3f49e09c07982b90dfb73f733531e2e1d7d0d592c553000335589cb98c
-generated: "2021-07-30T15:03:44.99765328+02:00"
+  version: 0.3.0
+digest: sha256:f5bc7160a3bbb5e1322880284d8d69fc3e9ca759572b074969bdbcc5627826d2
+generated: "2021-08-11T11:55:39.099045377+02:00"
