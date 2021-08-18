@@ -50,6 +50,9 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and().authorizeRequests()
         .antMatchers("/actuator/**").permitAll()
+        .antMatchers("/api/api-docs/**").permitAll()
+        .antMatchers("/api/swagger-ui.html").permitAll()
+        .antMatchers("/api/swagger-ui/**").permitAll()
         .anyRequest().authenticated();
   }
 }

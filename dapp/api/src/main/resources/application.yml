@@ -95,9 +95,12 @@ tezos-api-gateway:
 
 springdoc:
   version: '@springdoc.version@'
+  api-docs:
+    path : '/api/api-docs'
   swagger-ui:
+    path: '/api/swagger-ui.html'
     oauth:
-      clientId: collaborate-backend
+      clientId: backend
       useBasicAuthenticationWithAccessCodeGrant: true
   oAuthFlow:
     authorizationUrl: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/auth
@@ -126,5 +129,11 @@ management:
 logging:
   level:
     collaborate.api: DEBUG
-
-
+    org.hibernate:
+      SQL: DEBUG
+      type.descriptor.sql.BasicBinder: TRACE
+    org.springframework:
+      web.filter.CommonsRequestLoggingFilter: DEBUG
+      jdbc.core:
+        JdbcTemplate: DEBUG
+        StatementCreatorUtils: TRACE
