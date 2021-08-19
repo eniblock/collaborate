@@ -3,14 +3,15 @@
 # load('./kubectl_build.ext', 'kubectl_build')
 # os.environ['KUBECTL_BUILD_REGISTRY_SECRET'] = 'gitlab-registry'
 
-# check that registry gitlab secrets are properly configured and login with helm
-docker_config = decode_json(local('clk k8s -c ' + k8s_context() + ' docker-credentials -hd gitlab-registry', quiet=True))
-# docker_config = decode_json(local('clk k8s -c ' + k8s_context() + ' docker-credentials -h gitlab-registry', quiet=True))
-os.environ['CI_JOB_TOKEN'] = docker_config['registry.gitlab.com']['password']
-# declare the host we'll be using locally in k8s dns
-local('clk k8s -c ' + k8s_context() + ' add-domain col.localhost')
-# update the helm package dependencies a first time at startup, so helm can load the helm chart
-local('clk k8s -c ' + k8s_context() + ' helm-dependency-update helm/collaborate-dapp')
+if config.tilt_subcommand == 'up':
+    # check that registry gitlab secrets are properly configured and login with helm
+    docker_config = decode_json(local('clk k8s -c ' + k8s_context() + ' docker-credentials -hd gitlab-registry', quiet=True))
+    # docker_config = decode_json(local('clk k8s -c ' + k8s_context() + ' docker-credentials -h gitlab-registry', quiet=True))
+    os.environ['CI_JOB_TOKEN'] = docker_config['registry.gitlab.com']['password']
+    # declare the host we'll be using locally in k8s dns
+    local('clk k8s -c ' + k8s_context() + ' add-domain col.localhost')
+    # update the helm package dependencies a first time at startup, so helm can load the helm chart
+    local('clk k8s -c ' + k8s_context() + ' helm-dependency-update helm/collaborate-dapp')
 
 # manually download the dependencies
 local_resource('helm dependencies',
