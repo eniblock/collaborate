@@ -132,19 +132,19 @@
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-ui</artifactId>
-            <version>1.2.32</version>
+            <version>${springdoc-openapi-ui.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-security</artifactId>
-            <version>1.2.32</version>
+            <version>${springdoc-openapi-ui.version}</version>
         </dependency>
 
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-data-rest</artifactId>
-            <version>1.2.32</version>
+            <version>${springdoc-openapi-ui.version}</version>
         </dependency>
 
         <!-- Database dependencies-->
@@ -189,6 +189,11 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-yaml</artifactId>
             <version>${jackson.version}</version>
         </dependency>
 
@@ -242,6 +247,7 @@
         <dependency>
             <artifactId>lombok</artifactId>
             <groupId>org.projectlombok</groupId>
+            <version>${lombok.version}</version>
         </dependency>
 
         <dependency>
@@ -283,6 +289,7 @@
         <keycloak-adapter-bom.version>11.0.3</keycloak-adapter-bom.version>
         <lombok.version>1.18.20</lombok.version>
         <spring-cloud.version>Hoxton.SR8</spring-cloud.version>
+        <springdoc-openapi-ui.version>1.5.9</springdoc-openapi-ui.version>
     </properties>
 
 </project>
