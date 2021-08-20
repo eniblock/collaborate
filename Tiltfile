@@ -49,9 +49,9 @@ for r in [
     'col-tag-injection-worker',
     'col-tag-operation-status-worker',
     'col-tag-send-transactions-worker',
-    'col-db',
-    'col-rabbitmq',
-    'col-vault',
+    'col-tag-db',
+    'col-tag-rabbitmq',
+    'col-tag-vault',
 ]:
     k8s_resource(r, labels=['tag'])
 for r in [
@@ -67,10 +67,10 @@ for r in [
     k8s_resource(r, labels=['keycloak'])
 
 # add some dependencies, so all the resources won't start in parallel
-k8s_resource('col-tag-api', resource_deps=['col-rabbitmq'])
-k8s_resource('col-tag-send-transactions-worker', resource_deps=['col-rabbitmq'])
-k8s_resource('col-tag-injection-worker', resource_deps=['col-rabbitmq'])
-k8s_resource('col-tag-operation-status-worker', resource_deps=['col-rabbitmq'])
+k8s_resource('col-tag-api', resource_deps=['col-tag-rabbitmq'])
+k8s_resource('col-tag-send-transactions-worker', resource_deps=['col-tag-rabbitmq'])
+k8s_resource('col-tag-injection-worker', resource_deps=['col-tag-rabbitmq'])
+k8s_resource('col-tag-operation-status-worker', resource_deps=['col-tag-rabbitmq'])
 k8s_resource('col-collaborate-dapp-api',
              resource_deps=['col-tag-api', 'col-keycloak'],
              port_forwards=['5001:5000'])

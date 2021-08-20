@@ -60,3 +60,59 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Create secret data with automatic initialization
+Parameter: [$, Secret name, [Secret key 1, Secret key 2, ...]]
+*/}}
+{{- define "collaborate-dapp.automaticSecret" -}}
+{{- $ := index . 0 -}}
+{{- $name := index . 1 -}}
+{{- $keys := index . 2 -}}
+{{- $secretLength := 20 }}
+{{- if and (hasKey $.Values.global "dev") ($.Values.global.dev) }}
+{{- range $keys }}
+{{ . }}: {{ printf "%s-%s" $name . | sha256sum | trunc $secretLength | b64enc | quote }}
+{{- end }}
+{{- else if $.Release.IsUpgrade }}
+{{- range $keys }}
+{{ . }}: {{ index (lookup "v1" "Secret" $.Release.Namespace $name).data . }}
+{{- end }}
+{{- else }}
+{{- range $keys }}
+{{ . }}: {{ randAlphaNum $secretLength | b64enc | quote }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Db fullname
+*/}}
+{{- define "collaborate-dapp.db.fullname" -}}
+{{- if .Values.db.fullnameOverride }}
+{{- .Values.db.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.db.nameOverride }}
+{{- if eq $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{/*
+Keycloak fullname
+*/}}
+{{- define "collaborate-dapp.keycloak.fullname" -}}
+{{- if .Values.keycloak.fullnameOverride }}
+{{- .Values.keycloak.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.keycloak.nameOverride }}
+{{- if eq $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}

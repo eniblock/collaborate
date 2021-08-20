@@ -81,22 +81,11 @@ api:
 
   affinity: {}
 
-  multirabbitmq:
-    tezosApiGateway:
-      port: 5672
-      auth:
-        username: user
-
-  backendSecret:
-
-postgresql:
+db:
   nameOverride: api-db
   postgresqlDatabase: api
   postgresqlUsername: api_user
-  metrics:
-    enabled: true
-    serviceMonitor:
-      enabled: true
+  existingSecret: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
   persistence:
     enabled: true
     size: 1Gi
@@ -125,8 +114,15 @@ serviceAccount:
 
 tezos-api-gateway:
   nameOverride: tag
+  rabbitmq:
+    nameOverride: tag-rabbitmq
+  db:
+    nameOverride: tag-db
+  vault:
+    nameOverride: tag-vault
 
 keycloak:
+  nameOverride: keycloak
   service:
     type: NodePort
   commonAnnotations:
@@ -140,12 +136,27 @@ keycloak:
       - gitlab-registry
   auth:
     adminUser: kcadmin
+# Waiting https://github.com/bitnami/charts/pull/7286
+#    existingSecret: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+#    existingSecretPerPassword:
+#      keyMapping:
+#        adminPassword: admin-password
+#        managementPassword: management-password
+#        databasePassword: postgresql-password
+#      adminPassword:
+#        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+#      managementPassword:
+#        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+#      databasePassword:
+#        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}-db"
   extraEnvVarsSecret: '{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets'
   resources:
     requests:
       cpu: 100m
       memory: 750Mi
   postgresql:
+    # Uncomment after merge of PR https://github.com/bitnami/charts/pull/7266
+    # nameOverride: keycloak-db
     resources:
       requests:
         memory: 256Mi
