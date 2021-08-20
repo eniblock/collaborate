@@ -64,38 +64,38 @@ spec:
 
             # tezos-api-gateway config
             - name: TEZOS_API_GATEWAY_URL
-              value: "{{ .Release.Name }}-tag-api:3333"
+              value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "nameOverride" }}-api:3333"
             - name: SPRING_RABBITMQ_HOST
-              value: "{{ .Release.Name }}-rabbitmq"
+              value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
             - name: SPRING_RABBITMQ_USERNAME
               value: user
             - name: SPRING_RABBITMQ_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Release.Name }}-rabbitmq"
+                  name: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
                   key: rabbitmq-password
 
             - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_HOST
-              value: "{{ .Release.Name }}-rabbitmq"
+              value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
             - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_PORT
-              value: {{ .Values.api.multirabbitmq.tezosApiGateway.port | quote }}
+              value: "5672"
             - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_USERNAME
               value: user
             - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Release.Name }}-rabbitmq"
+                  name: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
                   key: rabbitmq-password
 
             # db config
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}:5432/{{ .Values.postgresql.postgresqlDatabase }}"
+              value: "jdbc:postgresql://{{ .Release.Name }}-{{ .Values.db.nameOverride }}:5432/{{ .Values.db.postgresqlDatabase }}"
             - name: SPRING_DATASOURCE_USERNAME
-              value: {{ .Values.postgresql.postgresqlUsername | quote }}
+              value: {{ .Values.db.postgresqlUsername | quote }}
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
+                  name: "{{ .Release.Name }}-{{ .Values.db.nameOverride }}"
                   key: postgresql-password
 
             # mail config
