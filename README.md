@@ -34,9 +34,10 @@ tilt up
 ## Stop the application
 
 ```shell script
-tilt down 
-kubectl delete pvc --all
+tilt down
 ```
+
+The option `--no-volumes` can be used to keep the volumes.
 
 Note: you need to stop and restart the application to work on the initialization of keycloak.
 
