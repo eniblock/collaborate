@@ -21,7 +21,7 @@ ingress:
 api:
   image:
     repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/dapp/api"
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     # tag:
 
@@ -56,7 +56,7 @@ api:
     type: ClusterIP
     port: 7772
 
-  resources: {}
+  resources:
     # We usually recommend not to specify default resources and to leave this as a conscious
     # choice for the user. This also increases chances charts run on environments with little
     # resources, such as Minikube. If you do want to specify resources, uncomment the following
@@ -64,9 +64,9 @@ api:
     # limits:
     #   cpu: 100m
     #   memory: 128Mi
-    # requests:
-    #   cpu: 100m
-  #   memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 300Mi
 
   autoscaling:
     enabled: false
@@ -106,6 +106,13 @@ postgresql:
     requests:
       memory: 256Mi
       cpu: 100m
+  primary:
+    annotations:
+      reloader.stakater.com/auto: "true"
+  rbac:
+    create: true
+  serviceAccount:
+    enabled: true
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -122,10 +129,8 @@ tezos-api-gateway:
 keycloak:
   service:
     type: NodePort
-  livenessProbe:
-    enabled: false
-  readinessProbe:
-    enabled: false
+  commonAnnotations:
+    reloader.stakater.com/auto: "true"
   image:
     registry: registry.gitlab.com
     repository: the-blockchain-xdev/xdev-product/collaborate/dapp/iam
@@ -145,3 +150,10 @@ keycloak:
       requests:
         memory: 256Mi
         cpu: 100m
+    primary:
+      annotations:
+        reloader.stakater.com/auto: "true"
+    rbac:
+      create: true
+    serviceAccount:
+      enabled: true

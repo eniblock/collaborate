@@ -23,6 +23,15 @@ test-dapp-api:
   script:
     - ./mvnw test
 
+helm-dapp-lint:
+  stage: test
+  image: registry.gitlab.com/the-blockchain-xdev/xdev-product/build-images/helm:1.3.0
+  allow_failure: true
+  script:
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - helm dependency update ./helm/collaborate-dapp
+    - lint helm/collaborate-dapp --values helm/collaborate-dapp/values-dev.yaml
+
 docker-dapp-api:
   stage: docker
   image:
