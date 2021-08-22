@@ -5,14 +5,9 @@ cfg = config.parse()
 
 clk_k8s = 'clk -a --force-color k8s -c ' + k8s_context() + ' '
 
-load('ext://kubectl_build', 'kubectl_build')
-os.environ['KUBECTL_BUILD_REGISTRY_SECRET'] = 'gitlab-registry'
-use_kubectl_build = str(local(clk_k8s + 'features --field value --format plain kubectl_build')).strip() == 'True'
-def image_build(*args, **kwargs):
-    if use_kubectl_build:
-        kubectl_build(*args, **kwargs)
-    else:
-        docker_build(*args, **kwargs)
+load('ext://kubectl_build', 'image_build', 'kubectl_build_registry_secret', 'kubectl_build_enable')
+kubectl_build_registry_secret('gitlab-registry')
+kubectl_build_enable(local(clk_k8s + 'features --field value --format plain kubectl_build'))
 
 if config.tilt_subcommand == 'up':
     # check that registry gitlab secrets are properly configured and login with helm
