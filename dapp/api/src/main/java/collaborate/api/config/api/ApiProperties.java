@@ -19,6 +19,7 @@ public class ApiProperties {
   private String contractAddress;
   private HashMap<String, Organization> organizations;
   private String tezosApiGatewayUrl;
+  private String certificatesPath;
 
   public Optional<Organization> findOrganizationWithOrganizationId(String organizationId) {
     return organizations.entrySet()

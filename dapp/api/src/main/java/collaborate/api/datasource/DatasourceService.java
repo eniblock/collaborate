@@ -1,27 +1,24 @@
 package collaborate.api.datasource;
 
-import collaborate.api.datasource.domain.BasicAuthDto;
-import collaborate.api.datasource.domain.DataSource;
-import collaborate.api.datasource.domain.DatasourceClientSecret;
-import collaborate.api.datasource.domain.authentication.BasicAuth;
-import collaborate.api.datasource.domain.authentication.CertificateBasedBasicAuth;
-import collaborate.api.datasource.domain.authentication.Oauth;
+import collaborate.api.datasource.domain.Datasource;
+import collaborate.api.datasource.domain.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.repository.DataSourceRepository;
+import collaborate.api.datasource.security.SaveAuthenticationVisitor;
 import collaborate.api.http.security.SSLContextException;
-import collaborate.api.security.VaultService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.security.UnrecoverableKeyException;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.function.BooleanSupplier;
+import javax.persistence.EntityManager;
 import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -29,66 +26,41 @@ import org.springframework.web.server.ResponseStatusException;
 public class DatasourceService {
 
   private final DataSourceRepository dataSourceRepository;
-  private final DatasourceTestConnectionFactory datasourceTestConnectionFactory;
+  private final TestConnectionFactory testConnectionFactory;
   private final ObjectMapper objectMapper;
-  private final ModelMapper modelMapper;
-  private final VaultService vaultService;
+  private final SaveAuthenticationVisitor saveAuthenticationVisitor;
+  private final EntityManager entityManager;
 
   @Transactional
-  public DataSource create(DataSource datasource) {
-    DataSource datasourceResult = dataSourceRepository.save(datasource);
-
-    if (datasource.getAuthMethod() instanceof BasicAuth) {
-      saveBasicAuthCredentials(datasource);
-    }
-
-    if (datasource.getAuthMethod() instanceof Oauth) {
-      saveOAuthCredentials(datasource);
-    }
-
+  public Datasource create(Datasource datasource) {
+    Datasource datasourceResult = dataSourceRepository.saveAndFlush(datasource);
+    entityManager.refresh(datasourceResult);
+    datasourceResult.getAuthMethod().accept(saveAuthenticationVisitor);
     return datasourceResult;
   }
 
-  public Page<DataSource> search(Pageable pageable, String query) {
-    return dataSourceRepository.findByNameIgnoreCaseLike(pageable, query);
-  }
-
-  public DataSource findById(Long id) {
-    return dataSourceRepository.findById(id)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-  }
-
-  void saveBasicAuthCredentials(DataSource datasource) {
-    BasicAuthDto datasourceBasicAuthDto = modelMapper
-        .map(datasource.getAuthMethod(), BasicAuthDto.class);
-    vaultService.put("datasource/" + datasource.getId() + "/authentication",
-        datasourceBasicAuthDto);
-  }
-
-  void saveOAuthCredentials(DataSource datasource) {
-    Oauth authentication = (Oauth) datasource.getAuthMethod();
-
-    DatasourceClientSecret datasourceClientSecret = DatasourceClientSecret.builder()
-        .clientId(authentication.getClientId())
-        .clientSecret(authentication.getClientSecret())
-        .build();
-
-    vaultService.put("datasources/" + datasource.getId(), datasourceClientSecret);
-  }
-
-  public boolean testBasicAuthConnection(DataSource datasource, byte[] pfxFileContent)
+  public boolean testConnection(Datasource datasource, Optional<MultipartFile> pfxFile)
       throws UnrecoverableKeyException, SSLContextException, IOException {
-    if (pfxFileContent != null && datasource.getAuthMethod() instanceof CertificateBasedBasicAuth) {
+
+    if (pfxFile.isPresent() && datasource.getAuthMethod() instanceof CertificateBasedBasicAuth) {
       datasource = objectMapper.readValue(
           objectMapper.writeValueAsString(datasource),
-          DataSource.class
+          Datasource.class
       );
-      ((CertificateBasedBasicAuth) datasource.getAuthMethod()).setPfxFileContent(pfxFileContent);
+      ((CertificateBasedBasicAuth) datasource.getAuthMethod())
+          .setPfxFileContent(pfxFile.get().getBytes());
     }
 
-    BooleanSupplier connectionTester = datasourceTestConnectionFactory.create(datasource);
+    BooleanSupplier connectionTester = testConnectionFactory.create(datasource);
 
     return connectionTester.getAsBoolean();
   }
 
+  public Page<Datasource> search(Pageable pageable, String query) {
+    return dataSourceRepository.findByNameIgnoreCaseLike(pageable, query);
+  }
+
+  public Optional<Datasource> findById(UUID id) {
+    return dataSourceRepository.findById(id);
+  }
 }
