@@ -167,20 +167,17 @@ spec:
               value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/token"
 
           ports:
-            - name: https
+            - name: http
               containerPort: 7772
               protocol: TCP
-              scheme: HTTPS
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: https
-              scheme: HTTPS
+              port: http
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
-              port: https
-              scheme: HTTPS
+              port: http
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
       {{- with .Values.api.nodeSelector }}

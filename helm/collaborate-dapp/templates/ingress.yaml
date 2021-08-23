@@ -26,7 +26,7 @@ spec:
           - path: /api
             backend:
               serviceName: {{ $fullName }}-api
-              servicePort: https
+              servicePort: http
 ---
 {{- if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
 apiVersion: networking.k8s.io/v1beta1

@@ -11,7 +11,7 @@ spec:
     - port: {{ .Values.api.service.port }}
       targetPort: {{ .Values.api.service.port }}
       protocol: TCP
-      name: https
+      name: http
   selector:
     {{- include "collaborate-dapp.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: api
