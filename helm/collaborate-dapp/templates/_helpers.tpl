@@ -70,11 +70,11 @@ Parameter: [$, Secret name, [Secret key 1, Secret key 2, ...]]
 {{- $name := index . 1 -}}
 {{- $keys := index . 2 -}}
 {{- $secretLength := 20 }}
-{{- if and (hasKey $.Values.global "dev") ($.Values.global.dev) }}
+{{- if ($.Values.global).dev }}
 {{- range $keys }}
 {{ . }}: {{ printf "%s-%s" $name . | sha256sum | trunc $secretLength | b64enc | quote }}
 {{- end }}
-{{- else if $.Release.IsUpgrade }}
+{{- else if and ($.Release.IsUpgrade) (lookup "v1" "Secret" $.Release.Namespace $name) }}
 {{- range $keys }}
 {{ . }}: {{ index (lookup "v1" "Secret" $.Release.Namespace $name).data . }}
 {{- end }}
