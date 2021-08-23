@@ -79,7 +79,7 @@ k8s_resource('col-api-db',
              port_forwards=['5432:5432'])
 
 local_resource('helm lint',
-               'docker run --rm -t -v $PWD:/app registry.gitlab.com/the-blockchain-xdev/xdev-product/build-images/helm:1.3.0' +
+               'docker run --rm -t -v $PWD:/app registry.gitlab.com/xdev-tech/build/helm:1.5.0' +
                ' lint helm/collaborate-dapp --values helm/collaborate-dapp/values-dev.yaml',
                'helm/collaborate-dapp/')
 
