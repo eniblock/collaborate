@@ -9,12 +9,6 @@ def kubectl_build(ref, context, build_args={}, dockerfile='Dockerfile', live_upd
     # only
     # container_args
     # network
-    if not kubectl_build_enable():
-        # just run the standard docker_build
-        docker_build(ref=ref, context=context, build_args=build_args, dockerfile=dockerfile, live_update=live_update,
-                  match_in_env_vars=match_in_env_vars, ignore=ignore, entrypoint=entrypoint, target=target, ssh=ssh,
-                  secret=secret, extra_tag=extra_tag, cache_from=cache_from, pull=pull)
-        return
     registry_secret = registry_secret or kubectl_build_registry_secret()
     command = ['kubectl', 'build', '--context', k8s_context()]
     command += ['-f', context + '/' + dockerfile]
@@ -57,7 +51,10 @@ def kubectl_build(ref, context, build_args={}, dockerfile='Dockerfile', live_upd
 
 def image_build(*args, **kwargs):
     """kubectl_build with a less kubectl build obvious name"""
-    kubectl_build(*args, **kwargs)
+    if kubectl_build_enable():
+        kubectl_build(*args, **kwargs)
+    else:
+        docker_build(*args, **kwargs)
 
 
 def kubectl_build_enable(v=None):
