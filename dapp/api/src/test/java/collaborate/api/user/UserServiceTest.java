@@ -71,12 +71,12 @@ public class UserServiceTest {
   MailProperties mailProperties;
 
   private final String IDP_ADMIN_ROLE = "service_identity_provider_administrator";
-  private final String FAKE_ADRESS_FROM = "from@gmail.com";
+  private final String FAKE_ADDRESS_FROM = "from@gmail.com";
 
   @Before
   public void beforeEach() {
     Map<String, String> fakeProperties = new HashMap<>();
-    fakeProperties.put("addressFrom", FAKE_ADRESS_FROM);
+    fakeProperties.put("addressFrom", FAKE_ADDRESS_FROM);
 
     when(mockRealmResource.roles()).thenReturn(mockRolesResource);
     when(apiProperties.getIdpAdminRole()).thenReturn(IDP_ADMIN_ROLE);
