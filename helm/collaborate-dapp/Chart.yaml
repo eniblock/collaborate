@@ -29,8 +29,8 @@ dependencies:
     version: "10.2.5"
     repository: "https://charts.bitnami.com/bitnami"
   - name: keycloak
-    version: "2.4.3-develop.71"
-    repository: "oci://registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/keycloak/helm"
+    version: "2.4.3"
+    repository: "https://charts.bitnami.com/bitnami"
   - name: tezos-api-gateway
     version: "0.4.0-develop.472"
     repository: "oci://registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/tezos-api-gateway/helm"
