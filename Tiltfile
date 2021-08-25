@@ -62,7 +62,7 @@ for r in [
 ]:
     k8s_resource(r, labels=['collaborate'])
 for r in [
-    'col-postgresql',
+    'col-keycloak-db',
     'col-keycloak',
 ]:
     k8s_resource(r, labels=['keycloak'])

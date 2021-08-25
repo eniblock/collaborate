@@ -136,31 +136,29 @@ keycloak:
       - gitlab-registry
   auth:
     adminUser: kcadmin
-# Waiting https://github.com/bitnami/charts/pull/7286
-#    existingSecret: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
-#    existingSecretPerPassword:
-#      keyMapping:
-#        adminPassword: admin-password
-#        managementPassword: management-password
-#        databasePassword: postgresql-password
-#      adminPassword:
-#        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
-#      managementPassword:
-#        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
-#      databasePassword:
-#        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}-db"
+    existingSecretPerPassword:
+      keyMapping:
+        adminPassword: admin-password
+        managementPassword: management-password
+        databasePassword: postgresql-password
+      adminPassword:
+        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+      managementPassword:
+        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+      databasePassword:
+        name: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
   extraEnvVarsSecret: '{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets'
   resources:
     requests:
-      cpu: 100m
+      cpu: 50m
       memory: 750Mi
   postgresql:
-    # Uncomment after merge of PR https://github.com/bitnami/charts/pull/7266
-    # nameOverride: keycloak-db
+    nameOverride: keycloak-db
+    existingSecret: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
     resources:
       requests:
         memory: 256Mi
-        cpu: 100m
+        cpu: 50m
     primary:
       annotations:
         reloader.stakater.com/auto: "true"
