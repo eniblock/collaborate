@@ -41,8 +41,6 @@ spec:
           env:
             - name: API_PLATFORM
               value: {{ .Values.api.platform | quote }}
-            - name: API_ORGANIZATION_ID
-              value: {{ .Values.api.organizationId | quote }}
             - name: API_ORGANIZATION_NAME
               value: {{ .Values.api.organizationName | quote }}
             - name: API_ORGANIZATION_PRIVATE_KEY
