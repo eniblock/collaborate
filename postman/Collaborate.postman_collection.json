@@ -610,6 +610,1282 @@
 							]
 						},
 						{
+							"name": "Tests suites",
+							"item": [
+								{
+									"name": "COL-215 Asset owner first login",
+									"item": [
+										{
+											"name": "Setup - Get Keycloak Admin token",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let response = pm.response.json();",
+															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+															"pm.environment.set(\"keycloak-admin-token\", response.access_token);",
+															"",
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "noauth"
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "urlencoded",
+													"urlencoded": [
+														{
+															"key": "username",
+															"value": "kcadmin",
+															"type": "text"
+														},
+														{
+															"key": "password",
+															"value": "kcadmin",
+															"type": "text"
+														},
+														{
+															"key": "client_id",
+															"value": "admin-cli",
+															"type": "text"
+														},
+														{
+															"key": "grant_type",
+															"value": "password",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"realms",
+														"master",
+														"protocol",
+														"openid-connect",
+														"token"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Setup - Create asset owner user",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let user = pm.environment.get(\"test-asset-owner-email\");",
+															"tests['Creation of ' + user + ' resulted in 201 OK'] = responseCode.code === 201;"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"function generateEmail(){",
+															"    let timestamp = new Date().getTime();",
+															"    return \"asset-owner@\"+timestamp+\".test\";",
+															"}",
+															"",
+															"let email = generateEmail();",
+															"pm.environment.set(\"test-asset-owner-email\", email);",
+															"pm.environment.set(\"test-asset-owner-username\", email);",
+															"pm.environment.set(\"test-asset-owner-password\", \"password\");",
+															"pm.environment.set(\"test-asset-owner-vault-id\", utils.toVaultId(email));",
+															"",
+															"// Roles must be assigned in a separate request"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{keycloak-admin-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"email\": \"{{test-asset-owner-email}}\",\n    \"username\": \"{{test-asset-owner-email}}\",\n    \"enabled\": true,\n    \"emailVerified\": true,\n    \"credentials\":[{\n        \"type\": \"password\",\n        \"value\":\"{{test-asset-owner-password}}\",\n        \"temporary\":false\n    }],\n    \"realmRoles\":[\"pending_asset_owner\", \"service_identity_provider_administrator\", \"service_provider_administrator\", \"offline_access\"]\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"admin",
+														"realms",
+														"{{dAppKeycloakRealm}}",
+														"users"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Setup - Get asset owner id",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let response = pm.response.json();",
+															"let userId = response[0].id;",
+															"let email = pm.environment.get(\"test-asset-owner-email\")",
+															"",
+															"tests['Id of ' + email + ' is '+ userId] = responseCode.code === 200;",
+															"pm.environment.set(\"test-asset-owner-id\", userId)"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{keycloak-admin-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email={{test-asset-owner-email}}",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"admin",
+														"realms",
+														"{{dAppKeycloakRealm}}",
+														"users"
+													],
+													"query": [
+														{
+															"key": "email",
+															"value": "{{test-asset-owner-email}}"
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Setup - Update asset owner roles",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let user = pm.environment.get(\"test-asset-owner-email\");",
+															"tests['Update of ' + user + 'roles resulted in 204 OK'] = responseCode.code === 204;"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"// Roles must be assigned in a separate request",
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{keycloak-admin-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "[\n    {\n        \"id\": \"d7732aa5-f408-4248-96aa-f0ec4c7fd41a\",\n        \"name\": \"pending_asset_owner\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/{{test-asset-owner-id}}/role-mappings/realm",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"admin",
+														"realms",
+														"{{dAppKeycloakRealm}}",
+														"users",
+														"{{test-asset-owner-id}}",
+														"role-mappings",
+														"realm"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Setup - Get asset owner token",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let response = pm.response.json();",
+															"pm.environment.set(\"test-asset-owner-token\", response.access_token);",
+															"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "noauth"
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "urlencoded",
+													"urlencoded": [
+														{
+															"key": "grant_type",
+															"value": "password",
+															"type": "text"
+														},
+														{
+															"key": "username",
+															"value": "{{test-asset-owner-username}}",
+															"type": "text"
+														},
+														{
+															"key": "password",
+															"value": "{{test-asset-owner-password}}",
+															"type": "text"
+														},
+														{
+															"key": "client_id",
+															"value": "{{dAppKeycloakFrontendClientId}}",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"realms",
+														"{{dAppKeycloakRealm}}",
+														"protocol",
+														"openid-connect",
+														"token"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Setup - Get asset owner publicKey",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+															"",
+															"let response = pm.response.json();",
+															"pm.environment.set(\"test-asset-owner-publicKeyHash\", response[0].account);"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{tagApiUrl}}/api/user?userIdList={{test-asset-owner-vault-id}}",
+													"host": [
+														"{{tagApiUrl}}"
+													],
+													"path": [
+														"api",
+														"user"
+													],
+													"query": [
+														{
+															"key": "userIdList",
+															"value": "{{test-asset-owner-vault-id}}"
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "As pending asset owner,  I create my TAG user AND get asset_owner role",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let user = pm.environment.get(\"test-asset-owner-email\");",
+															"tests['Update of ' + user + 'results in 200 OK'] = responseCode.code === 200;"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{test-asset-owner-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [],
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/users/tag/asset-owner",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"users",
+														"tag",
+														"asset-owner"
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "Setup - Create DSP",
+									"item": [
+										{
+											"name": "Setup - Get Keycloak Admin token",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let response = pm.response.json();",
+															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+															"pm.environment.set(\"keycloak-admin-token\", response.access_token);",
+															"",
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "noauth"
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "urlencoded",
+													"urlencoded": [
+														{
+															"key": "username",
+															"value": "kcadmin",
+															"type": "text"
+														},
+														{
+															"key": "password",
+															"value": "kcadmin",
+															"type": "text"
+														},
+														{
+															"key": "client_id",
+															"value": "admin-cli",
+															"type": "text"
+														},
+														{
+															"key": "grant_type",
+															"value": "password",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"realms",
+														"master",
+														"protocol",
+														"openid-connect",
+														"token"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Setup - Create DSP user",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let user = pm.environment.get(\"test-dsp-email\");",
+															"tests['Creation of ' + user + ' resulted in 201 OK'] = responseCode.code === 201;"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"function generateEmail(){",
+															"    let timestamp = new Date().getTime();",
+															"    return \"dsp@\"+timestamp+\".test\";",
+															"}",
+															"",
+															"let email = generateEmail();",
+															"pm.environment.set(\"test-dsp-email\", email);",
+															"pm.environment.set(\"test-dsp-username\", email);",
+															"pm.environment.set(\"test-dsp-password\", \"password\");",
+															"pm.environment.set(\"test-dsp-vault-id\", utils.toVaultId(email));",
+															"",
+															"// Roles must be assigned in a separate request"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{keycloak-admin-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"email\": \"{{test-dsp-email}}\",\n    \"username\": \"{{test-dsp-email}}\",\n    \"enabled\": true,\n    \"emailVerified\": true,\n    \"credentials\":[{\n        \"type\": \"password\",\n        \"value\":\"{{test-dsp-password}}\",\n        \"temporary\":false\n    }],\n    \"realmRoles\":[\"pending_asset_owner\", \"uma_authorization\", \"offline_access\"]\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"admin",
+														"realms",
+														"{{dAppKeycloakRealm}}",
+														"users"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Setup - Get DSP user id",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let response = pm.response.json();",
+															"let userId = response[0].id;",
+															"let email = pm.environment.get(\"test-dsp-email\")",
+															"",
+															"tests['Id of ' + email + ' is '+ userId] = responseCode.code === 200;",
+															"pm.environment.set(\"test-dsp-id\", userId)"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{keycloak-admin-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email={{test-dsp-email}}",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"admin",
+														"realms",
+														"{{dAppKeycloakRealm}}",
+														"users"
+													],
+													"query": [
+														{
+															"key": "email",
+															"value": "{{test-dsp-email}}"
+														}
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Setup - Update DSP roles",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"let user = pm.environment.get(\"test-asset-owner-email\");",
+															"tests['Update of ' + user + 'roles resulted in 204 OK'] = responseCode.code === 204;"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{keycloak-admin-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "[\n    {\n        \"id\": \"d0ff921e-8d15-4938-911a-d658ec59f772\",\n        \"name\": \"service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    },\n    {\n        \"id\": \"7cb55b06-881c-4a74-9a98-ae2bd852a43f\",\n        \"name\": \"service_provider_operator\"\n    },\n    {\n        \"id\": \"53148955-f9d9-40bb-a532-52a392882d65\",\n        \"name\": \"service_identity_provider_administrator\"\n    }\n]",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/{{test-dsp-id}}/role-mappings/realm",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"admin",
+														"realms",
+														"{{dAppKeycloakRealm}}",
+														"users",
+														"{{test-dsp-id}}",
+														"role-mappings",
+														"realm"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Setup - Get DSP Token",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests['Get DSP token resulted in 200 OK'] = responseCode.code === 200;",
+															"let response = pm.response.json();",
+															"pm.environment.set(\"test-dsp-token\", response.access_token);"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "noauth"
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "urlencoded",
+													"urlencoded": [
+														{
+															"key": "grant_type",
+															"value": "password",
+															"type": "text"
+														},
+														{
+															"key": "username",
+															"value": "{{test-dsp-username}}",
+															"type": "text"
+														},
+														{
+															"key": "password",
+															"value": "{{test-dsp-password}}",
+															"type": "text"
+														},
+														{
+															"key": "client_id",
+															"value": "{{dAppKeycloakFrontendClientId}}",
+															"type": "text"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+													"host": [
+														"{{dAppKeycloakUrl}}"
+													],
+													"path": [
+														"auth",
+														"realms",
+														"{{dAppKeycloakRealm}}",
+														"protocol",
+														"openid-connect",
+														"token"
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "COL-148 As a DSP, I want to create a BasicAuth Datasource",
+									"item": [
+										{
+											"name": "GIVEN Invalid passphrase",
+											"item": [
+												{
+													"name": "As DSP, WHEN I add a first BasicAuth datasource with invalid pfxFile THEN the datasource is created",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 400 BadRequest'] = responseCode.code === 400;",
+																	"",
+																	"let response = pm.response.json();",
+																	"let expectedResponseMessage = \"Provided passphrase can't be used to decrypt private key\";",
+																	"console.log(response)",
+																	"tests['Request failed with \"'+expectedResponseMessage+'\" message '] = response.message === expectedResponseMessage;",
+																	""
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{test-dsp-token}}",
+																	"type": "string"
+																}
+															]
+														},
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "formdata",
+															"formdata": [
+																{
+																	"key": "pfxFile",
+																	"type": "file",
+																	"src": "data/datasource/selfsigned-password.pfx"
+																},
+																{
+																	"key": "datasource",
+																	"contentType": "application/json",
+																	"type": "file",
+																	"src": "data/datasource/wrong-passphrase.json"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/datasources",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"datasources"
+															]
+														}
+													},
+													"response": []
+												}
+											]
+										},
+										{
+											"name": "GIVEN wrong pfxFile",
+											"item": [
+												{
+													"name": "As DSP, WHEN I add a first BasicAuth datasource with invalid pfxFile THEN the datasource is created",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 400 BadRequest'] = responseCode.code === 400;",
+																	"",
+																	"let response = pm.response.json();",
+																	"let expectedResponseMessage = \"Test connection failed\";",
+																	"console.log(response)",
+																	"tests['Request failed with \"'+expectedResponseMessage+'\" message '] = response.message === expectedResponseMessage;"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{test-dsp-token}}",
+																	"type": "string"
+																}
+															]
+														},
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "formdata",
+															"formdata": [
+																{
+																	"key": "pfxFile",
+																	"type": "file",
+																	"src": "data/datasource/selfsigned-password.pfx"
+																},
+																{
+																	"key": "datasource",
+																	"contentType": "application/json",
+																	"type": "file",
+																	"src": "data/datasource/wrong-pfx-file.json"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/datasources",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"datasources"
+															]
+														}
+													},
+													"response": []
+												}
+											]
+										},
+										{
+											"name": "GIVEN Valid data",
+											"item": [
+												{
+													"name": "Setup - Get DSP Token",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Get DSP token resulted in 200 OK'] = responseCode.code === 200;",
+																	"let response = pm.response.json();",
+																	"pm.environment.set(\"test-dsp-token\", response.access_token);"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "noauth"
+														},
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "urlencoded",
+															"urlencoded": [
+																{
+																	"key": "grant_type",
+																	"value": "password",
+																	"type": "text"
+																},
+																{
+																	"key": "username",
+																	"value": "{{test-dsp-username}}",
+																	"type": "text"
+																},
+																{
+																	"key": "password",
+																	"value": "{{test-dsp-password}}",
+																	"type": "text"
+																},
+																{
+																	"key": "client_id",
+																	"value": "{{dAppKeycloakFrontendClientId}}",
+																	"type": "text"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+															"host": [
+																"{{dAppKeycloakUrl}}"
+															],
+															"path": [
+																"auth",
+																"realms",
+																"{{dAppKeycloakRealm}}",
+																"protocol",
+																"openid-connect",
+																"token"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "As DSP, I can create a valid datasource",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 201 Created'] = responseCode.code === 201;",
+																	"let response = pm.response.json();",
+																	"pm.environment.set(\"test-datasource-id\", response.id);"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{test-dsp-token}}",
+																	"type": "string"
+																}
+															]
+														},
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "formdata",
+															"formdata": [
+																{
+																	"key": "pfxFile",
+																	"type": "file",
+																	"src": "data/datasource/MWPDRV01.pfx"
+																},
+																{
+																	"key": "datasource",
+																	"contentType": "application/json",
+																	"type": "file",
+																	"src": "data/datasource/psa-valid.json"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/datasources",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"datasources"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "As DSP, WHEN I add a valid BasicAuth datasource THEN the datasource is created",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 200 Created'] = responseCode.code === 200;",
+																	"",
+																	"let datasourceId = pm.environment.get(\"test-datasource-id\");",
+																	"let response = pm.response.json();",
+																	"response.content.find(ds => ds.id === datasourceId)",
+																	"tests['Request body contains created datasourceId='+datasourceId+''] = response.content.find(ds => ds.id === datasourceId) !== undefined;",
+																	""
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{test-dsp-token}}",
+																	"type": "string"
+																}
+															]
+														},
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/datasources",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"datasources"
+															]
+														}
+													},
+													"response": []
+												}
+											]
+										}
+									]
+								},
+								{
+									"name": "COL-250 Use predefined organization key",
+									"item": [
+										{
+											"name": "WHEN get admin user THEN expected key is returned",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+															"",
+															"let response = pm.response.json();",
+															"tests['Request result has expected account value '] = ",
+															"  response[0].account === pm.environment.get(\"tag-admin-publicKeyHash\");"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"protocolProfileBehavior": {
+												"disableBodyPruning": true
+											},
+											"request": {
+												"method": "GET",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{tagApiUrl}}/api/user?userIdList={{tag-admin}}",
+													"host": [
+														"{{tagApiUrl}}"
+													],
+													"path": [
+														"api",
+														"user"
+													],
+													"query": [
+														{
+															"key": "userIdList",
+															"value": "{{tag-admin}}"
+														}
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "COL-220 As DSP, I want to create Digital Passport for my client",
+									"item": [
+										{
+											"name": "create Digital Passport",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+															""
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"let vin = utils.generateVIN();",
+															"pm.environment.set(\"test-vin\", vin);"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{test-dsp-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"organizationId\": \"{{tag-admin-publicKeyHash}}\",\n    \"organizationName\": \"{{organizationId}}\",\n    \"vehicleOwnerMail\": \"{{test-asset-owner-publicKeyHash}}\",\n    \"datasourceId\": \"19865f3f-f7ab-454e-bc48-a793b7ff45fc\",\n    \"vin\": \"{{test-vin}}\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/digital-passport",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"digital-passport"
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "COL-157 Get organizations",
+									"item": [
+										{
+											"name": "Get organizations",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"pm.test(\"Status code is 200\", function () {",
+															"    pm.response.to.have.status(200);",
+															"});",
+															"",
+															"pm.test(\"Your test name\", function () {",
+															"    var jsonData = pm.response.json();",
+															"    pm.expect(jsonData.length).to.gte(2);",
+															"});"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{test-dsp-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/organizations",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"organizations"
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								}
+							],
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"type": "text/javascript",
+										"exec": [
+											""
+										]
+									}
+								}
+							]
+						},
+						{
 							"name": "Add access requests",
 							"request": {
 								"method": "POST",
@@ -693,1251 +1969,43 @@
 							}
 						}
 					]
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							"utils = {",
+							"  toVaultId : function (userId){",
+							"    return userId.replace('@', '_._xdev-at_._');",
+							"  },",
+							"  fromVaultId : function (vaultId){",
+							"    return userId.replace('_._xdev-at_._', '@');",
+							"  },",
+							"  generateVIN: function(){",
+							"    var result           = '';",
+							"    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';",
+							"    var charactersLength = characters.length;",
+							"    for ( var i = 0; i < 17; i++ ) {",
+							"      result += characters.charAt(Math.floor(Math.random() * charactersLength));",
+							"    }",
+							"    return result;",
+							"  }",
+							"}",
+							""
+						]
+					}
 				},
 				{
-					"name": "Tests suites",
-					"item": [
-						{
-							"name": "COL-215 Asset owner first login",
-							"item": [
-								{
-									"name": "Setup - Get Keycloak Admin token",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"let response = pm.response.json();",
-													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-													"pm.environment.set(\"keycloak-admin-token\", response.access_token);",
-													"",
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "noauth"
-										},
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "urlencoded",
-											"urlencoded": [
-												{
-													"key": "username",
-													"value": "kcadmin",
-													"type": "text"
-												},
-												{
-													"key": "password",
-													"value": "kcadmin",
-													"type": "text"
-												},
-												{
-													"key": "client_id",
-													"value": "admin-cli",
-													"type": "text"
-												},
-												{
-													"key": "grant_type",
-													"value": "password",
-													"type": "text"
-												}
-											]
-										},
-										"url": {
-											"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
-											"host": [
-												"{{dAppKeycloakUrl}}"
-											],
-											"path": [
-												"auth",
-												"realms",
-												"master",
-												"protocol",
-												"openid-connect",
-												"token"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Setup - Create asset owner user",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"let user = pm.environment.get(\"test-asset-owner-email\");",
-													"tests['Creation of ' + user + ' resulted in 201 OK'] = responseCode.code === 201;"
-												],
-												"type": "text/javascript"
-											}
-										},
-										{
-											"listen": "prerequest",
-											"script": {
-												"exec": [
-													"function generateEmail(){",
-													"    let timestamp = new Date().getTime();",
-													"    return \"asset-owner@\"+timestamp+\".test\";",
-													"}",
-													"",
-													"let email = generateEmail();",
-													"pm.environment.set(\"test-asset-owner-email\", email);",
-													"pm.environment.set(\"test-asset-owner-username\", email);",
-													"pm.environment.set(\"test-asset-owner-password\", \"password\");",
-													"",
-													"// Roles must be assigned in a separate request"
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{keycloak-admin-token}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"email\": \"{{test-asset-owner-email}}\",\n    \"username\": \"{{test-asset-owner-email}}\",\n    \"enabled\": true,\n    \"emailVerified\": true,\n    \"credentials\":[{\n        \"type\": \"password\",\n        \"value\":\"{{test-asset-owner-password}}\",\n        \"temporary\":false\n    }],\n    \"realmRoles\":[\"pending_asset_owner\", \"service_identity_provider_administrator\", \"service_provider_administrator\", \"offline_access\"]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users",
-											"host": [
-												"{{dAppKeycloakUrl}}"
-											],
-											"path": [
-												"auth",
-												"admin",
-												"realms",
-												"{{dAppKeycloakRealm}}",
-												"users"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Setup - Get asset owner id",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"let response = pm.response.json();",
-													"let userId = response[0].id;",
-													"let email = pm.environment.get(\"test-asset-owner-email\")",
-													"",
-													"tests['Id of ' + email + ' is '+ userId] = responseCode.code === 200;",
-													"pm.environment.set(\"test-asset-owner-id\", userId)"
-												],
-												"type": "text/javascript"
-											}
-										},
-										{
-											"listen": "prerequest",
-											"script": {
-												"exec": [
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{keycloak-admin-token}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email={{test-asset-owner-email}}",
-											"host": [
-												"{{dAppKeycloakUrl}}"
-											],
-											"path": [
-												"auth",
-												"admin",
-												"realms",
-												"{{dAppKeycloakRealm}}",
-												"users"
-											],
-											"query": [
-												{
-													"key": "email",
-													"value": "{{test-asset-owner-email}}"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Setup - Update asset owner roles",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"let user = pm.environment.get(\"test-asset-owner-email\");",
-													"tests['Update of ' + user + 'roles resulted in 204 OK'] = responseCode.code === 204;"
-												],
-												"type": "text/javascript"
-											}
-										},
-										{
-											"listen": "prerequest",
-											"script": {
-												"exec": [
-													"// Roles must be assigned in a separate request",
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{keycloak-admin-token}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "[\n    {\n        \"id\": \"d7732aa5-f408-4248-96aa-f0ec4c7fd41a\",\n        \"name\": \"pending_asset_owner\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/{{test-asset-owner-id}}/role-mappings/realm",
-											"host": [
-												"{{dAppKeycloakUrl}}"
-											],
-											"path": [
-												"auth",
-												"admin",
-												"realms",
-												"{{dAppKeycloakRealm}}",
-												"users",
-												"{{test-asset-owner-id}}",
-												"role-mappings",
-												"realm"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Setup - Get asset owner token",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"let response = pm.response.json();",
-													"pm.environment.set(\"test-asset-owner-token\", response.access_token);",
-													"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "noauth"
-										},
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "urlencoded",
-											"urlencoded": [
-												{
-													"key": "grant_type",
-													"value": "password",
-													"type": "text"
-												},
-												{
-													"key": "username",
-													"value": "{{test-asset-owner-username}}",
-													"type": "text"
-												},
-												{
-													"key": "password",
-													"value": "{{test-asset-owner-password}}",
-													"type": "text"
-												},
-												{
-													"key": "client_id",
-													"value": "{{dAppKeycloakFrontendClientId}}",
-													"type": "text"
-												}
-											]
-										},
-										"url": {
-											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
-											"host": [
-												"{{dAppKeycloakUrl}}"
-											],
-											"path": [
-												"auth",
-												"realms",
-												"{{dAppKeycloakRealm}}",
-												"protocol",
-												"openid-connect",
-												"token"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "As pending asset owner,  I create my TAG user AND get asset_owner role",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"let user = pm.environment.get(\"test-asset-owner-email\");",
-													"tests['Update of ' + user + 'results in 200 OK'] = responseCode.code === 200;"
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{test-asset-owner-token}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "POST",
-										"header": [],
-										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/users/tag/asset-owner",
-											"host": [
-												"{{dAppApiUrl}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"users",
-												"tag",
-												"asset-owner"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "COL-148 As a DSP, I want to create a BasicAuth Datasource",
-							"item": [
-								{
-									"name": "COL-148 GIVEN Invalid passphrase",
-									"item": [
-										{
-											"name": "Setup - Get Keycloak Admin token",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let response = pm.response.json();",
-															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-															"pm.environment.set(\"keycloak-admin-token\", response.access_token);",
-															"",
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "noauth"
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "urlencoded",
-													"urlencoded": [
-														{
-															"key": "username",
-															"value": "kcadmin",
-															"type": "text"
-														},
-														{
-															"key": "password",
-															"value": "kcadmin",
-															"type": "text"
-														},
-														{
-															"key": "client_id",
-															"value": "admin-cli",
-															"type": "text"
-														},
-														{
-															"key": "grant_type",
-															"value": "password",
-															"type": "text"
-														}
-													]
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"realms",
-														"master",
-														"protocol",
-														"openid-connect",
-														"token"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Create DSP user",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let user = pm.environment.get(\"test-dsp-email\");",
-															"tests['Creation of ' + user + ' resulted in 201 OK'] = responseCode.code === 201;"
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															"function generateEmail(){",
-															"    let timestamp = new Date().getTime();",
-															"    return \"dsp@\"+timestamp+\".test\";",
-															"}",
-															"",
-															"let email = generateEmail();",
-															"pm.environment.set(\"test-dsp-email\", email);",
-															"pm.environment.set(\"test-dsp-username\", email);",
-															"pm.environment.set(\"test-dsp-password\", \"password\");",
-															"",
-															"// Roles must be assigned in a separate request"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{keycloak-admin-token}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "{\n    \"email\": \"{{test-dsp-email}}\",\n    \"username\": \"{{test-dsp-email}}\",\n    \"enabled\": true,\n    \"emailVerified\": true,\n    \"credentials\":[{\n        \"type\": \"password\",\n        \"value\":\"{{test-dsp-password}}\",\n        \"temporary\":false\n    }],\n    \"realmRoles\":[\"pending_asset_owner\", \"uma_authorization\", \"offline_access\"]\n}",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"admin",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"users"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Get DSP user id",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let response = pm.response.json();",
-															"let userId = response[0].id;",
-															"let email = pm.environment.get(\"test-dsp-email\")",
-															"",
-															"tests['Id of ' + email + ' is '+ userId] = responseCode.code === 200;",
-															"pm.environment.set(\"test-dsp-id\", userId)"
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"protocolProfileBehavior": {
-												"disableBodyPruning": true
-											},
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{keycloak-admin-token}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "GET",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email={{test-dsp-email}}",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"admin",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"users"
-													],
-													"query": [
-														{
-															"key": "email",
-															"value": "{{test-dsp-email}}"
-														}
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Update asset owner roles",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let user = pm.environment.get(\"test-asset-owner-email\");",
-															"tests['Update of ' + user + 'roles resulted in 204 OK'] = responseCode.code === 204;"
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{keycloak-admin-token}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "[\n    {\n        \"id\": \"d0ff921e-8d15-4938-911a-d658ec59f772\",\n        \"name\": \"service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    },\n    {\n        \"id\": \"7cb55b06-881c-4a74-9a98-ae2bd852a43f\",\n        \"name\": \"service_provider_operator\"\n    },\n    {\n        \"id\": \"53148955-f9d9-40bb-a532-52a392882d65\",\n        \"name\": \"service_identity_provider_administrator\"\n    }\n]",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/{{test-dsp-id}}/role-mappings/realm",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"admin",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"users",
-														"{{test-dsp-id}}",
-														"role-mappings",
-														"realm"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Get Token DSP",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let response = pm.response.json();",
-															"pm.environment.set(\"dAppToken\", response.access_token);"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "noauth"
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "urlencoded",
-													"urlencoded": [
-														{
-															"key": "grant_type",
-															"value": "password",
-															"type": "text"
-														},
-														{
-															"key": "username",
-															"value": "{{test-dsp-username}}",
-															"type": "text"
-														},
-														{
-															"key": "password",
-															"value": "{{test-dsp-password}}",
-															"type": "text"
-														},
-														{
-															"key": "client_id",
-															"value": "{{dAppKeycloakFrontendClientId}}",
-															"type": "text"
-														}
-													]
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"protocol",
-														"openid-connect",
-														"token"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "As DSP, WHEN I add a first BasicAuth datasource with invalid pfxFile THEN the datasource is created",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"tests['Request resulted in 400 BadRequest'] = responseCode.code === 400;",
-															"",
-															"let response = pm.response.json();",
-															"let expectedResponseMessage = \"Provided passphrase can't be used to decrypt private key\";",
-															"console.log(response)",
-															"tests['Request failed with \"'+expectedResponseMessage+'\" message '] = response.message === expectedResponseMessage;",
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{dAppToken}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "formdata",
-													"formdata": [
-														{
-															"key": "pfxFile",
-															"type": "file",
-															"src": "data/datasource/selfsigned-password.pfx"
-														},
-														{
-															"key": "datasource",
-															"contentType": "application/json",
-															"type": "file",
-															"src": "data/datasource/wrong-passphrase.json"
-														}
-													]
-												},
-												"url": {
-													"raw": "{{dAppApiUrl}}/api/v1/datasources",
-													"host": [
-														"{{dAppApiUrl}}"
-													],
-													"path": [
-														"api",
-														"v1",
-														"datasources"
-													]
-												}
-											},
-											"response": []
-										}
-									]
-								},
-								{
-									"name": "COL-148 GIVEN wrong pfxFile",
-									"item": [
-										{
-											"name": "Setup - Get Keycloak Admin token",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let response = pm.response.json();",
-															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-															"pm.environment.set(\"keycloak-admin-token\", response.access_token);",
-															"",
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "noauth"
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "urlencoded",
-													"urlencoded": [
-														{
-															"key": "username",
-															"value": "kcadmin",
-															"type": "text"
-														},
-														{
-															"key": "password",
-															"value": "kcadmin",
-															"type": "text"
-														},
-														{
-															"key": "client_id",
-															"value": "admin-cli",
-															"type": "text"
-														},
-														{
-															"key": "grant_type",
-															"value": "password",
-															"type": "text"
-														}
-													]
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"realms",
-														"master",
-														"protocol",
-														"openid-connect",
-														"token"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Create DSP user",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let user = pm.environment.get(\"test-dsp-email\");",
-															"tests['Creation of ' + user + ' resulted in 201 OK'] = responseCode.code === 201;"
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															"function generateEmail(){",
-															"    let timestamp = new Date().getTime();",
-															"    return \"dsp@\"+timestamp+\".test\";",
-															"}",
-															"",
-															"let email = generateEmail();",
-															"pm.environment.set(\"test-dsp-email\", email);",
-															"pm.environment.set(\"test-dsp-username\", email);",
-															"pm.environment.set(\"test-dsp-password\", \"password\");",
-															"",
-															"// Roles must be assigned in a separate request"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{keycloak-admin-token}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "{\n    \"email\": \"{{test-dsp-email}}\",\n    \"username\": \"{{test-dsp-email}}\",\n    \"enabled\": true,\n    \"emailVerified\": true,\n    \"credentials\":[{\n        \"type\": \"password\",\n        \"value\":\"{{test-dsp-password}}\",\n        \"temporary\":false\n    }],\n    \"realmRoles\":[\"pending_asset_owner\", \"uma_authorization\", \"offline_access\"]\n}",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"admin",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"users"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Get DSP user id",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let response = pm.response.json();",
-															"let userId = response[0].id;",
-															"let email = pm.environment.get(\"test-dsp-email\")",
-															"",
-															"tests['Id of ' + email + ' is '+ userId] = responseCode.code === 200;",
-															"pm.environment.set(\"test-dsp-id\", userId)"
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"protocolProfileBehavior": {
-												"disableBodyPruning": true
-											},
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{keycloak-admin-token}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "GET",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email={{test-dsp-email}}",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"admin",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"users"
-													],
-													"query": [
-														{
-															"key": "email",
-															"value": "{{test-dsp-email}}"
-														}
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Update asset owner roles",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let user = pm.environment.get(\"test-asset-owner-email\");",
-															"tests['Update of ' + user + 'roles resulted in 204 OK'] = responseCode.code === 204;"
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{keycloak-admin-token}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "[\n    {\n        \"id\": \"d0ff921e-8d15-4938-911a-d658ec59f772\",\n        \"name\": \"service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    },\n    {\n        \"id\": \"7cb55b06-881c-4a74-9a98-ae2bd852a43f\",\n        \"name\": \"service_provider_operator\"\n    },\n    {\n        \"id\": \"53148955-f9d9-40bb-a532-52a392882d65\",\n        \"name\": \"service_identity_provider_administrator\"\n    }\n]",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/{{test-dsp-id}}/role-mappings/realm",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"admin",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"users",
-														"{{test-dsp-id}}",
-														"role-mappings",
-														"realm"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Get Token DSP",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let response = pm.response.json();",
-															"pm.environment.set(\"dAppToken\", response.access_token);"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "noauth"
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "urlencoded",
-													"urlencoded": [
-														{
-															"key": "grant_type",
-															"value": "password",
-															"type": "text"
-														},
-														{
-															"key": "username",
-															"value": "{{test-dsp-username}}",
-															"type": "text"
-														},
-														{
-															"key": "password",
-															"value": "{{test-dsp-password}}",
-															"type": "text"
-														},
-														{
-															"key": "client_id",
-															"value": "{{dAppKeycloakFrontendClientId}}",
-															"type": "text"
-														}
-													]
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"protocol",
-														"openid-connect",
-														"token"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "As DSP, WHEN I add a first BasicAuth datasource with invalid pfxFile THEN the datasource is created",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"tests['Request resulted in 400 BadRequest'] = responseCode.code === 400;",
-															"",
-															"let response = pm.response.json();",
-															"let expectedResponseMessage = \"Test connection failed\";",
-															"console.log(response)",
-															"tests['Request failed with \"'+expectedResponseMessage+'\" message '] = response.message === expectedResponseMessage;"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{dAppToken}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "formdata",
-													"formdata": [
-														{
-															"key": "pfxFile",
-															"type": "file",
-															"src": "data/datasource/selfsigned-password.pfx"
-														},
-														{
-															"key": "datasource",
-															"contentType": "application/json",
-															"type": "file",
-															"src": "data/datasource/wrong-pfx-file.json"
-														}
-													]
-												},
-												"url": {
-													"raw": "{{dAppApiUrl}}/api/v1/datasources",
-													"host": [
-														"{{dAppApiUrl}}"
-													],
-													"path": [
-														"api",
-														"v1",
-														"datasources"
-													]
-												}
-											},
-											"response": []
-										}
-									]
-								}
-							]
-						},
-						{
-							"name": "COL-250 Use predefined organization key",
-							"item": [
-								{
-									"name": "WHEN get admin user THEN expected key is returned",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-													"",
-													"let response = pm.response.json();",
-													"tests['Request result has expected account value '] = ",
-													"  response[0].account === pm.environment.get(\"tag-admin-publicKeyHash\");"
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"protocolProfileBehavior": {
-										"disableBodyPruning": true
-									},
-									"request": {
-										"method": "GET",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{tagApiUrl}}/api/user?userIdList={{tag-admin}}",
-											"host": [
-												"{{tagApiUrl}}"
-											],
-											"path": [
-												"api",
-												"user"
-											],
-											"query": [
-												{
-													"key": "userIdList",
-													"value": "{{tag-admin}}"
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						}
-					]
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
 				}
 			]
 		},
@@ -1954,7 +2022,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"userIdList\": [\n    \"pcc-developmenttheblockchainxdev.com\"\n  ],\n  \"secureKeyName\": \"admin\"\n}",
+									"raw": "{\n  \"userIdList\": [\n    \"pcc-developmenttheblockchainxdev.com\"\n  ],\n  \"secureKeyName\": \"{{tag-admin}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2029,7 +2097,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{tagApiUrl}}/api/user/address?userAddressList=tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW&userAddressList=tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm",
+									"raw": "{{tagApiUrl}}/api/user/address?userAddressList=tz1UhiKKkVWGCMv8Qp6AwyZTpYLdGrsUFwHa",
 									"host": [
 										"{{tagApiUrl}}"
 									],
@@ -2041,11 +2109,7 @@
 									"query": [
 										{
 											"key": "userAddressList",
-											"value": "tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW"
-										},
-										{
-											"key": "userAddressList",
-											"value": "tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm"
+											"value": "tz1UhiKKkVWGCMv8Qp6AwyZTpYLdGrsUFwHa"
 										}
 									]
 								}
@@ -2120,6 +2184,30 @@
 					"item": [
 						{
 							"name": "Get all organizations",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Result contains at least PSA and Movidia organization\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
+											"",
+											"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
+											"    pm.expect(adminOrg).not.eq(undefined);",
+											"",
+											"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
+											"    pm.expect(otherOrg).not.eq(undefined);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -2146,6 +2234,255 @@
 								}
 							},
 							"response": []
+						}
+					]
+				},
+				{
+					"name": "Tests suites",
+					"item": [
+						{
+							"name": "COL-215 Create asset owner user",
+							"item": [
+								{
+									"name": "Create user should return an account publicKey",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"function generateEmail(){",
+													"    let timestamp = new Date().getTime();",
+													"    return \"asset-owner_._xdev-at-_._\"+timestamp+\".test\";",
+													"}",
+													"",
+													"let email = generateEmail();",
+													"pm.environment.set(\"test-asset-owner-vault-id\", email);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});",
+													"",
+													"pm.test(\"Response account value has 36 characters\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData[0].account).not.eq(undefined);",
+													"    pm.expect(jsonData[0].account.length).to.eql(36);",
+													"",
+													"    pm.globals.set(\"test-asset-owner-publicKeyHash\", jsonData[0].account);",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"userIdList\": [\n    \"{{test-asset-owner-vault-id}}\"\n  ],\n  \"secureKeyName\": \"{{tag-admin}}\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{tagApiUrl}}/api/user/create",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"user",
+												"create"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get user by id should return created user publicKey",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Result has expected publicKey\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData[0].account).to.eq(",
+													"        pm.globals.get(\"test-asset-owner-publicKeyHash\")",
+													"    );",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{tagApiUrl}}/api/user?userIdList={{test-asset-owner-vault-id}}",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"user"
+											],
+											"query": [
+												{
+													"key": "userIdList",
+													"value": "{{test-asset-owner-vault-id}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "COL-220 Create Passport multisig",
+							"item": [
+								{
+									"name": "Create multisig",
+									"event": [
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"pm.globals.set(\"test-vin\", utils.generateVIN());"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 201\", function () {",
+													"    pm.response.to.have.status(201);",
+													"});",
+													"",
+													"pm.globals.set(\"test-create-multisig-job\", pm.response.json().id);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"initPassportCreation\",\n      \"entryPointParams\": {\n            \"vehiculeOwnerAddress\": \"{{test-asset-owner-publicKeyHash}}\",\n            \"dspAddress\": \"{{tag-admin-publicKeyHash}}\",\n            \"vin\": \"{{test-vin}}\",\n            \"datasource_uuid\": \"3131\"\n      }\n    }\n  ],\n  \"callerId\": \"{{dapp-id}}\",\n  \"secureKeyName\": \"{{tag-admin}}\"\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{tagApiUrl}}/api/send/jobs",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "COL-157 Get all organizations",
+							"item": [
+								{
+									"name": "Get all organizations",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Result contains at least PSA and Movidia organization\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
+													"",
+													"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
+													"    pm.expect(adminOrg).not.eq(undefined);",
+													"",
+													"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
+													"    pm.expect(otherOrg).not.eq(undefined);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"dataFields\": [\n        \"organizations\"\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{smart-contract-address}}",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"tezos_node",
+												"storage",
+												"{{smart-contract-address}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						}
 					]
 				},
@@ -2441,6 +2778,37 @@
 					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"utils = {",
+					"    generateVIN: function(){",
+					"    var result = '';",
+					"    var characters =  'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';",
+					"    var charactersLength = characters.length;",
+					"    for ( var i = 0; i < 17; i++ ) {",
+					"      result += characters.charAt(Math.floor(Math.random() * ",
+					" charactersLength));",
+					"   }",
+					"   return result;",
+					"    }",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
 		}
 	]
 }
