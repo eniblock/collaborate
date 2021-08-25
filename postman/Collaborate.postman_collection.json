@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "41e19a34-4ede-48dc-ab5e-85c070b3546b",
+		"_postman_id": "3d805ab0-7ec9-49f1-b7ac-d3bee94f3ebe",
 		"name": "Collaborate",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -586,6 +586,30 @@
 							]
 						},
 						{
+							"name": "Organization",
+							"item": [
+								{
+									"name": "Get organizations",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/organizations",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "Add access requests",
 							"request": {
 								"method": "POST",
@@ -633,25 +657,6 @@
 											"key": "sort",
 											"value": "title,desc"
 										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get organizations",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{dAppApiUrl}}/api/v1/organizations",
-									"host": [
-										"{{dAppApiUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"organizations"
 									]
 								}
 							},
@@ -1940,112 +1945,212 @@
 			"name": "Tezos Api Gateway",
 			"item": [
 				{
-					"name": "Create user",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"userIdList\": [\n    \"pcc-developmenttheblockchainxdev.com\"\n  ],\n  \"secureKeyName\": \"admin\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{tagApiUrl}}/api/user/create",
-							"host": [
-								"{{tagApiUrl}}"
-							],
-							"path": [
-								"api",
-								"user",
-								"create"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get user by id",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{tagApiUrl}}/api/user?userIdList=admin",
-							"host": [
-								"{{tagApiUrl}}"
-							],
-							"path": [
-								"api",
-								"user"
-							],
-							"query": [
-								{
-									"key": "userIdList",
-									"value": "admin"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Get user address",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{tagApiUrl}}/api/user/address?userAddressList=tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW&userAddressList=tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm",
-							"host": [
-								"{{tagApiUrl}}"
-							],
-							"path": [
-								"api",
-								"user",
-								"address"
-							],
-							"query": [
-								{
-									"key": "userAddressList",
-									"value": "tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW"
+					"name": "User",
+					"item": [
+						{
+							"name": "Create user",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userIdList\": [\n    \"pcc-developmenttheblockchainxdev.com\"\n  ],\n  \"secureKeyName\": \"admin\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
 								},
-								{
-									"key": "userAddressList",
-									"value": "tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm"
+								"url": {
+									"raw": "{{tagApiUrl}}/api/user/create",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"create"
+									]
 								}
-							]
+							},
+							"response": []
+						},
+						{
+							"name": "Get user by id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/user?userIdList=admin",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"user"
+									],
+									"query": [
+										{
+											"key": "userIdList",
+											"value": "admin"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user address",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/user/address?userAddressList=tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW&userAddressList=tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"address"
+									],
+									"query": [
+										{
+											"key": "userAddressList",
+											"value": "tz1W9d1dgX5ueZkNNQaZneHt4kvrUF7XNdAW"
+										},
+										{
+											"key": "userAddressList",
+											"value": "tz1Upyf2fq4maUdW3xTQ2o56SrBePbqSsokm"
+										}
+									]
+								}
+							},
+							"response": []
 						}
-					},
-					"response": []
+					]
 				},
 				{
-					"name": "Entrypoints of a smartcontract",
+					"name": "Passport",
+					"item": [
+						{
+							"name": "Create multisig",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"initPassportCreation\",\n      \"entryPointParams\": {\n            \"vehiculeOwnerAddress\": \"{{test-asset-owner-publicKeyHash}}\",\n            \"dspAddress\": \"{{tag-admin-publicKeyHash}}\",\n            \"vin\": \"{{test-vin}}\",\n            \"datasource_uuid\": \"3131\"\n      }\n    }\n  ],\n  \"callerId\": \"{{dapp-id}}\",\n  \"secureKeyName\": \"{{tag-admin}}\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/send/jobs",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"send",
+										"jobs"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "As Alice, I consent multisig",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"passportConsent\",\n      \"entryPointParams\": {\n            \"contractId\": {{test-contract-id}},\n            \"vehiculeOwnerAddress\":\"{{test-asset-owner-publicKeyHash}}\"\n      }\n    }\n  ],\n  \"callerId\": \"{{dapp-id}}\",\n  \"secureKeyName\": \"{{test-asset-owner-vault-id}}\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/send/jobs",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"send",
+										"jobs"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Organization",
+					"item": [
+						{
+							"name": "Get all organizations",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataFields\": [\n        \"organizations\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{smart-contract-address}}",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"tezos_node",
+										"storage",
+										"{{smart-contract-address}}"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get all entrypoints",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -2127,7 +2232,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1X2GBRQ7ADbJv9gHNKGKuGJKBgZGbcRd4U",
 							"host": [
 								"{{tagApiUrl}}"
 							],
@@ -2135,7 +2240,7 @@
 								"api",
 								"tezos_node",
 								"storage",
-								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+								"KT1X2GBRQ7ADbJv9gHNKGKuGJKBgZGbcRd4U"
 							]
 						}
 					},
@@ -2156,7 +2261,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1X2GBRQ7ADbJv9gHNKGKuGJKBgZGbcRd4U",
 							"host": [
 								"{{tagApiUrl}}"
 							],
@@ -2164,7 +2269,7 @@
 								"api",
 								"tezos_node",
 								"storage",
-								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+								"KT1X2GBRQ7ADbJv9gHNKGKuGJKBgZGbcRd4U"
 							]
 						}
 					},
