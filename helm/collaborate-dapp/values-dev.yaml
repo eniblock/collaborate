@@ -33,7 +33,6 @@ tezos-api-gateway:
       debug: true
       dev:
         enabled: true
-        rootToken: "myroot"
       standalone:
         enabled: false
     customInitScript: |
