@@ -83,7 +83,7 @@ k8s_resource('col-tag-rabbitmq', port_forwards=['15672:15672'])
 local_resource('helm lint',
                'docker run --rm -t -v $PWD:/app registry.gitlab.com/xdev-tech/build/helm:1.5' +
                ' lint helm/collaborate-dapp --values helm/collaborate-dapp/values-dev.yaml',
-               'helm/collaborate-dapp/')
+               'helm/collaborate-dapp/', allow_parallel=True)
 
 if config.tilt_subcommand == 'down' and not cfg.get("no-volumes"):
   local('kubectl --context ' + k8s_context() + ' delete pvc --selector=app.kubernetes.io/instance=col --wait=false')
