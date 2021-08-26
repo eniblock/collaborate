@@ -112,6 +112,9 @@ management:
 logging:
   level:
     collaborate.api: DEBUG
+    collaborate.api.organization.tag.TezosApiGatewayOrganizationClient: DEBUG
+    collaborate.api.user.tag.TezosApiGatewayUserClient: DEBUG
+    collaborate.api.tag.TezosApiGatewayJobClient: DEBUG
     org.hibernate:
       SQL: DEBUG
       type.descriptor.sql.BasicBinder: TRACE

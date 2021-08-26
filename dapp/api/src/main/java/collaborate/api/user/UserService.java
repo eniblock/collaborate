@@ -1,8 +1,7 @@
 package collaborate.api.user;
 
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.helper.SetRolesNotificationEmailHelper;
-import collaborate.api.services.MailService;
+import collaborate.api.mail.MailService;
 import collaborate.api.user.model.RolesDTO;
 import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.Authorizations.Roles;

@@ -1,7 +1,7 @@
 package collaborate.api.user.security;
 
-import collaborate.api.services.dto.UserSearchCriteria;
-import collaborate.api.services.dto.UserSearchResponseDTO;
+import static java.lang.String.format;
+
 import collaborate.api.user.model.UserDTO;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +49,8 @@ public class KeycloakService {
   }
 
   public UserDTO findOneByIdOrElseThrow(UUID id) {
-    return keycloakClient.findById(id).get();
+    return keycloakClient.findById(id)
+        .orElseThrow(() -> new IllegalStateException(format("User id=%s not found", id)));
   }
 
   private void addPaginationInformation(UserSearchCriteria userSearchCriteria, Pageable pageable) {

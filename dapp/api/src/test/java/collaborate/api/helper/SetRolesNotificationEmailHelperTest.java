@@ -1,9 +1,10 @@
 package collaborate.api.helper;
 
-import collaborate.api.services.dto.MailDTO;
-import org.junit.Test;
-
 import static org.junit.Assert.assertEquals;
+
+import collaborate.api.mail.MailDTO;
+import collaborate.api.user.SetRolesNotificationEmailHelper;
+import org.junit.Test;
 
 public class SetRolesNotificationEmailHelperTest {
     @Test

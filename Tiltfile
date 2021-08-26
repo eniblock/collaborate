@@ -77,6 +77,8 @@ k8s_resource('col-collaborate-dapp-api',
              port_forwards=['5001:5000'])
 k8s_resource('col-api-db',
              port_forwards=['5432:5432'])
+k8s_resource('col-tag-vault', port_forwards=['8270:8200'])
+k8s_resource('col-tag-rabbitmq', port_forwards=['15672:15672'])
 
 local_resource('helm lint',
                'docker run --rm -t -v $PWD:/app registry.gitlab.com/xdev-tech/build/helm:1.5' +

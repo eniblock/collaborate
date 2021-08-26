@@ -1,10 +1,17 @@
 package collaborate.api.user.tag;
 
+import static java.lang.String.format;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
+
 import feign.FeignException.FeignClientException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Slf4j
 @Service
+// TODO Setup a feign error decoder
 public class TagUserService {
 
   private final TezosApiGatewayUserClient tagUserClient;
@@ -33,27 +41,110 @@ public class TagUserService {
     List<UsersDTO> createdUsersResult;
 
     try {
+      log.debug("[TAG] create({})", usersDTO);
       ResponseEntity<List<UsersDTO>> response = tagUserClient.create(usersDTO);
-      if (response.getStatusCode() != HttpStatus.CREATED) {
-        log.error("[TAG] createUsers {}", response);
-        throw new HttpClientErrorException(response.getStatusCode());
-      }
+      expectResponseStatusCode(response, CREATED);
       createdUsersResult = response.getBody();
     } catch (FeignClientException exception) {
-      log.error("[TAG] createUsers", exception);
+      log.error("[TAG] create", exception);
       throw new ResponseStatusException(
           HttpStatus.INTERNAL_SERVER_ERROR,
-          String.format("Can't create TAG users, errors:{%s}", exception.getMessage()));
+          format("Can't create TAG users, errors:{%s}", exception.getMessage()));
     }
 
     return createdUsersResult;
   }
 
-  private String cleanUserId(String userID) {
+  public Optional<UserWalletDTO> findOneByAddress(String address) {
+    log.debug("[TAG] findOneByPublicKeyHash({})", address);
+    Optional<UserWalletDTO> walletOptResult;
+
+    try {
+      ResponseEntity<List<UserWalletDTO>> response = tagUserClient
+          .findOneUserByAddress(address);
+
+      expectResponseStatusCode(response, OK);
+      walletOptResult = uncleanFirstFilteredUser(
+          response,
+          wallet -> StringUtils.isNotBlank(wallet.getUserId())
+      );
+    } catch (FeignClientException exception) {
+      log.error("[TAG] findOneByPublicKeyHash", exception);
+      throw new ResponseStatusException(
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          format("Can't get TAG users, errors:{%s}", exception.getMessage()));
+    }
+    return walletOptResult;
+  }
+
+  public Optional<UserWalletDTO> findOneByUserId(String userId) {
+    log.debug("[TAG] findOneByUserId({})", userId);
+    Optional<UserWalletDTO> walletOptResult;
+
+    try {
+      ResponseEntity<List<UserWalletDTO>> response = tagUserClient
+          .findOneByUserId(cleanUserId(userId));
+      expectResponseStatusCode(response, OK);
+      walletOptResult = uncleanFirstFilteredUser(
+          response,
+          wallet -> StringUtils.isNotBlank(wallet.getAddress())
+      );
+    } catch (FeignClientException exception) {
+      log.error("[TAG] findOneByUserId", exception);
+      throw new ResponseStatusException(
+          HttpStatus.INTERNAL_SERVER_ERROR,
+          format("Can't get TAG users, errors:{%s}", exception.getMessage()));
+    }
+
+    return walletOptResult;
+  }
+
+  public String getDSPAddress() {
+    return findOneByUserId(secureKeyName)
+        .map(UserWalletDTO::getAddress)
+        .orElseThrow(() -> new IllegalStateException("DSP not found"));
+  }
+
+  String cleanUserId(String userID) {
     String cleaned = userID.replace("@", "_._xdev-at_._");
     log.debug("userId {{}} cleaned as {{}}", userID, cleaned);
     return cleaned;
   }
 
+  String uncleanUserId(String userID) {
+    String uncleaned = userID.replace("_._xdev-at_._", "@");
+    log.debug("userId {{}} uncleaned as {{}}", userID, uncleaned);
+    return uncleaned;
+  }
+
+  void expectResponseStatusCode(ResponseEntity<?> response,
+      HttpStatus expectedStatus) {
+    if (expectedStatus == null || !expectedStatus.equals(response.getStatusCode())) {
+      String errorMessage = format(
+          "[TAG] expectedStatus={%s} but actualStatus={%s} for response={%s}",
+          expectedStatus,
+          response.getStatusCode(),
+          response
+      );
+      log.error(errorMessage);
+      throw new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE, errorMessage);
+    }
+  }
+
+  Optional<UserWalletDTO> uncleanFirstFilteredUser(ResponseEntity<List<UserWalletDTO>> response,
+      Predicate<UserWalletDTO> filter) {
+    Optional<UserWalletDTO> walletOptResult = Optional.empty();
+
+    var walletsResponse = response.getBody();
+    if (walletsResponse != null) {
+      walletOptResult = walletsResponse.stream()
+          .filter(filter)
+          .findFirst();
+      walletOptResult = walletOptResult
+          .map(w -> new UserWalletDTO(uncleanUserId(w.getUserId()), w.getAddress()));
+    }
+
+    return walletOptResult;
+  }
 
 }

@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "3d805ab0-7ec9-49f1-b7ac-d3bee94f3ebe",
+		"_postman_id": "a97f302f-f075-4b14-aeb4-e09be95d3d20",
 		"name": "Collaborate",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -42,12 +42,12 @@
 											"urlencoded": [
 												{
 													"key": "username",
-													"value": "kcadmin",
+													"value": "{{dAppKeycloakUsername}}",
 													"type": "text"
 												},
 												{
 													"key": "password",
-													"value": "kcadmin",
+													"value": "{{dAppKeycloakPassword}}",
 													"type": "text"
 												},
 												{
@@ -141,6 +141,72 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Get Token - Admin",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.environment.set(\"dAppToken\", response.access_token);",
+													"",
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "grant_type",
+													"value": "password",
+													"type": "text"
+												},
+												{
+													"key": "username",
+													"value": "{{dapp-admin-user}}",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "{{dapp-admin-password}}",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "{{dAppKeycloakFrontendClientId}}",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						},
@@ -174,12 +240,12 @@
 										},
 										{
 											"key": "username",
-											"value": "{{dAppKeycloakUsername}}",
+											"value": "{{dapp-admin-user}}",
 											"type": "text"
 										},
 										{
 											"key": "password",
-											"value": "{{dAppKeycloakPassword}}",
+											"value": "{{dapp-admin-password}}",
 											"type": "text"
 										},
 										{
@@ -551,6 +617,8 @@
 											"script": {
 												"exec": [
 													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													"",
+													"pm.environment.set(\"tag-job-id\", pm.response.json().id);",
 													""
 												],
 												"type": "text/javascript"
@@ -562,7 +630,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"organizationId\": \"1\",\n    \"organizationName\": \"psa\",\n    \"vehicleOwnerMail\": \"alioce@gmail.com\",\n    \"datasourceId\": \"test\",\n    \"vin\": \"X\",\n    \"status\": \"PENDING\"\n}",
+											"raw": "{\n    \"vehicleOwnerMail\": \"pcc-development@theblockchainxdev.com\",\n    \"datasourceUUID\": \"559a5160-5a75-492d-9fa4-d0cc615ef399\",\n    \"vin\": \"X\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -643,12 +711,12 @@
 													"urlencoded": [
 														{
 															"key": "username",
-															"value": "kcadmin",
+															"value": "{{dAppKeycloakUsername}}",
 															"type": "text"
 														},
 														{
 															"key": "password",
-															"value": "kcadmin",
+															"value": "{{dAppKeycloakPassword}}",
 															"type": "text"
 														},
 														{
@@ -1068,12 +1136,12 @@
 													"urlencoded": [
 														{
 															"key": "username",
-															"value": "kcadmin",
+															"value": "{{dAppKeycloakUsername}}",
 															"type": "text"
 														},
 														{
 															"key": "password",
-															"value": "kcadmin",
+															"value": "{{dAppKeycloakPassword}}",
 															"type": "text"
 														},
 														{
@@ -1757,7 +1825,7 @@
 													"script": {
 														"exec": [
 															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-															""
+															"pm.environment.set(\"tag-job-id\", pm.response.json().id);"
 														],
 														"type": "text/javascript"
 													}
@@ -1788,7 +1856,7 @@
 												"header": [],
 												"body": {
 													"mode": "raw",
-													"raw": "{\n    \"organizationId\": \"{{tag-admin-publicKeyHash}}\",\n    \"organizationName\": \"{{organizationId}}\",\n    \"vehicleOwnerMail\": \"{{test-asset-owner-publicKeyHash}}\",\n    \"datasourceId\": \"19865f3f-f7ab-454e-bc48-a793b7ff45fc\",\n    \"vin\": \"{{test-vin}}\"\n}",
+													"raw": "{\n    \"vehicleOwnerMail\": \"{{test-asset-owner-email}}\",\n    \"datasourceUUID\": \"19865f3f-f7ab-454e-bc48-a793b7ff45fc\",\n    \"vin\": \"{{test-vin}}\"\n}",
 													"options": {
 														"raw": {
 															"language": "json"
@@ -1821,13 +1889,15 @@
 													"listen": "test",
 													"script": {
 														"exec": [
-															"pm.test(\"Status code is 200\", function () {",
-															"    pm.response.to.have.status(200);",
-															"});",
-															"",
-															"pm.test(\"Your test name\", function () {",
+															"pm.test(\"Result contains at least PSA and Movidia organization\", function () {",
 															"    var jsonData = pm.response.json();",
-															"    pm.expect(jsonData.length).to.gte(2);",
+															"    pm.expect(jsonData.length).to.greaterThan(1);",
+															"",
+															"    const adminOrg = jsonData.find(o => o.publicKeyHash === pm.environment.get(\"tag-admin-publicKeyHash\"));",
+															"    pm.expect(adminOrg).not.eq(undefined);",
+															"",
+															"    const otherOrg = jsonData.find(o => o.publicKeyHash === pm.environment.get(\"tag-other-publicKeyHash\"));",
+															"    pm.expect(otherOrg).not.eq(undefined);",
 															"});"
 														],
 														"type": "text/javascript"
@@ -1884,59 +1954,6 @@
 									}
 								}
 							]
-						},
-						{
-							"name": "Add access requests",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "[\n    {\n        \"organizationId\":\"psa\",\n        \"organizationName\":\"PSA Groupe\",\n        \"datasourceId\":1,\n        \"scope\":\"maintenance-plans:read\",\n        \"scopeId\":\"7a9c19f0-5f20-3166-a8d4-2dd3aad49330\",\n        \"status\":\"LOCKED\"\n    },\n    {\n        \"organizationId\":\"psa\",\n        \"organizationName\":\"PSA Groupe\",\n        \"datasourceId\":1,\n        \"scope\":\"insurance-offers:read\",\n        \"scopeId\":\"7bd07a72-d272-38a6-895b-70c15ae74269\",\n        \"status\":\"LOCKED\"\n    }\n]",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{dAppApiUrl}}/api/v1/access-requests",
-									"host": [
-										"{{dAppApiUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"access-requests"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get documents",
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{dAppApiUrl}}/api/v1/documents?sort=title,desc",
-									"host": [
-										"{{dAppApiUrl}}"
-									],
-									"path": [
-										"api",
-										"v1",
-										"documents"
-									],
-									"query": [
-										{
-											"key": "sort",
-											"value": "title,desc"
-										}
-									]
-								}
-							},
-							"response": []
 						}
 					],
 					"auth": {
@@ -2123,6 +2140,29 @@
 					"item": [
 						{
 							"name": "Create multisig",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"test-vin\", utils.generateVIN().hexEncode());",
+											"pm.environment.set(\"test-uuid\", \"b6006c30-d84b-4ad7-a57b-55987c8aace7\".hexEncode());",
+											""
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"tag-job-id\", pm.response.json().id);",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -2241,6 +2281,69 @@
 					"name": "Tests suites",
 					"item": [
 						{
+							"name": "basics",
+							"item": [
+								{
+									"name": "Get admin user by id should return created user publicKey Copy",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Result has expected publicKey\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData[0].account).to.eq(",
+													"        pm.environment.get(\"tag-admin-publicKeyHash\")",
+													"    );",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{tagApiUrl}}/api/user?userIdList={{tag-admin}}",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"user"
+											],
+											"query": [
+												{
+													"key": "userIdList",
+													"value": "{{tag-admin}}"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "COL-215 Create asset owner user",
 							"item": [
 								{
@@ -2310,7 +2413,7 @@
 									"response": []
 								},
 								{
-									"name": "Get user by id should return created user publicKey",
+									"name": "Get created user by id should return created user publicKey",
 									"event": [
 										{
 											"listen": "test",
@@ -2373,13 +2476,81 @@
 							"name": "COL-220 Create Passport multisig",
 							"item": [
 								{
+									"name": "Entrypoint \"initPassportCreation\" exists",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"pm.test(\"Status code is 200\", function () {",
+													"    pm.response.to.have.status(200);",
+													"});",
+													"",
+													"pm.test(\"Response contains expected entrypoint\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.schema.length).to.eql(1);",
+													"    pm.expect(jsonData.schema[0].entryPoint).to.eql(\"initPassportCreation\");",
+													"});",
+													"",
+													"pm.test(\"Entrypoint expects 4 parameters\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(Object.keys(jsonData.schema[0].schema).length).to.eql(4);",
+													"    pm.expect(jsonData.schema[0].schema[\"datasource_uuid\"]).to.eql(\"bytes\");",
+													"    pm.expect(jsonData.schema[0].schema[\"dspAddress\"]).to.eql(\"address\");",
+													"    pm.expect(jsonData.schema[0].schema[\"vehiculeOwnerAddress\"]).to.eql(\"address\");",
+													"    pm.expect(jsonData.schema[0].schema[\"vin\"]).to.eql(\"bytes\");",
+													"",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{tagApiUrl}}/api/entrypoints/{{smart-contract-address}}?entryPoints=initPassportCreation",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"entrypoints",
+												"{{smart-contract-address}}"
+											],
+											"query": [
+												{
+													"key": "entryPoints",
+													"value": "initPassportCreation"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
 									"name": "Create multisig",
 									"event": [
 										{
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													"pm.globals.set(\"test-vin\", utils.generateVIN());"
+													"pm.environment.set(\"test-vin\", utils.generateVIN().hexEncode());",
+													"pm.environment.set(\"test-uuid\", \"b6006c30-d84b-4ad7-a57b-55987c8aace7\".hexEncode());",
+													""
 												],
 												"type": "text/javascript"
 											}
@@ -2392,7 +2563,7 @@
 													"    pm.response.to.have.status(201);",
 													"});",
 													"",
-													"pm.globals.set(\"test-create-multisig-job\", pm.response.json().id);"
+													"pm.environment.set(\"tag-job-id\", pm.response.json().id);"
 												],
 												"type": "text/javascript"
 											}
@@ -2403,7 +2574,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"initPassportCreation\",\n      \"entryPointParams\": {\n            \"vehiculeOwnerAddress\": \"{{test-asset-owner-publicKeyHash}}\",\n            \"dspAddress\": \"{{tag-admin-publicKeyHash}}\",\n            \"vin\": \"{{test-vin}}\",\n            \"datasource_uuid\": \"3131\"\n      }\n    }\n  ],\n  \"callerId\": \"{{dapp-id}}\",\n  \"secureKeyName\": \"{{tag-admin}}\"\n}\n",
+											"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"initPassportCreation\",\n      \"entryPointParams\": {\n            \"vehiculeOwnerAddress\": \"{{test-asset-owner-publicKeyHash}}\",\n            \"dspAddress\": \"{{tag-admin-publicKeyHash}}\",\n            \"vin\": \"{{test-vin}}\",\n            \"datasource_uuid\": \"{{test-uuid}}\"\n      }\n    }\n  ],\n  \"callerId\": \"{{dapp-id}}\",\n  \"secureKeyName\": \"{{tag-admin}}\"\n}\n",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -2504,14 +2675,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagApiUrl}}/api/entrypoints/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR",
+							"raw": "{{tagApiUrl}}/api/entrypoints/{{smart-contract-address}}",
 							"host": [
 								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
 								"entrypoints",
-								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+								"{{smart-contract-address}}"
 							]
 						}
 					},
@@ -2535,14 +2706,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagApiUrl}}/api/entrypoints/KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR?entryPoints=requestAccess",
+							"raw": "{{tagApiUrl}}/api/entrypoints/{{smart-contract-address}}?entryPoints=requestAccess",
 							"host": [
 								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
 								"entrypoints",
-								"KT1DY2hHacAFegSjekmQPh26BUr9xetRkCZR"
+								"{{smart-contract-address}}"
 							],
 							"query": [
 								{
@@ -2569,7 +2740,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1X2GBRQ7ADbJv9gHNKGKuGJKBgZGbcRd4U",
+							"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{smart-contract-address}}",
 							"host": [
 								"{{tagApiUrl}}"
 							],
@@ -2577,7 +2748,7 @@
 								"api",
 								"tezos_node",
 								"storage",
-								"KT1X2GBRQ7ADbJv9gHNKGKuGJKBgZGbcRd4U"
+								"{{smart-contract-address}}"
 							]
 						}
 					},
@@ -2764,14 +2935,14 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagApiUrl}}/api/job/1",
+							"raw": "{{tagApiUrl}}/api/job/{{tag-job-id}}",
 							"host": [
 								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
 								"job",
-								"1"
+								"{{tag-job-id}}"
 							]
 						}
 					},
@@ -2787,16 +2958,35 @@
 				"type": "text/javascript",
 				"exec": [
 					"utils = {",
+					"    /**",
+					"     * @return a random 17 characters VIN",
+					"     */",
 					"    generateVIN: function(){",
-					"    var result = '';",
-					"    var characters =  'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';",
-					"    var charactersLength = characters.length;",
-					"    for ( var i = 0; i < 17; i++ ) {",
-					"      result += characters.charAt(Math.floor(Math.random() * ",
+					"        var result = '';",
+					"        var characters =  'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';",
+					"        var charactersLength = characters.length;",
+					"        for ( var i = 0; i < 17; i++ ) {",
+					"            result += characters.charAt(Math.floor(Math.random() * ",
 					" charactersLength));",
-					"   }",
-					"   return result;",
+					"        }",
+					"        console.log(\"generateVIN=\"+result);",
+					"        return result;",
 					"    }",
+					"}",
+					"",
+					"/**",
+					" * @return the TBytes string expected by smart-contract ",
+					" */",
+					"String.prototype.hexEncode = function(){",
+					"    var hex, i;",
+					"",
+					"    var result = \"\";",
+					"    for (i=0; i<this.length; i++) {",
+					"        hex = this.charCodeAt(i).toString(16);",
+					"        result += (\"0\"+hex).slice(-2);",
+					"    }",
+					"    console.log(\"string \"+this+\" has been hexEncode() to \"+result);",
+					"    return result;",
 					"}"
 				]
 			}

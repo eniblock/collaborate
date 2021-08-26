@@ -1,7 +1,6 @@
 package collaborate.api.user;
 
 import collaborate.api.config.OpenApiConfig;
-import collaborate.api.errors.UserIdNotFoundException;
 import collaborate.api.user.model.RolesDTO;
 import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.Authorizations.HasRoles;

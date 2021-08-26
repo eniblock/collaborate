@@ -83,3 +83,10 @@ Postman collections contains some file data, configure your workspace:
 ### Run
 Following command will execute the `"COL-148 As a DSP, I want to create a BasicAuth Datasource"` requests folder using the `col.localhost.postman_environment.json`environment:  
 `newman run Collaborate.postman_collection.json -e col.localhost.postman_environment.json --folder "COL-148 As a DSP, I want to create a BasicAuth Datasource" --insecure`
+
+# Vault
+use token `myroot`
+
+# RabbitMQ
+Credentials for the administration webUI can be found from Lens in the `col-tag-rabbitmq-0` environement variables: `RABBITMQ_USERNAME` and `RABBITMQ_PASSWORD`.
+For the dev environment: user is `user` and password is `e231219990650321231f`
