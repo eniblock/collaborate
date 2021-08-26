@@ -1,6 +1,6 @@
 package collaborate.api.organization.tag;
 
-import collaborate.api.restclient.tag.TagMap;
+import collaborate.api.tag.model.TagMap;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

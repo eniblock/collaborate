@@ -1,6 +1,5 @@
 package collaborate.api.user.model;
 
-import collaborate.api.services.dto.RoleDTO;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class VaultService {
 
-  private Map<String, Object> mockVault = new HashMap<>();
+  private final Map<String, Object> mockVault = new HashMap<>();
 
   public <T> T get(String key, Class<T> datatype) {
     return (T) this.mockVault.get(key);

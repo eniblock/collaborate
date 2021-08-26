@@ -1,5 +1,6 @@
 package collaborate.api.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyList;
@@ -16,8 +17,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.services.MailService;
-import collaborate.api.services.dto.MailDTO;
+import collaborate.api.mail.MailDTO;
+import collaborate.api.mail.MailService;
 import collaborate.api.user.security.KeycloakService;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -107,7 +108,7 @@ public class UserServiceTest {
 
     List<RoleRepresentation> result = userService.getRolesRepresentations(fakeRolesNames);
 
-    assertEquals(result.size(), 1);
+    assertThat(result).hasSize(1);
     assertEquals(result.get(0), fakeRoleRepresentation);
   }
 

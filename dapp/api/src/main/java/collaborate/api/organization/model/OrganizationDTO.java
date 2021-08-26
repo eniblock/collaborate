@@ -14,9 +14,9 @@ public class OrganizationDTO {
 
   @Schema(description = "The name of the organization.", example = "PSA", required = true)
   private String name;
-  @Schema(description = "The hash value of the publicKey", example = "edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2")
+  @Schema(description = "The hash value of the publicKey", example = "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
   private String publicKeyHash;
-  @Schema(description = "The publicKey key of the organization", example = "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
+  @Schema(description = "The publicKey key of the organization", example = "edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2")
   private String publicKey;
 
 }
