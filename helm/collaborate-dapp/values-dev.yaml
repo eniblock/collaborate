@@ -48,10 +48,6 @@ tezos-api-gateway:
             - path: "/"
 
 keycloak:
-  # Remove me after https://github.com/bitnami/charts/pull/7286
-  auth:
-    adminPassword: kcadmin
-    managementPassword: f28ce1dd-7f47-4632-9871-886a91c1bb83
   assetOwnerIdentityProviderConfigClientSecret: "860faf20430956489e72b101ad8ca95ba62dff46"
   extraEnvVars:
     - name: REALM
