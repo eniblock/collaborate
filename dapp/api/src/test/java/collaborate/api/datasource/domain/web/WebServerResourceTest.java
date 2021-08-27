@@ -2,8 +2,7 @@ package collaborate.api.datasource.domain.web;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Set;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -17,12 +16,13 @@ class WebServerResourceTest {
   WebServerResource webResource;
 
   @BeforeEach
-  void setup(){
+  void setup() {
     webResource = WebServerResource.builder()
         .url("/test")
-        .keywords(new ArrayList<>(List.of("routing-key:resource")))
+        .keywords(Set.of("routing-key:resource"))
         .build();
   }
+
   @Test
   void validationOnKeywords_shouldNotReturnViolations_withRoutingKeyKeyword() {
     // GIVEN
@@ -46,7 +46,7 @@ class WebServerResourceTest {
   @Test
   void validationOnKeywords_shouldReturnViolations_withMissingRoutingKeyKeywords() {
     // GIVEN
-    webResource.setKeywords(new ArrayList<>(List.of("resource")));
+    webResource.setKeywords(Set.of("resource"));
     // WHEN
     var actualViolations = validator.validate(webResource);
     // THEN
@@ -55,7 +55,7 @@ class WebServerResourceTest {
   }
 
   @Test
-  void validationOnUrl_shouldReturnViolation_withNullUrl(){
+  void validationOnUrl_shouldReturnViolation_withNullUrl() {
     // GIVEN
     webResource.setUrl(null);
     // WHEN
@@ -66,7 +66,7 @@ class WebServerResourceTest {
   }
 
   @Test
-  void validationOnUrl_shouldReturnViolation_withQueryString(){
+  void validationOnUrl_shouldReturnViolation_withQueryString() {
     // GIVEN
     webResource.setUrl("test?p=v");
     // WHEN

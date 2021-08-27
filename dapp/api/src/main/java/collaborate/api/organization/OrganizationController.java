@@ -35,7 +35,7 @@ public class OrganizationController {
   @ApiResponses(value = {
       @ApiResponse(
           responseCode = "200",
-          description = "successful operation",
+          description = "Organizations has been found",
           content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrganizationDTO.class))))})
   @PreAuthorize(HasRoles.SERVICE_PROVIDER)
   public Collection<OrganizationDTO> findAll() {

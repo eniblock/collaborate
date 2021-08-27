@@ -1,16 +1,16 @@
 package collaborate.api.traefik.routing;
 
-import java.util.List;
+import java.util.Collection;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 public class RoutingKeyKeywordValidator implements
-    ConstraintValidator<RoutingKeyKeywordConstraint, List<String>> {
+    ConstraintValidator<RoutingKeyKeywordConstraint, Collection<String>> {
 
   public static final String KEYWORD_PREFIX = "routing-key:";
 
   @Override
-  public boolean isValid(List<String> strings,
+  public boolean isValid(Collection<String> strings,
       ConstraintValidatorContext constraintValidatorContext) {
     return strings != null
         && !strings.isEmpty()

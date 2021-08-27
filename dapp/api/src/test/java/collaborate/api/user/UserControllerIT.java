@@ -43,7 +43,7 @@ class UserControllerIT {
   }
 
   @Test
-  void createTagUser_shouldReturn200_withTagUserCreationSuccess() throws Exception {
+  void createTagUser_shouldReturn201Created_withTagUserCreationSuccess() throws Exception {
     // GIVEN
     UserDTO usersDTO = new UserDTO();
     when(userService.updateCurrentUserWithAssetOwnerRole()).thenReturn(usersDTO);
@@ -51,6 +51,6 @@ class UserControllerIT {
     mockMvc
         .perform(post("/api/v1/users/tag/asset-owner"))
         // THEN
-        .andExpect(status().isOk());
+        .andExpect(status().isCreated());
   }
 }
