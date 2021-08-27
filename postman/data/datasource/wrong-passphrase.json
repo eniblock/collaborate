@@ -4,7 +4,6 @@
   "name" : "PSA Digital Passport",
   "status" : "CREATED",
   "authMethod" : {
-    "host" : "api-cert-preprod.groupe-psa.com",
     "passphrase" : "wrong",
     "caEmail" : "certificate@authority.email",
     "type" : "CertificateBasedBasicAuth",

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class CreatePassportDTO {
 
-  @Schema(description = "The vehicle owner (VO) Public Key Hash.", example = "tz1hk3ncAVaNR8eBYkcgwdRLhaCYvqsnrbtz", required = true)
+  @Schema(description = "The Vehicle Owner (VO) public-key-hash.", example = "tz1hk3ncAVaNR8eBYkcgwdRLhaCYvqsnrbtz", required = true)
   @NotNull
   // TODO add an email validator
   private String vehicleOwnerMail;

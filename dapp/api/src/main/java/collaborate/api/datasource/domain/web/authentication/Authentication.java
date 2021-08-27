@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,6 +34,7 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Data
 @EqualsAndHashCode()
+// TODO: openapi description
 public abstract class Authentication implements Serializable {
 
   @JsonIgnore
@@ -41,6 +43,7 @@ public abstract class Authentication implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Schema(description = "The identifier of the resource relative to the organization owner", example = "3746")
   protected Long id;
 
   public abstract void accept(AuthenticationVisitor visitor);

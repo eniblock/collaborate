@@ -684,424 +684,540 @@
 									"name": "COL-215 Asset owner first login",
 									"item": [
 										{
-											"name": "Setup - Get Keycloak Admin token",
-											"event": [
+											"name": "As pending_asset_owner, I do first login",
+											"item": [
 												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let response = pm.response.json();",
-															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-															"pm.environment.set(\"keycloak-admin-token\", response.access_token);",
-															"",
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "noauth"
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "urlencoded",
-													"urlencoded": [
+													"name": "Setup - Get Keycloak Admin token",
+													"event": [
 														{
-															"key": "username",
-															"value": "{{dAppKeycloakUsername}}",
-															"type": "text"
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"let response = pm.response.json();",
+																	"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+																	"pm.environment.set(\"keycloak-admin-token\", response.access_token);",
+																	"",
+																	""
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "noauth"
+														},
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "urlencoded",
+															"urlencoded": [
+																{
+																	"key": "username",
+																	"value": "{{dAppKeycloakUsername}}",
+																	"type": "text"
+																},
+																{
+																	"key": "password",
+																	"value": "{{dAppKeycloakPassword}}",
+																	"type": "text"
+																},
+																{
+																	"key": "client_id",
+																	"value": "admin-cli",
+																	"type": "text"
+																},
+																{
+																	"key": "grant_type",
+																	"value": "password",
+																	"type": "text"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
+															"host": [
+																"{{dAppKeycloakUrl}}"
+															],
+															"path": [
+																"auth",
+																"realms",
+																"master",
+																"protocol",
+																"openid-connect",
+																"token"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "Setup - Create asset owner user",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"let user = pm.environment.get(\"test-asset-owner-email\");",
+																	"tests['Creation of ' + user + ' resulted in 201 OK'] = responseCode.code === 201;"
+																],
+																"type": "text/javascript"
+															}
 														},
 														{
-															"key": "password",
-															"value": "{{dAppKeycloakPassword}}",
-															"type": "text"
+															"listen": "prerequest",
+															"script": {
+																"exec": [
+																	"function generateEmail(){",
+																	"    let timestamp = new Date().getTime();",
+																	"    return \"asset-owner@\"+timestamp+\".test\";",
+																	"}",
+																	"",
+																	"let email = generateEmail();",
+																	"pm.environment.set(\"test-asset-owner-email\", email);",
+																	"pm.environment.set(\"test-asset-owner-username\", email);",
+																	"pm.environment.set(\"test-asset-owner-password\", \"password\");",
+																	"pm.environment.set(\"test-asset-owner-vault-id\", email.toVaultId());",
+																	"",
+																	"// Roles must be assigned in a separate request"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{keycloak-admin-token}}",
+																	"type": "string"
+																}
+															]
+														},
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "raw",
+															"raw": "{\n    \"email\": \"{{test-asset-owner-email}}\",\n    \"username\": \"{{test-asset-owner-email}}\",\n    \"enabled\": true,\n    \"emailVerified\": true,\n    \"credentials\":[{\n        \"type\": \"password\",\n        \"value\":\"{{test-asset-owner-password}}\",\n        \"temporary\":false\n    }],\n    \"realmRoles\":[\"pending_asset_owner\", \"service_identity_provider_administrator\", \"service_provider_administrator\", \"offline_access\"]\n}",
+															"options": {
+																"raw": {
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users",
+															"host": [
+																"{{dAppKeycloakUrl}}"
+															],
+															"path": [
+																"auth",
+																"admin",
+																"realms",
+																"{{dAppKeycloakRealm}}",
+																"users"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "Setup - Get asset owner id",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"let response = pm.response.json();",
+																	"let userId = response[0].id;",
+																	"let email = pm.environment.get(\"test-asset-owner-email\")",
+																	"",
+																	"tests['Id of ' + email + ' is '+ userId] = responseCode.code === 200;",
+																	"pm.environment.set(\"test-asset-owner-id\", userId)"
+																],
+																"type": "text/javascript"
+															}
 														},
 														{
-															"key": "client_id",
-															"value": "admin-cli",
-															"type": "text"
+															"listen": "prerequest",
+															"script": {
+																"exec": [
+																	""
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{keycloak-admin-token}}",
+																	"type": "string"
+																}
+															]
+														},
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email={{test-asset-owner-email}}",
+															"host": [
+																"{{dAppKeycloakUrl}}"
+															],
+															"path": [
+																"auth",
+																"admin",
+																"realms",
+																"{{dAppKeycloakRealm}}",
+																"users"
+															],
+															"query": [
+																{
+																	"key": "email",
+																	"value": "{{test-asset-owner-email}}"
+																}
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "Setup - Update asset owner roles",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"let user = pm.environment.get(\"test-asset-owner-email\");",
+																	"tests['Update of ' + user + 'roles resulted in 204 OK'] = responseCode.code === 204;"
+																],
+																"type": "text/javascript"
+															}
 														},
 														{
-															"key": "grant_type",
-															"value": "password",
-															"type": "text"
+															"listen": "prerequest",
+															"script": {
+																"exec": [
+																	"// Roles must be assigned in a separate request",
+																	""
+																],
+																"type": "text/javascript"
+															}
 														}
-													]
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
-													"host": [
-														"{{dAppKeycloakUrl}}"
 													],
-													"path": [
-														"auth",
-														"realms",
-														"master",
-														"protocol",
-														"openid-connect",
-														"token"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Create asset owner user",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let user = pm.environment.get(\"test-asset-owner-email\");",
-															"tests['Creation of ' + user + ' resulted in 201 OK'] = responseCode.code === 201;"
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															"function generateEmail(){",
-															"    let timestamp = new Date().getTime();",
-															"    return \"asset-owner@\"+timestamp+\".test\";",
-															"}",
-															"",
-															"let email = generateEmail();",
-															"pm.environment.set(\"test-asset-owner-email\", email);",
-															"pm.environment.set(\"test-asset-owner-username\", email);",
-															"pm.environment.set(\"test-asset-owner-password\", \"password\");",
-															"pm.environment.set(\"test-asset-owner-vault-id\", utils.toVaultId(email));",
-															"",
-															"// Roles must be assigned in a separate request"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{keycloak-admin-token}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "{\n    \"email\": \"{{test-asset-owner-email}}\",\n    \"username\": \"{{test-asset-owner-email}}\",\n    \"enabled\": true,\n    \"emailVerified\": true,\n    \"credentials\":[{\n        \"type\": \"password\",\n        \"value\":\"{{test-asset-owner-password}}\",\n        \"temporary\":false\n    }],\n    \"realmRoles\":[\"pending_asset_owner\", \"service_identity_provider_administrator\", \"service_provider_administrator\", \"offline_access\"]\n}",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"admin",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"users"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Get asset owner id",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let response = pm.response.json();",
-															"let userId = response[0].id;",
-															"let email = pm.environment.get(\"test-asset-owner-email\")",
-															"",
-															"tests['Id of ' + email + ' is '+ userId] = responseCode.code === 200;",
-															"pm.environment.set(\"test-asset-owner-id\", userId)"
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{keycloak-admin-token}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "GET",
-												"header": [],
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email={{test-asset-owner-email}}",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"admin",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"users"
-													],
-													"query": [
-														{
-															"key": "email",
-															"value": "{{test-asset-owner-email}}"
-														}
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Update asset owner roles",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let user = pm.environment.get(\"test-asset-owner-email\");",
-															"tests['Update of ' + user + 'roles resulted in 204 OK'] = responseCode.code === 204;"
-														],
-														"type": "text/javascript"
-													}
-												},
-												{
-													"listen": "prerequest",
-													"script": {
-														"exec": [
-															"// Roles must be assigned in a separate request",
-															""
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
-														{
-															"key": "token",
-															"value": "{{keycloak-admin-token}}",
-															"type": "string"
-														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "[\n    {\n        \"id\": \"d7732aa5-f408-4248-96aa-f0ec4c7fd41a\",\n        \"name\": \"pending_asset_owner\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/{{test-asset-owner-id}}/role-mappings/realm",
-													"host": [
-														"{{dAppKeycloakUrl}}"
-													],
-													"path": [
-														"auth",
-														"admin",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"users",
-														"{{test-asset-owner-id}}",
-														"role-mappings",
-														"realm"
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "Setup - Get asset owner token",
-											"event": [
-												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let response = pm.response.json();",
-															"pm.environment.set(\"test-asset-owner-token\", response.access_token);",
-															"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "noauth"
-												},
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "urlencoded",
-													"urlencoded": [
-														{
-															"key": "grant_type",
-															"value": "password",
-															"type": "text"
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{keycloak-admin-token}}",
+																	"type": "string"
+																}
+															]
 														},
-														{
-															"key": "username",
-															"value": "{{test-asset-owner-username}}",
-															"type": "text"
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "raw",
+															"raw": "[\n    {\n        \"id\": \"d7732aa5-f408-4248-96aa-f0ec4c7fd41a\",\n        \"name\": \"pending_asset_owner\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+															"options": {
+																"raw": {
+																	"language": "json"
+																}
+															}
 														},
-														{
-															"key": "password",
-															"value": "{{test-asset-owner-password}}",
-															"type": "text"
-														},
-														{
-															"key": "client_id",
-															"value": "{{dAppKeycloakFrontendClientId}}",
-															"type": "text"
+														"url": {
+															"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/{{test-asset-owner-id}}/role-mappings/realm",
+															"host": [
+																"{{dAppKeycloakUrl}}"
+															],
+															"path": [
+																"auth",
+																"admin",
+																"realms",
+																"{{dAppKeycloakRealm}}",
+																"users",
+																"{{test-asset-owner-id}}",
+																"role-mappings",
+																"realm"
+															]
 														}
-													]
+													},
+													"response": []
 												},
-												"url": {
-													"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
-													"host": [
-														"{{dAppKeycloakUrl}}"
+												{
+													"name": "Setup - Get asset owner token",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"let response = pm.response.json();",
+																	"pm.environment.set(\"test-asset-owner-token\", response.access_token);",
+																	"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
+																],
+																"type": "text/javascript"
+															}
+														}
 													],
-													"path": [
-														"auth",
-														"realms",
-														"{{dAppKeycloakRealm}}",
-														"protocol",
-														"openid-connect",
-														"token"
-													]
+													"request": {
+														"auth": {
+															"type": "noauth"
+														},
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "urlencoded",
+															"urlencoded": [
+																{
+																	"key": "grant_type",
+																	"value": "password",
+																	"type": "text"
+																},
+																{
+																	"key": "username",
+																	"value": "{{test-asset-owner-username}}",
+																	"type": "text"
+																},
+																{
+																	"key": "password",
+																	"value": "{{test-asset-owner-password}}",
+																	"type": "text"
+																},
+																{
+																	"key": "client_id",
+																	"value": "{{dAppKeycloakFrontendClientId}}",
+																	"type": "text"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+															"host": [
+																"{{dAppKeycloakUrl}}"
+															],
+															"path": [
+																"auth",
+																"realms",
+																"{{dAppKeycloakRealm}}",
+																"protocol",
+																"openid-connect",
+																"token"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "As pending asset owner,  I create my TAG user AND get asset_owner role",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"let user = pm.environment.get(\"test-asset-owner-email\");",
+																	"tests['Update of ' + user + 'results in 201 Created'] = responseCode.code === 201;"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{test-asset-owner-token}}",
+																	"type": "string"
+																}
+															]
+														},
+														"method": "POST",
+														"header": [],
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/users/tag/asset-owner",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"users",
+																"tag",
+																"asset-owner"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "Setup - Get asset owner publicKey",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+																	"",
+																	"let response = pm.response.json();",
+																	"pm.environment.set(\"test-asset-owner-publicKeyHash\", response[0].account);"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"protocolProfileBehavior": {
+														"disableBodyPruning": true
+													},
+													"request": {
+														"method": "GET",
+														"header": [],
+														"body": {
+															"mode": "raw",
+															"raw": "",
+															"options": {
+																"raw": {
+																	"language": "json"
+																}
+															}
+														},
+														"url": {
+															"raw": "{{tagApiUrl}}/api/user?userIdList={{test-asset-owner-vault-id}}",
+															"host": [
+																"{{tagApiUrl}}"
+															],
+															"path": [
+																"api",
+																"user"
+															],
+															"query": [
+																{
+																	"key": "userIdList",
+																	"value": "{{test-asset-owner-vault-id}}"
+																}
+															]
+														}
+													},
+													"response": []
 												}
-											},
-											"response": []
+											]
 										},
 										{
-											"name": "Setup - Get asset owner publicKey",
-											"event": [
+											"name": "As asset_owner, create TAG user should be forbidden",
+											"item": [
 												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-															"",
-															"let response = pm.response.json();",
-															"pm.environment.set(\"test-asset-owner-publicKeyHash\", response[0].account);"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"protocolProfileBehavior": {
-												"disableBodyPruning": true
-											},
-											"request": {
-												"method": "GET",
-												"header": [],
-												"body": {
-													"mode": "raw",
-													"raw": "",
-													"options": {
-														"raw": {
-															"language": "json"
-														}
-													}
-												},
-												"url": {
-													"raw": "{{tagApiUrl}}/api/user?userIdList={{test-asset-owner-vault-id}}",
-													"host": [
-														"{{tagApiUrl}}"
-													],
-													"path": [
-														"api",
-														"user"
-													],
-													"query": [
+													"name": "Get asset owner token Copy",
+													"event": [
 														{
-															"key": "userIdList",
-															"value": "{{test-asset-owner-vault-id}}"
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"let response = pm.response.json();",
+																	"pm.environment.set(\"test-asset-owner-token\", response.access_token);",
+																	"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
+																],
+																"type": "text/javascript"
+															}
 														}
-													]
-												}
-											},
-											"response": []
-										},
-										{
-											"name": "As pending asset owner,  I create my TAG user AND get asset_owner role",
-											"event": [
+													],
+													"request": {
+														"auth": {
+															"type": "noauth"
+														},
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "urlencoded",
+															"urlencoded": [
+																{
+																	"key": "grant_type",
+																	"value": "password",
+																	"type": "text"
+																},
+																{
+																	"key": "username",
+																	"value": "{{test-asset-owner-username}}",
+																	"type": "text"
+																},
+																{
+																	"key": "password",
+																	"value": "{{test-asset-owner-password}}",
+																	"type": "text"
+																},
+																{
+																	"key": "client_id",
+																	"value": "{{dAppKeycloakFrontendClientId}}",
+																	"type": "text"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+															"host": [
+																"{{dAppKeycloakUrl}}"
+															],
+															"path": [
+																"auth",
+																"realms",
+																"{{dAppKeycloakRealm}}",
+																"protocol",
+																"openid-connect",
+																"token"
+															]
+														}
+													},
+													"response": []
+												},
 												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"let user = pm.environment.get(\"test-asset-owner-email\");",
-															"tests['Update of ' + user + 'results in 200 OK'] = responseCode.code === 200;"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"auth": {
-													"type": "bearer",
-													"bearer": [
+													"name": "As pending asset owner,  I create my TAG user AND get asset_owner role Copy",
+													"event": [
 														{
-															"key": "token",
-															"value": "{{test-asset-owner-token}}",
-															"type": "string"
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"let user = pm.environment.get(\"test-asset-owner-email\");",
+																	"tests['Update of ' + user + 'results in 403 Forbidden'] = responseCode.code === 403;"
+																],
+																"type": "text/javascript"
+															}
 														}
-													]
-												},
-												"method": "POST",
-												"header": [],
-												"url": {
-													"raw": "{{dAppApiUrl}}/api/v1/users/tag/asset-owner",
-													"host": [
-														"{{dAppApiUrl}}"
 													],
-													"path": [
-														"api",
-														"v1",
-														"users",
-														"tag",
-														"asset-owner"
-													]
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{test-asset-owner-token}}",
+																	"type": "string"
+																}
+															]
+														},
+														"method": "POST",
+														"header": [],
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/users/tag/asset-owner",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"users",
+																"tag",
+																"asset-owner"
+															]
+														}
+													},
+													"response": []
 												}
-											},
-											"response": []
+											]
 										}
 									]
 								},
@@ -1199,7 +1315,7 @@
 															"pm.environment.set(\"test-dsp-email\", email);",
 															"pm.environment.set(\"test-dsp-username\", email);",
 															"pm.environment.set(\"test-dsp-password\", \"password\");",
-															"pm.environment.set(\"test-dsp-vault-id\", utils.toVaultId(email));",
+															"pm.environment.set(\"test-dsp-vault-id\", email.toVaultId());",
 															"",
 															"// Roles must be assigned in a separate request"
 														],
@@ -2975,19 +3091,19 @@
 					"}",
 					"",
 					"/**",
-					" * @return the TBytes string expected by smart-contract ",
+					" * @return The converted string in tag user id format",
 					" */",
-					"String.prototype.hexEncode = function(){",
-					"    var hex, i;",
+					"String.prototype.toVaultId = function(){",
+					"    return this.replace('@', '_._xdev-at_._');",
+					"}",
 					"",
-					"    var result = \"\";",
-					"    for (i=0; i<this.length; i++) {",
-					"        hex = this.charCodeAt(i).toString(16);",
-					"        result += (\"0\"+hex).slice(-2);",
-					"    }",
-					"    console.log(\"string \"+this+\" has been hexEncode() to \"+result);",
-					"    return result;",
-					"}"
+					"/**",
+					" * @return the converted string where tag user id special token has been removed",
+					" */",
+					"String.prototype.fromVaultId = function(){",
+					"    return this.replace('_._xdev-at_._', '@');",
+					"}",
+					""
 				]
 			}
 		},

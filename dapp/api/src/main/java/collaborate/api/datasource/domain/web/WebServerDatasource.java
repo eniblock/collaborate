@@ -6,8 +6,10 @@ import collaborate.api.datasource.domain.Datasource;
 import collaborate.api.datasource.domain.DatasourceVisitor;
 import collaborate.api.datasource.domain.enumeration.DatasourceStatus;
 import collaborate.api.datasource.domain.web.authentication.Authentication;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -29,9 +31,11 @@ public class WebServerDatasource extends Datasource {
   @Column(nullable = false)
   @OneToMany(cascade = CascadeType.ALL)
   @JoinColumn(name = "datasource_id")
+  @Schema(description = "The resources definition this datasource exposes")
   private List<WebServerResource> resources;
 
   @NotNull
+  @Schema(description = "The base URL used as a prefix of each resource URL", example = "https://passports.psa.com")
   private String baseUrl;
 
   @Builder(toBuilder = true)
@@ -40,7 +44,7 @@ public class WebServerDatasource extends Datasource {
       String name,
       DatasourceStatus status,
       Authentication authMethod,
-      List<String> keywords,
+      Set<String> keywords,
       List<WebServerResource> resources,
       String baseUrl
   ) {

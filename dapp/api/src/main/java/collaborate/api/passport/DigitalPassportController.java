@@ -32,10 +32,10 @@ public class DigitalPassportController {
   @PostMapping
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "Create a multi-signature entry in the Smart-Contract.<br>"
-          + "A multi-signature is used as a \"pending\" digital-passport<br>"
-          + "The DSP signature is automatically added",
-      tags = {"multisig", "multi-signature"}
+      description = "Create a multi-signature entry in the Smart-Contract:"
+          + "used as a \"pending\" digital-passport<br>"
+          + "NB: The current organization signature is automatically added",
+      tags = {"multi-signature"}
   )
   @PreAuthorize(HasRoles.SERVICE_PROVIDER)
   public Job create(@RequestBody @Valid CreatePassportDTO createPassportDTO) {
@@ -44,7 +44,8 @@ public class DigitalPassportController {
 
   @GetMapping
   @Operation(
-      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description = "Get the list of existing digital-passports for the current user"
   )
   @PreAuthorize(HasRoles.SERVICE_PROVIDER)
   public HttpEntity<List<DigitalPassportDTO>> list() {

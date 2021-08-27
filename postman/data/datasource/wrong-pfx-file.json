@@ -4,7 +4,6 @@
   "name" : "Test - Google",
   "status" : "CREATED",
   "authMethod" : {
-    "host" : "api-cert-preprod.groupe-psa.com",
     "passphrase" : "password",
     "caEmail" : "certificate@authority.email",
     "type" : "CertificateBasedBasicAuth",

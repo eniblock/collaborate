@@ -7,6 +7,7 @@ import collaborate.api.datasource.domain.web.authentication.OAuth2;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -18,7 +19,7 @@ public class OAuth2DatasourceFeatures {
       .id(UUID.fromString("525003f6-f85f-11eb-9a03-0242ac130003"))
       .name("PSA Digital Passport")
       .status(DatasourceStatus.CREATED)
-      .keywords(new ArrayList<>(List.of("vehicles", "digital-passport")))
+      .keywords(new LinkedHashSet<>(List.of("vehicles", "digital-passport")))
       .baseUrl("http://psa.datasource")
       .authMethod(OAuth2.builder()
           .accessMethod("OAUTH2_CLIENT_CREDENTIALS_GRANT")
@@ -31,7 +32,7 @@ public class OAuth2DatasourceFeatures {
       ).resources(
           new ArrayList<>(List.of(WebServerResource.builder()
                   .description("Datasource documents")
-                  .keywords(new ArrayList<>(List.of("routing-key:documents", "scope:business_data")))
+                  .keywords(new LinkedHashSet<>(List.of("routing-key:documents", "scope:business_data")))
                   .url("https://developer.groupe-psa.io/webapi/b2b/api-reference-v3/specification/")
                   .build()
           ))).build();
