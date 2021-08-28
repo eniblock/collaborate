@@ -437,7 +437,7 @@
 							"name": "User",
 							"item": [
 								{
-									"name": "Create TAG user",
+									"name": "Create TAG user, as pending_asset_owner",
 									"request": {
 										"method": "POST",
 										"header": [],
@@ -610,7 +610,7 @@
 							"name": "Passport",
 							"item": [
 								{
-									"name": "Create passport",
+									"name": "Create passport, as DSP",
 									"event": [
 										{
 											"listen": "test",
@@ -630,7 +630,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"vehicleOwnerMail\": \"pcc-development@theblockchainxdev.com\",\n    \"datasourceUUID\": \"559a5160-5a75-492d-9fa4-d0cc615ef399\",\n    \"vin\": \"X\"\n}",
+											"raw": "{\n    \"vehicleOwnerMail\": \"pcc-development@theblockchainxdev.com\",\n    \"datasourceUUID\": \"559a5160-5a75-492d-9fa4-d0cc615ef399\",\n    \"vin\": \"3N1AB7AP0EY214151\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -1021,7 +1021,7 @@
 															"script": {
 																"exec": [
 																	"let user = pm.environment.get(\"test-asset-owner-email\");",
-																	"tests['Update of ' + user + 'results in 201 Created'] = responseCode.code === 201;"
+																	"tests['Update of ' + user + 'results in 200 OK'] = responseCode.code === 200;"
 																],
 																"type": "text/javascript"
 															}
@@ -1112,7 +1112,7 @@
 											"name": "As asset_owner, create TAG user should be forbidden",
 											"item": [
 												{
-													"name": "Get asset owner token Copy",
+													"name": "Get asset owner token",
 													"event": [
 														{
 															"listen": "test",
@@ -1175,7 +1175,7 @@
 													"response": []
 												},
 												{
-													"name": "As pending asset owner,  I create my TAG user AND get asset_owner role Copy",
+													"name": "As asset owner,  I create my TAG user AND get asset_owner role",
 													"event": [
 														{
 															"listen": "test",
@@ -1934,7 +1934,7 @@
 									"name": "COL-220 As DSP, I want to create Digital Passport for my client",
 									"item": [
 										{
-											"name": "create Digital Passport",
+											"name": "As DSP, create Digital Passport",
 											"event": [
 												{
 													"listen": "test",
@@ -1952,6 +1952,125 @@
 														"exec": [
 															"let vin = utils.generateVIN();",
 															"pm.environment.set(\"test-vin\", vin);"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{test-dsp-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"vehicleOwnerMail\": \"{{test-asset-owner-email}}\",\n    \"datasourceUUID\": \"19865f3f-f7ab-454e-bc48-a793b7ff45fc\",\n    \"vin\": \"{{test-vin}}\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/digital-passport",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"digital-passport"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "As asset_owner, create Digital Passport",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests['Request resulted in 403 Forbidden'] = responseCode.code === 403;",
+															"pm.environment.set(\"tag-job-id\", pm.response.json().id);"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															"let vin = utils.generateVIN();",
+															"pm.environment.set(\"test-vin\", vin);"
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{test-asset-owner-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "raw",
+													"raw": "{\n    \"vehicleOwnerMail\": \"{{test-asset-owner-email}}\",\n    \"datasourceUUID\": \"19865f3f-f7ab-454e-bc48-a793b7ff45fc\",\n    \"vin\": \"{{test-vin}}\"\n}",
+													"options": {
+														"raw": {
+															"language": "json"
+														}
+													}
+												},
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/digital-passport",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"digital-passport"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "As DSP, create Digital Passport on existing VIN",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests['Request resulted in 200 OK'] = responseCode.code === 409;",
+															"pm.environment.set(\"tag-job-id\", pm.response.json().id);"
+														],
+														"type": "text/javascript"
+													}
+												},
+												{
+													"listen": "prerequest",
+													"script": {
+														"exec": [
+															""
 														],
 														"type": "text/javascript"
 													}
@@ -2050,6 +2169,9 @@
 									]
 								}
 							],
+							"auth": {
+								"type": "noauth"
+							},
 							"event": [
 								{
 									"listen": "prerequest",
