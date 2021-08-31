@@ -63,7 +63,7 @@ public class WebServerDatasource extends Datasource {
     if (resources != null) {
       firstMatchingResource = resources.stream()
           .filter(r -> r.getKeywords() != null)
-          .filter(r -> r.getKeywords().contains(keyword))
+          .filter(r -> r.getKeywords().stream().anyMatch(k -> k.contains(keyword)))
           .findFirst();
     }
     return firstMatchingResource;
