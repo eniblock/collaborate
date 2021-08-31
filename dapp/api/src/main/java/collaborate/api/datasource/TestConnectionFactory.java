@@ -26,7 +26,6 @@ public class TestConnectionFactory {
     if (datasource instanceof WebServerDatasource) {
       var webServerDatasource = (WebServerDatasource) datasource;
       var isDigitalPassword = webServerDatasource.anyKeywordsContains("digital-passport");
-
       if (isDigitalPassword) {
         return testDigitalPassportConnection(webServerDatasource);
       }

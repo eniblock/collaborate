@@ -51,6 +51,6 @@ class UserControllerIT {
     mockMvc
         .perform(post("/api/v1/users/tag/asset-owner"))
         // THEN
-        .andExpect(status().isCreated());
+        .andExpect(status().isOk());
   }
 }

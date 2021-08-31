@@ -8,7 +8,6 @@ import collaborate.api.datasource.domain.web.WebServerResource;
 import collaborate.api.datasource.domain.web.authentication.BasicAuth;
 import java.net.URI;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class URIFactoryTest {
@@ -18,21 +17,31 @@ class URIFactoryTest {
       QueryParam.builder().key("keyA").value("valueA").build(),
       QueryParam.builder().key("keyB").value("valueB").build()
   );
-  WebServerDatasource datasource;
-
-  @BeforeEach
-  void setUp() {
-    datasource = WebServerDatasource.builder()
-        .baseUrl("https://www.test.com/")
-        .build();
-    ;
-  }
 
   @Test
   void create_shouldHaveExpectedPath() {
     // GIVEN
     var resource = WebServerResource.builder()
         .url("path")
+        .build();
+    var datasource = WebServerDatasource.builder()
+        .baseUrl("https://www.test.com/")
+        .build();
+    ;
+    // WHEN
+    URI actualURI = uriFactory.create(datasource, resource);
+    // THEN
+    assertThat(actualURI).hasToString("https://www.test.com/path");
+  }
+
+  @Test
+  void create_shouldAddNecessaryPath_withoutSlahAtEndOfDatasourceNorAtBeginningOfResourcePath() {
+    // GIVEN
+    var resource = WebServerResource.builder()
+        .url("path")
+        .build();
+    var datasource = WebServerDatasource.builder()
+        .baseUrl("https://www.test.com")
         .build();
     // WHEN
     URI actualURI = uriFactory.create(datasource, resource);
@@ -45,6 +54,9 @@ class URIFactoryTest {
     // GIVEN
     var resource = WebServerResource.builder()
         .url("/path")
+        .build();
+    var datasource = WebServerDatasource.builder()
+        .baseUrl("https://www.test.com/")
         .build();
     // WHEN
     URI actualURI = uriFactory.create(datasource, resource);
@@ -59,6 +71,9 @@ class URIFactoryTest {
         .url("/path")
         .queryParams(queryParams)
         .build();
+    var datasource = WebServerDatasource.builder()
+        .baseUrl("https://www.test.com/")
+        .build();
     // WHEN
     URI actualURI = uriFactory.create(datasource, resource);
     // THEN
@@ -68,6 +83,9 @@ class URIFactoryTest {
   @Test
   void create_shouldHaveExpectedPath_withAuthQueryParams() {
     // GIVEN
+    var datasource = WebServerDatasource.builder()
+        .baseUrl("https://www.test.com/")
+        .build();
     datasource.setAuthMethod(new BasicAuth("", "", queryParams));
     var resource = WebServerResource.builder()
         .url("/path")
@@ -81,6 +99,9 @@ class URIFactoryTest {
   @Test
   void create_shouldHaveExpectedPath_withAuthQueryParamsAndResourceQueryParams() {
     // GIVEN
+    var datasource = WebServerDatasource.builder()
+        .baseUrl("https://www.test.com/")
+        .build();
     datasource.setAuthMethod(new BasicAuth("", "", queryParams));
     var resource = WebServerResource.builder()
         .url("/path")

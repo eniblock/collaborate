@@ -92,7 +92,7 @@ public abstract class Datasource implements Keywords<String>, Serializable {
 
   public boolean anyKeywordsContains(String searched) {
     return keywords != null && getKeywords().stream()
-        .anyMatch(s -> s.equals(searched));
+        .anyMatch(s -> s.contains(searched));
   }
 
 }
