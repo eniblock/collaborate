@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "collaborate-dapp.fullname" . }}-traefik-configuration
+  labels:
+    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+  namespace: {{ .Release.Namespace }}
+data:
+  # See: https://doc.traefik.io/traefik/reference/static-configuration/cli/
+  traefik.yml: |
+    api:
+      insecure: true
+      dashboard: true
+    providers:
+      file:
+        directory: "{{ .Values.api.traefik.volumes.provider }}"
+        watch: true
+    entryPoints:
+      web:
+        address: ":{{ .Values.api.traefik.ports.web }}"
+      websecure:
+        address: ":{{ .Values.api.traefik.ports.websecure }}"
+      api:
+        address: ":{{ .Values.api.traefik.ports.api }}"
+    log:
+      level: {{ .Values.api.traefik.log.level }}

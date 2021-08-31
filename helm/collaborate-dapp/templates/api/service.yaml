@@ -12,6 +12,14 @@ spec:
       targetPort: {{ .Values.api.service.port }}
       protocol: TCP
       name: http
+    - port: {{ .Values.api.traefik.ports.web }}
+      targetPort: {{ .Values.api.traefik.ports.web }}
+      protocol: TCP
+      name: tra-web
+    - port: {{ .Values.api.traefik.ports.websecure }}
+      targetPort: {{ .Values.api.traefik.ports.websecure }}
+      protocol: TCP
+      name: tra-websecure
   selector:
     {{- include "collaborate-dapp.selectorLabels" . | nindent 4 }}
     app.kubernetes.io/component: api

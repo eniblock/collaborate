@@ -16,6 +16,10 @@ api:
   contractAddress: KT1F1iszmqTsQpYJdxq96nWiaH7ZRXNUENWV
   tezosApiGatewayUrl: https://tezos-api-gateway.localhost
 
+  traefik:
+    log:
+      level: DEBUG
+
 tezos-api-gateway:
   rabbitmq:
     ingress:
