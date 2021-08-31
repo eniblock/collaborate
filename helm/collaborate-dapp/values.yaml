@@ -81,6 +81,21 @@ api:
 
   affinity: {}
 
+  traefik:
+    image:
+      tag: traefik:v2.4.9
+      pullPolicy: IfNotPresent
+    ports:
+      web: 80
+      websecure: 8443
+      api: 8081
+    volumes:
+      cert: /etc/ssl/certs/traefik/
+      provider: /etc/traefik/providers/
+    pilot:
+      token: ""
+    log:
+      level: ""
 db:
   nameOverride: api-db
   postgresqlDatabase: api
