@@ -129,6 +129,10 @@ db:
     enabled: true
     serviceMonitor:
       enabled: true
+    resources:
+      requests:
+        memory: 32Mi
+        cpu: 10m
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -201,3 +205,7 @@ keycloak:
       enabled: true
       serviceMonitor:
         enabled: true
+      resources:
+        requests:
+          memory: 32Mi
+          cpu: 10m
