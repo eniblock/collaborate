@@ -1,0 +1,25 @@
+package collaborate.api.datasource.traefik.routing;
+
+import static collaborate.api.datasource.traefik.routing.RoutingKeyKeywordValidator.KEYWORD_PREFIX;
+
+import java.util.Collection;
+import java.util.function.Supplier;
+
+public class RoutingKeyKeywordSupplier implements Supplier<String> {
+
+  private final String routingKey;
+
+  public RoutingKeyKeywordSupplier(Collection<String> keywords) {
+    routingKey = keywords.stream()
+        .filter(k -> k.contains(KEYWORD_PREFIX))
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalStateException("no keyword beginning by \"" + KEYWORD_PREFIX + "\""))
+        .replace(KEYWORD_PREFIX, "");
+  }
+
+  @Override
+  public String get() {
+    return routingKey;
+  }
+}

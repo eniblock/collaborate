@@ -4,11 +4,11 @@ import static java.util.stream.Collectors.joining;
 
 import collaborate.api.datasource.domain.web.QueryParam;
 import collaborate.api.datasource.domain.web.WebServerResource;
-import collaborate.api.traefik.domain.entrypoint.middleware.AddPrefix;
-import collaborate.api.traefik.domain.entrypoint.middleware.Middleware;
-import collaborate.api.traefik.domain.entrypoint.middleware.RedirectRegex;
-import collaborate.api.traefik.domain.entrypoint.middleware.ReplacePathRegex;
-import collaborate.api.traefik.domain.entrypoint.middleware.StripPrefix;
+import collaborate.api.traefik.domain.middleware.AddPrefix;
+import collaborate.api.traefik.domain.middleware.Middleware;
+import collaborate.api.traefik.domain.middleware.RedirectRegex;
+import collaborate.api.traefik.domain.middleware.ReplacePathRegex;
+import collaborate.api.traefik.domain.middleware.StripPrefix;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

@@ -18,9 +18,65 @@ data:
     entryPoints:
       web:
         address: ":{{ .Values.api.traefik.ports.web }}"
+        http:
+          redirections:
+            entryPoint:
+              to: ":{{ .Values.api.traefik.ports.websecure }}"
+              scheme: https
+              permanent: false
       websecure:
         address: ":{{ .Values.api.traefik.ports.websecure }}"
       api:
         address: ":{{ .Values.api.traefik.ports.api }}"
     log:
-      level: {{ .Values.api.traefik.log.level }}
+      filePath: /var/log/traefik/traefik.log
+      level: DEBUG
+  # See: https://www.malcontentboffin.com/2018/01/Remove-Private-Key-Password-From-PFX-PKCS12-File.html
+  pfx-un-protector.sh : |
+    #!/bin/bash
+    # Required parameters:
+    # - $1: encrypted pfx file
+    # - $2: pfx file password
+    # - $3: output without extension
+
+    # Usage: `./pfx-unprotector.sh MWPDRV01.pfx myPassword MWPDRV01_out`
+    # Will result in:
+    # - `MWPDRV01_out.crt`: the private key certificate
+    # - `MWPDRV01_out.key`: the private key file without password
+
+
+    set -ex
+
+    # 1. Extract the certificate:
+    openssl pkcs12 -clcerts \
+    -nokeys -in "$1" \
+    -out $3.crt \
+    -password pass:$2 \
+    -passin pass:$2
+
+    # 2. Extract the certificate authority key:
+    openssl pkcs12 -cacerts \
+    -nokeys -in "$1" \
+    -out $3.ca \
+    -password pass:$2 \
+    -passin pass:$2
+
+    # 3. Extract the private key:
+    openssl pkcs12 -nocerts \
+    -in "$1" \
+    -out $1.private.key \
+    -password pass:$2 \
+    -passin pass:$2 \
+    -passout pass:TemporaryPassword
+
+    # 4. Remove the passphrase from the private key file:
+    openssl rsa \
+    -in $1.private.key \
+    -out "$3.key" \
+    -passin pass:TemporaryPassword
+
+    # 5. Give read permissions
+    chmod 644 $3.key $3.crt
+
+    # 6. Clean temporary files
+    rm $3.ca $1.private.key

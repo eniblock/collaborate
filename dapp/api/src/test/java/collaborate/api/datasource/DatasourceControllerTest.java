@@ -10,9 +10,6 @@ import static org.mockito.Mockito.when;
 import collaborate.api.datasource.domain.Datasource;
 import collaborate.api.datasource.domain.web.WebServerDatasource;
 import collaborate.api.datasource.domain.web.authentication.OAuth2;
-import collaborate.api.http.security.SSLContextException;
-import java.io.IOException;
-import java.security.UnrecoverableKeyException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -69,18 +66,18 @@ class DatasourceControllerTest {
 
   @Test
   void create_shouldCallExpectedService_withOAuth2()
-      throws SSLContextException, IOException, UnrecoverableKeyException {
+      throws Exception {
     //GIVEN
     Datasource datasource = WebServerDatasource.builder()
         .id(UUID.fromString("1fc84579-69fa-40bd-a4bd-b4b79139e53b"))
         .authMethod(new OAuth2())
         .build();
-    when(datasourceService.create(datasource)).thenReturn(datasource);
+    when(datasourceService.create(datasource, Optional.empty())).thenReturn(datasource);
     when(datasourceService.testConnection(datasource, Optional.empty())).thenReturn(true);
     //WHEN
     datasourceController.create(datasource, Optional.empty());
     //THEN
-    verify(datasourceService, times(1)).create(datasource);
+    verify(datasourceService, times(1)).create(datasource, Optional.empty());
     verify(datasourceService, times(1)).testConnection(datasource, Optional.empty());
   }
 

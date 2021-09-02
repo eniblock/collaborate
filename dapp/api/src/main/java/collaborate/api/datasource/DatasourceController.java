@@ -75,9 +75,9 @@ public class DatasourceController {
   public ResponseEntity<Datasource> create(
       @RequestPart("datasource") Datasource datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile
-  ) throws IOException, SSLContextException {
+  ) throws Exception {
     testConnection(datasource, pfxFile);
-    var datasourceResult = datasourceService.create(datasource);
+    var datasourceResult = datasourceService.create(datasource, pfxFile);
 
     return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
   }

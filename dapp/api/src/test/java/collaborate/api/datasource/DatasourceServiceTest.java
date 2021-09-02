@@ -13,7 +13,8 @@ import collaborate.api.datasource.domain.web.WebServerDatasource;
 import collaborate.api.datasource.domain.web.authentication.Authentication;
 import collaborate.api.datasource.domain.web.authentication.OAuth2;
 import collaborate.api.datasource.repository.DataSourceRepository;
-import collaborate.api.datasource.security.SaveAuthenticationVisitor;
+import collaborate.api.datasource.security.SaveAuthenticationToDatabaseVisitor;
+import collaborate.api.datasource.traefik.TraefikService;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -35,16 +36,18 @@ class DatasourceServiceTest {
   @Mock
   private DataSourceRepository dataSourceRepository;
   @Mock
-  private SaveAuthenticationVisitor saveAuthenticationVisitor;
+  private SaveAuthenticationToDatabaseVisitor saveAuthenticationToDatabaseVisitor;
   @Mock
   private EntityManager entityManager;
+  @Mock
+  private TraefikService traefikService;
   @InjectMocks
   private DatasourceService datasourceService;
 
   private final UUID datasourceUUID = UUID.fromString("50631325-f40d-4e45-be29-4dd44d54fc12");
 
   @Test
-  void create_shouldCallExpectedServices_withValidOAuth() {
+  void create_shouldCallExpectedServices_withValidOAuth() throws Exception {
     // GIVEN
     Authentication oauth = new OAuth2();
     Datasource dataSource = WebServerDatasource.builder()
@@ -52,13 +55,17 @@ class DatasourceServiceTest {
         .authMethod(oauth).build();
 
     when(dataSourceRepository.saveAndFlush(any(Datasource.class))).thenReturn(dataSource);
-    doNothing().when(saveAuthenticationVisitor).visitOAuth2((OAuth2) dataSource.getAuthMethod());
+    doNothing().when(saveAuthenticationToDatabaseVisitor)
+        .visitOAuth2((OAuth2) dataSource.getAuthMethod());
     doNothing().when(entityManager).refresh(dataSource);
+    doNothing().when(traefikService).create(dataSource, datasourceUUID.toString());
     // WHEN
-    datasourceService.create(dataSource);
+    datasourceService.create(dataSource, Optional.empty());
     // THEN
     verify(dataSourceRepository, times(1)).saveAndFlush(dataSource);
-    verify(saveAuthenticationVisitor, times(1)).visitOAuth2((OAuth2) dataSource.getAuthMethod());
+    verify(saveAuthenticationToDatabaseVisitor, times(1))
+        .visitOAuth2((OAuth2) dataSource.getAuthMethod());
+    verify(traefikService, times(1)).create(dataSource, datasourceUUID.toString());
   }
 
   @Test

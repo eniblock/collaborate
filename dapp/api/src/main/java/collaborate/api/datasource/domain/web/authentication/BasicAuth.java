@@ -40,7 +40,7 @@ public class BasicAuth extends Authentication {
   }
 
   @Override
-  public void accept(AuthenticationVisitor visitor) {
+  public void accept(AuthenticationVisitor visitor) throws Exception {
     visitor.visitBasicAuth(this);
   }
 }

@@ -28,6 +28,7 @@ public class CertificateBasedBasicAuth extends BasicAuth {
 
   @Transient
   @JsonIgnore
+  @ToString.Exclude
   @Schema(description = "PFX file also known as PKCS #12 , is a single, password protected certificate archive that contains the entire certificate chain plus the matching private key.")
   private byte[] pfxFileContent;
 
@@ -41,7 +42,7 @@ public class CertificateBasedBasicAuth extends BasicAuth {
   }
 
   @Override
-  public void accept(AuthenticationVisitor visitor) {
+  public void accept(AuthenticationVisitor visitor) throws Exception {
     visitor.visitCertificateBasedBasicAuth(this);
   }
 }

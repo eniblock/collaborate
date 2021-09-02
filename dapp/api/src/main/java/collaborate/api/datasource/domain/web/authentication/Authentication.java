@@ -46,5 +46,5 @@ public abstract class Authentication implements Serializable {
   @Schema(description = "The identifier of the resource relative to the organization owner", example = "3746")
   protected Long id;
 
-  public abstract void accept(AuthenticationVisitor visitor);
+  public abstract void accept(AuthenticationVisitor visitor) throws Exception;
 }

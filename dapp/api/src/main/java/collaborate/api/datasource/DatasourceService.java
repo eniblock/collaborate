@@ -3,7 +3,8 @@ package collaborate.api.datasource;
 import collaborate.api.datasource.domain.Datasource;
 import collaborate.api.datasource.domain.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.repository.DataSourceRepository;
-import collaborate.api.datasource.security.SaveAuthenticationVisitor;
+import collaborate.api.datasource.security.SaveAuthenticationToDatabaseVisitor;
+import collaborate.api.datasource.traefik.TraefikService;
 import collaborate.api.http.security.SSLContextException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -28,20 +29,33 @@ public class DatasourceService {
   private final DataSourceRepository dataSourceRepository;
   private final TestConnectionFactory testConnectionFactory;
   private final ObjectMapper objectMapper;
-  private final SaveAuthenticationVisitor saveAuthenticationVisitor;
+  private final SaveAuthenticationToDatabaseVisitor saveAuthenticationToDatabaseVisitor;
   private final EntityManager entityManager;
+  private final TraefikService traefikService;
 
   @Transactional
-  public Datasource create(Datasource datasource) {
+  public Datasource create(Datasource datasource,
+      Optional<MultipartFile> pfxFile) throws Exception {
     Datasource datasourceResult = dataSourceRepository.saveAndFlush(datasource);
     entityManager.refresh(datasourceResult);
-    datasourceResult.getAuthMethod().accept(saveAuthenticationVisitor);
+    datasourceResult.getAuthMethod().accept(saveAuthenticationToDatabaseVisitor);
+    datasource.setId(datasourceResult.getId());
+    traefikService.create(
+        updatePfxFileContent(datasource, pfxFile),
+        datasourceResult.getId().toString()
+    );
     return datasourceResult;
   }
 
   public boolean testConnection(Datasource datasource, Optional<MultipartFile> pfxFile)
       throws UnrecoverableKeyException, SSLContextException, IOException {
+    BooleanSupplier connectionTester = testConnectionFactory.create(
+        updatePfxFileContent(datasource, pfxFile));
+    return connectionTester.getAsBoolean();
+  }
 
+  private Datasource updatePfxFileContent(Datasource datasource, Optional<MultipartFile> pfxFile)
+      throws IOException {
     if (pfxFile.isPresent() && datasource.getAuthMethod() instanceof CertificateBasedBasicAuth) {
       datasource = objectMapper.readValue(
           objectMapper.writeValueAsString(datasource),
@@ -50,10 +64,7 @@ public class DatasourceService {
       ((CertificateBasedBasicAuth) datasource.getAuthMethod())
           .setPfxFileContent(pfxFile.get().getBytes());
     }
-
-    BooleanSupplier connectionTester = testConnectionFactory.create(datasource);
-
-    return connectionTester.getAsBoolean();
+    return datasource;
   }
 
   public Page<Datasource> search(Pageable pageable, String query) {

@@ -1,6 +1,7 @@
 package collaborate.api.config.api;
 
 import com.fasterxml.jackson.databind.Module;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -9,6 +10,7 @@ import org.springframework.cloud.openfeign.support.PageJacksonModule;
 import org.springframework.cloud.openfeign.support.SortJacksonModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.hateoas.config.HypermediaRestTemplateConfigurer;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.filter.CommonsRequestLoggingFilter;
@@ -49,6 +51,17 @@ public class ApiConfig {
   @Bean
   public ModelMapper modelMapper(){
     return new ModelMapper();
+  }
+
+  @Bean
+  public YamlMapper yamlMapper(){
+    return new YamlMapper();
+  }
+
+  @Bean
+  @Primary
+  public ObjectMapper jsonMapper(){
+    return new ObjectMapper();
   }
 
   @Bean

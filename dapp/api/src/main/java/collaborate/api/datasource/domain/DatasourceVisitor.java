@@ -4,5 +4,5 @@ import collaborate.api.datasource.domain.web.WebServerDatasource;
 
 public interface DatasourceVisitor {
 
-  void visitWebServerDatasource(WebServerDatasource webServerResource);
+  void visitWebServerDatasource(WebServerDatasource webServerResource) throws Exception;
 }

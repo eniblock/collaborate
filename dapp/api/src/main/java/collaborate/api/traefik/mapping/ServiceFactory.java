@@ -1,8 +1,8 @@
 package collaborate.api.traefik.mapping;
 
-import collaborate.api.traefik.domain.entrypoint.service.LoadBalancer;
-import collaborate.api.traefik.domain.entrypoint.service.Server;
-import collaborate.api.traefik.domain.entrypoint.service.Service;
+import collaborate.api.traefik.domain.service.LoadBalancer;
+import collaborate.api.traefik.domain.service.Server;
+import collaborate.api.traefik.domain.service.Service;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
