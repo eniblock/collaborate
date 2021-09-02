@@ -155,7 +155,7 @@ tezos-api-gateway:
 keycloak:
   nameOverride: keycloak
   service:
-    type: NodePort
+    type: ClusterIP
   commonAnnotations:
     reloader.stakater.com/auto: "true"
   image:
