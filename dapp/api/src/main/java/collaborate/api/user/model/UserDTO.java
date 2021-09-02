@@ -1,13 +1,17 @@
 package collaborate.api.user.model;
 
+import collaborate.api.config.LongEpochMilliToInstantConverter;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.Instant;
 import java.util.Set;
 import java.util.UUID;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
 public class UserDTO {
 
   @Schema(description = "The user identifier", example = "23497874-ee3b-406a-9f0f-784f9e8fedd8")
@@ -26,6 +30,7 @@ public class UserDTO {
   private String email;
 
   @Schema(description = "When the user account has been created")
+  @JsonDeserialize(converter = LongEpochMilliToInstantConverter.class)
   private Instant createdTimestamp;
 
   @Schema(description = "Does the user account is enabled ?")
