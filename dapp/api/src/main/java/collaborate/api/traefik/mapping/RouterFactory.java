@@ -1,6 +1,6 @@
 package collaborate.api.traefik.mapping;
 
-import collaborate.api.traefik.domain.entrypoint.Router;
+import collaborate.api.traefik.domain.Router;
 import java.util.List;
 import org.springframework.stereotype.Component;
 

@@ -92,8 +92,8 @@ api:
       websecure: 8443
       api: 8081
     volumes:
-      cert: /etc/ssl/certs/traefik/
-      provider: /etc/traefik/providers/
+      cert: /etc/ssl/certs/xdev/collaborate/
+      provider: /etc/traefik/xdev/collaborate/providers/
     pilot:
       token: ""
     log:

@@ -75,9 +75,9 @@ spec:
               readOnly: true
             - name: traefik-providers
               mountPath: "{{ .Values.api.traefik.volumes.provider }}"
-              readOnly: true
+              readOnly: false
             - name: traefik-certs
-              mountPath: {{ ".Values.api.traefik.volumes.cert" }}
+              mountPath: "{{ .Values.api.traefik.volumes.cert }}"
               readOnly: true
         - name: {{ .Chart.Name }}
           securityContext:
@@ -85,6 +85,7 @@ spec:
           image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
           env:
+            # Api properties
             - name: API_PLATFORM
               value: {{ .Values.api.platform | quote }}
             - name: API_ORGANIZATION_NAME
@@ -95,6 +96,10 @@ spec:
               value: {{ .Values.api.organizationPublicKeyHash | quote }}
             - name: API_CONTRACT_ADDRESS
               value: {{ .Values.api.contractAddress | quote }}
+            - name: API_TRAEFIK_CERTIFICATES_PATH
+              value: {{ .Values.api.traefik.volumes.cert | quote }}
+            - name: API_TRAEFIK_PROVIDERS_PATH
+              value: {{ .Values.api.traefik.volumes.provider | quote }}
             {{- range $id, $organization := .Values.api.organizations }}
             - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_ID
               value: {{ $id | quote }}
@@ -227,6 +232,10 @@ spec:
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
           volumeMounts:
+            - name: traefik-config
+              mountPath: {{ .Values.api.traefik.volumes.cert }}pfx-un-protector.sh
+              subPath: pfx-un-protector.sh
+              readOnly: false
             - name: traefik-certs
               mountPath: "{{ .Values.api.traefik.volumes.cert }}"
               readOnly: false
@@ -249,5 +258,6 @@ spec:
         - name: traefik-config
           configMap:
             name: '{{ include "collaborate-dapp.fullname" . }}-traefik-configuration'
+            defaultMode: 0555
         - name: traefik-certs
         - name: traefik-providers

@@ -2,7 +2,7 @@ package collaborate.api.traefik.mapping;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import collaborate.api.traefik.domain.entrypoint.Router;
+import collaborate.api.traefik.domain.Router;
 import java.util.List;
 import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;

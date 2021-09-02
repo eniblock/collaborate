@@ -88,7 +88,7 @@ public abstract class Datasource implements Keywords<String>, Serializable {
     this.keywords = keywords;
   }
 
-  public abstract void accept(DatasourceVisitor visitor);
+  public abstract void accept(DatasourceVisitor visitor) throws Exception;
 
   public boolean anyKeywordsContains(String searched) {
     return keywords != null && getKeywords().stream()

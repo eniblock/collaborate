@@ -19,6 +19,9 @@ api:
   traefik:
     log:
       level: DEBUG
+  controllers:
+    config: true
+    traefik: true
 
 tezos-api-gateway:
   rabbitmq:

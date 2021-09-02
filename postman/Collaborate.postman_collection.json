@@ -607,6 +607,44 @@
 							]
 						},
 						{
+							"name": "Gateway",
+							"item": [
+								{
+									"name": "Get datasource vehicles",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/gateway/datasource/{{test-datasource-id}}/vehicles",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"gateway",
+												"datasource",
+												"{{test-datasource-id}}",
+												"vehicles"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "Passport",
 							"item": [
 								{
@@ -1825,7 +1863,7 @@
 													"response": []
 												},
 												{
-													"name": "As DSP, WHEN I add a valid BasicAuth datasource THEN the datasource is created",
+													"name": "Then GET datasources contains the created datasource",
 													"event": [
 														{
 															"listen": "test",
@@ -1869,8 +1907,155 @@
 														}
 													},
 													"response": []
+												},
+												{
+													"name": "Then GET datasource by id returns the datasource",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"auth": {
+															"type": "bearer",
+															"bearer": [
+																{
+																	"key": "token",
+																	"value": "{{test-dsp-token}}",
+																	"type": "string"
+																}
+															]
+														},
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/datasources/{{test-datasource-id}}",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"datasources",
+																"{{test-datasource-id}}"
+															]
+														}
+													},
+													"response": []
 												}
 											]
+										}
+									]
+								},
+								{
+									"name": "COL-158 Datasource with Traefik usage",
+									"item": [
+										{
+											"name": "Get datasource vehicles",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+															"",
+															"let response = pm.response.json();",
+															"pm.test(\"Response total field isEqual to 2\", function () {",
+															"    var jsonData = pm.response.json();",
+															"    pm.expect(jsonData.total).to.eq(2);",
+															"});",
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{test-dsp-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/gateway/datasource/{{test-datasource-id}}/vehicles",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"gateway",
+														"datasource",
+														"{{test-datasource-id}}",
+														"vehicles"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Get vehicle odometer",
+											"event": [
+												{
+													"listen": "test",
+													"script": {
+														"exec": [
+															"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+															"",
+															"let response = pm.response.json();",
+															"pm.test(\"Response total field isEqual to 2\", function () {",
+															"    var jsonData = pm.response.json();",
+															"    pm.expect(jsonData.vin).to.eq(\"VR1ATTENTKW033329\");",
+															"});",
+															""
+														],
+														"type": "text/javascript"
+													}
+												}
+											],
+											"request": {
+												"auth": {
+													"type": "bearer",
+													"bearer": [
+														{
+															"key": "token",
+															"value": "{{test-dsp-token}}",
+															"type": "string"
+														}
+													]
+												},
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/gateway/datasource/{{test-datasource-id}}/kilometer/124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"gateway",
+														"datasource",
+														"{{test-datasource-id}}",
+														"kilometer",
+														"124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79"
+													]
+												}
+											},
+											"response": []
 										}
 									]
 								},

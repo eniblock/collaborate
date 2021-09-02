@@ -3,8 +3,8 @@ package collaborate.api.traefik.mapping;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import collaborate.api.datasource.domain.web.QueryParam;
-import collaborate.api.traefik.domain.entrypoint.middleware.Middleware;
-import collaborate.api.traefik.domain.entrypoint.middleware.RedirectRegex;
+import collaborate.api.traefik.domain.middleware.Middleware;
+import collaborate.api.traefik.domain.middleware.RedirectRegex;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.util.Lists;

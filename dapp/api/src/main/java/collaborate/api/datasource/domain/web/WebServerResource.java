@@ -3,7 +3,7 @@ package collaborate.api.datasource.domain.web;
 import collaborate.api.config.StringSetConverter;
 import collaborate.api.datasource.domain.Keywords;
 import collaborate.api.datasource.domain.NoQueryStringConstraint;
-import collaborate.api.traefik.routing.RoutingKeyKeywordConstraint;
+import collaborate.api.datasource.traefik.routing.RoutingKeyKeywordConstraint;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

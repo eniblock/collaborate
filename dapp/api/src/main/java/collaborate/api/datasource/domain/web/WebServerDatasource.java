@@ -54,7 +54,7 @@ public class WebServerDatasource extends Datasource {
   }
 
   @Override
-  public void accept(DatasourceVisitor visitor) {
+  public void accept(DatasourceVisitor visitor) throws Exception {
     visitor.visitWebServerDatasource(this);
   }
 
