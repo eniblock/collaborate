@@ -27,7 +27,7 @@ k8s_yaml(
         'helm/collaborate-dapp',
         values=['./helm/collaborate-dapp/values-dev.yaml'],
         name='col',
-        set=['api.traefik.pilot.token='+ os.getenv('TRAEFIK_PILOT_TOKEN')]
+        set=['api.traefik.pilot.token='+ os.getenv('TRAEFIK_PILOT_TOKEN','')]
     )
 )
 
