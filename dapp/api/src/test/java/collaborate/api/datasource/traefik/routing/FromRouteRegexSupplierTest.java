@@ -1,17 +1,16 @@
 package collaborate.api.datasource.traefik.routing;
 
 import static collaborate.api.datasource.domain.web.CertificateBasedBasicAuthDatasourceFeatures.getResourceByKeyword;
+import static collaborate.api.test.TestResources.objectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import collaborate.api.datasource.domain.web.WebServerResource;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
 class FromRouteRegexSupplierTest {
 
   final String datasourceName = "ds1";
-  final ObjectMapper objectMapper = new ObjectMapper();
 
   @Test
   void get_shouldReturnExpectedPath_withoutQueryParams() throws JsonProcessingException {

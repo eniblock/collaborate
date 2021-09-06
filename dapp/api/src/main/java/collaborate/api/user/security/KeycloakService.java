@@ -5,16 +5,12 @@ import static java.lang.String.format;
 import collaborate.api.user.model.UserDTO;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.representations.AccessToken;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -70,18 +66,6 @@ public class KeycloakService {
       content = response.getContent();
     }
     return new PageImpl<>(content, pageable, response.getTotal());
-  }
-
-  public Optional<AccessToken> getCurrentAuthToken() {
-    Optional<AccessToken> accessTokenOptResult = Optional.empty();
-    var rawPrincipal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-    if (rawPrincipal instanceof KeycloakPrincipal) {
-
-      KeycloakPrincipal<?> principal = (KeycloakPrincipal<?>) rawPrincipal;
-      var session = principal.getKeycloakSecurityContext();
-      accessTokenOptResult = Optional.of(session.getToken());
-    }
-    return accessTokenOptResult;
   }
 
 }

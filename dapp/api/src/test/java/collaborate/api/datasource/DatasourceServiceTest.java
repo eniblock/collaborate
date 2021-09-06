@@ -8,6 +8,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.datasource.create.CreateDatasourceDAO;
 import collaborate.api.datasource.domain.Datasource;
 import collaborate.api.datasource.domain.web.WebServerDatasource;
 import collaborate.api.datasource.domain.web.authentication.Authentication;
@@ -35,6 +36,8 @@ class DatasourceServiceTest {
 
   @Mock
   private DataSourceRepository dataSourceRepository;
+  @Mock
+  private CreateDatasourceDAO createDatasourceDAO;
   @Mock
   private SaveAuthenticationToDatabaseVisitor saveAuthenticationToDatabaseVisitor;
   @Mock

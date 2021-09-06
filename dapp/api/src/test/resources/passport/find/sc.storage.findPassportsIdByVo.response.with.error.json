@@ -1,0 +1,16 @@
+{
+  "indexerPassportsWaitingConsentByVo": [
+    {
+      "key": "tz1hEiMos9CF5Z5MoFyhZMgSiRKzyDZRdoBG",
+      "value": {
+        "0": 1
+      }
+    }
+  ],
+  "indexerPassportsByVo": [
+    {
+      "key": "tz1hEiMos9CF5Z5MoFyhZMgSiRKzyDZRdoBG",
+      "error": "The current map does not contain this key"
+    }
+  ]
+}

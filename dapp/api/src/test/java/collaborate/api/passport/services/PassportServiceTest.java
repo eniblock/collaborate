@@ -5,9 +5,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.passport.PassportService;
+import collaborate.api.passport.create.CreatePassportDAO;
 import collaborate.api.passport.create.CreatePassportDTO;
-import collaborate.api.passport.create.TagCreatePassportService;
-import collaborate.api.tag.model.Job;
+import collaborate.api.tag.model.job.Job;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class PassportServiceTest {
 
-  @Mock private TagCreatePassportService tagCreatePassportService;
+  @Mock private CreatePassportDAO createPassportDAO;
 
   @InjectMocks private PassportService passportService;
 
@@ -26,7 +26,7 @@ class PassportServiceTest {
   void create_Ok() {
     //GIVEN
     Job mock = initSomeJob();
-    when(tagCreatePassportService.create(any(CreatePassportDTO.class))).thenReturn(mock);
+    when(createPassportDAO.create(any(CreatePassportDTO.class))).thenReturn(mock);
     //WHEN
     Job actual = passportService.create(initPassport());
     //THEN

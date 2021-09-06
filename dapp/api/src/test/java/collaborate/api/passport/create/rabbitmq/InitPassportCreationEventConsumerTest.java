@@ -9,10 +9,10 @@ import static org.mockito.Mockito.when;
 
 import collaborate.api.mail.MailDTO;
 import collaborate.api.mail.MailService;
-import collaborate.api.tag.model.TransactionsEventMessage;
-import collaborate.api.tag.model.TransactionsEventParameters;
-import collaborate.api.user.tag.TagUserService;
-import collaborate.api.user.tag.UserWalletDTO;
+import collaborate.api.tag.model.job.TransactionsEventMessage;
+import collaborate.api.tag.model.job.TransactionsEventParameters;
+import collaborate.api.tag.model.user.UserWalletDTO;
+import collaborate.api.user.tag.TagUserDAO;
 import java.util.Optional;
 import javax.mail.MessagingException;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ class InitPassportCreationEventConsumerTest {
   @Mock
   private MailService mailService;
   @Mock
-  private TagUserService tagUserService;
+  private TagUserDAO tagUserDAO;
 
   @InjectMocks
   private InitPassportCreationEventConsumer initPassportCreationEventConsumer;
@@ -39,8 +39,8 @@ class InitPassportCreationEventConsumerTest {
     //GIVEN
     UserWalletDTO mockedWallet = initWallet();
 
-    when(tagUserService.getDSPAddress()).thenReturn(mockedWallet.getAddress());
-    when(tagUserService.findOneByAddress(anyString())).thenReturn(Optional.of(mockedWallet));
+    when(tagUserDAO.getOrganizationAccountAddress()).thenReturn(mockedWallet.getAddress());
+    when(tagUserDAO.findOneByAddress(anyString())).thenReturn(Optional.of(mockedWallet));
     Mockito.doNothing().when(mailService).sendMail(any(MailDTO.class), anyString(), anyString());
 
     //WHEN
@@ -57,7 +57,7 @@ class InitPassportCreationEventConsumerTest {
     //GIVEN
     UserWalletDTO mockedWallet = initWallet();
 
-    when(tagUserService.getDSPAddress()).thenReturn(mockedWallet.getAddress());
+    when(tagUserDAO.getOrganizationAccountAddress()).thenReturn(mockedWallet.getAddress());
     //WHEN
     TransactionsEventMessage<InitPassportCreationValue> receivedMessage = initForeignMessage();
     initPassportCreationEventConsumer.listenPassportCreate(receivedMessage);

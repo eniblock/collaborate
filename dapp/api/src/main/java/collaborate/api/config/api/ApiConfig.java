@@ -2,6 +2,7 @@ package collaborate.api.config.api;
 
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -61,7 +62,9 @@ public class ApiConfig {
   @Bean
   @Primary
   public ObjectMapper jsonMapper(){
-    return new ObjectMapper();
+    var mapper =  new ObjectMapper();
+    mapper.registerModule(new JavaTimeModule());
+    return mapper;
   }
 
   @Bean

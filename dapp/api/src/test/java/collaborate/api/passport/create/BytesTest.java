@@ -45,4 +45,16 @@ class BytesTest {
     // THEN
     assertThat(actual).isEqualTo(bytes);
   }
+
+  @Test
+  void deserialize_shouldGetTheString() throws JsonProcessingException {
+    // GIVEN
+    String bytesString = "\"59 41 59 39 43 55 48 55 4a 4e 4f 43 57 52 45 31 47\"".replace(" ","");
+    var expected = "YAY9CUHUJNOCWRE1G";
+
+    // WHEN
+    var actual = mapper.readValue(bytesString, Bytes.class).toString();
+    // THEN
+    assertThat(actual).isEqualTo(expected);
+  }
 }

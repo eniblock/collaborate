@@ -1,5 +1,6 @@
 package collaborate.api.datasource;
 
+import collaborate.api.datasource.create.CreateDatasourceDAO;
 import collaborate.api.datasource.domain.Datasource;
 import collaborate.api.datasource.domain.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.repository.DataSourceRepository;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class DatasourceService {
 
+  private final CreateDatasourceDAO createDatasourceDAO;
   private final DataSourceRepository dataSourceRepository;
   private final TestConnectionFactory testConnectionFactory;
   private final ObjectMapper objectMapper;
@@ -44,6 +46,7 @@ public class DatasourceService {
         updatePfxFileContent(datasource, pfxFile),
         datasourceResult.getId().toString()
     );
+    createDatasourceDAO.create(datasourceResult);
     return datasourceResult;
   }
 

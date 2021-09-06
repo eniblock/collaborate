@@ -22,16 +22,24 @@ public final class Authorizations {
     private HasRoles() {
     }
 
+    /*
+     * Atomic roles
+     */
     public static final String SERVICE_IDP_ADMIN = "hasRole('" + Roles.SERVICE_IDP_ADMIN + "')";
     public static final String SERVICE_PROVIDER_ADMIN =
         "hasRole('" + Roles.SERVICE_PROVIDER_ADMIN + "')";
     public static final String SERVICE_PROVIDER_OPERATOR =
         "hasRole('" + Roles.SERVICE_PROVIDER_OPERATOR + "')";
-    public static final String SERVICE_PROVIDER =
-        "hasRole('" + Roles.SERVICE_PROVIDER_OPERATOR + "') OR hasRole('"
-            + Roles.SERVICE_PROVIDER_ADMIN + "')";
     public static final String PENDING_ASSET_OWNER = "hasRole('" + Roles.PENDING_ASSET_OWNER + "')";
+    public static final String ASSET_OWNER = "hasRole('" + Roles.ASSET_OWNER + "')";
 
+    /*
+     * Aggregated roles
+     */
+    public static final String SERVICE_PROVIDER =
+        HasRoles.SERVICE_PROVIDER_OPERATOR + " OR " + HasRoles.SERVICE_PROVIDER_ADMIN;
+    public static final String ASSET_OWNER_OR_SERVICE_PROVIDER =
+        HasRoles.ASSET_OWNER + " OR " + HasRoles.SERVICE_PROVIDER;
   }
 
 }

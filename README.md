@@ -12,16 +12,20 @@ Install your local kubernetes cluster with:
 ```shell script
 sudo apt-get install pip
 curl -sSL https://bit.ly/3ii011L | env CLK_EXTENSIONS=k8s bash
-clk k8s install-dependency k3d
 clk k8s flow
 ```
-
 
 Give access to gitlab registries to your local kubernetes instance by generating an access token with the `read_api`
 scope at https://gitlab.com/-/profile/personal_access_token, and running
 
 ```bash
 kubectl create secret docker-registry gitlab-registry --docker-server=registry.gitlab.com --docker-username=$GITLAB_USER --docker-password=$GITLAB_TOKEN
+```
+
+### Updates
+```shell
+clk extension update k8s
+clk k8s install-prometheus-operator-crds
 ```
 
 ### Migration from v0.2.0

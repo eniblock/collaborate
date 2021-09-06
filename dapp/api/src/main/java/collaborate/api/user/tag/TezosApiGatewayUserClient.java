@@ -2,6 +2,8 @@ package collaborate.api.user.tag;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import collaborate.api.tag.model.user.UserWalletDTO;
+import collaborate.api.tag.model.user.UsersDTO;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;

@@ -4,9 +4,9 @@ import static java.lang.String.format;
 
 import collaborate.api.mail.MailDTO;
 import collaborate.api.mail.MailService;
-import collaborate.api.tag.model.TransactionsEventMessage;
-import collaborate.api.user.tag.TagUserService;
-import collaborate.api.user.tag.UserWalletDTO;
+import collaborate.api.tag.model.job.TransactionsEventMessage;
+import collaborate.api.tag.model.user.UserWalletDTO;
+import collaborate.api.user.tag.TagUserDAO;
 import java.nio.charset.StandardCharsets;
 import javax.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ public class InitPassportCreationEventConsumer {
   public static final String NOREPLY_THEBLOCKCHAINXDEV_COM = "noreply@theblockchainxdev.com";
   public static final String CONTACT_EMAIL_HTML_TEMPLATE = "html/contactEmail.html";
   private final MailService mailService;
-  private final TagUserService tagUserService;
+  private final TagUserDAO tagUserDAO;
   private final RabbitTemplate rabbitTemplate; //Required for RabbitMQ Beans
 
   @RabbitListener(containerFactory = "tezos-api-gateway", bindings = @QueueBinding(
@@ -50,7 +50,7 @@ public class InitPassportCreationEventConsumer {
 
     InitPassportCreationValue messageValue = message.getParameters().getValue();
     String messageOrganisationAddress = messageValue.getInitPassportCreation().getDspAddress();
-    String organizationPublicKeyHash = tagUserService.getDSPAddress();
+    String organizationPublicKeyHash = tagUserDAO.getOrganizationAccountAddress();
 
     if (StringUtils.equals(messageOrganisationAddress, organizationPublicKeyHash)) {
       log.info("Message is about this organisation - sending mail for passport creation");
@@ -61,7 +61,7 @@ public class InitPassportCreationEventConsumer {
   void sendPassportMail(InitPassportCreationParams messageParams) throws MessagingException {
     log.info("SendPassportMail({})", messageParams);
 
-    var recipient = tagUserService
+    var recipient = tagUserDAO
         .findOneByAddress(messageParams.getVehicleOwnerAddress())
         .map(UserWalletDTO::getUserId)
         .orElseThrow(() -> new IllegalStateException(

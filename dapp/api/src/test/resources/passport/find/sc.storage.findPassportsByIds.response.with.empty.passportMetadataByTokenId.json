@@ -1,0 +1,30 @@
+{
+  "multisigs": [
+    {
+      "key": "1",
+      "value": {
+        "actionToPerform": "mint_passport",
+        "addr1": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
+        "addr2": "tz1hEiMos9CF5Z5MoFyhZMgSiRKzyDZRdoBG",
+        "ok": false,
+        "param1": "WO0P6Z5QF9FRMXAGC",
+        "param2": "79cf3653-cd79-4ac9-8b6d-90f8d35a4454",
+        "participants": [
+          {
+            "address": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
+            "hasVoted": true,
+            "timestamp": "2021-09-05T15:43:42.000Z"
+          },
+          {
+            "address": "tz1hEiMos9CF5Z5MoFyhZMgSiRKzyDZRdoBG",
+            "hasVoted": false,
+            "timestamp": null
+          }
+        ],
+        "threshold": 2,
+        "weight": 1
+      }
+    }
+  ],
+  "passportMetadataByTokenId": []
+}
