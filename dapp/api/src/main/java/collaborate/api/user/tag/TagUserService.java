@@ -33,16 +33,16 @@ public class TagUserService {
   @Value("${tezos-api-gateway.secureKeyname}")
   private String secureKeyName;
 
-  public List<UsersDTO> create(String userID) {
-    UsersDTO usersDTO = UsersDTO.builder()
+  public List<UserWalletDTO> create(String userID) {
+    UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)
         .userIdList(Set.of(cleanUserId(userID)))
         .build();
-    List<UsersDTO> createdUsersResult;
+    List<UserWalletDTO> createdUsersResult;
 
     try {
-      log.debug("[TAG] create({})", usersDTO);
-      ResponseEntity<List<UsersDTO>> response = tagUserClient.create(usersDTO);
+      log.debug("[TAG] create({})", createUsersDTO);
+      ResponseEntity<List<UserWalletDTO>> response = tagUserClient.create(createUsersDTO);
       expectResponseStatusCode(response, CREATED);
       createdUsersResult = response.getBody();
     } catch (FeignClientException exception) {

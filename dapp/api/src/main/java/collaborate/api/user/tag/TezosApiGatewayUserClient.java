@@ -22,7 +22,7 @@ public interface TezosApiGatewayUserClient {
    * @return the users tezos address (publicKeys) for each userId
    */
   @PostMapping(value = "create", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-  ResponseEntity<List<UsersDTO>> create(@RequestBody UsersDTO createUsersDTO);
+  ResponseEntity<List<UserWalletDTO>> create(@RequestBody UsersDTO createUsersDTO);
 
   /**
    * @param publicKeyHash the publicKeyHash for the searched vault user id
