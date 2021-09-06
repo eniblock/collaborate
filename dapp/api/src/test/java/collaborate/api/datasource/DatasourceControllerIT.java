@@ -44,13 +44,13 @@ class DatasourceControllerIT {
       "datasource",
       "",
       APPLICATION_JSON,
-      OAuth2DatasourceFeatures.getInstance().datasourceJson.getBytes()
+      OAuth2DatasourceFeatures.datasourceJson.getBytes()
   );
   final MockMultipartFile basicAuthDatasource = new MockMultipartFile(
       "datasource",
       "",
       APPLICATION_JSON,
-      CertificateBasedBasicAuthDatasourceFeatures.getInstance().datasourceJson.getBytes()
+      CertificateBasedBasicAuthDatasourceFeatures.datasourceJson.getBytes()
   );
   final MockMultipartFile pfxFile = new MockMultipartFile(
       "pfxFile",

@@ -1,17 +1,13 @@
 package collaborate.api.datasource.domain.web;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import collaborate.api.datasource.domain.enumeration.DatasourceStatus;
 import collaborate.api.datasource.domain.web.authentication.OAuth2;
-import java.io.IOException;
+import collaborate.api.test.TestResources;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import org.apache.commons.io.IOUtils;
 
 public class OAuth2DatasourceFeatures {
 
@@ -31,31 +27,16 @@ public class OAuth2DatasourceFeatures {
           .build()
       ).resources(
           new ArrayList<>(List.of(WebServerResource.builder()
-                  .description("Datasource documents")
-                  .keywords(new LinkedHashSet<>(List.of("routing-key:documents", "scope:business_data")))
-                  .url("https://developer.groupe-psa.io/webapi/b2b/api-reference-v3/specification/")
-                  .build()
+              .description("Datasource documents")
+              .keywords(
+                  new LinkedHashSet<>(List.of("routing-key:documents", "scope:business_data")))
+              .url("https://developer.groupe-psa.io/webapi/b2b/api-reference-v3/specification/")
+              .build()
           ))).build();
 
-  private static final OAuth2DatasourceFeatures INSTANCE = new OAuth2DatasourceFeatures();
-  public final String datasourceJson;
+  public static final String datasourceJson  = TestResources.read("/domain/datasource/web/oAuth2Datasource.json");;
 
-  public OAuth2DatasourceFeatures() {
-    try {
-      datasourceJson = IOUtils.toString(
-          Objects.requireNonNull(
-              OAuth2DatasourceFeatures.class
-                  .getResourceAsStream(
-                      "/domain/datasource/web/oAuth2Datasource.json")
-          ), UTF_8.name()
-      );
-    } catch (IOException e) {
-      throw new IllegalStateException("Can't read oAuth2Datasource.json");
-    }
-  }
-
-  public static OAuth2DatasourceFeatures getInstance() {
-    return INSTANCE;
+  private OAuth2DatasourceFeatures() {
   }
 
 }

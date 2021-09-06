@@ -5,8 +5,9 @@ import collaborate.api.mail.MailService;
 import collaborate.api.user.model.RolesDTO;
 import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.Authorizations.Roles;
+import collaborate.api.user.security.ConnectedUserDAO;
 import collaborate.api.user.security.KeycloakService;
-import collaborate.api.user.tag.TagUserService;
+import collaborate.api.user.tag.TagUserDAO;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -28,12 +29,10 @@ import org.keycloak.representations.idm.UserRepresentation;
 import org.springframework.boot.autoconfigure.mail.MailProperties;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerErrorException;
 
 @RequiredArgsConstructor
@@ -47,11 +46,12 @@ public class UserService {
   );
 
   private final ApiProperties apiProperties;
+  private final ConnectedUserDAO connectedUserDAO;
   private final KeycloakService keycloakService;
   private final MailProperties mailProperties;
   private final MailService mailService;
   private final RealmResource realmResource;
-  private final TagUserService tagUserService;
+  private final TagUserDAO tagUserDAO;
 
   public static final String EMAIL_TEMPLATE_ENCODING = "UTF-8";
   private static final String EMAIL_SIMPLE_TEMPLATE_NAME = "html/contactEmail.html";
@@ -197,13 +197,9 @@ public class UserService {
   }
 
   public UserDTO updateCurrentUserWithAssetOwnerRole() {
-    var token = keycloakService.getCurrentAuthToken();
-    if (token.isPresent()) {
-      tagUserService.create(token.get().getEmail());
-      return modifyUser(token.get().getSubject(), new RolesDTO(Set.of(Roles.ASSET_OWNER)));
-    } else {
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to retrieve current logged user");
-    }
+    var token = connectedUserDAO.getAuthToken();
+      tagUserDAO.create(token.getEmail());
+      return modifyUser(token.getSubject(), new RolesDTO(Set.of(Roles.ASSET_OWNER)));
   }
 
 }

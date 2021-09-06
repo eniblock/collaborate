@@ -1,16 +1,12 @@
 package collaborate.api.datasource.domain.web;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-
 import collaborate.api.datasource.domain.enumeration.DatasourceStatus;
 import collaborate.api.datasource.domain.web.authentication.CertificateBasedBasicAuth;
-import java.io.IOException;
+import collaborate.api.test.TestResources;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
-import org.apache.commons.io.IOUtils;
 
 public class CertificateBasedBasicAuthDatasourceFeatures {
 
@@ -56,25 +52,10 @@ public class CertificateBasedBasicAuthDatasourceFeatures {
                   .build()
           ))
       ).build();
-  private static final CertificateBasedBasicAuthDatasourceFeatures INSTANCE = new CertificateBasedBasicAuthDatasourceFeatures();
-  public final String datasourceJson;
+  public static final String datasourceJson = TestResources
+      .read("/domain/datasource/web/certificateBasedBasicAuthDatasource.json");
 
-  public CertificateBasedBasicAuthDatasourceFeatures() {
-    try {
-      datasourceJson = IOUtils.toString(
-          Objects.requireNonNull(
-              CertificateBasedBasicAuthDatasourceFeatures.class
-                  .getResourceAsStream(
-                      "/domain/datasource/web/certificateBasedBasicAuthDatasource.json")
-          ), UTF_8.name()
-      );
-    } catch (IOException e) {
-      throw new IllegalStateException("Can't read certificateBasedBasicAuthDatasource.json");
-    }
-  }
-
-  public static CertificateBasedBasicAuthDatasourceFeatures getInstance() {
-    return INSTANCE;
+  private CertificateBasedBasicAuthDatasourceFeatures() {
   }
 
   public static WebServerResource getResourceByKeyword(String keyword) {

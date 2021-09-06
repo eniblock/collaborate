@@ -661,6 +661,15 @@
 												],
 												"type": "text/javascript"
 											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"pm.environment.set(\"test-vin\", utils.generateVIN());"
+												],
+												"type": "text/javascript"
+											}
 										}
 									],
 									"request": {
@@ -668,13 +677,46 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"vehicleOwnerMail\": \"pcc-development@theblockchainxdev.com\",\n    \"datasourceUUID\": \"559a5160-5a75-492d-9fa4-d0cc615ef399\",\n    \"vin\": \"3N1AB7AP0EY214151\"\n}",
+											"raw": "{\n    \"vehicleOwnerMail\": \"pcc-development@theblockchainxdev.com\",\n    \"datasourceUUID\": \"{{test-datasource-id}}\",\n    \"vin\": \"{{test-vin}}\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
 												}
 											}
 										},
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/digital-passport",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"digital-passport"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get passport",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													"",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
 										"url": {
 											"raw": "{{dAppApiUrl}}/api/v1/digital-passport",
 											"host": [
@@ -2453,10 +2495,82 @@
 			"name": "Tezos Api Gateway",
 			"item": [
 				{
+					"name": "Datasource",
+					"item": [
+						{
+							"name": "Create datasource",
+							"event": [
+								{
+									"listen": "prerequest",
+									"script": {
+										"exec": [
+											"var datasourceUUID = utils.generateUUID();",
+											"pm.environment.set(\"test-datasource-uuid\", datasourceUUID);"
+										],
+										"type": "text/javascript"
+									}
+								},
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"tag-job-id\", pm.response.json().id);",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"createDatasource\",\n      \"entryPointParams\": {\n        \"datasourceUUID\" : \"{{test-datasource-uuid}}\",\n        \"cid\" : \"anyVal\"\n        }\n    }\n  ],\n  \"callerId\": \"{{dapp-id}}\",\n  \"secureKeyName\": \"{{tag-admin}}\"\n}\n\n\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/send/jobs",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"send",
+										"jobs"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
 					"name": "User",
 					"item": [
 						{
 							"name": "Create user",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"test-asset-owner-publicKeyHash\", jsonData[0].account);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
@@ -2501,7 +2615,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{tagApiUrl}}/api/user?userIdList=admin",
+									"raw": "{{tagApiUrl}}/api/user?userIdList=pcc-development_._xdev-at_._theblockchainxdev.com",
 									"host": [
 										"{{tagApiUrl}}"
 									],
@@ -2512,7 +2626,7 @@
 									"query": [
 										{
 											"key": "userIdList",
-											"value": "admin"
+											"value": "pcc-development_._xdev-at_._theblockchainxdev.com"
 										}
 									]
 								}
@@ -2568,9 +2682,7 @@
 									"listen": "prerequest",
 									"script": {
 										"exec": [
-											"pm.environment.set(\"test-vin\", utils.generateVIN().hexEncode());",
-											"pm.environment.set(\"test-uuid\", \"b6006c30-d84b-4ad7-a57b-55987c8aace7\".hexEncode());",
-											""
+											"pm.environment.set(\"test-vin\", utils.generateVIN());"
 										],
 										"type": "text/javascript"
 									}
@@ -2591,7 +2703,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"initPassportCreation\",\n      \"entryPointParams\": {\n            \"vehiculeOwnerAddress\": \"{{test-asset-owner-publicKeyHash}}\",\n            \"dspAddress\": \"{{tag-admin-publicKeyHash}}\",\n            \"vin\": \"{{test-vin}}\",\n            \"datasource_uuid\": \"3131\"\n      }\n    }\n  ],\n  \"callerId\": \"{{dapp-id}}\",\n  \"secureKeyName\": \"{{tag-admin}}\"\n}\n",
+									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"initPassportCreation\",\n      \"entryPointParams\": {\n            \"vehicleOwnerAddress\": \"{{test-asset-owner-publicKeyHash}}\",\n            \"dspAddress\": \"{{tag-admin-publicKeyHash}}\",\n            \"vin\": \"{{test-vin}}\",\n            \"datasource_uuid\": \"{{test-datasource-uuid}}\"\n      }\n    }\n  ],\n  \"callerId\": \"{{dapp-id}}\",\n  \"secureKeyName\": \"{{tag-admin}}\"\n}\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2613,13 +2725,37 @@
 							"response": []
 						},
 						{
-							"name": "As Alice, I consent multisig",
+							"name": "Get passportsByVO",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Result contains at least PSA and Movidia organization\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
+											"",
+											"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
+											"    pm.expect(adminOrg).not.eq(undefined);",
+											"",
+											"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
+											"    pm.expect(otherOrg).not.eq(undefined);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
 								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"passportConsent\",\n      \"entryPointParams\": {\n            \"contractId\": {{test-contract-id}},\n            \"vehiculeOwnerAddress\":\"{{test-asset-owner-publicKeyHash}}\"\n      }\n    }\n  ],\n  \"callerId\": \"{{dapp-id}}\",\n  \"secureKeyName\": \"{{test-asset-owner-vault-id}}\"\n}\n",
+									"raw": "{\n    \"dataFields\": [\n        {\n            \"indexerPassportsWaitingConsentByVo\": [\n                {\n                    \"key\": \"{{test-asset-owner-publicKeyHash}}\"\n                }\n            ]\n        },\n        {\n            \"indexerPassportsByVo\": [\n                {\n                    \"key\": \"{{test-asset-owner-publicKeyHash}}\"\n                }\n            ]\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -2627,7 +2763,101 @@
 									}
 								},
 								"url": {
-									"raw": "{{tagApiUrl}}/api/send/jobs",
+									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{smart-contract-address}}",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"tezos_node",
+										"storage",
+										"{{smart-contract-address}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get passportsByIds",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Result contains at least PSA and Movidia organization\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
+											"",
+											"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
+											"    pm.expect(adminOrg).not.eq(undefined);",
+											"",
+											"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
+											"    pm.expect(otherOrg).not.eq(undefined);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataFields\": [\n        {\n            \"multisigs\": [\n                {\n                    \"key\": \"1\"\n                }\n            ]\n        },\n        {\n            \"passportMetadataByTokenId\": []\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{smart-contract-address}}",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"tezos_node",
+										"storage",
+										"{{smart-contract-address}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "As Alice, I consent multisig",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.environment.set(\"tag-job-id\", pm.response.json().id);",
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"{{smart-contract-address}}\",\n      \"entryPoint\": \"passportConsent\",\n      \"entryPointParams\": {\n            \"contractId\": 21,\n            \"vehiculeOwnerAddress\":\"{{test-asset-owner-publicKeyHash}}\"\n      }\n    }\n  ],\n  \"callerId\": \"test\",\n  \"secureKeyName\": \"pcc-development_._xdev-at_._theblockchainxdev.com\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/send/jobs?cache=false",
 									"host": [
 										"{{tagApiUrl}}"
 									],
@@ -2635,6 +2865,12 @@
 										"api",
 										"send",
 										"jobs"
+									],
+									"query": [
+										{
+											"key": "cache",
+											"value": "false"
+										}
 									]
 								}
 							},
@@ -2704,7 +2940,7 @@
 					"name": "Tests suites",
 					"item": [
 						{
-							"name": "basics",
+							"name": "Get User",
 							"item": [
 								{
 									"name": "Get admin user by id should return created user publicKey Copy",
@@ -3394,6 +3630,12 @@
 					"        }",
 					"        console.log(\"generateVIN=\"+result);",
 					"        return result;",
+					"    },",
+					"    generateUUID: function(){",
+					"        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {",
+					"            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);",
+					"            return v.toString(16);",
+					"        });",
 					"    }",
 					"}",
 					"",
@@ -3409,6 +3651,26 @@
 					" */",
 					"String.prototype.fromVaultId = function(){",
 					"    return this.replace('_._xdev-at_._', '@');",
+					"}",
+					"",
+					"",
+					"/**",
+					" * @return The converted string in tag user id format",
+					" */",
+					"String.prototype.hexEncode = function(){",
+					"    return this.split(\"\")",
+					"     .map(c => c.charCodeAt(0).toString(16).padStart(2, \"0\"))",
+					"     .join(\"\");",
+					"}",
+					"",
+					"/**",
+					" * @return The converted string in tag user id format",
+					" */",
+					"String.prototype.hexDecode = function(){",
+					"    return this.split(/(\\w\\w)/g)",
+					"   .filter(p => !!p)",
+					"   .map(c => String.fromCharCode(parseInt(c, 16)))",
+					"   .join(\"\")",
 					"}",
 					""
 				]

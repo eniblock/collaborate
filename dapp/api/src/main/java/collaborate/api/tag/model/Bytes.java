@@ -22,4 +22,8 @@ public class Bytes {
   public Bytes(@NonNull String str) {
     this.value = str.getBytes(StandardCharsets.UTF_8);
   }
+
+  public String toString() {
+    return new String(value, StandardCharsets.UTF_8);
+  }
 }

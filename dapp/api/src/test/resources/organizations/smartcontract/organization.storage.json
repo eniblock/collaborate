@@ -1,0 +1,24 @@
+{
+  "organizations": {
+    "type": "map",
+    "size": 2,
+    "value": [
+      {
+        "key": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
+        "value": {
+          "name": "psa",
+          "publicKey": "edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2",
+          "publicKeyHash": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"
+        }
+      },
+      {
+        "key": "tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG",
+        "value": {
+          "name": "mobivia",
+          "publicKey": "edpkunY3jsNhGnP3mkYnWmBTYxqjSii1pyY9oUSkNnix3pNHRTMaAc",
+          "publicKeyHash": "tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG"
+        }
+      }
+    ]
+  }
+}
