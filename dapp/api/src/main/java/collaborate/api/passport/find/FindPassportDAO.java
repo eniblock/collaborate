@@ -61,12 +61,12 @@ public class FindPassportDAO {
   public Collection<DigitalPassportDTO> findPassportsByIds(PassportIdsDTO passportIdsDTO) {
     var multisigQuery = new IndexerQuery<>(MULTISIGS,
         passportIdsDTO.getPassportsWaitingConsent().stream()
-            .map(Key::new)
+            .map(id -> new Key<>(id.toString()))
             .collect(toList())
     );
     var passportMetadataQuery = new IndexerQuery<>(PASSPORT_METADATA_BY_TOKEN_ID,
         passportIdsDTO.getPassportsConsented().stream()
-            .map(Key::new)
+            .map(id -> new Key<>(id.toString()))
             .collect(toList())
     );
     var request = new DataFieldsRequest<>(List.of(multisigQuery, passportMetadataQuery));

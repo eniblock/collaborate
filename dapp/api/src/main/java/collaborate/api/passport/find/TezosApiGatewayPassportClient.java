@@ -12,6 +12,6 @@ public interface TezosApiGatewayPassportClient {
 
   @PostMapping("/tezos_node/storage/{contractAddress}")
   PassportByIdsDTO findPassportsByIds(@PathVariable String contractAddress,
-      @RequestBody DataFieldsRequest<IndexerQuery<Integer>> request);
+      @RequestBody DataFieldsRequest<IndexerQuery<String>> request);
 
 }
