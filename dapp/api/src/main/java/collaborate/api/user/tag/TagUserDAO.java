@@ -1,6 +1,6 @@
 package collaborate.api.user.tag;
 
-import static collaborate.api.cache.CacheConfig.CacheNames.ORGANIZATIONS;
+import static collaborate.api.cache.CacheConfig.CacheNames.USERS;
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,10 +38,11 @@ public class TagUserDAO {
   @Value("${tezos-api-gateway.secureKeyname}")
   private String secureKeyName;
 
-  public List<UserWalletDTO> create(String userID) {
+  @CachePut(value = USERS)
+  public List<UserWalletDTO> create(String userEmail) {
     UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)
-        .userIdList(Set.of(cleanUserId(userID)))
+        .userIdList(Set.of(cleanUserId(userEmail)))
         .build();
     log.debug("[TAG] create({})", createUsersDTO);
     try {
@@ -55,7 +57,7 @@ public class TagUserDAO {
     }
   }
 
-  @Cacheable(value = ORGANIZATIONS)
+  @Cacheable(value = USERS)
   public Optional<UserWalletDTO> findOneByAddress(String address) {
     log.debug("[TAG] findOneByPublicKeyHash({})", address);
     Optional<UserWalletDTO> walletOptResult;
@@ -65,7 +67,7 @@ public class TagUserDAO {
           .findOneUserByAddress(address);
 
       expectResponseStatusCode(response, OK);
-      walletOptResult = uncleanFirstFilteredUser(
+      walletOptResult = updateFirstFilteredUser(
           response,
           wallet -> StringUtils.isNotBlank(wallet.getUserId())
       );
@@ -78,16 +80,16 @@ public class TagUserDAO {
     return walletOptResult;
   }
 
-  @Cacheable(value = ORGANIZATIONS)
-  public Optional<UserWalletDTO> findOneByUserId(String userId) {
-    log.debug("[TAG] findOneByUserId({})", userId);
+  @Cacheable(value = USERS)
+  public Optional<UserWalletDTO> findOneByUserEmail(String userEmail) {
+    log.debug("[TAG] findOneByUserId({})", userEmail);
     Optional<UserWalletDTO> walletOptResult;
 
     try {
       ResponseEntity<List<UserWalletDTO>> response = tagUserClient
-          .findOneByUserId(cleanUserId(userId));
+          .findOneByUserId(cleanUserId(userEmail));
       expectResponseStatusCode(response, OK);
-      walletOptResult = uncleanFirstFilteredUser(
+      walletOptResult = updateFirstFilteredUser(
           response,
           wallet -> StringUtils.isNotBlank(wallet.getAddress())
       );
@@ -101,9 +103,9 @@ public class TagUserDAO {
     return walletOptResult;
   }
 
-  @Cacheable(value = ORGANIZATIONS)
+  @Cacheable(value = USERS)
   public String getOrganizationAccountAddress() {
-    return findOneByUserId(secureKeyName)
+    return findOneByUserEmail(secureKeyName)
         .map(UserWalletDTO::getAddress)
         .orElseThrow(() -> new IllegalStateException("No current organization account found"));
   }
@@ -134,7 +136,7 @@ public class TagUserDAO {
     }
   }
 
-  Optional<UserWalletDTO> uncleanFirstFilteredUser(ResponseEntity<List<UserWalletDTO>> response,
+  Optional<UserWalletDTO> updateFirstFilteredUser(ResponseEntity<List<UserWalletDTO>> response,
       Predicate<UserWalletDTO> filter) {
     Optional<UserWalletDTO> walletOptResult = Optional.empty();
 
@@ -144,7 +146,12 @@ public class TagUserDAO {
           .filter(filter)
           .findFirst();
       walletOptResult = walletOptResult
-          .map(w -> new UserWalletDTO(uncleanUserId(w.getUserId()), w.getAddress()));
+          .map(w -> UserWalletDTO.builder()
+              .userId(w.getUserId())
+              .address(w.getAddress())
+              .email(uncleanUserId(w.getUserId()))
+              .build()
+          );
     }
 
     return walletOptResult;

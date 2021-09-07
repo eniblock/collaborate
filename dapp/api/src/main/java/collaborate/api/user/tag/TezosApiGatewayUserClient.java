@@ -29,7 +29,7 @@ public interface TezosApiGatewayUserClient {
   /**
    * @param publicKeyHash the publicKeyHash for the searched vault user id
    * @return A list containing each provided <code>publicKeyHash</code> where the {@link
-   * UserWalletDTO#getUserId()}  is valued if it has been found
+   * UserWalletDTO#getUserId()} is valued if it has been found
    */
   @GetMapping(value = "address", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
   ResponseEntity<List<UserWalletDTO>> findOneUserByAddress(

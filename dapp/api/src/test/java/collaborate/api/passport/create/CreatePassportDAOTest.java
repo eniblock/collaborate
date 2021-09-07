@@ -1,6 +1,7 @@
 package collaborate.api.passport.create;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -13,7 +14,6 @@ import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -37,8 +37,8 @@ class CreatePassportDAOTest {
     UserWalletDTO mockedWallet = initWallet();
     Job mockedJob = initSomeJob();
 
-    when(tagUserDAO.findOneByUserId(anyString())).thenReturn(Optional.of(mockedWallet));
-    when(tezosApiGatewayJobClient.sendTransactionBatch(ArgumentMatchers.any())).thenReturn(mockedJob);
+    when(tagUserDAO.findOneByUserEmail(anyString())).thenReturn(Optional.of(mockedWallet));
+    when(tezosApiGatewayJobClient.sendTransactionBatch(any())).thenReturn(mockedJob);
 
     //WHEN
     CreatePassportDTO passportFromFrontend = initPassport();

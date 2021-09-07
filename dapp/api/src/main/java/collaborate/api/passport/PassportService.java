@@ -5,6 +5,8 @@ import static collaborate.api.user.security.Authorizations.Roles.SERVICE_PROVIDE
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
+import collaborate.api.passport.consent.ConsentPassportDAO;
+import collaborate.api.passport.consent.ConsentPassportDTO;
 import collaborate.api.passport.create.CreatePassportDAO;
 import collaborate.api.passport.create.CreatePassportDTO;
 import collaborate.api.passport.find.DigitalPassportDTO;
@@ -16,6 +18,7 @@ import collaborate.api.user.tag.TagUserDAO;
 import java.util.Collection;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,13 +30,14 @@ public class PassportService {
   private final CreatePassportDAO createPassportDAO;
   private final FindPassportDAO findPassportDAO;
   private final TagUserDAO tagUserDAO;
+  private final ConsentPassportDAO consentPassportDAO;
 
   public Job create(CreatePassportDTO createPassportDTO) {
     return createPassportDAO.create(createPassportDTO);
   }
 
   public Collection<DigitalPassportDTO> getByVehicleOwner(String vehicleOwnerEmail) {
-    var voAccountAddress = tagUserDAO.findOneByUserId(vehicleOwnerEmail)
+    var voAccountAddress = tagUserDAO.findOneByUserEmail(vehicleOwnerEmail)
         .map(UserWalletDTO::getAddress)
         .orElseThrow(() -> new ResponseStatusException(INTERNAL_SERVER_ERROR,
             "No vehicleOwner account found for current user=" + vehicleOwnerEmail));
@@ -49,6 +53,19 @@ public class PassportService {
   public Collection<DigitalPassportDTO> getByDsp(String dspPublicHashKey) {
     var passportIds = findPassportDAO.findPassportsIdByDsp(dspPublicHashKey);
     return findPassportDAO.findPassportsByIds(passportIds);
+  }
+
+  public Job consent(Integer contractId) {
+    return consentPassportDAO.consent(ConsentPassportDTO.builder()
+        .contractId(contractId)
+        .vehicleOwnerUserWallet(
+            tagUserDAO.findOneByUserEmail(connectedUserDAO.getEmailOrThrow())
+                .orElseThrow(() -> new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Current user wallet not found")
+                )
+        ).build()
+    );
   }
 
   public Collection<DigitalPassportDTO> getByConnectedUser() {

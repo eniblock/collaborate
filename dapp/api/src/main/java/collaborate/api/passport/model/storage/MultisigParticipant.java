@@ -1,7 +1,7 @@
 package collaborate.api.passport.model.storage;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import java.time.LocalDateTime;
+import collaborate.api.config.ISO8601JsonStringFormat;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,6 +16,6 @@ public class MultisigParticipant {
   private String address;
   private Boolean hasVoted;
 
-  @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
-  private LocalDateTime timestamp;
+  @ISO8601JsonStringFormat
+  private ZonedDateTime timestamp;
 }

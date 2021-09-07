@@ -1,8 +1,9 @@
 package collaborate.api.passport.find;
 
+import collaborate.api.config.ISO8601JsonStringFormat;
 import collaborate.api.passport.DigitalPassportStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,8 +37,8 @@ public class DigitalPassportDTO {
   @Schema(description = "The status of the passport", example = "2")
   private DigitalPassportStatus status;
 
-  @Schema(description = "The passport creation timestamp", example = "2021-01-01T12:23:00.999")
-  // FIXME Set an ISO datetime serializer
-  private LocalDateTime createdAt;
+  @Schema(description = "The passport creation date at ISO-8601 format", example = "2001-07-04T12:08:56.235-07:00")
+  @ISO8601JsonStringFormat
+  private ZonedDateTime createdAt;
 
 }

@@ -117,6 +117,7 @@ class InitPassportCreationEventConsumerTest {
   private UserWalletDTO initWallet() {
     return UserWalletDTO.builder()
         .userId("admin")
+        .email("admin")
         .address("tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG")
         .build();
   }
