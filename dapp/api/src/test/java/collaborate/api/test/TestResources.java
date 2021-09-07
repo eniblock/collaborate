@@ -13,6 +13,7 @@ import org.apache.commons.io.IOUtils;
 public class TestResources {
 
   public static final ObjectMapper objectMapper = new ObjectMapper();
+
   static {
     objectMapper.registerModule(new JavaTimeModule());
   }

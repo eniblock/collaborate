@@ -24,4 +24,6 @@ public class UserWalletDTO implements Serializable {
     @JsonProperty("account")
     private String address;
 
+    private String email;
+
 }

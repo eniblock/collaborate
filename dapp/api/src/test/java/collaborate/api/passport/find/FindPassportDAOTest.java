@@ -14,7 +14,8 @@ import collaborate.api.passport.DigitalPassportStatus;
 import collaborate.api.tag.TezosApiGatewayStorageClient;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.IndexerQuery;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
@@ -91,8 +92,10 @@ class FindPassportDAOTest {
         .vin("WO0P6Z5QF9FRMXAGC")
         .contractId(1)
         .status(DigitalPassportStatus.PENDING_CREATION)
-        .createdAt(LocalDateTime.of(2021, 9, 5, 15, 43, 42))
-        .build();
+        .createdAt(ZonedDateTime.of(
+            2021, 9, 5, 15, 43, 42, 0,
+            ZoneId.of("UTC"))
+        ).build();
     // WHEN
     var digitalPassportDTOs = findPassportDAO.findPassportsByIds(new PassportIdsDTO());
     // THEN

@@ -63,7 +63,7 @@ public class InitPassportCreationEventConsumer {
 
     var recipient = tagUserDAO
         .findOneByAddress(messageParams.getVehicleOwnerAddress())
-        .map(UserWalletDTO::getUserId)
+        .map(UserWalletDTO::getEmail)
         .orElseThrow(() -> new IllegalStateException(
             format("No user found for vehicleOwnerAddress=%s",
                 messageParams.getVehicleOwnerAddress())));

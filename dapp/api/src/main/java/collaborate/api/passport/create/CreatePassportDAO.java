@@ -39,7 +39,7 @@ public class CreatePassportDAO {
       CreatePassportDTO createPassportDTO) {
 
     String vehicleOwnerAddress = tagUserDAO
-        .findOneByUserId(createPassportDTO.getVehicleOwnerMail())
+        .findOneByUserEmail(createPassportDTO.getVehicleOwnerMail())
         .map(UserWalletDTO::getAddress)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, (
             format("No user found for userId=%s", createPassportDTO.getVehicleOwnerMail())

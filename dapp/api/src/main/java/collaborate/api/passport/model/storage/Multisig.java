@@ -1,6 +1,6 @@
 package collaborate.api.passport.model.storage;
 
-import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
 import java.util.Collection;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,7 +23,7 @@ public class Multisig {
   private Integer threshold;
   private Integer weight;
 
-  public LocalDateTime getCreatedAt() {
+  public ZonedDateTime getCreatedAt() {
     return getParticipants().stream()
         .filter(p -> p.getAddress().equals(getAddr1()))
         .findFirst()

@@ -1,0 +1,13 @@
+{
+  "transactions": [
+    {
+      "contractAddress": "KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t",
+      "entryPoint": "passportConsent",
+      "entryPointParams": {
+        "contractId": 21,
+        "vehicleOwnerAddress": "tz1hEiMos9CF5Z5MoFyhZMgSiRKzyDZRdoBG"
+      }
+    }
+  ],
+  "secureKeyName": "pcc-development_._xdev-at_._theblockchainxdev.com"
+}

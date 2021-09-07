@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,14 +29,23 @@ public class DigitalPassportController {
 
   private final PassportService passportService;
 
+  @PostMapping("/{contract-id}")
+  @Operation(
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description = "Consent a digital passport in the Smart-Contract for the connected asset owner")
+  @PreAuthorize(HasRoles.ASSET_OWNER)
+  public Job consent(@PathVariable(value = "contract-id") Integer contractId) {
+    return passportService.consent(contractId);
+  }
+
   @PostMapping
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "Create a multi-signature entry in the Smart-Contract:"
-          + "used as a \"pending\" digital-passport<br>"
-          + "NB: The current organization signature is automatically added",
-      tags = {"multi-signature"}
-  )
+      description =
+          "Create a multi-signature entry in the Smart-Contract:"
+              + "used as a \"pending\" digital-passport<br>"
+              + "NB: The current organization signature is automatically added",
+      tags = {"multi-signature"})
   @PreAuthorize(HasRoles.SERVICE_PROVIDER)
   public Job create(@RequestBody @Valid CreatePassportDTO createPassportDTO) {
     return passportService.create(createPassportDTO);

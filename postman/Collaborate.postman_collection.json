@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "a97f302f-f075-4b14-aeb4-e09be95d3d20",
+		"_postman_id": "7f065956-298a-448c-80bc-df51e82a6206",
 		"name": "Collaborate",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -693,6 +693,40 @@
 												"api",
 												"v1",
 												"digital-passport"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Consent  passport",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													"",
+													"pm.environment.set(\"tag-job-id\", pm.response.json().id);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/digital-passport/8",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"digital-passport",
+												"8"
 											]
 										}
 									},
@@ -2778,6 +2812,59 @@
 							"response": []
 						},
 						{
+							"name": "Get passportsByDSP",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Result contains at least PSA and Movidia organization\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
+											"",
+											"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
+											"    pm.expect(adminOrg).not.eq(undefined);",
+											"",
+											"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
+											"    pm.expect(otherOrg).not.eq(undefined);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataFields\": [\n        {\n            \"indexerPassportsWaitingConsentByDsp\": [\n                {\n                    \"key\": \"{{tag-admin-publicKeyHash}}\"\n                }\n            ]\n        },\n        {\n            \"indexerPassportsByDsp\": [\n                {\n                    \"key\": \"{{tag-admin-publicKeyHash}}\"\n                }\n            ]\n        }\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{smart-contract-address}}",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"tezos_node",
+										"storage",
+										"{{smart-contract-address}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
 							"name": "Get passportsByIds",
 							"event": [
 								{
@@ -2808,7 +2895,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"dataFields\": [\n        {\n            \"multisigs\": [\n                {\n                    \"key\": \"1\"\n                }\n            ]\n        },\n        {\n            \"passportMetadataByTokenId\": []\n        }\n    ]\n}",
+									"raw": "{\n    \"dataFields\": [\n        {\n            \"multisigs\": [\n                {\n                    \"key\": \"0\"\n                },\n                {\n                    \"key\": \"1\"\n                }\n            ]\n        },\n        {\n            \"passportMetadataByTokenId\": [\n                {\n                    \"key\": \"1\"\n                }\n            ]\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"

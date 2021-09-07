@@ -12,17 +12,21 @@ public class FindPassportFeatures {
   public static final String findPassportsIdByVoJsonResponseWithError = TestResources
       .read("/passport/find/sc.storage.findPassportsIdByVo.response.with.error.json");
 
+  public static final IndexerQueryResponse<Integer> findPassportsIdByVoResponse = TestResources
+      .read(
+          findPassportsIdByVoJsonResponseWithError,
+          new TypeReference<>() {
+          }
+      );
+
   public static final String findPassportsByIdsJsonResponseWithEmptyPassportMetadataTokenById = TestResources
-      .read("/passport/find/sc.storage.findPassportsByIds.response.with.empty.passportMetadataByTokenId.json");
+      .read(
+          "/passport/find/sc.storage.findPassportsByIds.response.with.empty.passportMetadataByTokenId.json");
 
-  public static final IndexerQueryResponse<Integer> findPassportsIdByVoResponse = TestResources.read(
-      findPassportsIdByVoJsonResponseWithError,
-      new TypeReference<>() {
-      }
-  );
+  public static final PassportByIdsDTO findPassportsByIdsResponseWithEmptyPassportMetadataTokenById = TestResources
+      .read(
+          findPassportsByIdsJsonResponseWithEmptyPassportMetadataTokenById,
+          PassportByIdsDTO.class
+      );
 
-  public static final PassportByIdsDTO findPassportsByIdsResponseWithEmptyPassportMetadataTokenById = TestResources.read(
-      findPassportsByIdsJsonResponseWithEmptyPassportMetadataTokenById,
-      PassportByIdsDTO.class
-  );
 }
