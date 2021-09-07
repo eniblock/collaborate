@@ -13,7 +13,11 @@ public class Job {
   @JsonFormat(shape = JsonFormat.Shape.OBJECT)
   public enum Status {
     @JsonProperty("created")
-    CREATED;
+    CREATED,
+    @JsonProperty("forged")
+    FORGED,
+    @JsonProperty("published")
+    PUBLISHED;
   }
 
   @Schema(description = "The job identifier", example = "374")
