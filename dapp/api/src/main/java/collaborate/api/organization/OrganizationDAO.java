@@ -1,6 +1,6 @@
 package collaborate.api.organization;
 
-import static collaborate.api.cache.CacheConfig.CacheNames.ORGANIZATIONS;
+import static collaborate.api.cache.CacheConfig.CacheNames.ORGANIZATION;
 import static java.util.stream.Collectors.toList;
 
 import collaborate.api.config.api.ApiProperties;
@@ -45,7 +45,7 @@ public class OrganizationDAO {
     }
   }
 
-  @Cacheable(value = ORGANIZATIONS)
+  @Cacheable(value = ORGANIZATION)
   public Optional<OrganizationDTO> getOrganizationByPublicKeyHash(String publicKeyHash) {
     return getAllOrganizations().stream()
         .filter(o -> publicKeyHash.equals(o.getPublicKeyHash()))

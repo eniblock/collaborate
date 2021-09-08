@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Convert;
@@ -34,6 +35,8 @@ import lombok.NoArgsConstructor;
 @Entity
 public class WebServerResource implements Keywords<String>, Serializable {
 
+  public static final String VIN_MAPPING_ROUTING_KEY = "vin-mapping";
+
   @JsonIgnore
   @ManyToOne
   @JoinColumn(name = "datasource_id", insertable = false, updatable = false)
@@ -49,8 +52,9 @@ public class WebServerResource implements Keywords<String>, Serializable {
 
   @Convert(converter = StringSetConverter.class)
   @RoutingKeyKeywordConstraint
-  @ArraySchema(schema = @Schema(description = "Keyword can be used to extend feature about a resource."
-      + "For an example, integrated to an API Gateway, can be used to defined the routing path for this resource",
+  @ArraySchema(schema = @Schema(description =
+      "Keyword can be used to extend feature about a resource."
+          + "For an example, integrated to an API Gateway, can be used to defined the routing path for this resource",
       example = "routing-key:assets"))
   private Set<String> keywords;
 
@@ -63,4 +67,16 @@ public class WebServerResource implements Keywords<String>, Serializable {
   @OneToMany(cascade = CascadeType.ALL)
   @ArraySchema(schema = @Schema(description = "Query parameter to add at the end of this resource URL. "))
   private List<QueryParam> queryParams;
+
+  public Optional<String> findVinMappingQueryParamKey() {
+    return Optional.ofNullable(queryParams)
+        .filter(q -> !q.isEmpty())
+        .flatMap(q -> q.stream().findFirst())
+        .map(QueryParam::getKey);
+  }
+
+  public String findVinMappingJsonResponsePath() {
+    // TODO make getVinMappingJsonResponsePath dynamic
+    return "$._embedded.vehicles[0].id";
+  }
 }

@@ -1,6 +1,6 @@
 package collaborate.api.user.tag;
 
-import static collaborate.api.cache.CacheConfig.CacheNames.USERS;
+import static collaborate.api.cache.CacheConfig.CacheNames.USER;
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
@@ -38,7 +38,7 @@ public class TagUserDAO {
   @Value("${tezos-api-gateway.secureKeyname}")
   private String secureKeyName;
 
-  @CachePut(value = USERS)
+  @CachePut(value = USER)
   public List<UserWalletDTO> create(String userEmail) {
     UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)
@@ -57,7 +57,7 @@ public class TagUserDAO {
     }
   }
 
-  @Cacheable(value = USERS)
+  @Cacheable(value = USER)
   public Optional<UserWalletDTO> findOneByAddress(String address) {
     log.debug("[TAG] findOneByPublicKeyHash({})", address);
     Optional<UserWalletDTO> walletOptResult;
@@ -80,7 +80,7 @@ public class TagUserDAO {
     return walletOptResult;
   }
 
-  @Cacheable(value = USERS)
+  @Cacheable(value = USER)
   public Optional<UserWalletDTO> findOneByUserEmail(String userEmail) {
     log.debug("[TAG] findOneByUserId({})", userEmail);
     Optional<UserWalletDTO> walletOptResult;
@@ -103,7 +103,7 @@ public class TagUserDAO {
     return walletOptResult;
   }
 
-  @Cacheable(value = USERS)
+  @Cacheable(value = USER)
   public String getOrganizationAccountAddress() {
     return findOneByUserEmail(secureKeyName)
         .map(UserWalletDTO::getAddress)

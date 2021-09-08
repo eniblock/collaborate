@@ -96,10 +96,6 @@ spec:
               value: {{ .Values.api.organizationPublicKeyHash | quote }}
             - name: API_CONTRACT_ADDRESS
               value: {{ .Values.api.contractAddress | quote }}
-            - name: API_TRAEFIK_CERTIFICATES_PATH
-              value: {{ .Values.api.traefik.volumes.cert | quote }}
-            - name: API_TRAEFIK_PROVIDERS_PATH
-              value: {{ .Values.api.traefik.volumes.provider | quote }}
             {{- range $id, $organization := .Values.api.organizations }}
             - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_ID
               value: {{ $id | quote }}
@@ -110,6 +106,14 @@ spec:
             - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_PUBLIC_KEY
               value: {{ $organization.publicKey | quote }}
             {{- end }}
+
+            # Api-gateway
+            - name: API_TRAEFIK_CERTIFICATES_PATH
+              value: {{ .Values.api.traefik.volumes.cert | quote }}
+            - name: API_TRAEFIK_PROVIDERS_PATH
+              value: {{ .Values.api.traefik.volumes.provider | quote }}
+            - name: API_TRAEFIK_URL
+              value: "https://localhost:{{ .Values.api.traefik.ports.websecure }}/"
 
             # tezos-api-gateway config
             - name: TEZOS_API_GATEWAY_URL
