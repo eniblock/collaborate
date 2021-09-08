@@ -39,7 +39,7 @@ public class TagUserDAO {
   private String secureKeyName;
 
   @CachePut(value = USER)
-  public List<UserWalletDTO> create(String userEmail) {
+  public Optional<UserWalletDTO> create(String userEmail) {
     UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)
         .userIdList(Set.of(cleanUserId(userEmail)))
@@ -48,7 +48,8 @@ public class TagUserDAO {
     try {
       ResponseEntity<List<UserWalletDTO>> createdUsers = tagUserClient.create(createUsersDTO);
       expectResponseStatusCode(createdUsers, CREATED);
-      return createdUsers.getBody();
+      return Optional.ofNullable(createdUsers.getBody())
+          .flatMap(body -> body.stream().findFirst());
     } catch (FeignClientException exception) {
       log.error("[TAG] create", exception);
       throw new ResponseStatusException(
