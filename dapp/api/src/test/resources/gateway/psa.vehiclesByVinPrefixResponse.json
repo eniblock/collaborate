@@ -1,0 +1,69 @@
+{
+  "_links": {
+    "self": {
+      "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles?pageToken=f78541cddd17d7ea9cc760e69c9f3585AAAAAgAAAAEAAAABAAAAPAAA"
+    }
+  },
+  "total": 1,
+  "_embedded": {
+    "vehicles": [
+      {
+        "id": "124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79",
+        "vin": "VR1ATTENTKW033329",
+        "brand": "DS",
+        "pictures": [
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=001",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=002",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=003",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=004",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=005",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=006",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=007",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=008",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=009",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=010",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=011",
+          "https://visuel3d-secure.citroen.com/V3DImage.ashx?client=miseco&format=png&back=0&version=1SD3SYTESFB0A012&color=0MP00NWP&trim=0P890RFV&OPT1=DE30&OPT2=DWY4&OPT3=DZHG&OPT4=DZVB&view=012"
+        ],
+        "_links": {
+          "alerts": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79/alerts"
+          },
+          "fleet": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68"
+          },
+          "trips": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79/trips"
+          },
+          "self": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79"
+          },
+          "lastPosition": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79/lastPosition"
+          },
+          "callbacks": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/remote/callbacks"
+          },
+          "remotes": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79/callbacks/{cbid}/remotes",
+            "templated": true
+          },
+          "telemetry": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79/telemetry"
+          },
+          "maintenance": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79/maintenance"
+          },
+          "status": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79/status"
+          },
+          "monitors": {
+            "href": "https://api-cert-preprod.groupe-psa.com/connectedcar/v3/fleets/5fb2830db35c87031c2e0d68/monitors"
+          }
+        }
+      }
+    ]
+  },
+  "currentPage": 1,
+  "totalPage": 1
+}

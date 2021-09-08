@@ -35,7 +35,7 @@ public class TestConnectionFactory {
 
   private BooleanSupplier testDigitalPassportConnection(WebServerDatasource webServerDatasource)
       throws IOException, SSLContextException, UnrecoverableKeyException {
-    var resource = webServerDatasource.findResourceByKeywordOrThrow("assets");
+    var resource = webServerDatasource.getResourceByKeywordOrThrow("assets");
     var uri = uriFactory.create(webServerDatasource, resource);
 
     var httpURLConnection = httpURLConnectionFactory

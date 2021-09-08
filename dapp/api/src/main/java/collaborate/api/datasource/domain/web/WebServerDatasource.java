@@ -1,5 +1,6 @@
 package collaborate.api.datasource.domain.web;
 
+import static collaborate.api.datasource.domain.web.WebServerResource.VIN_MAPPING_ROUTING_KEY;
 import static java.lang.String.format;
 
 import collaborate.api.datasource.domain.Datasource;
@@ -69,7 +70,7 @@ public class WebServerDatasource extends Datasource {
     return firstMatchingResource;
   }
 
-  public WebServerResource findResourceByKeywordOrThrow(String keyword) {
+  public WebServerResource getResourceByKeywordOrThrow(String keyword) {
     Optional<WebServerResource> firstMatchingResource = findResourceByKeyword(keyword);
     if (firstMatchingResource.isEmpty()) {
       throw new IllegalStateException(
@@ -77,4 +78,12 @@ public class WebServerDatasource extends Datasource {
     }
     return firstMatchingResource.get();
   }
+
+  /**
+   * @return <code>true</code> when the datasource does not used VIN in it metrics resources url
+   */
+  public Optional<WebServerResource> findVinMappingResource() {
+    return findResourceByKeyword(VIN_MAPPING_ROUTING_KEY);
+  }
+
 }

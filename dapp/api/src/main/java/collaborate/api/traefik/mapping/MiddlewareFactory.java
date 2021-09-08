@@ -17,6 +17,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class MiddlewareFactory {
 
+  public static final String VIN_QUERY_PARAM_VALUE = "$vinParam";
+
   public Middleware createStripPrefix(String prefix) {
     return Middleware.builder()
         .stripPrefix(new StripPrefix(List.of(prefix)))
@@ -50,6 +52,7 @@ public class MiddlewareFactory {
 
     if (!queryParams.isEmpty()) {
       String regexReplacement = queryParams.stream()
+          .filter(entry -> !VIN_QUERY_PARAM_VALUE.equals(entry.getValue()))
           .map(entry -> entry.getKey() + "=" + entry.getValue())
           .collect(joining("&", "/${1}?", ""));
 
