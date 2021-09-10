@@ -1,6 +1,14 @@
 import smartpy as sp
 
 
+
+##############################################################################
+##############################################################################
+#################################### FA_2 ####################################
+##############################################################################
+##############################################################################
+
+
 class FA2_config:
     def __init__(self,
                  debug_mode                   = False,
@@ -371,7 +379,7 @@ class FA2_core(sp.Contract):
             **extra_storage
         )
 
-    @sp.entry_point
+    #@sp.entry_point
     def transfer(self, params):
         sp.verify( ~self.is_paused() )
         sp.set_type(params, self.batch_transfer.get_type())
@@ -412,7 +420,7 @@ class FA2_core(sp.Contract):
                 sp.else:
                     pass
 
-    @sp.entry_point
+    #@sp.entry_point
     def balance_of(self, params):
         # paused may mean that balances are meaningless:
         sp.verify( ~self.is_paused() )
@@ -455,7 +463,7 @@ class FA2_core(sp.Contract):
         sp.result(self.data.ledger[user].balance)
 
 
-    @sp.entry_point
+    #@sp.entry_point
     def update_operators(self, params):
         sp.set_type(params, sp.TList(
             sp.TVariant(
@@ -514,10 +522,13 @@ class FA2_change_metadata(FA2_core):
         self.data.metadata[k] = v
 
 class FA2_mint(FA2_core):
-    @sp.entry_point
+    #@sp.entry_point
     def mint(self, params):
         sp.verify(self.is_administrator(sp.sender))
         # We don't check for pauseness because we're the admin.
+        self.private_mint(params)
+
+    def private_mint(self, params):
         if self.config.single_asset:
             sp.verify(params.token_id == 0, "single-asset: token-id <> 0")
         if self.config.non_fungible:
@@ -557,9 +568,19 @@ class FA2_token_metadata(FA2_core):
         "Helper function to build metadata JSON bytes values."
         return (sp.map(l = {
             # Remember that michelson wants map already in ordered
-            "decimals" : sp.bytes_of_string("%d" % decimals),
-            "name" : sp.bytes_of_string(name),
-            "symbol" : sp.bytes_of_string(symbol)
+            "decimals" : sp.utils.bytes_of_string("%d" % decimals),
+            "name" : sp.utils.bytes_of_string(name),
+            "symbol" : sp.utils.bytes_of_string(symbol)
+        }))
+
+    def make_passport_metadata(tokenId, vin: sp.TString):
+        "Helper function to build passport metadata JSON bytes values."
+        return (sp.map(l = {
+            "decimals" : sp.utils.bytes_of_string("0"),
+            "name" : sp.utils.bytes_of_string("Passport"),
+            "symbol" : sp.utils.bytes_of_string("PASS"),
+            "type" : sp.utils.bytes_of_string("passport"),
+            "vin" : sp.pack(vin),
         }))
 
 
@@ -684,6 +705,93 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
                           paused = False, administrator = admin)
 
 
+
+
+##############################################################################
+##############################################################################
+################################## MULTISIG ##################################
+##############################################################################
+##############################################################################
+
+participants_type = sp.TRecord(
+    address = sp.TAddress,
+    hasVoted = sp.TBool, # Should be always initialized to False,
+    timestamp = sp.TOption(sp.TTimestamp) # Timestamp of the signature
+)
+
+## if :
+# - actionToPerform == 'mint_passport' :
+#     * First participant is DSP
+#     * Second participant is VO
+#     * param1 is Vin
+#     * param2 is datasource_uuid
+#     * addr1 is DSP
+#     * addr2 is VO
+contract_type = sp.TRecord(
+    weight = sp.TNat, # Number of participants that have signed. Should be always initialized to 0
+    threshold = sp.TNat, # Number of signatures required
+    participants = sp.TList(participants_type),
+    ok = sp.TBool, # True means that the contract is signed by enough participants. Should be always initialised to False
+    actionToPerform = sp.TString,
+    ## Params
+    param1 = sp.TString,
+    param2 = sp.TString,
+    addr1 = sp.TAddress,
+    addr2 = sp.TAddress
+)
+
+
+class MultiSigFactory(sp.Contract, FA2):
+    def __init__(self):
+        self.update_initial_storage(
+            multisigs = sp.big_map(
+                tkey = sp.TNat, ## The contractId
+                tvalue = contract_type
+            ),
+            nbMultisigs = 0
+        )
+
+    #@sp.entry_point THAT IS NOT AN ENTRY_POINT BECAUSE WE DON'T WANT THAT ANYONE CAN BUILD (else, anyone can build a "passport_creation" that will implies anyone can mint any passport for any VIN)
+    # Return the contractId that has been created
+    def build(self, contract: contract_type):
+        self.data.multisigs[self.data.nbMultisigs] = contract
+        self.data.nbMultisigs += 1
+        return sp.as_nat(self.data.nbMultisigs - 1)
+
+    #@sp.entry_point
+    def sign(self, id: sp.TAddress, contractId:sp.TNat):
+        sp.verify(id == sp.sender)
+        contract = self.data.multisigs[contractId]
+        sp.for participant in contract.participants:
+            sp.if participant.address == id:
+                sp.verify(~ participant.hasVoted)
+                participant.hasVoted = True
+                participant.timestamp = sp.some(sp.now)
+                contract.weight += 1
+                sp.if ~contract.ok & (contract.threshold <= contract.weight):
+                    contract.ok = True
+                    self.onOK(contract)
+
+    def onOK(self, contract: contract_type):
+        sp.if contract.actionToPerform == "mint_passport":
+            metadata = COLLABORATE.make_passport_metadata(
+                self.data.all_tokens,
+                contract.param1
+            )
+            self.private_mint(sp.record(
+                address = contract.addr2,
+                amount = 1,
+                metadata = metadata,
+                token_id = self.data.all_tokens
+            ))
+
+
+##############################################################################
+##############################################################################
+########################## PCC BUSINESS : DOCUMENTS ##########################
+##############################################################################
+##############################################################################
+
 organization_type = sp.TRecord(
     name = sp.TString,
     publicKeyHash = sp.TAddress,
@@ -766,10 +874,223 @@ class AccessManagement(sp.Contract):
         accessRequest.jwtToken = sp.some(params.jwtToken)
         accessRequest.status = "granted"
 
-class PASSPORT(FA2, AccessManagement):
+
+
+##############################################################################
+##############################################################################
+########################## PCC BUSINESS : DATASOURCE #########################
+##############################################################################
+##############################################################################
+
+datasource_creation_type = sp.TRecord(
+    datasourceUUID = sp.TString,
+    cid = sp.TString,
+)
+
+datasource_update_type = sp.TRecord(
+    datasourceUUID = sp.TString,
+    cid = sp.TString,
+)
+
+class DatasourceManagement(sp.Contract):
+    def __init__(self):
+        self.update_initial_storage(
+            cidByDatasourceUUID = sp.big_map(
+                tkey = sp.TString, ## datasource UUID
+                tvalue = sp.TRecord (
+                    dspAddress = sp.TAddress, ## The DSP who owns the datasource
+                    cids = sp.TList(
+                        sp.TRecord(
+                            cid = sp.TString,
+                            createdAt = sp.TTimestamp
+                        )
+                    )
+                )
+            )
+        )
+
+    @sp.entry_point
+    def createDatasource(self, params: datasource_creation_type):
+        sp.verify(self.data.organizations.contains(sp.sender))
+        sp.verify(~self.data.cidByDatasourceUUID.contains(params.datasourceUUID))
+        self.data.cidByDatasourceUUID[params.datasourceUUID] = sp.record(
+            dspAddress = sp.sender,
+            cids = [
+                sp.record(
+                    cid = params.cid,
+                    createdAt = sp.now
+                )
+            ]
+        )
+
+    @sp.entry_point
+    def updateDatasource(self, params: datasource_update_type):
+        sp.verify(self.data.organizations.contains(sp.sender))
+        sp.verify(self.data.cidByDatasourceUUID.contains(params.datasourceUUID))
+        datasource = self.data.cidByDatasourceUUID[params.datasourceUUID]
+        sp.verify(datasource.dspAddress == sp.sender)
+        datasource.cids.push(
+            sp.record(
+                cid = params.cid,
+                createdAt = sp.now
+            )
+        )
+
+
+
+
+##############################################################################
+##############################################################################
+########################### PCC BUSINESS : PASSPORT ##########################
+##############################################################################
+##############################################################################
+
+passport_creation_type = sp.TRecord(
+    vehicleOwnerAddress = sp.TAddress,
+    dspAddress = sp.TAddress,
+    vin = sp.TString,
+    datasource_uuid = sp.TString
+)
+
+passport_creation_consent_type = sp.TRecord(
+    vehicleOwnerAddress = sp.TAddress,
+    contractId = sp.TNat
+)
+
+class PassportManagement(sp.Contract, FA2, MultiSigFactory):
+    def __init__(self):
+        self.update_initial_storage(
+            indexerPassportsWaitingConsentByVo = sp.big_map(
+                tkey = sp.TAddress, ## The VO address
+                tvalue = sp.TSet(sp.TNat) ## The set of contractId (self.data.multisigs)
+            ),
+            indexerPassportsByVo = sp.big_map(
+                tkey = sp.TAddress, ## The VO address
+                tvalue = sp.TSet(sp.TNat) ## The set of tokenId (self.data.tokens)
+            ),
+            indexerPassportsWaitingConsentByDsp = sp.big_map(
+                tkey = sp.TAddress, ## The DSP address
+                tvalue = sp.TSet(sp.TNat) ## The set of contractId (self.data.multisigs)
+            ),
+            indexerPassportsByDsp = sp.big_map(
+                tkey = sp.TAddress, ## The DSP address
+                tvalue = sp.TSet(sp.TNat) ## The set of tokenId (self.data.tokens)
+            ),
+            passportMetadataByTokenId = sp.big_map(
+                tkey = sp.TNat, ## The Token ID
+                tvalue = sp.TRecord( ## Metadata concerning the passport (self.data.tokens)
+                    dspAddress = sp.TAddress,
+                    createdAt = sp.TTimestamp,
+                    multisigId = sp.TNat,
+                    vin = sp.TString,
+                    datasourceUUID = sp.TString
+                )
+            )
+        )
+
+    @sp.entry_point
+    def initPassportCreation(self, params: passport_creation_type):
+        sp.verify(self.data.organizations.contains(params.dspAddress))
+        ## TODO : remove params.dspAddress
+        sp.verify(sp.sender == params.dspAddress)
+        sp.verify(self.data.cidByDatasourceUUID.contains(params.datasource_uuid))
+        ## TODO : Checking dsp address with the sender. Might aswell use the sender here instead of a dspAddress in the params
+        sp.verify(self.data.cidByDatasourceUUID[params.datasource_uuid].dspAddress == sp.sender)
+        contract = sp.record(
+            weight = 1, # The DSP signs
+            threshold = 2,
+            participants = [
+                sp.record(
+                    address = params.dspAddress,
+                    hasVoted = True, # The DSP signs
+                    timestamp = sp.some(sp.now) # The DSP signs
+                ),
+                sp.record(
+                    address = params.vehicleOwnerAddress,
+                    hasVoted = False,
+                    timestamp = sp.none
+                )
+            ],
+            ok = False,
+            actionToPerform = 'mint_passport',
+            param1 = params.vin,
+            param2 = params.datasource_uuid,
+            addr1 = params.dspAddress,
+            addr2 = params.vehicleOwnerAddress
+        )
+        contractId = self.build(contract)
+
+        ### Update indexers
+        #indexerPassportsWaitingConsentByVo
+        sp.if self.data.indexerPassportsWaitingConsentByVo.contains(params.vehicleOwnerAddress):
+            self.data.indexerPassportsWaitingConsentByVo[params.vehicleOwnerAddress].add(contractId)
+        sp.else:
+            self.data.indexerPassportsWaitingConsentByVo[params.vehicleOwnerAddress] = sp.set([contractId])
+        #indexerPassportsWaitingConsentByDsp
+        sp.if self.data.indexerPassportsWaitingConsentByDsp.contains(params.dspAddress):
+            self.data.indexerPassportsWaitingConsentByDsp[params.dspAddress].add(contractId)
+        sp.else:
+            self.data.indexerPassportsWaitingConsentByDsp[params.dspAddress] = sp.set([contractId])
+
+    @sp.entry_point
+    def passportConsent(self, params: passport_creation_consent_type):
+        multisig = self.data.multisigs[params.contractId]
+        addressDSP = multisig.addr1
+        addressVO = multisig.addr2
+        ## TODO : remove params.vehicleOwnerAddress
+        sp.verify(sp.sender == params.vehicleOwnerAddress)
+        sp.verify(sp.sender == addressVO)
+        self.sign(addressVO, params.contractId)
+        tokenIdCreated = self.data.all_tokens
+        ### Update indexers
+        #indexerPassportsWaitingConsentByVo
+        self.data.indexerPassportsWaitingConsentByVo[addressVO].remove(params.contractId)
+        #indexerPassportsWaitingConsentByDsp
+        self.data.indexerPassportsWaitingConsentByDsp[addressDSP].remove(params.contractId)
+        #indexerPassportsByVo
+        sp.if self.data.indexerPassportsByVo.contains(addressVO):
+            self.data.indexerPassportsByVo[addressVO].add(tokenIdCreated)
+        sp.else:
+            self.data.indexerPassportsByVo[addressVO] = sp.set([tokenIdCreated])
+        #indexerPassportsByDsp
+        sp.if self.data.indexerPassportsByDsp.contains(addressDSP):
+            self.data.indexerPassportsByDsp[addressDSP].add(tokenIdCreated)
+        sp.else:
+            self.data.indexerPassportsByDsp[addressDSP] = sp.set([tokenIdCreated])
+        #passportMetadataByTokenId
+        self.data.passportMetadataByTokenId[tokenIdCreated] = sp.record(
+            dspAddress = addressDSP,
+            createdAt = sp.now,
+            multisigId = params.contractId,
+            vin = multisig.param1,
+            datasourceUUID = multisig.param2
+        )
+
+
+
+
+##############################################################################
+##############################################################################
+############################### PASSPORT CLASS ###############################
+##############################################################################
+##############################################################################
+
+class COLLABORATE(FA2, MultiSigFactory, AccessManagement, PassportManagement, DatasourceManagement):
     def __init__(self, config, metadata, admin, orgs):
         FA2.__init__(self, config, metadata, admin)
+        MultiSigFactory.__init__(self)
         AccessManagement.__init__(self, orgs)
+        PassportManagement.__init__(self)
+        DatasourceManagement.__init__(self)
+
+
+
+
+##############################################################################
+##############################################################################
+################################### TESTS ####################################
+##############################################################################
+##############################################################################
 
 
 ## ### Generation of Test Scenarios
@@ -784,74 +1105,224 @@ def add_test(config, is_default = True):
         scenario.h1("FA2 Contract Name: " + config.name)
         scenario.table_of_contents()
         # sp.test_account generates ED25519 key-pairs deterministically:
-        admin = sp.address("tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG")
+        admin = sp.address("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV") # ADMIN ADDRESS
         alice = sp.test_account("Alice")
-        bob   = sp.test_account("Robert")
+        bob   = sp.test_account("Bob")
         # Let's display the accounts:
         scenario.h2("Accounts")
         scenario.show([alice, bob])
+
+        #### INIT ORGANIZATIONS ###
+        orga_psa = sp.record(
+            name = 'psa',
+            publicKeyHash = sp.address('tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV'),
+            publicKey = 'edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2'
+        )
+        orga_mobivia = sp.record(
+            name = 'mobivia',
+            publicKeyHash = sp.address('tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG'),
+            publicKey = 'edpkunY3jsNhGnP3mkYnWmBTYxqjSii1pyY9oUSkNnix3pNHRTMaAc'
+        )
         organizations = sp.map(
             {
-                sp.address('tz1XByDAXZZVEAb6HPxTBsPPaEbHvtPVXmhK'): sp.record(
-                                name = 'psa',
-                                publicKeyHash = sp.address('tz1XByDAXZZVEAb6HPxTBsPPaEbHvtPVXmhK'),
-                                publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAwMpIgzGJtOOQ7R/a05aPraxPbCTEWXUuuU5YGU4BHi7RGQGKqDdXX9XqJffYHFHUu50G5na1ZQeg+tK15YOFNcdO7USp4NfktRfdyWodqi0P05SllfBWsyo9u3p55Ra8j5pBNajCVAsFTrbJtrZaBcolaLa3nArpmq7krVDMsdxflFD5LvjR7pF6qlunFZSVmbeUhpDlftIX8+kjNbTftYsFfOew1szS9Uj4KPLJwas0b2s9ooyeyBQ6caBE6+r3082gEhVu/o/8nXxoMnIdCQFVxwl+xF1CXO29MEtuFXRLiRzCHlUSr/oiS5LpYbzDFcsxeAcK20TMSaBneaeY5QIDAQAB-----END PUBLIC KEY-----'
-                            ),
-                sp.address('tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw'): sp.record(
-                                name = 'mobivia',
-                                publicKeyHash = sp.address('tz1SCHPVsh2xvNWJSUSqkn3Hf7ri6d3FUjqw'),
-                                publicKey = '-----BEGIN PUBLIC KEY-----MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq5fYr3XQUwcwxamB6QDMVemkZ+v7zR88rS6MhEqf5VNYbbfKwCp1+pz02WK13J8J6+gOysJRQj0uLNVrVC+gE+TciFRkPA4041tesNXaqU2HHiOpYT9EfkMBQRe1OBvTEBzi+u5WiFMoIhXJX83MgXx04yKlM+foftciKl9cZwMPxVKNZ+hcadg4xSYqn7OKKm4Ht3grZ9/0JO+ghsReKLosjqB52yfUHE1F8y4G8PGFdI55kJIEtquqX37jY76NQIjIPP8Bj75TDy0y+Lz4BawxL529bFo25kmG21KP1PjT/Ce0PrG3vImk3kabNipmysI7mnOOt4pqAbA0CUTpSwIDAQAB-----END PUBLIC KEY-----'
-                            )
+                orga_psa.publicKeyHash: orga_psa,
+                orga_mobivia.publicKeyHash: orga_mobivia
             }
         )
-        c1 = PASSPORT(config = config,
-                 metadata = sp.metadata_of_url("https://example.com"),
+        ###########################
+        c1 = COLLABORATE(config = config,
+                 metadata = sp.utils.metadata_of_url("https://example.com"),
                  admin = admin,
                  orgs = organizations)
         scenario += c1
-        '''scenario.h2("Initial Minting")
+
+
+        ## FA2 tests
+        '''
+        scenario.h2("Initial Minting")
         scenario.p("Give Nation creates token cards by minting amount 0 for admin account.")
-        tok0_md1 = PASSPORT.make_metadata(
+        tok0_md1 = COLLABORATE.make_metadata(
             name = "The Token Hero 1",
             decimals = 2,
             symbol= "Hero1" )
-        scenario += c1.mint(sp.record(address = admin,
-                        amount = 0,
+        scenario += c1.mint(sp.record(address = alice.address,
+                        amount = 1,
                         metadata = tok0_md1,
                         token_id = 0)).run(sender = admin)
-        tok0_md2 = PASSPORT.make_metadata(
+        tok0_md2 = COLLABORATE.make_metadata(
             name = "The Token Hero 2",
             decimals = 2,
             symbol= "Hero2" )
-        scenario += c1.mint(sp.record(address = admin,
-                        amount = 0,
+        scenario += c1.mint(sp.record(address = bob.address,
+                        amount = 1,
                         metadata = tok0_md2,
                         token_id = 1)).run(sender = admin)
 
-        scenario.p("Give Nation mint total supply amount of token cards for admin account.")
-        scenario += c1.mint(sp.record(address = admin,
-                        amount = 50,
-                        metadata = sp.map(l={}),
-                        token_id = 0)).run(sender = admin)
-        scenario += c1.mint(sp.record(address = admin,
-                        amount = 30,
-                        metadata = sp.map(l={}),
-                        token_id = 1)).run(sender = admin)
-
-        scenario.h2("Transfer cards to user according to the deck composition")
+        scenario.h2("Alice transfers her token to Bob")
         scenario += c1.transfer(
             [
-                sp.record(from_ = admin,
+                sp.record(from_ = alice.address,
                                     txs = [
-                                        sp.record(to_ = alice.address,
-                                                  amount = 10,
+                                        sp.record(to_ = bob.address,
+                                                  amount = 1,
                                                   token_id = 0),
-                                        sp.record(to_ = alice.address,
-                                                  amount = 5,
-                                                  token_id = 1)
                                     ])
-            ]).run(sender = admin)'''
+            ]).run(sender = alice)
+        '''
 
+        ## Datasource test
+        scenario.h2("Datasources creation")
+        scenario.p("PSA can create Datasources")
+        scenario += c1.createDatasource(sp.record(
+            datasourceUUID="UUID1",
+            cid="cid1"
+        )).run(sender = orga_psa.publicKeyHash)
+
+        scenario.p("PSA cannot create a datasource with an existing UUID")
+        scenario += c1.createDatasource(sp.record(
+            datasourceUUID="UUID1",
+            cid="cid2"
+        )).run(sender = orga_psa.publicKeyHash, valid = False)
+
+        scenario.p("PSA can create another Datasource")
+        scenario += c1.createDatasource(sp.record(
+            datasourceUUID="UUID3",
+            cid="cid3"
+        )).run(sender = orga_psa.publicKeyHash)
+
+
+
+        scenario.p("Alice cannot create Datasources")
+        scenario += c1.createDatasource(sp.record(
+            datasourceUUID="UUID1",
+            cid="cid1"
+        )).run(sender = alice, valid = False)
+
+        scenario.h2("Datasources update")
+        scenario.p("PSA can update a Datasource")
+        scenario += c1.updateDatasource(sp.record(
+            datasourceUUID="UUID1",
+            cid="cid2"
+        )).run(sender = orga_psa.publicKeyHash)
+
+        scenario.p("Alice cannot update a Datasource")
+        scenario += c1.updateDatasource(sp.record(
+            datasourceUUID="UUID1",
+            cid="cid2"
+        )).run(sender = alice, valid = False)
+
+        scenario.p("Mobivia cannot update a Datasource")
+        scenario += c1.updateDatasource(sp.record(
+            datasourceUUID="UUID1",
+            cid="cid2"
+        )).run(sender = orga_mobivia.publicKeyHash, valid = False)
+
+
+
+
+
+        ## PASSPORT test
+        scenario.h2("Passport creation")
+        scenario.p("PSA can create a Passport")
+        scenario += c1.initPassportCreation(sp.record(
+                        vehicleOwnerAddress = alice.address,
+                        dspAddress = orga_psa.publicKeyHash,
+                        vin = "5YJSA1DG9DFP14705",
+                        datasource_uuid = "UUID1"
+                    )).run(sender = orga_psa.publicKeyHash)
+
+        scenario.p("PSA can not create a Passport for an unexisting Datasource")
+        scenario += c1.initPassportCreation(sp.record(
+                        vehicleOwnerAddress = bob.address,
+                        dspAddress = orga_psa.publicKeyHash,
+                        vin = "5YJSA1DG9DFP14706",
+                        datasource_uuid = "UUID2"
+                    )).run(sender = orga_psa.publicKeyHash, valid = False)
+
+        scenario.p("Mobivia can not create a Passport for an Datasource that belongs to PSA")
+        scenario += c1.initPassportCreation(sp.record(
+                        vehicleOwnerAddress = bob.address,
+                        dspAddress = orga_psa.publicKeyHash,
+                        vin = "5YJSA1DG9DFP14707",
+                        datasource_uuid = "UUID1"
+                    )).run(sender = orga_mobivia.publicKeyHash, valid = False)
+
+        scenario.p("PSA can create many passport for the same UUID")
+        scenario += c1.initPassportCreation(sp.record(
+                        vehicleOwnerAddress = alice.address,
+                        dspAddress = orga_psa.publicKeyHash,
+                        vin = "5YJSA1DG9DFP14708",
+                        datasource_uuid = "UUID1"
+                    )).run(sender = orga_psa.publicKeyHash)
+
+        scenario.p("Alice cannot create a Passport")
+        scenario += c1.initPassportCreation(sp.record(
+                        vehicleOwnerAddress = alice.address,
+                        dspAddress = orga_psa.publicKeyHash,
+                        vin = "5YJSA1DG9DFP14709",
+                        datasource_uuid = "UUID1"
+                    )).run(sender = alice, valid = False)
+
+#        scenario.p("PSA can create many passport for the same VIN")
+#        scenario += c1.initPassportCreation(sp.record(
+#                        vehicleOwnerAddress = bob.address,
+#                        dspAddress = orga_psa.publicKeyHash,
+#                        vin = "5YJSA1DG9DFP14705",
+#                        datasource_uuid = "UUID1"
+#                    )).run(sender = orga_psa.publicKeyHash, valid = False)
+
+        ## PASSPORT test : number 2
+        scenario.h2("Passport creation : number 2")
+        scenario += c1.initPassportCreation(sp.record(
+                        vehicleOwnerAddress = alice.address,
+                        dspAddress = orga_psa.publicKeyHash,
+                        vin = "6ZKTB2EH0REZ63895",
+                        datasource_uuid = "UUID1"
+                    )).run(sender = orga_psa.publicKeyHash)
+
+
+        ## PASSPORT test : number 3
+        scenario.h2("Passport creations : number 3")
+        scenario += c1.initPassportCreation(sp.record(
+                        vehicleOwnerAddress = bob.address,
+                        dspAddress = orga_psa.publicKeyHash,
+                        vin = "3EZGD4GO0DKS24456",
+                        datasource_uuid = "UUID1"
+                    )).run(sender = orga_psa.publicKeyHash)
+
+
+        ## Alice signs
+        scenario.h2("Alice sign passport creation")
+        sig = sp.record(
+            vehicleOwnerAddress = alice.address,
+            contractId = 0
+        )
+        scenario += c1.passportConsent(sig).run(sender = alice)
+
+
+        ## Bob signs
+        scenario.h2("Bob sign passport creation")
+        sig = sp.record(
+            vehicleOwnerAddress = bob.address,
+            contractId = 3
+        )
+        scenario += c1.passportConsent(sig).run(sender = bob)
+
+        ## Bob signs two times
+        scenario.h2("Bob sign passport creation two times : can not vote two times")
+        sig = sp.record(
+            vehicleOwnerAddress = bob.address,
+            contractId = 3
+        )
+        scenario += c1.passportConsent(sig).run(sender = bob, valid = False)
+
+        ## Bob signs consent a passport creation that is not for himself : error !
+        scenario.h2("Bob consents a passport creation that is not for himself")
+        sig = sp.record(
+            vehicleOwnerAddress = bob.address,
+            contractId = 2
+        )
+        scenario += c1.passportConsent(sig).run(sender = bob, valid = False)
 
 ##
 ## ## Global Environment Parameters
@@ -880,7 +1351,7 @@ def environment_config():
         force_layouts = global_parameter("force_layouts", True),
         support_operator = global_parameter("support_operator", True),
         assume_consecutive_token_ids =
-            global_parameter("assume_consecutive_token_ids", False),
+            global_parameter("assume_consecutive_token_ids", True),
         store_total_supply = global_parameter("store_total_supply", True),
         lazy_entry_points = global_parameter("lazy_entry_points", False),
         lazy_entry_points_multiple = global_parameter("lazy_entry_points_multiple", False),
