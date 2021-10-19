@@ -287,6 +287,15 @@
                 </configuration>
             </plugin>
         </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonarsource.scanner.maven</groupId>
+                    <artifactId>sonar-maven-plugin</artifactId>
+                    <version>${sonarcube.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
     <properties>
@@ -298,6 +307,9 @@
         <lombok.version>1.18.20</lombok.version>
         <spring-cloud.version>Hoxton.SR10</spring-cloud.version>
         <springdoc-openapi-ui.version>1.5.9</springdoc-openapi-ui.version>
+        <sonar.organization>xdev-tech</sonar.organization>
+        <sonar.projectKey>xdev-tech_collaborate</sonar.projectKey>
+        <sonarcube.version>3.7.0.1746</sonarcube.version>
     </properties>
 
 </project>
