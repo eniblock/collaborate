@@ -6,12 +6,9 @@ cfg = config.parse()
 clk_k8s = 'clk -a --force-color k8s -c ' + k8s_context() + ' '
 
 load('ext://kubectl_build', 'image_build', 'kubectl_build_registry_secret', 'kubectl_build_enable')
-kubectl_build_registry_secret('gitlab-registry')
 kubectl_build_enable(local(clk_k8s + 'features --field value --format plain kubectl_build'))
 
 if config.tilt_subcommand == 'up':
-    # check that registry gitlab secrets are properly configured and login with helm
-    local(clk_k8s + 'docker-credentials -hd gitlab-registry', quiet=True)
     # declare the host we'll be using locally in k8s dns
     local(clk_k8s + 'add-domain col.localhost')
     # update the helm package dependencies a first time at startup, so helm can load the helm chart

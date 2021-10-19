@@ -32,8 +32,7 @@ api:
     # Overrides the image tag whose default is the chart appVersion.
     # tag:
 
-  imagePullSecrets:
-    - name: gitlab-registry
+  imagePullSecrets: []
 
   replicaCount: 1
 
@@ -196,8 +195,7 @@ keycloak:
     repository: registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam
     # FIXME
     tag: develop
-    pullSecrets:
-      - gitlab-registry
+    pullSecrets: []
   auth:
     adminUser: kcadmin
     existingSecretPerPassword:
