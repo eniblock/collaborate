@@ -1,0 +1,274 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "collaborate-dapp.fullname" . }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  {{- if not .Values.api.autoscaling.enabled }}
+  replicas: {{ .Values.api.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      {{- with .Values.api.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "collaborate-dapp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+        {{ .Release.Name }}-{{ .Values.db.nameOverride }}-client: "true"
+        {{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "nameOverride" }}-api-client: "true"
+        {{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}-client: "true"
+        {{ include "collaborate-dapp.fullname" . }}-ipfs-client: "true"
+    spec:
+      {{- with .Values.api.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "collaborate-dapp.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.api.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}-traefik
+          image: {{ .Values.api.traefik.image.tag }}
+          imagePullPolicy: {{ .Values.api.traefik.image.pullPolicy }}
+          ports:
+            - name: tra-dashboard
+              containerPort: 8080
+              protocol: TCP
+            - name: tra-web
+              containerPort: {{ .Values.api.traefik.ports.web }}
+              protocol: TCP
+            - name: tra-websecure
+              containerPort: {{ .Values.api.traefik.ports.websecure }}
+              protocol: TCP
+            - name: tra-api
+              containerPort: {{ .Values.api.traefik.ports.api }}
+              protocol: TCP
+          env:
+            # See: https://doc.traefik.io/traefik/reference/static-configuration/env/
+            - name: TRAEFIK_PILOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "collaborate-dapp.fullname" . }}-traefik-extra-secrets
+                  key: TRAEFIK_PILOT_TOKEN
+          livenessProbe:
+            httpGet:
+              path: /
+              port: tra-dashboard
+          readinessProbe:
+            httpGet:
+              path: /
+              port: tra-dashboard
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          volumeMounts:
+            - name: traefik-config
+              mountPath: /etc/traefik/traefik.yml
+              subPath: traefik.yml
+              readOnly: true
+            - name: traefik-providers
+              mountPath: "{{ .Values.api.traefik.volumes.provider }}"
+              readOnly: false
+            - name: traefik-certs
+              mountPath: "{{ .Values.api.traefik.volumes.cert }}"
+              readOnly: true
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.api.securityContext | nindent 12 }}
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          env:
+            # Api properties
+            - name: API_PLATFORM
+              value: {{ .Values.api.platform | quote }}
+            - name: API_DIGITAL_PASSPORT_CONTRACT_ADDRESS
+              value: {{ .Values.api.digitalPassportContractAddress | quote }}
+            - name: API_BUSINESS_DATA_CONTRACT_ADDRESS
+              value: {{ .Values.api.businessDataContractAddress | quote }}
+            {{- range $id, $organization := .Values.api.organizations }}
+            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_ID
+              value: {{ $id | quote }}
+            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_NAME
+              value: {{ $organization.name | quote }}
+            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_PUBLIC_KEY_HASH
+              value: {{ $organization.publicKeyHash | quote }}
+            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_PUBLIC_KEY
+              value: {{ $organization.publicKey | quote }}
+            {{- end }}
+
+            # Api-gateway
+            - name: TRAEFIK_CERTIFICATES_PATH
+              value: {{ .Values.api.traefik.volumes.cert | quote }}
+            - name: TRAEFIK_PROVIDERS_PATH
+              value: {{ .Values.api.traefik.volumes.provider | quote }}
+            - name: TRAEFIK_URL
+              value: https://localhost:{{ .Values.api.traefik.ports.websecure }}/
+            - name: TRAEFIK_PFX_UN_PROTECTOR_SCRIPT_PATH
+              value: {{ .Values.api.traefik.volumes.cert }}pfx-un-protector.sh
+            - name: IPFS_URL
+              value: http://{{ include "collaborate-dapp.fullname" . }}-ipfs:5001
+
+            # tezos-api-gateway config
+            - name: TEZOS_API_GATEWAY_URL
+              value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "nameOverride" }}-api:3333"
+            - name: SPRING_RABBITMQ_HOST
+              value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
+            - name: SPRING_RABBITMQ_USERNAME
+              value: user
+            - name: SPRING_RABBITMQ_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
+                  key: rabbitmq-password
+
+            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_HOST
+              value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
+            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_PORT
+              value: "5672"
+            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_USERNAME
+              value: user
+            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
+                  key: rabbitmq-password
+
+            # db config
+            - name: SPRING_DATASOURCE_URL
+              value: "jdbc:postgresql://{{ .Release.Name }}-{{ .Values.db.nameOverride }}:5432/{{ .Values.db.postgresqlDatabase }}"
+            - name: SPRING_DATASOURCE_USERNAME
+              value: {{ .Values.db.postgresqlUsername | quote }}
+            - name: SPRING_DATASOURCE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-{{ .Values.db.nameOverride }}"
+                  key: postgresql-password
+
+            # mail config
+            - name: spring.mail.host
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  key: SMTP_HOST
+            - name: spring.mail.port
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  key: SMTP_PORT
+            - name: spring.mail.username
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  key: SMTP_USER
+            - name: spring.mail.password
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  key: SMTP_PASSWORD
+            - name: spring.mail.properties.mail.smtp.auth
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  key: SMTP_AUTH
+            - name: spring.mail.properties.mail.smtp.starttls.enable
+              # FIXME: use SMTP_SSL secret?
+              value: "false"
+
+            # keycloak configuration
+            - name: KEYCLOAK_AUTH_SERVER_URL
+              value: "https://{{ .Values.ingress.host }}/auth"
+            - name: KEYCLOAK_REALM
+              value: "collaborate-dapp"
+            - name: KEYCLOAK_RESOURCE
+              value: backend
+            - name: KEYCLOAK_ADMIN_CLIENT_PROPERTIES_BASE_URL
+              value: "https://{{ .Values.ingress.host }}/auth"
+            - name: KEYCLOAK_ADMIN_CLIENT_PROPERTIES_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "collaborate-dapp.fullname" . }}-keycloak-extra-secrets
+                  key: BACKEND_SECRET
+            - name: KEYCLOAK_ADMIN_CLIENT_PROPERTIES_CLIENT_ID
+              value: backend
+
+            # keycloak spring security
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_COLLABORATE_CLIENT_ID
+              value: backend
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_COLLABORATE_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "collaborate-dapp.fullname" . }}-keycloak-extra-secrets
+                  key: BACKEND_SECRET
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COLLABORATE_AUTHORIZATION_URI
+              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/auth"
+            - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COLLABORATE_TOKEN_URI
+              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/token"
+
+            # keycloak swagger
+            - name: SPRINGDOC_SWAGGER_UI_OAUTH_CLIENT_ID
+              value: backend
+            - name: SPRINGDOC_OAUTHFLOW_AUTHORIZATIONURL
+              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/auth"
+            - name: SPRINGDOC_OAUTHFLOW_TOKENURL
+              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/token"
+
+          ports:
+            - name: http
+              containerPort: 7772
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: http
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: http
+            periodSeconds: 5
+            failureThreshold: 12
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+          volumeMounts:
+            - name: traefik-config
+              mountPath: {{ .Values.api.traefik.volumes.cert }}pfx-un-protector.sh
+              subPath: pfx-un-protector.sh
+              readOnly: false
+            - name: traefik-certs
+              mountPath: "{{ .Values.api.traefik.volumes.cert }}"
+              readOnly: false
+            - name: traefik-providers
+              mountPath: "{{ .Values.api.traefik.volumes.provider }}"
+              readOnly: false
+      {{- with .Values.api.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.api.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.api.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: traefik-config
+          configMap:
+            name: '{{ include "collaborate-dapp.fullname" . }}-traefik-configuration'
+            defaultMode: 0555
+        - name: traefik-certs
+        - name: traefik-providers

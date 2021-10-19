@@ -1,0 +1,28 @@
+{
+  "Keys": [
+    {
+      "Name": "self",
+      "Id": "k51qzi5uqu5djifszars175nb7mk2yz0ic5p3alxf5l4khcmogi459sdrbzx4q"
+    },
+    {
+      "Name": "/data/ipfs/xdev/collaborate/datasource",
+      "Id": "k51qzi5uqu5dlcfdzcdziwvmkoxiq1u5sl9w11yv6lm5cp8cewm8asfrtlzkr8"
+    },
+    {
+      "Name": "/data/ipfs/xdev/collaborate/token-metadata/asset-data-catalogs-by-token-id",
+      "Id": "k51qzi5uqu5dko1hunm83gnt2nkgyqhty4jazlc9xqvwoti27nlprtljaoidr9"
+    },
+    {
+      "Name": "/data/ipfs/xdev/collaborate/token-metadata/nft-metadata-by-token-id",
+      "Id": "k51qzi5uqu5dkdtwuhbxni9tpf04pxfg1md5a87lviewrgbi6ou6m3s5te713a"
+    },
+    {
+      "Name": "/data/ipfs/xdev/collaborate/token-metadata/nft-metadata-by-token-id",
+      "Id": "k51qzi5uqu5dkdtwuhbxni9tpf04pxfg1md5a87lviewrgbi6ou6m3s5te713a"
+    },
+    {
+      "Name": "/this/is/root/folder",
+      "Id": "12345"
+    }
+  ]
+}

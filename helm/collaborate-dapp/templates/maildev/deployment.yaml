@@ -1,0 +1,42 @@
+{{- if .Values.mail.dev }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "collaborate-dapp.fullname" . }}-maildev
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: maildev
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  selector:
+    matchLabels:
+      {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: maildev
+  template:
+    metadata:
+      labels:
+        {{- include "collaborate-dapp.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: maildev
+    spec:
+      serviceAccountName: {{ include "collaborate-dapp.serviceAccountName" . }}
+      containers:
+        - name: maildev
+          image: "maildev/maildev"
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP
+            - name: smtp
+              containerPort: 25
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 100m
+              memory: 750Mi
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+{{- end }}

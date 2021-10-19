@@ -1,0 +1,67 @@
+---
+http:
+  routers:
+    "525003f6-f85f-11eb-9a03-0242ac130003-vehicles-router":
+      entryPoints:
+        - "websecure"
+      rule: "PathPrefix(`/datasource/525003f6-f85f-11eb-9a03-0242ac130003/test-connection`)"
+      service: "525003f6-f85f-11eb-9a03-0242ac130003"
+      middlewares:
+        - "525003f6-f85f-11eb-9a03-0242ac130003-auth-headers"
+        - "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-query-params"
+        - "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-replace-path-regex"
+        - "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-strip-prefix"
+      tls: true
+    "525003f6-f85f-11eb-9a03-0242ac130003-kilometer-router":
+      entryPoints:
+        - "websecure"
+      rule: "PathPrefix(`/datasource/525003f6-f85f-11eb-9a03-0242ac130003/metric/odometer`)"
+      service: "525003f6-f85f-11eb-9a03-0242ac130003"
+      middlewares:
+        - "525003f6-f85f-11eb-9a03-0242ac130003-auth-headers"
+        - "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-query-params"
+        - "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-replace-path-regex"
+        - "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-strip-prefix"
+      tls: true
+  services:
+    "525003f6-f85f-11eb-9a03-0242ac130003":
+      loadBalancer:
+        servers:
+          - url: "https://api-cert-preprod.dspconsortium1.com"
+        passHostHeader: false
+        serversTransport: "525003f6-f85f-11eb-9a03-0242ac130003-serversTransport"
+  middlewares:
+    "525003f6-f85f-11eb-9a03-0242ac130003-auth-headers":
+      headers:
+        customRequestHeaders:
+          Authorization: "Basic TVdQRFJWMDE6QkJybEtRMGk="
+    "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-strip-prefix":
+      stripPrefix:
+        prefixes:
+          - "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/vehicles"
+    "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-query-params":
+      redirectRegex:
+        regex: "/([^\\?\\s]*)(\\??)(.*)"
+        replacement: "/${1}?client_id=c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
+    "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-replace-path-regex":
+      replacePathRegex:
+        regex: "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/test-connection"
+        replacement: "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/test-connection/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
+    "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-strip-prefix":
+      stripPrefix:
+        prefixes:
+          - "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/metric/odometer"
+    "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-query-params":
+      redirectRegex:
+        regex: "/([^\\?\\s]*)(\\??)(.*)"
+        replacement: "/${1}?client_id=c8fc43d5-f43f-44e5-acc2-b8aebaee90e2&profile=fleet&extension=odometer"
+    "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-replace-path-regex":
+      replacePathRegex:
+        regex: "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/kilometer/(.*)"
+        replacement: "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/metric/odometer/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status"
+  serversTransports:
+    "525003f6-f85f-11eb-9a03-0242ac130003-serversTransport":
+      certificates:
+        - certFile: "/ssl/certs/525003f6-f85f-11eb-9a03-0242ac130003.cer"
+          keyFile: "/ssl/certs/525003f6-f85f-11eb-9a03-0242ac130003.pem"
+      insecureSkipVerify: false

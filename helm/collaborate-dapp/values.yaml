@@ -1,0 +1,249 @@
+# Default values for collaborate-dapp.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+nameOverride: ""
+fullnameOverride: ""
+
+mail:
+  dev: false
+  host: ""
+  port: ""
+  username: ""
+  password: ""
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/tls-acme: "true"
+  host: ""
+  from:
+    - podSelector: {}
+      namespaceSelector:
+        matchLabels:
+          name: ingress
+
+api:
+  enabled: true
+
+  image:
+    repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/dapp/api"
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    # tag:
+
+  imagePullSecrets:
+    - name: gitlab-registry
+
+  replicaCount: 1
+
+  serviceAccount:
+    # Specifies whether a service account should be created
+    create: true
+    # Annotations to add to the service account
+    annotations: {}
+    # The name of the service account to use.
+    # If not set and create is true, a name is generated using the fullname template
+    name: ""
+
+  podAnnotations: {}
+
+  networkPolicy:
+    enabled: true
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+  # runAsUser: 1000
+
+  service:
+    type: ClusterIP
+    port: 7772
+
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    requests:
+      cpu: 50m
+      memory: 300Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  traefik:
+    image:
+      tag: traefik:v2.4.9
+      pullPolicy: IfNotPresent
+    ports:
+      web: 80
+      websecure: 8443
+      api: 8081
+    volumes:
+      cert: /etc/ssl/certs/xdev/collaborate/
+      provider: /etc/traefik/xdev/collaborate/providers/
+    pilot:
+      token: ""
+    log:
+      level: ""
+
+  metrics:
+    enabled: false # Add metrics server first
+    interval:
+    scrapeTimeout:
+
+db:
+  nameOverride: api-db
+  postgresqlDatabase: api
+  postgresqlUsername: api_user
+  existingSecret: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+  persistence:
+    enabled: true
+    size: 1Gi
+  image:
+    tag: 12.6.0-debian-10-r14
+  resources:
+    requests:
+      memory: 50Mi
+      cpu: 100m
+  primary:
+    annotations:
+      reloader.stakater.com/auto: "true"
+  rbac:
+    create: true
+  serviceAccount:
+    enabled: true
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+    resources:
+      requests:
+        memory: 32Mi
+        cpu: 10m
+  networkPolicy:
+    enabled: true
+    allowExternal: false
+
+ipfs:
+  image:
+    repository: ipfs/go-ipfs
+    tag: v0.9.1
+    pullPolicy: IfNotPresent
+  log:
+    level: INFO
+  persistence:
+    enabled: true
+    existingClaim: ""
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+  service:
+    type: ClusterIP
+    port: 5001
+  resources:
+    requests:
+      memory: 50Mi
+      cpu: 400m
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: { }
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+tezos-api-gateway:
+  nameOverride: tag
+  rabbitmq:
+    nameOverride: tag-rabbitmq
+  db:
+    nameOverride: tag-db
+  vault:
+    nameOverride: tag-vault
+
+keycloak:
+  nameOverride: keycloak
+  service:
+    type: ClusterIP
+  commonAnnotations:
+    reloader.stakater.com/auto: "true"
+  image:
+    registry: registry.gitlab.com
+    repository: the-blockchain-xdev/xdev-product/collaborate/dapp/iam
+    # FIXME
+    tag: develop
+    pullSecrets:
+      - gitlab-registry
+  auth:
+    adminUser: kcadmin
+    existingSecretPerPassword:
+      keyMapping:
+        adminPassword: admin-password
+        managementPassword: management-password
+        databasePassword: postgresql-password
+      adminPassword:
+        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+      managementPassword:
+        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+      databasePassword:
+        name: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
+  extraEnvVarsSecret: '{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets'
+  podLabels:
+    "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-client": "true"
+  resources:
+    requests:
+      cpu: 50m
+      memory: 750Mi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  postgresql:
+    nameOverride: keycloak-db
+    existingSecret: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+    resources:
+      requests:
+        memory: 50Mi
+        cpu: 50m
+    primary:
+      annotations:
+        reloader.stakater.com/auto: "true"
+    rbac:
+      create: true
+    serviceAccount:
+      enabled: true
+    metrics:
+      enabled: true
+      serviceMonitor:
+        enabled: true
+      resources:
+        requests:
+          memory: 32Mi
+          cpu: 10m
+    networkPolicy:
+      enabled: true
+      allowExternal: false

@@ -1,0 +1,23 @@
+{
+  "Objects": [
+    {
+      "Hash": "QmfW9oprYv4uyQNpocKgpH9G8hzEvA54LbPamabY2khDAn",
+      "Links": [
+        {
+          "Name": "directory",
+          "Hash": "QmWX3FmaAsjYEag4kk33pWQ7aPWnz3sKnsscpWbrHEow71",
+          "Size": 0,
+          "Type": 1,
+          "Target": ""
+        },
+        {
+          "Name": "file",
+          "Hash": "Qma9CyFdG5ffrZCcYSin2uAETygB25cswVwEYYzwfQuhTe",
+          "Size": 6,
+          "Type": 2,
+          "Target": ""
+        }
+      ]
+    }
+  ]
+}

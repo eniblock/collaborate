@@ -1,0 +1,17 @@
+{{- if and .Values.ipfs.persistence.enabled (not .Values.ipfs.persistence.existingClaim) }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  labels:
+    {{- include "vault.labels" . | nindent 4 }}
+  name: {{ include "collaborate-dapp.fullname" . }}-ipfs
+spec:
+  accessModes:
+    {{- .Values.ipfs.persistence.accessModes | toYaml | nindent 4 }}
+  resources:
+    requests:
+      storage: {{ .Values.ipfs.persistence.size | quote }}
+  {{- if .Values.ipfs.persistence.storageClass }}
+  storageClassName: {{ .Values.ipfs.persistence.storageClass }}
+  {{- end }}
+{{- end -}}

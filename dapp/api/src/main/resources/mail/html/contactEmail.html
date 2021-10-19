@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+  <meta name="viewport" content="width=device-width"/>
+</head>
+<body>
+<table class="body-wrap">
+  <tr>
+    <td class="container">
+      <table>
+        <tr>
+          <td align="center" class="subject">
+            <h1 th:utext="${subject}"></h1>
+          </td>
+        </tr>
+        <tr>
+          <td class="content">
+            <div th:utext="${greeting}"></div>
+            <p th:utext="${content}"></p>
+            <p>
+              Best regards,<br/><br/>
+            </p>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+<style>
+  body, .body-wrap {
+    width: 100% !important;
+    height: 100%;
+    background: #f8f8f8;
+  }
+
+  h1 {
+    font-size: 24px;
+  }
+
+  .container {
+    display: block !important;
+    clear: both !important;
+    margin: 0 auto !important;
+    max-width: 580px !important;
+  }
+
+  .container table {
+    width: 100% !important;
+    border-collapse: collapse;
+  }
+
+  .container .subject {
+    padding: 10px 25px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    background: #4994ce;
+    color: white;
+  }
+
+  .container .subject h1 {
+    margin: 0 auto !important;
+    max-width: 90%;
+    text-transform: uppercase;
+  }
+
+  .container .content {
+    background: white;
+    padding: 30px 35px;
+  }
+</style>
+</html>

@@ -1,0 +1,21 @@
+{{- if .Values.api.networkPolicy.enabled }}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ include "collaborate-dapp.fullname" . }}-api
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api
+  ingress:
+    - from:
+      - podSelector:
+          matchLabels:
+            {{ include "collaborate-dapp.fullname" . }}-api-client: "true"
+      {{- .Values.ingress.from | toYaml | nindent 6 }}
+{{- end }}

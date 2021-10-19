@@ -1,0 +1,150 @@
+api:
+  platform:
+  idp-admin-role:
+  digitalPassportContractAddress:
+  businessDataContractAddress:
+
+datasource:
+  root-folder: /data/ipfs/xdev/collaborate/datasource
+  partition-date-pattern: yyyy
+
+token-metadata:
+  nft-metadata-root-folder: /data/ipfs/xdev/collaborate/token-metadata/nft-metadata-by-token-id
+  nft-metadata-partition-date-pattern: yyyyMMdd
+  asset-data-catalog-root-folder: /data/ipfs/xdev/collaborate/token-metadata/asset-data-catalogs-by-token-id
+  asset-data-catalog-partition-date-pattern: yyyyMMdd
+
+ipfs:
+  url:
+  update-ipns-keys:
+    fixed-delay-in-ms: '30000'
+    initial-delay-in-ms: '5000'
+
+keycloak-admin-client-properties:
+  base-url: https://localhost:8443/auth
+  realm: collaborate-dapp
+  user:
+  password:
+  client-id: backend
+  client-secret: 572255bd-1504-4d51-8389-967d8cc668f8
+  grant-type: client_credentials
+  verify-hostname: false
+
+keycloak:
+  auth-server-url: https://localhost:8443/auth
+  realm: collaborate-dapp
+  resource: collaborate-backend
+  public-client: true
+  bearer-only: true
+  disable-trust-manager: true
+  ssl-required: none
+
+server:
+  port: 7772
+  error:
+    include-message: always
+    include-binding-errors: always
+
+logging:
+  level:
+    collaborate.api: DEBUG
+    collaborate.api.organization.tag.TezosApiGatewayOrganizationClient: DEBUG
+    collaborate.api.user.tag.TezosApiGatewayUserClient: DEBUG
+    collaborate.api.tag.TezosApiGatewayJobClient: DEBUG
+    org.hibernate:
+      SQL: DEBUG
+      type.descriptor.sql.BasicBinder: TRACE
+    org.springframework:
+      web.filter.CommonsRequestLoggingFilter: DEBUG
+      jdbc.core:
+        JdbcTemplate: DEBUG
+        StatementCreatorUtils: TRACE
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
+  health:
+    probes:
+      enabled: true
+
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  multirabbitmq:
+    connections:
+      tezos-api-gateway:
+        host: localhost
+        port: 5674
+  datasource:
+    url: jdbc:postgresql://localhost:5432/collaborate
+    username: postgres
+    password: randompwd
+  mail:
+    host: localhost
+    port: 1025
+    username:
+    password:
+    properties:
+      mail:
+        smtp:
+          auth: false
+      addressFrom: noreply@theblockchainxdev.com
+  mvc.async.request-timeout: 240000
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+  security:
+    oauth2:
+      client:
+        registration:
+          collaborate:
+            client-id: collaborate-backend
+            client-secret: 572255bd-1504-4d51-8389-967d8cc668f8
+            authorization-grant-type: client_credentials
+        provider:
+          collaborate:
+            authorization-uri: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/auth
+            token-uri: https://localhost:8443/auth/realms/collaborate/protocol/openid-connect/token
+
+springdoc:
+  version: '@springdoc.version@'
+  api-docs:
+    path : '/api/api-docs'
+  swagger-ui:
+    path: '/api/swagger-ui.html'
+    oauth:
+      clientId: backend
+      useBasicAuthenticationWithAccessCodeGrant: true
+  oAuthFlow:
+    authorizationUrl: https://col.localhost/auth/realms/collaborate-dapp/protocol/openid-connect/auth
+    tokenUrl: https://col.localhost/auth/realms/collaborate-dapp/protocol/openid-connect/token
+
+tezos-api-gateway:
+  url: http://localhost:3333/api
+  secureKeyname: 'admin'
+
+traefik:
+  url: https://localhost
+  certificates-path:
+  providers-path:
+  pfx-un-protector-script-path:
+
+feign:
+  httpclient:
+    disableSslValidation: true
+    enabled: false
+  okhttp.enabled: true
+  client:
+    config:
+      tag-user-client:
+        connectTimeout: 10000
+        readTimeout: 90000
+      ipfs-name-client:
+        connectTimeout: 10000
+        readTimeout: 300000

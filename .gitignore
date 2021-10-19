@@ -1,0 +1,51 @@
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea/
+*.iml
+*.iws
+*.ipr
+*.ids
+*.orig
+classes/
+out/
+
+### NetBeans ###
+nbproject/private/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+build/
+
+### VS Code ###
+.vscode/
+
+### Java build ###
+target/
+
+# we need this one for docker-compose
+# .env
+.DS_Store
+Info.plist*
+
+*.pem
+
+.env
+
+*.tgz
+
+.history
+helm/**/charts
+*~
+
+# Tests resources
+postman/data/datasource/DSPConsortium1-valid.json
+postman/data/datasource/MWPDRV01.pfx

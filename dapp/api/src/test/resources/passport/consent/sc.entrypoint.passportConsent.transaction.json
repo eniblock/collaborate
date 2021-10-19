@@ -1,0 +1,10 @@
+{
+  "transactions": [
+    {
+      "contractAddress": "KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t",
+      "entryPoint": "passport_consent",
+      "entryPointParams": 21
+    }
+  ],
+  "secureKeyName": "development_._xdev-at_._theblockchainxdev.com"
+}

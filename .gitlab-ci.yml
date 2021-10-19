@@ -1,0 +1,57 @@
+stages:
+  - test
+  - docker
+  - helm
+
+variables:
+  MAVEN_OPTS: "-Dhttps.protocols=TLSv1.2 -Dmaven.repo.local=$CI_PROJECT_DIR/.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+
+cache:
+  key: "$CI_JOB_NAME"
+  paths:
+    - .m2/repository
+
+
+# dapp
+
+test-dapp-api:
+  stage: test
+  image: openjdk:11-jdk-slim
+  before_script:
+    - cd dapp/api
+  script:
+    - ./mvnw test
+
+helm-dapp-lint:
+  stage: test
+  image: registry.gitlab.com/xdev-tech/build/helm:2.0
+  allow_failure: true
+  script:
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - helm dependency update ./helm/collaborate-dapp
+    - lint helm/collaborate-dapp --values helm/collaborate-dapp/values-dev.yaml
+
+docker-dapp-api:
+  stage: docker
+  image:
+    name: registry.gitlab.com/xdev-tech/build/docker:2.0
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/api helm/collaborate-dapp dapp/api
+
+docker-dapp-iam:
+  image:
+    name: registry.gitlab.com/xdev-tech/build/docker:2.0
+  stage: docker
+  script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/iam helm/collaborate-dapp dapp/iam
+
+helm-dapp:
+  stage: helm
+  image: registry.gitlab.com/xdev-tech/build/helm:2.0
+  script:
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - helm dependency update ./helm/collaborate-dapp
+    - build $CI_REGISTRY_IMAGE/helm/collaborate-dapp ./helm/collaborate-dapp .keycloak.image.tag
