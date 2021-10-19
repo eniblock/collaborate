@@ -1,3 +1,14 @@
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=xdev-tech_collaborate&metric=bugs)](https://sonarcloud.io/dashboard?id=xdev-tech_collaborate)
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=xdev-tech_collaborate&metric=code_smells)](https://sonarcloud.io/dashboard?id=xdev-tech_collaborate)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=xdev-tech_collaborate&metric=duplicated_lines_density)](https://sonarcloud.io/dashboard?id=xdev-tech_collaborate)
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=xdev-tech_collaborate&metric=ncloc)](https://sonarcloud.io/dashboard?id=xdev-tech_collaborate)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=xdev-tech_collaborate&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=xdev-tech_collaborate)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=xdev-tech_collaborate&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=xdev-tech_collaborate)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=xdev-tech_collaborate&metric=security_rating)](https://sonarcloud.io/dashboard?id=xdev-tech_collaborate)
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=xdev-tech_collaborate&metric=sqale_index)](https://sonarcloud.io/dashboard?id=xdev-tech_collaborate)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=xdev-tech_collaborate&metric=vulnerabilities)](https://sonarcloud.io/dashboard?id=xdev-tech_collaborate)
+
+
 # Collaborate
 
 
