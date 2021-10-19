@@ -27,18 +27,18 @@ k8s_yaml(
         'helm/collaborate-dapp',
         values=['./helm/collaborate-dapp/values-dev.yaml'],
         name='col',
-        set=['api.traefik.pilot.token='+ os.getenv('TRAEFIK_PILOT_TOKEN','')]
+        set=['api.traefik.pilot.token=' + os.getenv('TRAEFIK_PILOT_TOKEN','')]
     )
 )
 
 image_build(
-    'registry.gitlab.com/registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/api',
+    'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/api',
     'dapp/api',
     target='dev'
 )
 
 image_build(
-    'registry.gitlab.com/registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam',
+    'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam',
     'dapp/iam'
 )
 

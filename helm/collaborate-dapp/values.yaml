@@ -27,7 +27,7 @@ api:
   enabled: true
 
   image:
-    repository: "registry.gitlab.com/registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/api"
+    repository: "registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/api"
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     # tag:
