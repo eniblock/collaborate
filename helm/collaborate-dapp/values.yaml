@@ -27,7 +27,7 @@ api:
   enabled: true
 
   image:
-    repository: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/dapp/api"
+    repository: "registry.gitlab.com/registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/api"
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     # tag:
@@ -193,7 +193,7 @@ keycloak:
     reloader.stakater.com/auto: "true"
   image:
     registry: registry.gitlab.com
-    repository: the-blockchain-xdev/xdev-product/collaborate/dapp/iam
+    repository: registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam
     # FIXME
     tag: develop
     pullSecrets:

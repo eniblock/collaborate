@@ -32,13 +32,13 @@ k8s_yaml(
 )
 
 image_build(
-    'registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/dapp/api',
+    'registry.gitlab.com/registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/api',
     'dapp/api',
     target='dev'
 )
 
 image_build(
-    'registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/dapp/iam',
+    'registry.gitlab.com/registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam',
     'dapp/iam'
 )
 
