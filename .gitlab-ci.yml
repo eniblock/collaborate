@@ -24,7 +24,8 @@ sonarcloud-check:
     paths:
       - .sonar/cache
   script:
-    - ./mvnw verify sonar:sonar -f dapp/api/ -DskipTests
+    - cd dapp/api
+    - ./mvnw verify sonar:sonar -f . -DskipTests
 
 # dapp
 
