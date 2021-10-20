@@ -1,6 +1,6 @@
 api:
   platform:
-  idp-admin-role:
+  idp-admin-role: service_identity_provider_administrator
   digitalPassportContractAddress:
   businessDataContractAddress:
 
@@ -117,7 +117,7 @@ spring:
 springdoc:
   version: '@springdoc.version@'
   api-docs:
-    path : '/api/api-docs'
+    path: '/api/api-docs'
   swagger-ui:
     path: '/api/swagger-ui.html'
     oauth:

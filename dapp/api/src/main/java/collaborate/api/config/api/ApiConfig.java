@@ -25,6 +25,7 @@ import org.springframework.web.filter.CommonsRequestLoggingFilter;
 @EnableConfigurationProperties({
     ApiProperties.class,
     DatasourceProperties.class,
+    IpfsProperties.class,
     TraefikProperties.class,
     TokenMetadataProperties.class
 })
@@ -70,6 +71,7 @@ public class ApiConfig {
     return new YamlMapper();
   }
 
+  @Bean
   public String digitalPassportContractAddress() {
     return apiProperties.getDigitalPassportContractAddress();
   }
