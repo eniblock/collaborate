@@ -15,9 +15,9 @@ import collaborate.api.passport.model.DatasourceDTO;
 import collaborate.api.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.passport.model.Metric;
 import collaborate.api.user.UserService;
+import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.jayway.jsonpath.JsonPath;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -137,16 +137,22 @@ public class MetricService {
   }
 
   JsonNode extractValuePath(String jsonResponse, Set<Attribute> metadata) {
-    Optional<String> jsonPath = Optional.empty();
+    Optional<String> jsonPathOpt = Optional.empty();
+    var result = jsonResponse;
     if (metadata != null) {
-      jsonPath = metadata.stream()
+      jsonPathOpt = metadata.stream()
           .filter(m -> VALUE_JSON_PATH.equalsIgnoreCase(m.getName()))
           .map(Attribute::getValue)
           .findFirst();
     }
+    if (jsonPathOpt.isPresent()) {
+      var jsonPath = JSONPath.compile(jsonPathOpt.get());
+      result = "";
+      if (jsonPath.contains(jsonResponse)) {
+        result = jsonPath.eval(jsonResponse).toString();
 
-    return jsonPath.map(p -> JsonPath.read(jsonResponse, p))
-        .map(o -> objectMapper.<JsonNode>valueToTree(o.toString()))
-        .orElse(objectMapper.valueToTree(jsonResponse));
+      }
+    }
+    return objectMapper.valueToTree(result);
   }
 }

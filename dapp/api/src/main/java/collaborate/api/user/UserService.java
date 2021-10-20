@@ -155,7 +155,8 @@ public class UserService {
     }
 
     SetRolesNotificationEmailHelper emailHelper = new SetRolesNotificationEmailHelper(
-        apiProperties.getIdpAdminRole());
+        apiProperties.getIdpAdminRole()
+    );
 
     try {
       log.info("Sending email about updating user roles");
