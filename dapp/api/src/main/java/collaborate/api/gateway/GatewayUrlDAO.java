@@ -24,10 +24,9 @@ public class GatewayUrlDAO {
   private final ObjectMapper objectMapper;
 
   public JsonNode fetch(String url) {
-    var httpClient = httpClientFactory.createTrustAllAndNoHostnameVerifier();
-    CloseableHttpResponse response = null;
-    try {
-      response = httpClient.execute(new HttpGet(url));
+
+    try (var httpClient = httpClientFactory.createTrustAllAndNoHostnameVerifier();
+        CloseableHttpResponse response = httpClient.execute(new HttpGet(url))) {
       if (HttpStatus.OK.value() != response.getStatusLine().getStatusCode()) {
         log.error("Fetching url={}, result in HttpStatus={}",
             url,

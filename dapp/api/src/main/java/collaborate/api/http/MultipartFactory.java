@@ -31,7 +31,9 @@ public class MultipartFactory {
         (int) file.length(),
         file.getParentFile()
     );
-    IOUtils.copy(new FileInputStream(file), fileItem.getOutputStream());
+    try(var fileInputStream = new FileInputStream(file)) {
+      IOUtils.copy(fileInputStream, fileItem.getOutputStream());
+    }
     return new CommonsMultipartFile(fileItem);
   }
 
