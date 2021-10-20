@@ -1,6 +1,6 @@
 package collaborate.api.config;
 
-import feign.Logger;
+import feign.Logger.Level;
 import feign.codec.Encoder;
 import feign.form.spring.SpringFormEncoder;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
@@ -13,8 +13,8 @@ import org.springframework.web.client.RestTemplate;
 public class FeignConfig {
 
   @Bean
-  Logger.Level feignLoggerLevel() {
-    return Logger.Level.FULL;
+  Level feignLoggerLevel() {
+    return Level.BASIC;
   }
 
   @Bean

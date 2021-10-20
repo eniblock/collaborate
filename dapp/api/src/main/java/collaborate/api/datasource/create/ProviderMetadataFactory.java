@@ -44,15 +44,19 @@ public class ProviderMetadataFactory {
   public Set<Attribute> from(DatasourceDTO datasource) {
     var authAttributes = datasource.getAuthMethod().accept(authenticationProviderMetadataVisitor);
     var resAttributes = from((WebServerDatasourceDTO) datasource);
-    resAttributes.add(
-        new Attribute(
-            "datasource:authentication", datasource.getAuthMethod().getClass().getSimpleName(), null));
+    resAttributes.add(Attribute.builder()
+        .name("datasource:authentication")
+        .value(datasource.getAuthMethod().getClass().getSimpleName())
+        .type("string")
+        .build()
+    );
     if (datasource.getAuthMethod() instanceof CertificateBasedBasicAuth) {
-      resAttributes.add(
-          new Attribute(
-              "datasource:CertificateBasedBasicAuth:caEmail",
-              ((CertificateBasedBasicAuth) datasource.getAuthMethod()).getCaEmail(),
-              null));
+      resAttributes.add(Attribute.builder()
+          .name("datasource:CertificateBasedBasicAuth:caEmail")
+          .value(((CertificateBasedBasicAuth) datasource.getAuthMethod()).getCaEmail())
+          .type("string")
+          .build()
+      );
     }
 
     if (datasource instanceof WebServerDatasourceDTO) {

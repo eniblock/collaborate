@@ -1,5 +1,6 @@
 package collaborate.api.passport.find;
 
+import collaborate.api.passport.model.storage.TokenMetadata;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -28,5 +29,9 @@ public interface TezosApiGatewayPassportClient {
 
   @PostMapping("/tezos_node/storage/{contractAddress}")
   TokenIdByAssetIdsResponseDTO getTokenIdByAssetIds(@PathVariable String contractAddress,
+      @RequestBody DataFieldsRequest<MapQuery<String>> request);
+
+  @PostMapping("/tezos_node/storage/{contractAddress}")
+  TokenMetadata getTokenMetadataByTokenId(@PathVariable String contractAddress,
       @RequestBody DataFieldsRequest<MapQuery<String>> request);
 }

@@ -3,6 +3,7 @@ package collaborate.api.organization;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.model.OrganizationRole;
 import collaborate.api.test.TestResources;
+import java.util.List;
 import lombok.Data;
 
 
@@ -16,13 +17,13 @@ public class OrganizationFeature {
       "DSPConsortium1",
       "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
       "edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2",
-      new OrganizationRole[]{OrganizationRole.DSP}
+      List.of(OrganizationRole.DSP)
   );
   public static final OrganizationDTO bspConsortium2Organization = new OrganizationDTO(
       "BSPConsortium2",
       "tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG",
       "edpkunY3jsNhGnP3mkYnWmBTYxqjSii1pyY9oUSkNnix3pNHRTMaAc",
-      new OrganizationRole[]{OrganizationRole.BSP}
+      List.of(OrganizationRole.BSP)
   );
 
 }

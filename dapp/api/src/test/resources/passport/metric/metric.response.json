@@ -1,0 +1,136 @@
+{
+  "createdAt": "2021-09-23T11:42:48Z",
+  "updatedAt": "2021-09-23T11:42:48Z",
+  "lastPosition": {
+    "type": "Feature",
+    "geometry": {
+      "type": "Point",
+      "coordinates": [
+        2.22451,
+        48.7716
+      ]
+    },
+    "properties": {
+      "createdAt": "2021-09-23T11:42:48Z",
+      "updatedAt": "2021-09-23T11:42:40Z",
+      "heading": 256,
+      "type": "Estimated"
+    }
+  },
+  "ignition": {
+    "createdAt": "2021-09-23T11:42:48Z",
+    "type": "Stop"
+  },
+  "vin": "VR1ATTENTKW033329",
+  "battery": {
+    "voltage": 53.5,
+    "createdAt": "2021-09-23T11:42:41Z"
+  },
+  "privacy": {
+    "createdAt": "2021-09-23T11:42:48Z",
+    "state": "None"
+  },
+  "doorsState": {
+    "updatedAt": "2021-09-23T11:42:48Z",
+    "lockedStates": [
+      "Unlocked",
+      "TrunkUnLocked"
+    ],
+    "opening": [
+      {
+        "identifier": "Trunk",
+        "state": "Closed"
+      },
+      {
+        "identifier": "Driver",
+        "state": "Closed"
+      },
+      {
+        "identifier": "RearRight",
+        "state": "Closed"
+      },
+      {
+        "identifier": "RearLeft",
+        "state": "Closed"
+      },
+      {
+        "identifier": "Passenger",
+        "state": "Closed"
+      },
+      {
+        "identifier": "RearWindow",
+        "state": "Closed"
+      },
+      {
+        "identifier": "RoofWindow",
+        "state": "Closed"
+      }
+    ]
+  },
+  "service": {
+    "createdAt": "2021-09-23T11:42:48Z",
+    "updatedAt": "2021-09-23T11:42:48Z",
+    "type": "Electric"
+  },
+  "environment": {
+    "luminosity": {
+      "createdAt": "2021-09-23T11:42:41Z",
+      "day": true
+    },
+    "air": {
+      "createdAt": "2021-09-23T11:42:41Z",
+      "temp": 21.5
+    }
+  },
+  "odometer": {
+    "createdAt": "2021-09-23T11:42:41Z",
+    "mileage": 5477.9
+  },
+  "kinetic": {
+    "createdAt": "2021-09-23T11:42:40Z",
+    "moving": false
+  },
+  "preconditioning": {
+    "airConditioning": {
+      "updatedAt": "2021-09-23T11:42:42Z",
+      "status": "Disabled",
+      "programs": [
+        {
+          "enabled": true,
+          "slot": 1,
+          "recurrence": "Daily",
+          "start": "PT16H22M",
+          "occurence": {
+            "day": [
+              "Mon"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "energies": [
+    {
+      "updatedAt": "2021-09-23T11:41:21Z",
+      "type": "Electric",
+      "level": 79,
+      "autonomy": 150,
+      "extension": {
+        "electric": {
+          "charging": {
+            "plugged": false,
+            "status": "Disconnected",
+            "chargingRate": 0,
+            "chargingMode": "No",
+            "nextDelayedTime": "PT21H"
+          }
+        }
+      }
+    },
+    {
+      "updatedAt": "2021-05-03T11:01:50Z",
+      "type": "Fuel",
+      "level": 0
+    }
+  ]
+}

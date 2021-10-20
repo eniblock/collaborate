@@ -1,5 +1,6 @@
 package collaborate.api.passport.find;
 
+import static collaborate.api.organization.model.OrganizationRole.DSP;
 import static collaborate.api.user.security.Authorizations.Roles.ASSET_OWNER;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
@@ -8,9 +9,13 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.passport.model.DigitalPassportDetailsDTO;
+import collaborate.api.passport.model.storage.PassportsIndexer;
+import collaborate.api.passport.model.storage.PassportsIndexerToken;
+import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.security.ConnectedUserDAO;
 import collaborate.api.user.tag.TagUserDAO;
+import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -21,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -42,12 +48,42 @@ public class FindPassportService {
   }
 
   public Optional<DigitalPassportDetailsDTO> findPassportDetailsByTokenId(Integer tokenId) {
-    return getAllPassports(Optional.empty()).stream()
-        .filter(p -> p.getTokenId().equals(tokenId))
-        .findFirst()
+    return findDspAndPassportIndexerTokenByTokenId(tokenId)
+        .map(t -> digitalPassportDetailsDTOFactory
+            .createFromPassportIndexer(t.getKey(), t.getValue()));
+  }
+
+  /**
+   * @return An optional entry where key is the dspAddress and value the {@link
+   * PassportsIndexerToken}
+   */
+  Optional<SimpleEntry<String, PassportsIndexerToken>> findDspAndPassportIndexerTokenByTokenId(
+      Integer tokenId) {
+    var dspAddresses = organizationService.getAllOrganizations()
         .stream()
-        .map(digitalPassportDetailsDTOFactory::loadFullDetails)
+        .filter(o -> o.getRoles() != null)
+        .filter(o -> o.getRoles().contains(DSP))
+        .map(OrganizationDTO::getAddress)
+        .collect(Collectors.toList());
+
+    return findPassportDAO.findPassportsIndexersByDsps(dspAddresses).getPassportsIndexerByDsp()
+        .stream()
+        .filter(oneEntry -> StringUtils.isEmpty(oneEntry.getError()))
+        .filter(oneEntry -> oneEntry.getValue() != null)
+        .map(dspTokenEntry -> buildPassportsIndexerByDspAddress(tokenId, dspTokenEntry))
+        .filter(dspTokenEntry -> dspTokenEntry.getValue() != null)
         .findFirst();
+  }
+
+  private SimpleEntry<String, PassportsIndexerToken> buildPassportsIndexerByDspAddress(
+      Integer tokenId, TagEntry<String, PassportsIndexer> dspTokenEntry) {
+    return new SimpleEntry<>(dspTokenEntry.getKey(),
+        dspTokenEntry.getValue().getTokens().stream()
+            .filter(Objects::nonNull)
+            .filter(token -> token.getTokenId().equals(tokenId))
+            .findFirst()
+            .orElse(null)
+    );
   }
 
   public Collection<DigitalPassportDetailsDTO> getByConnectedUser() {
@@ -120,7 +156,7 @@ public class FindPassportService {
       PassportsIndexerTagResponseDTO passportsIndexerDto,
       Optional<String> vehiculeOwnerAddressFilter) {
 
-    var multisigContractIds = passportsIndexerDto.getPassportsIndexerList().stream()
+    var multisigContractIds = passportsIndexerDto.getPassportsIndexerByDsp().stream()
         .filter(tagEntry -> tagEntry.getValue() != null)
         .flatMap(tagEntry -> tagEntry.getValue().getUnsignedMultisigs().stream())
         .filter(Objects::nonNull)
@@ -138,7 +174,7 @@ public class FindPassportService {
       PassportsIndexerTagResponseDTO passportsIndexerDto,
       Optional<String> vehiculeOwnerAddressFilter) {
 
-    var digitalPassportsByTokenId = passportsIndexerDto.getPassportsIndexerList().stream()
+    var digitalPassportsByTokenId = passportsIndexerDto.getPassportsIndexerByDsp().stream()
         .filter(e -> e.getValue() != null)
         .map(e -> e.getValue().getTokens().stream()
             .filter(t -> vehiculeOwnerAddressFilter.isEmpty()
@@ -150,8 +186,7 @@ public class FindPassportService {
         .collect(toMap(DigitalPassportDetailsDTO::getTokenId, identity()));
 
     var tokenMetadata = findPassportDAO
-        .findTokenMetadataByTokenIds(digitalPassportsByTokenId.keySet())
-        .getTokenMetadata();
+        .findTokenMetadataByTokenIds(digitalPassportsByTokenId.keySet());
 
     return digitalPassportsByTokenId;
   }

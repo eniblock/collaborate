@@ -4,6 +4,7 @@ import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 
 import collaborate.api.datasource.create.CreateDatasourceService;
+import collaborate.api.datasource.model.Attribute;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
@@ -15,6 +16,7 @@ import collaborate.api.ipfs.domain.dto.ContentWithCid;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.security.UnrecoverableKeyException;
+import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
@@ -67,11 +69,11 @@ public class DatasourceService {
   }
 
   public Optional<ContentWithCid<Datasource>> findById(String id) {
-    return datasourceDAO.findById(id.toString());
+    return datasourceDAO.findById(id);
   }
 
   public Optional<DatasourceDetailsDto> findDetailsById(String id) {
-    return datasourceDAO.findById(id.toString())
+    return datasourceDAO.findById(id)
         .map(ContentWithCid::getContent)
         .map(this::buildDatasourceDetailsDto);
   }
@@ -87,7 +89,7 @@ public class DatasourceService {
         // FIXME to make it dynamic
         .AuthenticationType("Basic Authentication")
         // FIXME to make it dynamic
-        .certificateEmail("ca@psa.com")
+        .certificateEmail("ca@dsp.com")
         // FIXME to make it dynamic
         .accessMethod("Basic Authentication")
         // FIXME to make it dynamic
@@ -124,10 +126,9 @@ public class DatasourceService {
         .map(ContentWithCid::getContent)
         .filter(ds -> TraefikProviderConfiguration.class.getName().equals(ds.getProvider()))
         .map(Datasource::getProviderConfiguration)
-        .map(
-            providerConfig ->
-                objectMapper.convertValue(providerConfig, TraefikProviderConfiguration.class))
-        .map(conf -> conf.getHttp().getRouters().keySet())
+        .map(providerConfig ->
+            objectMapper.convertValue(providerConfig, TraefikProviderConfiguration.class)
+        ).map(conf -> conf.getHttp().getRouters().keySet())
         .map(
             scopeSet ->
                 scopeSet.stream()
@@ -136,5 +137,12 @@ public class DatasourceService {
                     .filter(s -> StringUtils.startsWith(s, "scope:"))
                     .collect(Collectors.toSet())
         );
+  }
+
+  public Set<Attribute> getMetadata(String datasourceId) {
+    return datasourceDAO.findById(datasourceId)
+        .map(ContentWithCid::getContent)
+        .map(Datasource::getProviderMetadata)
+        .orElse(Collections.emptySet());
   }
 }

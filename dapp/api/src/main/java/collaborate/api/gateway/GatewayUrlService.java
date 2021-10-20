@@ -2,8 +2,6 @@ package collaborate.api.gateway;
 
 import collaborate.api.config.api.TraefikProperties;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
-import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,13 +13,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 public class GatewayUrlService {
 
-  private final TraefikProperties traefikProperties;
-  // TODO Use a dataSourceDAO fetching data from SC/IPFS
   private final GatewayUrlDAO gatewayURLDAO;
+  private final TraefikProperties traefikProperties;
 
-  public JsonNode fetch(HttpServletRequest request) throws IOException {
+  public JsonNode fetch(HttpServletRequest request) {
     String apiGatewayTargetURL = replaceBaseUrl(request);
+    return fetch(apiGatewayTargetURL);
+  }
 
+  public JsonNode fetch(String apiGatewayTargetURL) {
     return gatewayURLDAO.fetch(apiGatewayTargetURL);
   }
 

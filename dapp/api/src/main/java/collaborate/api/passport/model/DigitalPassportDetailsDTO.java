@@ -2,8 +2,10 @@ package collaborate.api.passport.model;
 
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.tag.model.user.UserWalletDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -41,5 +43,15 @@ public class DigitalPassportDetailsDTO {
 
   @Schema(description = "The token status of the the asset", example = "PENDING_CREATION")
   private TokenStatus tokenStatus;
+
+  @JsonIgnore
+  public long countScopes() {
+    return getAssetDataCatalog()
+        .getDatasources()
+        .stream()
+        .map(DatasourceDTO::getScopes)
+        .mapToLong(Set::size)
+        .sum();
+  }
 
 }

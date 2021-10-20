@@ -3,6 +3,7 @@ package collaborate.api.passport.find;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.passport.model.storage.Multisig;
 import collaborate.api.passport.model.storage.StorageFields;
+import collaborate.api.passport.model.storage.TokenMetadata;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
@@ -10,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -42,7 +44,8 @@ public class FindPassportDAO {
         );
   }
 
-  public TokenMetadataResponseDTO findTokenMetadataByTokenIds(Collection<Integer> tokenIds) {
+  public List<TagEntry<Integer, TokenMetadata>> findTokenMetadataByTokenIds(
+      Collection<Integer> tokenIds) {
     var requestTokenMetadata = new DataFieldsRequest<>(List.of(
         new MapQuery<Integer>().init(StorageFields.TOKEN_METADATA, tokenIds)
     ));
@@ -50,7 +53,15 @@ public class FindPassportDAO {
         .getTokenMetadata(
             apiProperties.getDigitalPassportContractAddress(),
             requestTokenMetadata
-        );
+        ).getTokenMetadata();
+  }
+
+  public Optional<TokenMetadata> findTokenMetadataByTokenId(Integer tokenId) {
+    return findTokenMetadataByTokenIds(List.of(tokenId)).stream()
+        .filter(metadataByTokenEntry -> tokenId.equals(metadataByTokenEntry.getKey()))
+        .filter(metadataByTokenEntry -> StringUtils.isEmpty(metadataByTokenEntry.getError()))
+        .map(TagEntry::getValue)
+        .findFirst();
   }
 
   public long count() {

@@ -21,7 +21,7 @@
     "url" : "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
   }, {
     "description" : "Last odometer values",
-    "keywords" : [ "scope:metric:odometer", "metadata:response.body.jsonPath:$._embedded.odometer.value:Integer" ],
+    "keywords" : [ "scope:metric:odometer", "metadata:value.jsonPath:$._embedded.odometer.value:Integer" ],
     "url" : "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status",
     "queryParams" : [ {
       "key" : "profile",
