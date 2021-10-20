@@ -1,18 +1,23 @@
 package collaborate.api.security;
 
 import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class CipherService {
     private final Cipher cipher;
@@ -40,7 +45,7 @@ public class CipherService {
             return kf.generatePrivate(keySpec);
         }
         catch(Exception e){
-            e.printStackTrace();
+            log.error("While getting private key", e);
         }
         return null;
     }
@@ -53,7 +58,8 @@ public class CipherService {
      * - cipher the bytes with the public key
      * - encode the cyphered bytes into a base64 string
      */
-    synchronized public String cipher(String deciphered, PublicKey publicKey) throws Exception {
+    public synchronized String cipher(String deciphered, PublicKey publicKey)
+        throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
         cipher.update(deciphered.getBytes(StandardCharsets.UTF_8));
         return Base64.getEncoder().encodeToString(cipher.doFinal());
@@ -67,7 +73,8 @@ public class CipherService {
      * - transform the bytes into a string using UTF-8
      *
      */
-    public String decipher(String ciphered, PrivateKey privateKey) throws Exception {
+    public String decipher(String ciphered, PrivateKey privateKey)
+        throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
         return new String(cipher.doFinal(Base64.getDecoder().decode(ciphered)), StandardCharsets.UTF_8);
     }

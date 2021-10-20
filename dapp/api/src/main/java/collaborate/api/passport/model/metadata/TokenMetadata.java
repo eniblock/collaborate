@@ -1,6 +1,7 @@
 package collaborate.api.passport.model.metadata;
 
 import static collaborate.api.passport.model.metadata.TokenMetadata.AttributeKeys.ASSET_DATA_CATALOG;
+import static lombok.AccessLevel.PRIVATE;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Data
@@ -17,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 @Builder
 public class TokenMetadata {
 
+  @NoArgsConstructor(access = PRIVATE)
   public static class AttributeKeys{
     public static final String ASSET_DATA_CATALOG = "assetDataCatalog";
   }
@@ -32,11 +35,10 @@ public class TokenMetadata {
   private List<String> interfaces;
   private List<Attribute> attributes;
 
-
-  // TODO test me
+  @JsonIgnore
   public Optional<Attribute> getAttributeByName(String name) {
     Objects.requireNonNull(name);
-    if (attributes == null || attributes.size() == 0) {
+    if (attributes == null || attributes.isEmpty()) {
       return Optional.empty();
     }
     return attributes.stream()
@@ -44,7 +46,6 @@ public class TokenMetadata {
         .findFirst();
   }
 
-  // TODO test me
   @JsonIgnore
   public Optional<String> getAssetDataCatalogUri() {
     return getAttributeByName(ASSET_DATA_CATALOG).map(Attribute::getValue);
