@@ -8,22 +8,22 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import javax.crypto.Cipher;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 
 @Service
+@RequiredArgsConstructor
 public class CipherService {
-    @Autowired
-    private Cipher cipher;
+    private final Cipher cipher;
 
     public static PublicKey getKey(String key){
         try{
             byte[] byteKey = Base64.getDecoder().decode(key);
 
-            X509EncodedKeySpec X509publicKey = new X509EncodedKeySpec(byteKey);
+            X509EncodedKeySpec x509publicKey = new X509EncodedKeySpec(byteKey);
             KeyFactory kf = KeyFactory.getInstance("RSA");
-            return kf.generatePublic(X509publicKey);
+            return kf.generatePublic(x509publicKey);
         }
         catch(Exception e){
             e.printStackTrace();
@@ -52,11 +52,6 @@ public class CipherService {
      * - transform the string into an array of bytes using UTF-8
      * - cipher the bytes with the public key
      * - encode the cyphered bytes into a base64 string
-     *
-     * @param deciphered
-     * @param publicKey
-     * @return
-     * @throws Exception
      */
     synchronized public String cipher(String deciphered, PublicKey publicKey) throws Exception {
         cipher.init(Cipher.ENCRYPT_MODE, publicKey);
@@ -71,10 +66,6 @@ public class CipherService {
      * - decipher the bytes with the private key
      * - transform the bytes into a string using UTF-8
      *
-     * @param ciphered
-     * @param privateKey
-     * @return
-     * @throws Exception
      */
     public String decipher(String ciphered, PrivateKey privateKey) throws Exception {
         cipher.init(Cipher.DECRYPT_MODE, privateKey);
