@@ -91,6 +91,99 @@ Several APIs will be provided :
 [^1]: MVP Perimeter
 [^2]: Future version Perimeter
 
+### Access Layer
+
+This layer provides access mechanisms to the infrastructure layer for APIs of the service layer.
+
+#### Data API Gateway
+
+It provides mechanisms to access the data sources of all the consortium members and the Data Storage of the same consortium member. In order to achieve interoperability and adaptability goals, several connectors for the most common data sources ( Web Services, Relational Database, Files systems) are provided. In order to guarantee the security and the privacy of the system, any data is duplicated, notarization services based on fingerprint mechanism are used.
+
+#### Custody API
+
+It provides mechanisms to access the Key Storage and to sign blockchain transactions.
+
+#### Policy Manager
+
+It provides mechanisms for controlling access to data sources resources.
+
+#### Blockchain API Gateway
+
+It provides APIs to interact with the most common public blockchain: Tezos and Etherieum. It includes services like
+
+* Rest API for calling Smart contracts entry points
+* Generic API for Transaction forge
+* Generic API for Transaction submission using a pool of blockchain RPC gateways
+* Generic API for Transaction Confirmation using a pool of indexer.
+
+### Infrastructure Layer
+
+All infrastructure components related to PCC platform are represented in this layer:
+* Data cache and load management: Data from the Access layer is persisted into a local cache (Rabbit MQ, Local DB) for short durability and deleted after no more than X days.  Business privacy contents are assured by Data encryption and Data partition by client channels.
+* Decentralized File System: Some data will only store a fingerprint of its content in the smart-contrat and a link to get the data via a decentralized File System. So smart-contract storage size and cost can be reduced and each consumer would be able to ensure that data has not been maliciously altered.
+* Key storage : Secure, store and tightly control access to tokens, passwords, certificates, encryption keys for protecting secrets and other sensitive data using an  HTTP API.
+
+### Blockchain Layer
+
+#### Asset management Smart contracts
+
+Four Main Smart contract for asset management are defined :
+
+* Asset Digital Passport : define the set of data (or data model) as a Non Fungible token, implemented following the tezos  FA 2.0)  which can be,
+  * A simple and generic structure with a digital fingerprint of the asset data and metadata stored in a third party system. (blockchain-based timestamping)
+  * A simple table of attributes of an asset. In the case of a car : Vin, Model, Color then will be stored in a common golden data (blockchain ledger) and a digital fingerprint of the asset metadata stored in a third party system (blockchain-based timestamping).
+  * A more complex structure that represents the whole Life cycle of an Asset based on Event, Metric, etc. In the case of a car, Maintenance Event with Kilometer and Pieces state metrics.
+
+* Asset Access Management smart contract : Asset Digital Passport is highly coupled with the Asset Access Management smart contract, composed of set of rules for ensuring compliance with GDPR regulation for vehicle passports data, like :
+  * Role-based access management : Define Participants (parties) and their role over the Asset.
+  * Consent Management : responsible for managing data owner personal data disposal policies and the corresponding consents, including generation, updates and duplication.
+  * Data access registry : keep a full registry of data owner consent for data access and usage.
+
+* Asset Monetization - PCC Token : smart contract for Asset data monetization defined as an tezos FA 1.2 Utility token. These tokens will be associated, with Asset Digital Passport, for passport data exchange.
+
+* Governance - Golden Token : smart contract enabling consortium members to manage the governance of the solution in proportion to their respective contributions.
+
+For details about how Token will be used in the PCC platform, refer to section Use of tokens
+
+## Solution Value Creation
+
+### Use of tokens
+
+In the context of the PCC solution, three distinct tokens are defined. This distinction ensures the tokenization of the vehicle as an asset token, the management of the economic flows related to the PCC solution's services thanks to a reward token, and the governance of the solution between the industrial members on the other using a governance token.
+
+![PCC tokens and functionalities](doc/images/use-of-tokens.png)
+
+#### Asset Token - PCC Vehicle Data Passport
+
+The Asset Token is a digital token used to represent verifiable proofs of authenticity and ownership of a real asset. In the case of complex real assets such as real estate or car, the asset token is a non-fungible token composed of a set of data collected and handled by various stakeholders (issuer, designer, suppliers) as depicted in table 1.
+
+The concept of asset digital passport aim at gathering all verifiable and certified data describing asset and associated management rules into one blockchain-based structure composed of:
+* A Non-fungible token,  following the standard FA1.2, representing the real asset and updated at each step of its lifecycle and composed by data collected, stored at each stakeholder data warehouse.
+* An Asset Access Smart Contract defining conditions and rules for each asset stakeholder to certify access, authorization to use, or manage digital passport data. Taking into account, any usage of vehicle data must be compliant with GDPR regulations, the core part of this contract is the management of owner consent and complete access traceability.
+
+![](doc/images/use-of-tokens-2.png)
+
+#### Reward Token - PCC token
+
+The PCC_Token is designed to allow both individual users and industrial members to:
+* Value the creation and contribution to the Vehicle Passport application.
+* Offer discounts or rewards for subscribing to services in exchange for sharing vehicle data.
+* Ensure the distribution of the value of a service between the different contributors within the PCC platform.
+
+![PCC_Token Usage Scenarios](doc/images/use-of-tokens-3.png)
+
+The PCC_Token will be at the heart of new economic exchanges between vehicle owners or drivers and the industrial stakeholders. All these new transactions will be based on the use of the vehicle's passport app and access to new personalized services. Figure 12 (below) illustrates some scenarios for using the PCC solution based on PCC_Token transactions.
+
+#### Gouvernance Token - PCC Gold token
+
+The PCC_Gold aims to enable consortium members t manage the governance of the solution in proportion to their respective contributions by :
+* Business network management: define Participants ( parties) and their role on the blockchain.
+* Token management: Manage all operational and usage aspects of the PCC_Token, Asset token, and Gold token itself.
+
+The PCC _Gold is used in all operations involving a collaborative decision. The decision-making process requires the vote of each consortium member. To ensure a fair and equitable representation of each consortium member, each voter's weight is proportional to the amount of PCC _Gold at his disposal.
+
+![PCC_Gold Token usage scenarios](doc/images/use-of-tokens-4.png)
+
 ## Development
 
 ### Requirements
