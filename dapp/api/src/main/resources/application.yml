@@ -94,7 +94,9 @@ spring:
         smtp:
           auth: false
       addressFrom: noreply@theblockchainxdev.com
-  mvc.async.request-timeout: 240000
+  mvc:
+    async.request-timeout: 240000
+    log-request-details: false
   jpa:
     hibernate:
       ddl-auto: update

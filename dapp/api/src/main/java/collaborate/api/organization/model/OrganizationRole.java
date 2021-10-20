@@ -1,11 +1,21 @@
 package collaborate.api.organization.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 
+@Getter
 public enum OrganizationRole {
-  @JsonProperty("1")
-  DSP,
+  DSP(1),
+  BSP(2);
 
-  @JsonProperty("2")
-  BSP
+  int code;
+
+  OrganizationRole(int code) {
+    this.code = code;
+  }
+
+  @JsonValue
+  public int getCode() {
+    return code;
+  }
 }

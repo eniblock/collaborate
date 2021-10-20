@@ -20,9 +20,11 @@ public class TokenMetadata {
 
   private TezosMap<String, Bytes> tokenInfo;
 
-  public Bytes getIpfsUri() {
-    return tokenInfo.findValue("").orElseThrow(
-        () -> new IllegalStateException("Can't find metadata field for tokenId=" + tokenId));
+  public String getIpfsUri() {
+    return tokenInfo.findValue("")
+        .map(Bytes::toString)
+        .orElseThrow(
+            () -> new IllegalStateException("Can't find metadata field for tokenId=" + tokenId));
   }
 
 }
