@@ -184,6 +184,10 @@ The PCC _Gold is used in all operations involving a collaborative decision. The 
 
 ![PCC_Gold Token usage scenarios](doc/images/use-of-tokens-4.png)
 
+## API
+
+Open API is visible at https://collaborate.api.bxdev.tech/
+
 ## Development
 
 ### Requirements
