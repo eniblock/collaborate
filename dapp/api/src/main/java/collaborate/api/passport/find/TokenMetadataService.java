@@ -7,7 +7,7 @@ import collaborate.api.passport.create.DatasourceLink;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
 import collaborate.api.passport.model.DatasourceDTO;
 import collaborate.api.passport.model.metadata.AssetDataCatalog;
-import collaborate.api.passport.model.metadata.TokenMedatata;
+import collaborate.api.passport.model.metadata.TokenMetadata;
 import collaborate.api.passport.model.storage.Multisig;
 import java.util.Collections;
 import java.util.List;
@@ -43,7 +43,7 @@ public class TokenMetadataService {
 
   public Optional<AssetDataCatalogDTO> findDataCatalog(String metadataIpfsLink) {
     try {
-      var tokenMetadata = ipfsService.cat(metadataIpfsLink, TokenMedatata.class);
+      var tokenMetadata = ipfsService.cat(metadataIpfsLink, TokenMetadata.class);
       return tokenMetadata.getAssetDataCatalogUri()
           .map(catalogUri -> ipfsService.cat(catalogUri, AssetDataCatalog.class))
           .map(AssetDataCatalog::getDatasources)

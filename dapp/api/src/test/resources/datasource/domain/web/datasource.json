@@ -4,7 +4,7 @@
   "provider": "collaborate.api.datasource.model.traefik.TraefikProviderConfiguration",
   "providerMetadata": [
     {
-      "name": "scope:metric:odometer:response.body.jsonPath",
+      "name": "scope:metric:odometer:value.jsonPath",
       "value": "$._embedded.odometer.value",
       "type": "Integer"
     }

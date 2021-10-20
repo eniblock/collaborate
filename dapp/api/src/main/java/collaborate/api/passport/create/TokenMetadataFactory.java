@@ -6,7 +6,7 @@ import collaborate.api.ipfs.IpnsService;
 import collaborate.api.passport.TokenMetadataProperties;
 import collaborate.api.passport.model.metadata.Attribute;
 import collaborate.api.passport.model.metadata.License;
-import collaborate.api.passport.model.metadata.TokenMedatata;
+import collaborate.api.passport.model.metadata.TokenMetadata;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.List;
@@ -42,7 +42,7 @@ public class TokenMetadataFactory {
     );
   }
 
-  public TokenMedatata create(CreateMultisigPassportDTO createMultisigPassportDTO,
+  public TokenMetadata create(CreateMultisigPassportDTO createMultisigPassportDTO,
       String assetDataCatalogRelativePath) {
     var attribute = Attribute.builder()
         .name("assetDataCatalog")
@@ -51,7 +51,7 @@ public class TokenMetadataFactory {
         ).type("URI")
         .build();
 
-    return TokenMedatata.builder()
+    return TokenMetadata.builder()
         .name(NFT_NAME)
         .symbol(NFT_SYMBOLE)
         .decimals(NFT_DECIMALS)

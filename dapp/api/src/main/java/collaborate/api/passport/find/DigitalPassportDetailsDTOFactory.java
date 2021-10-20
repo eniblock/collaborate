@@ -4,7 +4,9 @@ import static collaborate.api.passport.model.AccessStatus.GRANTED;
 import static collaborate.api.passport.model.AccessStatus.NO_ACCESS;
 import static collaborate.api.passport.model.AccessStatus.PENDING;
 import static java.lang.Boolean.TRUE;
+import static java.util.function.Function.identity;
 
+import collaborate.api.ipfs.IpfsService;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.passport.model.AccessStatus;
 import collaborate.api.passport.model.DigitalPassportDetailsDTO;
@@ -12,10 +14,7 @@ import collaborate.api.passport.model.TokenStatus;
 import collaborate.api.passport.model.storage.Multisig;
 import collaborate.api.passport.model.storage.PassportsIndexerToken;
 import collaborate.api.tag.model.TagEntry;
-import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.UserService;
-import java.util.Arrays;
-import java.util.function.Function;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,9 +25,10 @@ import org.springframework.stereotype.Service;
 public class DigitalPassportDetailsDTOFactory {
 
   private final FindPassportDAO findPassportDAO;
+  private final IpfsService ipfsService;
+  private final OrganizationService organizationService;
   private final TokenMetadataService tokenMetadataService;
   private final UserService userService;
-  private final OrganizationService organizationService;
 
   public DigitalPassportDetailsDTO createFromMultisigContractid(Integer contractId,
       Multisig multisig) {
@@ -69,10 +69,7 @@ public class DigitalPassportDetailsDTOFactory {
     return DigitalPassportDetailsDTO.builder()
         .assetDataCatalog(null)
         .assetId(multisig.getParam1())
-        .assetOwner(UserWalletDTO.builder()
-            .address(multisig.getAddr2())
-            .build()
-        )
+        .assetOwner(userService.buildUserWalletDTO(multisig.getAddr2()))
         .accessStatus(null) // No token => no access status
         .creationDatetime(null) // No token => no creation datetime
         .operator(organizationService.getByWalletAddress(multisig.getAddr1()))
@@ -89,10 +86,7 @@ public class DigitalPassportDetailsDTOFactory {
     return DigitalPassportDetailsDTO.builder()
         .assetDataCatalog(null)
         .assetId(passportsIndexerToken.getAssetId())
-        .assetOwner(UserWalletDTO.builder()
-            .address(passportsIndexerToken.getTokenOwnerAddress())
-            .build()
-        )
+        .assetOwner(userService.buildUserWalletDTO(passportsIndexerToken.getTokenOwnerAddress()))
         // TODO accessStatus
         .accessStatus(getAccessStatusByAssetId(passportsIndexerToken.getAssetId()))
         // TODO creationDatetime
@@ -118,16 +112,10 @@ public class DigitalPassportDetailsDTOFactory {
     digitalPassport.setAssetOwner(assetOwner);
 
     // Load asset data catalog
-    var tokenMetadataOpt = findPassportDAO
-        .findTokenMetadataByTokenIds(Arrays.asList(digitalPassport.getTokenId()))
-        .getTokenMetadata()
-        .stream().findFirst()
-        .map(TagEntry::getValue);
-    var assetDataCatalog =
-        tokenMetadataOpt.map(
-            tokenMetadata -> tokenMetadataService
-                .findDataCatalog(tokenMetadata.getIpfsUri().toString())
-        ).flatMap(Function.identity())
+    var assetDataCatalog = findPassportDAO
+        .findTokenMetadataByTokenId(digitalPassport.getTokenId())
+        .map(tokenMetadata -> tokenMetadataService.findDataCatalog(tokenMetadata.getIpfsUri()))
+        .flatMap(identity())
         .orElse(null);
     digitalPassport.setAssetDataCatalog(assetDataCatalog);
 
@@ -136,4 +124,27 @@ public class DigitalPassportDetailsDTOFactory {
 
     return digitalPassport;
   }
+
+
+  public DigitalPassportDetailsDTO createFromPassportIndexer(String dspAddress,
+      PassportsIndexerToken indexerToken) {
+    var tokenMetadata = findPassportDAO.findTokenMetadataByTokenId(indexerToken.getTokenId())
+        .orElseThrow(() -> new IllegalStateException(
+            "No tokenMetadata found for tokenId=" + indexerToken.getTokenId())
+        );
+    var assetDataCatalogDTO = tokenMetadataService.findDataCatalog(tokenMetadata.getIpfsUri());
+    return DigitalPassportDetailsDTO.builder()
+        .assetDataCatalog(assetDataCatalogDTO.orElse(null))
+        .assetId(indexerToken.getAssetId())
+        .assetOwner(userService.buildUserWalletDTO(indexerToken.getTokenOwnerAddress()))
+        .accessStatus(getAccessStatusByAssetId(indexerToken.getAssetId()))
+        // TODO : load creationDatetime
+        .creationDatetime(null)
+        .operator(organizationService.getByWalletAddress(dspAddress))
+        .multisigContractId(null) // No need to get the multisig contract id
+        .tokenId(indexerToken.getTokenId())
+        .tokenStatus(TokenStatus.CREATED)
+        .build();
+  }
+
 }

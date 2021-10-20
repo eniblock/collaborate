@@ -1,6 +1,7 @@
 package collaborate.api.organization.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +23,6 @@ public class OrganizationDTO {
   private String encryptionKey;
 
   @Schema(description = "The roles of the organization", example = "[1,2]")
-  private OrganizationRole[] roles;
+  private List<OrganizationRole> roles;
 
 }

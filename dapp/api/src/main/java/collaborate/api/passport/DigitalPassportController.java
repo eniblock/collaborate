@@ -5,7 +5,9 @@ import collaborate.api.passport.consent.ConsentService;
 import collaborate.api.passport.create.CreateMultisigPassportDTO;
 import collaborate.api.passport.create.CreatePassportService;
 import collaborate.api.passport.find.FindPassportService;
+import collaborate.api.passport.metric.MetricService;
 import collaborate.api.passport.model.DigitalPassportDetailsDTO;
+import collaborate.api.passport.model.Metric;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,6 +17,10 @@ import java.util.Collection;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.SortDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +28,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -34,6 +41,7 @@ public class DigitalPassportController {
   private final ConsentService consentService;
   private final CreatePassportService createPassportService;
   private final FindPassportService findPassportService;
+  private final MetricService metricService;
 
   @PostMapping("/multisig/{contract-id}")
   @Operation(
@@ -49,7 +57,7 @@ public class DigitalPassportController {
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "Get pending digital passport details from it multisig contract id")
   @PreAuthorize(HasRoles.PASSPORT_MULTISIG_READ)
-  public ResponseEntity<DigitalPassportDetailsDTO> getPassportDetailsFromMultisig(
+  public ResponseEntity<DigitalPassportDetailsDTO> getByMultisigId(
       @PathVariable(value = "contract-id") Integer contractId) {
     return findPassportService.findPassportDetailsFromMultisig(contractId)
         .map(ResponseEntity::ok)
@@ -85,9 +93,21 @@ public class DigitalPassportController {
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "Get digital passport details from it token id")
   @PreAuthorize(HasRoles.DIGITAL_PASSPORT_READ)
-  public ResponseEntity<DigitalPassportDetailsDTO> getPassportDetailsByTokenId(
-      @PathVariable Integer tokenId) {
+  public ResponseEntity<DigitalPassportDetailsDTO> getByTokenId(@PathVariable Integer tokenId) {
     return findPassportService.findPassportDetailsByTokenId(tokenId)
+        .map(ResponseEntity::ok)
+        .orElseGet(() -> ResponseEntity.notFound().build());
+  }
+
+  @GetMapping("/{tokenId}/metrics")
+  @Operation(
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description = "Get metrics events about the given passport identified by its token id")
+  @PreAuthorize(HasRoles.DIGITAL_PASSPORT_READ)
+  public ResponseEntity<Page<Metric>> getMetrics(@PathVariable Integer tokenId,
+      @SortDefault(sort = "scope", direction = Sort.Direction.ASC) Pageable pageable,
+      @RequestParam(required = false, defaultValue = "") String query) {
+    return metricService.findAll(tokenId, pageable, query)
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
