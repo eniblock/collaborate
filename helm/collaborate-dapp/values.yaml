@@ -192,7 +192,7 @@ keycloak:
     reloader.stakater.com/auto: "true"
   image:
     registry: registry.gitlab.com
-    repository: registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam
+    repository: xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam
     # FIXME
     tag: develop
     pullSecrets: []
