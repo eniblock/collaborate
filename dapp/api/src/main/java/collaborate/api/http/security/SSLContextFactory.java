@@ -47,9 +47,9 @@ public class SSLContextFactory {
     } catch (Exception e) {
       var errorMessage = "Can't load pfxFileContent to keyStore";
       log.error(errorMessage, e);
-      if(e.getCause() instanceof UnrecoverableKeyException){
+      if (e.getCause() instanceof UnrecoverableKeyException) {
         throw (UnrecoverableKeyException) e.getCause();
-      }else {
+      } else {
         throw new SSLContextException(errorMessage, e);
       }
     }

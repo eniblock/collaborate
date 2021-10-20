@@ -40,7 +40,9 @@ public class IpfsDAO {
     return addResponse.getHash();
   }
 
-  /** @return The created file IPFS hash */
+  /**
+   * @return The created file IPFS hash
+   */
   public <T> String add(Path filePath, T object) throws IOException {
     ipfsFilesClient.makeDirectory(filePath.getParent().toString(), true);
     var multipartFile = multipartFactory.create(object, "data");
@@ -54,7 +56,7 @@ public class IpfsDAO {
   }
 
   // FIXME might not found data
-  public <T> T cat(String hash, Class<T> clazz){
+  public <T> T cat(String hash, Class<T> clazz) {
 
     try {
       return objectMapper.readValue(ipfsClient.cat(hash), clazz);

@@ -20,7 +20,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class FindPassportServiceTest {
+class FindPassportServiceTest {
 
   @Mock
   FindPassportDAO findPassportDAO;
@@ -62,9 +62,11 @@ public class FindPassportServiceTest {
         .tokenOwnerAddress("tz1hKFkiMgruSuLbFits2rjBEHuvdfeiUGeK")
         .assetId("1GCDT13X04K151762")
         .build();
-    assertThat(dspAndPassportResult).isPresent();
+
     assertThat(dspAndPassportResult)
-        .hasValue(new SimpleEntry<>("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV", expectedPassportIndexerToken));
+        .isPresent()
+        .hasValue(new SimpleEntry<>("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
+            expectedPassportIndexerToken));
   }
 
   @Test

@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategy.UpperCamelCaseStrategy.class)
-public class Cid {
+public class CidResponse {
 
   private String cid;
 

@@ -243,7 +243,7 @@ public class UserService {
   }
 
   public UserWalletDTO getAdminUser() {
-   return tagUserDAO
+    return tagUserDAO
         .findOneByUserId("admin")
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, (
             "No admin user"

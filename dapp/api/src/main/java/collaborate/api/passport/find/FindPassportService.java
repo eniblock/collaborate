@@ -174,7 +174,7 @@ public class FindPassportService {
       PassportsIndexerTagResponseDTO passportsIndexerDto,
       Optional<String> vehiculeOwnerAddressFilter) {
 
-    var digitalPassportsByTokenId = passportsIndexerDto.getPassportsIndexerByDsp().stream()
+    return passportsIndexerDto.getPassportsIndexerByDsp().stream()
         .filter(e -> e.getValue() != null)
         .map(e -> e.getValue().getTokens().stream()
             .filter(t -> vehiculeOwnerAddressFilter.isEmpty()
@@ -184,11 +184,6 @@ public class FindPassportService {
             )
         ).flatMap(Stream::distinct)
         .collect(toMap(DigitalPassportDetailsDTO::getTokenId, identity()));
-
-    var tokenMetadata = findPassportDAO
-        .findTokenMetadataByTokenIds(digitalPassportsByTokenId.keySet());
-
-    return digitalPassportsByTokenId;
   }
 
 }

@@ -20,7 +20,8 @@ import lombok.RequiredArgsConstructor;
 public class TokenMetadata {
 
   @NoArgsConstructor(access = PRIVATE)
-  public static class AttributeKeys{
+  public static class AttributeKeys {
+
     public static final String ASSET_DATA_CATALOG = "assetDataCatalog";
   }
 

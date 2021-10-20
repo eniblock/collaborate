@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface IpfsKeyClient {
 
   String SELF = "self";
+
   /**
    * Create new key pair
    *

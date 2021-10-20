@@ -9,7 +9,7 @@ import collaborate.api.test.TestResources;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
 
-public class DatasourceLinkTest {
+class DatasourceLinkTest {
 
   @Test
   void deserialize_canTypeProvider() throws ClassNotFoundException {
@@ -23,7 +23,8 @@ public class DatasourceLinkTest {
         }
     );
     var providerClass = Class.forName(genericDatasourceResult.getProvider());
-    Object rawProviderConfiguration = objectMapper.convertValue(genericDatasourceResult.getProviderConfiguration(), providerClass);
+    Object rawProviderConfiguration = objectMapper
+        .convertValue(genericDatasourceResult.getProviderConfiguration(), providerClass);
 
     // THEN
     assertThat(rawProviderConfiguration).isInstanceOf(TraefikProviderConfiguration.class);

@@ -40,7 +40,7 @@ public class HttpURLConnectionFactory {
       httpURLConnectionBuilder.sslContext(sslContext);
     }
 
-    if (authentication instanceof OAuth2){
+    if (authentication instanceof OAuth2) {
       //TODO v0.4.0
       throw new NotImplementedException();
     }

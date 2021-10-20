@@ -1,13 +1,11 @@
 package collaborate.api.datasource.model;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import javax.validation.constraints.NotNull;
 import collaborate.api.config.ISO8601JsonStringFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.Set;
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +17,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Datasource {
 
-  public String type;
+  private String type;
   @Schema(description = "The unique identifier of the datasource", example = "5NPET4AC8AH593530", required = true)
   @NotNull
   private String id;

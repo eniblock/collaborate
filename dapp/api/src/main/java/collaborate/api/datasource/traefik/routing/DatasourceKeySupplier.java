@@ -8,7 +8,7 @@ public class DatasourceKeySupplier implements Supplier<String> {
   private final String name;
 
   public DatasourceKeySupplier(DatasourceDTO datasource) {
-      this.name = datasource.getId().toString();
+    this.name = datasource.getId().toString();
   }
 
   @Override
