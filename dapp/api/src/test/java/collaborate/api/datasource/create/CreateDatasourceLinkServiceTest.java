@@ -27,14 +27,19 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class CreateDatasourceLinkServiceTest {
+class CreateDatasourceLinkServiceTest {
 
   private final UUID datasourceUUID = UUID.fromString("525003f6-f85f-11eb-9a03-0242ac130003");
-  @Mock UUIDGenerator uuidGenerator;
-  @Mock DatasourceDAO datasourceDAO;
-  @Mock ProviderMetadataFactory providerMetadataFactory;
-  @Mock TraefikProviderService traefikProviderService;
-  @InjectMocks CreateDatasourceService createDatasourceService;
+  @Mock
+  UUIDGenerator uuidGenerator;
+  @Mock
+  DatasourceDAO datasourceDAO;
+  @Mock
+  ProviderMetadataFactory providerMetadataFactory;
+  @Mock
+  TraefikProviderService traefikProviderService;
+  @InjectMocks
+  CreateDatasourceService createDatasourceService;
 
   @BeforeEach
   void setUp() {

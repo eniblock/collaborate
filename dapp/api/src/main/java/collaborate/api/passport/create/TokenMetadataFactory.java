@@ -18,14 +18,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class TokenMetadataFactory {
 
-  public final static String NFT_NAME = "DigitalPassport";
-  public final static String NFT_SYMBOLE = "CDP";
-  public final static int NFT_DECIMALS = 0;
-  public final static String NFT_VERSION = "digital-passport.0.1";
-  public final static String NFT_LICENCE = "MIT";
-  public final static List<String> NFT_AUTHOR = List.of("The Blockchain Xdev team");
-  public final static String NFT_HOMEPAGE = "https://www.theblockchainxdev.com/";
-  public final static List<String> NFT_INTERFACES = List.of("TZIP-012", "TZIP-021");
+  public static final String NFT_NAME = "DigitalPassport";
+  public static final String NFT_SYMBOLE = "CDP";
+  public static final int NFT_DECIMALS = 0;
+  public static final String NFT_VERSION = "digital-passport.0.1";
+  public static final String NFT_LICENCE = "MIT";
+  public static final List<String> NFT_AUTHOR = List.of("The Blockchain Xdev team");
+  public static final String NFT_HOMEPAGE = "https://www.theblockchainxdev.com/";
+  public static final List<String> NFT_INTERFACES = List.of("TZIP-012", "TZIP-021");
 
   private final Clock clock;
   private final DateFormatterFactory dateFormatterFactory;

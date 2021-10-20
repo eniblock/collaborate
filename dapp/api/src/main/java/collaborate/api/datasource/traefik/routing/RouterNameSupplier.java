@@ -8,7 +8,8 @@ public class RouterNameSupplier implements Supplier<String> {
   private final String name;
 
   public RouterNameSupplier(String datasourceName, WebServerResource resource) {
-    this.name = datasourceName + "-" + new RoutingKeyFromKeywordSupplier(resource.getKeywords()).get();
+    this.name =
+        datasourceName + "-" + new RoutingKeyFromKeywordSupplier(resource.getKeywords()).get();
   }
 
   @Override

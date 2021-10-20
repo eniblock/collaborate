@@ -27,7 +27,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class MetricServiceTest {
+class MetricServiceTest {
 
   public static final String traefikUrl = "https://localhost.test:4242";
   @Mock

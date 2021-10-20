@@ -16,6 +16,7 @@ import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.test.config.KeycloakTestConfig;
 import collaborate.api.test.config.NoSecurityTestConfig;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
@@ -85,7 +86,7 @@ class DatasourceLinkControllerIT {
     // GIVEN
     var datasource = readPath("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
         WebServerDatasourceDTO.class);
-    datasource.setKeywords(Set.of("invalid-keyword"));
+    datasource.setKeywords(new HashSet<>(Set.of("invalid-keyword")));
     var datasourceJson = objectMapper.writeValueAsString(datasource);
     final MockMultipartFile basicAuthDatasource = new MockMultipartFile(
         "datasource",
@@ -133,7 +134,7 @@ class DatasourceLinkControllerIT {
     // GIVEN
     var datasource = readPath("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
         WebServerDatasourceDTO.class);
-    datasource.setKeywords(Set.of("business-data"));
+    datasource.setKeywords(new HashSet<>(Set.of("business-data")));
     var datasourceJson = objectMapper.writeValueAsString(datasource);
     final MockMultipartFile basicAuthDatasource = new MockMultipartFile(
         "datasource",
@@ -157,7 +158,7 @@ class DatasourceLinkControllerIT {
     // GIVEN
     var datasource = readPath("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
         WebServerDatasourceDTO.class);
-    datasource.setKeywords(Set.of("digital-passport"));
+    datasource.setKeywords(new HashSet<>(Set.of("digital-passport")));
     var datasourceJson = objectMapper.writeValueAsString(datasource);
     final MockMultipartFile basicAuthDatasource = new MockMultipartFile(
         "datasource",

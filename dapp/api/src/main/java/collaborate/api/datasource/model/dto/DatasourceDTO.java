@@ -12,7 +12,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
-import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 import javax.persistence.CascadeType;
 import javax.persistence.OneToOne;
@@ -50,7 +50,7 @@ public abstract class DatasourceDTO implements Keywords<String>, Serializable {
       uniqueItems = true)
   @NotEmpty
   @DatasourcePurposeConstraint
-  protected Set<String> keywords;
+  protected HashSet<String> keywords;
 
   /**
    * DB inheritance field
@@ -58,14 +58,15 @@ public abstract class DatasourceDTO implements Keywords<String>, Serializable {
   @Schema(description = "Used for serialization", example = "WebServerDatasource")
   private String type;
 
-  protected DatasourceDTO(UUID id, String name, Authentication authMethod, Set<String> keywords) {
+  protected DatasourceDTO(UUID id, String name, Authentication authMethod,
+      HashSet<String> keywords) {
     this.id = id;
     this.name = name;
     this.authMethod = authMethod;
     this.keywords = keywords;
   }
 
-  public abstract void accept(DatasourceDTOVisitor visitor) throws Exception;
+  public abstract void accept(DatasourceDTOVisitor visitor) throws DatasourceVisitorException;
 
   public boolean anyKeywordsContains(String searched) {
     return keywords != null && getKeywords().stream()

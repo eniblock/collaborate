@@ -11,13 +11,13 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class RoleDTO {
 
-    @Schema(description = "The role identifier")
-    private UUID id;
+  @Schema(description = "The role identifier")
+  private UUID id;
 
-    @Schema(description = "The role name")
-    private String name;
+  @Schema(description = "The role name")
+  private String name;
 
-    @Schema(description = "The role description")
-    private String description;
+  @Schema(description = "The role description")
+  private String description;
 
 }

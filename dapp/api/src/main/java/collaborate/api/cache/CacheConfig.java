@@ -7,8 +7,6 @@ import static collaborate.api.cache.CacheConfig.CacheNames.USER;
 import static collaborate.api.cache.CacheConfig.CacheNames.VEHICLE_ID;
 import static collaborate.api.cache.CacheConfig.CacheNames.WEBSERVER_DATASOURCE;
 
-import java.util.Objects;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;

@@ -2,18 +2,18 @@ package collaborate.api.datasource.model.dto;
 
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Set;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class DatasourceDetailsDto {
+
   @Schema(
       description = "The id of the datasource.",
       example = "fa9a8a6c-1aea-4086-8a00-64c5c959c0fl",
@@ -36,7 +36,7 @@ public class DatasourceDetailsDto {
       description = "The id of the datasource.",
       example = "fa9a8a6c-1aea-4086-8a00-64c5c959c0fl",
       required = true)
-  String AuthenticationType;
+  String authenticationType;
 
   @Schema(description = "The URI of the datasource.", example = "URI", required = true)
   String baseURI;

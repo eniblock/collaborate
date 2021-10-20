@@ -24,7 +24,7 @@ public class FindPassportDAO {
   public PassportsIndexerTagResponseDTO findPassportsIndexersByDsps(
       Collection<String> dspAddresses) {
     var requestPassportsIndexer = new DataFieldsRequest<>(List.of(
-        new MapQuery<String>().init(StorageFields.NFT_INDEXER, dspAddresses)
+        new MapQuery<>(StorageFields.NFT_INDEXER, dspAddresses)
     ));
     return tezosApiGatewayPassportClient
         .getPassportsIndexer(
@@ -35,7 +35,7 @@ public class FindPassportDAO {
 
   public MultisigTagResponseDTO findMultisigByIds(Collection<Integer> multisigIds) {
     var requestMultisigs = new DataFieldsRequest<>(List.of(
-        new MapQuery<Integer>().init(StorageFields.MULTISIGS, multisigIds)
+        new MapQuery<>(StorageFields.MULTISIGS, multisigIds)
     ));
     return tezosApiGatewayPassportClient
         .getMultisigs(
@@ -47,7 +47,7 @@ public class FindPassportDAO {
   public List<TagEntry<Integer, TokenMetadata>> findTokenMetadataByTokenIds(
       Collection<Integer> tokenIds) {
     var requestTokenMetadata = new DataFieldsRequest<>(List.of(
-        new MapQuery<Integer>().init(StorageFields.TOKEN_METADATA, tokenIds)
+        new MapQuery<>(StorageFields.TOKEN_METADATA, tokenIds)
     ));
     return tezosApiGatewayPassportClient
         .getTokenMetadata(
@@ -75,7 +75,7 @@ public class FindPassportDAO {
 
   public Optional<Integer> findTokenIdByAssetId(String assetId) {
     var requestTokenMetadata = new DataFieldsRequest<>(List.of(
-        new MapQuery<String>().init(StorageFields.TOKEN_ID_BY_ASSET_ID, List.of(assetId))
+        new MapQuery<>(StorageFields.TOKEN_ID_BY_ASSET_ID, List.of(assetId))
     ));
     return tezosApiGatewayPassportClient
         .getTokenIdByAssetIds(

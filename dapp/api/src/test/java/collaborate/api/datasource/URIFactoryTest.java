@@ -7,16 +7,17 @@ import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
 class URIFactoryTest {
 
   private final URIFactory uriFactory = new URIFactory();
-  final List<QueryParam> queryParams = List.of(
+  final ArrayList<QueryParam> queryParams = new ArrayList<>(List.of(
       QueryParam.builder().key("keyA").value("valueA").build(),
       QueryParam.builder().key("keyB").value("valueB").build()
-  );
+  ));
 
   @Test
   void create_shouldHaveExpectedPath() {

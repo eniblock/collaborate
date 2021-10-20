@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class OrganizationServiceTest {
+class OrganizationServiceTest {
 
   @Mock
   OrganizationDAO organizationDAO;
@@ -49,7 +49,8 @@ public class OrganizationServiceTest {
 
     when(apiProperties.getDigitalPassportContractAddress())
         .thenReturn(digitalPassportDataSCAddress);
-    when(organizationDAO.getAllOrganizations(digitalPassportDataSCAddress)).thenReturn(expectedOrganizations);
+    when(organizationDAO.getAllOrganizations(digitalPassportDataSCAddress))
+        .thenReturn(expectedOrganizations);
     // WHEN
     var organizationResult = organizationService.getAllOrganizations();
     // THEN

@@ -29,8 +29,7 @@ public class SaveCertificateVisitor implements AuthenticationVisitor<Void> {
       log.info("pfxUnProtector exitCode={}", pfxUnprotector.unprotect(certificateBasedBasicAuth));
     } catch (Exception e) {
       log.error("While un-protecting certificateBasedBasicAuth={}", certificateBasedBasicAuth);
-      throw new RuntimeException(String
-          .format("While un-protecting certificateBasedBasicAuth=%s", certificateBasedBasicAuth));
+      Thread.currentThread().interrupt();
     }
     return null;
   }

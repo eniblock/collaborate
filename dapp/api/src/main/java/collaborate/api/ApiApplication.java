@@ -15,7 +15,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableAsync
 @EnableCaching
 public class ApiApplication {
-    public static void main(String[] args) {
-        SpringApplication.run(ApiApplication.class, args);
-    }
+
+  public static void main(String[] args) {
+    SpringApplication.run(ApiApplication.class, args);
+  }
 }

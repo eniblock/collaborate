@@ -1,7 +1,6 @@
 package collaborate.api.gateway;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -15,7 +14,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class GatewayUrlServiceTest {
+class GatewayUrlServiceTest {
 
   @Mock
   GatewayUrlDAO gatewayUrlDAO;
@@ -42,7 +41,7 @@ public class GatewayUrlServiceTest {
 
     // THEN
     verify(gatewayUrlDAO, times(1)).fetch(
-        eq("https://localhost:8443/datasource/" + datasourceUUID + "/kilometer/" + assetId)
+        "https://localhost:8443/datasource/" + datasourceUUID + "/kilometer/" + assetId
     );
 
   }
