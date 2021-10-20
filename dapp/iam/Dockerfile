@@ -8,7 +8,7 @@ RUN mvn --batch-mode dependency:go-offline install -DskipTests -B -f iam
 COPY authenticator/src iam/authenticator/src
 RUN mvn --batch-mode install -DskipTests -f iam/authenticator
 
-FROM registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/keycloak:0.1.0
+FROM registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/keycloak:0.1.0
 COPY --from=build /workspace/app/iam/authenticator/target/authenticator-email.jar /opt/bitnami/keycloak/standalone/deployments/authenticator-email.jar
 COPY custom-theme/custom-keycloak/ /opt/bitnami/keycloak/themes/custom-keycloak/
 COPY custom-theme/logical-pictures/ /opt/bitnami/keycloak/themes/logical-pictures/

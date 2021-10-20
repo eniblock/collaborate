@@ -3,7 +3,7 @@ dependencies:
   repository: https://charts.bitnami.com/bitnami
   version: 10.2.5
 - name: keycloak
-  repository: oci://registry.gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/keycloak/helm
+  repository: oci://registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/keycloak/helm
   version: 2.4.3-develop.71
 - name: tezos-api-gateway
   repository: oci://registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/tezos-api-gateway/helm
