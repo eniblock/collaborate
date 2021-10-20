@@ -6,12 +6,13 @@ import lombok.Data;
 
 @Data
 public class TransactionsEventMessage<T extends Serializable> implements Serializable {
-    @NotNull
-    private String entrypoint;
 
-    @NotNull
-    private String contractAddress;
+  @NotNull
+  private String entrypoint;
 
-    @NotNull
-    private TransactionsEventParameters<T> parameters;
+  @NotNull
+  private String contractAddress;
+
+  @NotNull
+  private TransactionsEventParameters<T> parameters;
 }

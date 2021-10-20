@@ -28,8 +28,7 @@ public class ListDatasourceDTOFactory {
           .id(datasourceDto.getId())
           .name(datasourceDto.getName())
           .creationDate(datasourceDto.getCreationDatetime().toString())
-          // TODO Move in datasource metadata
-          .datasourceType("WebServer API")
+          .datasourceType(datasourceDto.getType())
           .status(DatasourceStatus.CREATED)
           .purpose(
               datasourceDto.getProviderMetadata().stream()
@@ -51,7 +50,7 @@ public class ListDatasourceDTOFactory {
                   .findFirst()
                   .orElse(""))
           .build();
-    } catch (Exception e){
+    } catch (Exception e) {
       log.error("while mapping datasourceDto={}, exception={}", datasourceDto, e);
     }
     return listDatasourceDTOResult;

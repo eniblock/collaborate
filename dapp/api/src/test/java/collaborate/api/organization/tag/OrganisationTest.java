@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 
-public class OrganisationTest {
+class OrganisationTest {
 
   @Test
   void deserialize_handleSnakeCase() throws JsonProcessingException {

@@ -1,5 +1,7 @@
 package collaborate.api.datasource.model.dto.web;
 
+import static lombok.AccessLevel.PRIVATE;
+
 import collaborate.api.datasource.model.dto.Keywords;
 import collaborate.api.datasource.model.dto.NoQueryStringConstraint;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -7,8 +9,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
+import java.util.ArrayList;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.OneToMany;
@@ -25,7 +26,9 @@ import lombok.NoArgsConstructor;
 @JsonInclude(Include.NON_NULL)
 public class WebServerResource implements Keywords<String>, Serializable {
 
-  public static class Keywords{
+  @NoArgsConstructor(access = PRIVATE)
+  public static class Keywords {
+
     public static final String PURPOSE_TEST_CONNECTION = "purpose:test-connection";
   }
 
@@ -48,13 +51,6 @@ public class WebServerResource implements Keywords<String>, Serializable {
 
   @OneToMany(cascade = CascadeType.ALL)
   @ArraySchema(schema = @Schema(description = "Query parameter to add at the end of this resource URL. "))
-  private List<QueryParam> queryParams;
-
-  public Optional<String> findVinMappingQueryParamKey() {
-    return Optional.ofNullable(queryParams)
-        .filter(q -> !q.isEmpty())
-        .flatMap(q -> q.stream().findFirst())
-        .map(QueryParam::getKey);
-  }
+  private ArrayList<QueryParam> queryParams;
 
 }

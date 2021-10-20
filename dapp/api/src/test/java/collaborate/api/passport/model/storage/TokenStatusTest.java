@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import collaborate.api.passport.model.TokenStatus;
 import org.junit.jupiter.api.Test;
 
-public class TokenStatusTest {
+class TokenStatusTest {
 
   @Test
   void fromMultisig_shoudReturnPendingCreation_withMultisigOkNull() {

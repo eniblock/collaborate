@@ -87,7 +87,7 @@ public class DatasourceService {
                 .orElse(emptySet())
         ).baseURI(buildDatasourceBaseUri(datasource))
         // FIXME to make it dynamic
-        .AuthenticationType("Basic Authentication")
+        .authenticationType("Basic Authentication")
         // FIXME to make it dynamic
         .certificateEmail("ca@dsp.com")
         // FIXME to make it dynamic

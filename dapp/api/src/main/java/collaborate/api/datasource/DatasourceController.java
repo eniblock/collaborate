@@ -81,7 +81,8 @@ public class DatasourceController {
   @GetMapping("/{id}/scopes")
   @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
-  public ResponseEntity<Set<String>> listScopesByDatasourceId(@PathVariable(value = "id") String id) {
+  public ResponseEntity<Set<String>> listScopesByDatasourceId(
+      @PathVariable(value = "id") String id) {
     var scopesOpt = datasourceService.getScopesByDataSourceId(id);
     return scopesOpt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }

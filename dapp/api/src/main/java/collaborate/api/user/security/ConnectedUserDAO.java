@@ -1,6 +1,6 @@
 package collaborate.api.user.security;
 
-import static collaborate.api.user.security.Authorizations.Roles.ORGANIZATION_ROLES;
+import static collaborate.api.user.security.Authorizations.Roles.getOrganizationRoles;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 import static org.springframework.util.CollectionUtils.containsAny;
@@ -63,6 +63,6 @@ public class ConnectedUserDAO {
   }
 
   public boolean isOrganization() {
-    return containsAny(ORGANIZATION_ROLES, getRealmRoles());
+    return containsAny(getOrganizationRoles(), getRealmRoles());
   }
 }

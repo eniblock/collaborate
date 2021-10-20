@@ -36,7 +36,8 @@ public class DatasourceDAO {
   private final DateFormatterFactory dateFormatterFactory;
   private final IpfsDAO ipfsDAO;
   private final ListDatasourceDTOFactory listDatasourceDTOFactory;
-  private final TypeReference<Datasource> typedTypeRef = new TypeReference<>() {};
+  private final TypeReference<Datasource> typedTypeRef = new TypeReference<>() {
+  };
 
   @NonNull
   public List<ContentWithCid<Datasource>> findAll() {
@@ -81,7 +82,6 @@ public class DatasourceDAO {
   }
 
 
-
   @NonNull
   public List<ContentWithCid<Datasource>> findAllById(@NonNull Iterable<String> ids) {
     return streamDatasourcesByCid()
@@ -102,7 +102,7 @@ public class DatasourceDAO {
 
   public ContentWithCid<Datasource> save(Datasource datasource) throws IOException {
     var datasourcePath = Path.of(datasourceProperties.getRootFolder(),
-            dateFormatterFactory.forPattern(datasourceProperties.getPartitionDatePattern()),
+        dateFormatterFactory.forPattern(datasourceProperties.getPartitionDatePattern()),
         datasource.getId()
     );
     var cid = ipfsDAO.add(datasourcePath, datasource);

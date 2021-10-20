@@ -65,11 +65,11 @@ public class TokenMetadataService {
                 .map(datasourceService::buildDatasourceBaseUri)
                 .orElse("")
             ).scopes(datasourceService.getScopesByDataSourceId(d.getId())
-                .orElseGet(() -> {
-                  log.warn("No scopes found for datasource={}", d.getId());
-                  return Collections.emptySet();
-                })
-            ).build()
+            .orElseGet(() -> {
+              log.warn("No scopes found for datasource={}", d.getId());
+              return Collections.emptySet();
+            })
+        ).build()
     ).collect(Collectors.toList());
   }
 

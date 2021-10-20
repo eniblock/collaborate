@@ -2,7 +2,6 @@ package collaborate.api.gateway;
 
 import collaborate.api.user.security.Authorizations.HasRoles;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +21,7 @@ public class GatewayController {
 
   @PreAuthorize(HasRoles.API_GATEWAY_READ)
   @GetMapping(value = "**")
-  public JsonNode consumeDatasource(HttpServletRequest request) throws IOException {
+  public JsonNode consumeDatasource(HttpServletRequest request) {
     return gatewayService.fetch(request);
   }
 }

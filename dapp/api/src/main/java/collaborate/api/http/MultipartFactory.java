@@ -31,7 +31,9 @@ public class MultipartFactory {
         (int) file.length(),
         file.getParentFile()
     );
-    IOUtils.copy(new FileInputStream(file), fileItem.getOutputStream());
+    try (var fileInputStream = new FileInputStream(file)) {
+      IOUtils.copy(fileInputStream, fileItem.getOutputStream());
+    }
     return new CommonsMultipartFile(fileItem);
   }
 
@@ -41,8 +43,8 @@ public class MultipartFactory {
     objectMapper.writeValue(tmpFile, object);
     tmpFile.deleteOnExit();
 
-    try{
-      var multipart =  create(tmpFile, formFieldName);
+    try {
+      var multipart = create(tmpFile, formFieldName);
       if (!tmpFile.delete()) {
         log.error("Can't delete temp file ={}, would be deleted automatically on exit",
             tmpFile.getAbsolutePath());

@@ -36,6 +36,7 @@ public class Job {
   // TODO: openapi description
   @JsonProperty("operation_hash")
   private String operationHash;
+  // TODO: openapi description
   @JsonProperty("error_message")
   private String errorMessage;
 

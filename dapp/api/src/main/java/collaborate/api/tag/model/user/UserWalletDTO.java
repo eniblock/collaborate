@@ -13,17 +13,17 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserWalletDTO implements Serializable {
 
-    /**
-     * The vault id used to store the publicKeyHash
-     */
-    private String userId;
+  /**
+   * The vault id used to store the publicKeyHash
+   */
+  private String userId;
 
-    /**
-     * The publicKeyHash
-     */
-    @JsonProperty("account")
-    private String address;
+  /**
+   * The publicKeyHash
+   */
+  @JsonProperty("account")
+  private String address;
 
-    private String email;
+  private String email;
 
 }

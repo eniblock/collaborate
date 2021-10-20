@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CipherConfig {
 
-  private static final String CIPHER_INSTANCE = "RSA";
+  private static final String CIPHER_INSTANCE = "RSA/None/OAEPWITHSHA-256ANDMGF1PADDING";
 
   @Bean
   public Cipher cipherFactory() throws NoSuchPaddingException, NoSuchAlgorithmException {

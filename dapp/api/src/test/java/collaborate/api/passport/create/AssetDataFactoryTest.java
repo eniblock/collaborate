@@ -16,14 +16,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class AssetDataFactoryTest {
+class AssetDataFactoryTest {
 
-  Clock clock = Clock
-      .fixed(Instant.parse("2021-10-09T16:02:42.12Z"), ZoneId.of("UTC"));
+  private final Clock clock = Clock.fixed(
+      Instant.parse("2021-10-09T16:02:42.12Z"),
+      ZoneId.of("UTC")
+  );
+  private final DateFormatterFactory dateFormatterFactory = new DateFormatterFactory(clock);
 
   @Mock
   private DatasourceService datasourceService;
-  private DateFormatterFactory dateFormatterFactory = new DateFormatterFactory(clock);
+
   @Mock
   private TokenMetadataProperties tokenMetadataProperties;
 
@@ -45,7 +48,6 @@ public class AssetDataFactoryTest {
     // WHEN
     var currentPath = assetDataCatalogFactory.buildRelativePathForAssetId("assetId");
     // THEN
-    assertThat(currentPath.toString())
-        .isEqualTo("DigitalPassport/20211009/assetId_" + clock.millis());
+    assertThat(currentPath).hasToString("DigitalPassport/20211009/assetId_" + clock.millis());
   }
 }

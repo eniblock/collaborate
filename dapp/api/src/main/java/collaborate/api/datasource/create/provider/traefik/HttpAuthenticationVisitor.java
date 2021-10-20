@@ -21,7 +21,7 @@ import lombok.Data;
 import org.apache.commons.lang3.NotImplementedException;
 
 @Data
-public class HttpAuthenticationVisitor implements AuthenticationVisitor<Void>{
+public class HttpAuthenticationVisitor implements AuthenticationVisitor<Void> {
 
   private Map<String, Middleware> middlewares;
   private List<QueryParam> queryParams;

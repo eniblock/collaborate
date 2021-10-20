@@ -65,7 +65,8 @@ class TagUserDAOTest {
         .constructCollectionType(List.class, UserWalletDTO.class);
     String userId = "userId";
     // WHEN
-    List<UserWalletDTO> createResult = objectMapper.readValue(UserWalletFeature.tagUserJsonResponse, type);
+    List<UserWalletDTO> createResult = objectMapper
+        .readValue(UserWalletFeature.tagUserJsonResponse, type);
     when(tezosApiGatewayUserClient.create(any())).thenReturn(
         new ResponseEntity<>(createResult, HttpStatus.CREATED));
 
@@ -73,7 +74,8 @@ class TagUserDAOTest {
     // THEN
     // create should return expected type
     tezosApiGatewayUserClient.create(new UsersDTO());
-    assertThat(actualResult).isPresent();
-    assertThat(actualResult).contains(UserWalletFeature.userWallet);
+    assertThat(actualResult)
+        .isPresent()
+        .contains(UserWalletFeature.userWallet);
   }
 }

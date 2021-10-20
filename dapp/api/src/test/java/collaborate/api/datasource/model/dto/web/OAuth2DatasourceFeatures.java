@@ -1,6 +1,5 @@
 package collaborate.api.datasource.model.dto.web;
 
-import collaborate.api.datasource.model.dto.enumeration.DatasourceStatus;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
 import collaborate.api.test.TestResources;
 import java.net.URI;
@@ -33,7 +32,7 @@ public class OAuth2DatasourceFeatures {
               .build()
           ))).build();
 
-  public static final String datasourceJson  = TestResources.readPath(
+  public static final String datasourceJson = TestResources.readPath(
       "/datasource/domain/web/oAuth2Datasource.json");
 
   private OAuth2DatasourceFeatures() {

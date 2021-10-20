@@ -4,6 +4,7 @@ import static collaborate.api.test.TestResources.readPath;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import collaborate.api.test.assertion.ConstraintViolationSetAssert;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.validation.Validation;
@@ -28,7 +29,7 @@ class WebServerDatasourceLinkDTOTest {
   @Test
   void validation_shouldNotReturnViolations_withBusinessDataKeyword() {
     // GIVEN
-    webServerDatasource.setKeywords(Set.of("business-data"));
+    webServerDatasource.setKeywords(new HashSet<>(Set.of("business-data")));
     // WHEN
     var actualViolations = validator.validate(webServerDatasource);
     // THEN
@@ -38,7 +39,7 @@ class WebServerDatasourceLinkDTOTest {
   @Test
   void validation_shouldNotReturnViolations_withDigitalPassportKeyword() {
     // GIVEN
-    webServerDatasource.setKeywords(Set.of("digital-passport"));
+    webServerDatasource.setKeywords(new HashSet<>(Set.of("digital-passport")));
     // WHEN
     var actualViolations = validator.validate(webServerDatasource);
     // THEN
