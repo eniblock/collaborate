@@ -20,8 +20,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -177,19 +181,28 @@ class MetricServiceTest {
     );
   }
 
-  @Test
-  void keepPath() {
+  private static Stream<Arguments> extractValuePathParameters() {
+    return Stream.of(
+        Arguments.of("$.odometer.mileage", "5477.9"),
+        Arguments.of("$.energies[?(@.type == 'Electric')].level[0]", "79"),
+        Arguments.of("$.energies[?(@.type == 'hydrogen')].level[0]", "")
+    );
+  }
+
+  @ParameterizedTest
+  @MethodSource("extractValuePathParameters")
+  void keepPath_shouldReturnExpected_withFieldPath(String path, String expectedResult) {
     // GIVEN
     Set<Attribute> metadata = Set.of(
         Attribute.builder()
             .name("value.jsonPath")
-            .value("$.odometer.mileage")
+            .value(path)
             .build()
     );
     var jsonResponse = readPath("/passport/metric/metric.response.json");
     // WHEN
     var jsonNodeResult = metricService.extractValuePath(jsonResponse, metadata);
     // THEN
-    assertThat(jsonNodeResult).isEqualTo(TestResources.objectMapper.valueToTree("5477.9"));
+    assertThat(jsonNodeResult).isEqualTo(TestResources.objectMapper.valueToTree(expectedResult));
   }
 }
