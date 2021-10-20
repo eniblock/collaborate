@@ -6,7 +6,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.ipfs.domain.Cid;
+import collaborate.api.ipfs.domain.CidResponse;
 import collaborate.api.ipfs.domain.IpnsResponse;
 import collaborate.api.ipfs.domain.ListKeyPairResponse;
 import collaborate.api.ipfs.domain.dto.IpnsFoldersDTO;
@@ -19,7 +19,7 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class IpnsServiceTest {
+class IpnsServiceTest {
 
   @Mock
   IpfsFilesClient ipfsFilesClient;
@@ -38,7 +38,7 @@ public class IpnsServiceTest {
   void initIpnsFolder_shouldCallExpectedWorkflowAndReturnIpns()
       throws ExecutionException, InterruptedException {
     String folderPath = "/this/is/root/folder";
-    Cid cid = readPath("/ipfs/init-folder/files.flush.json", Cid.class);
+    CidResponse cid = readPath("/ipfs/init-folder/files.flush.json", CidResponse.class);
     ListKeyPairResponse listKeyPairResponse = readPath("/ipfs/init-folder/key.list.json",
         ListKeyPairResponse.class);
     var publishResponse = readPath("/ipfs/init-folder/name.publish.json", IpnsResponse.class);
@@ -75,7 +75,7 @@ public class IpnsServiceTest {
     // WHEN
     var result = ipnsService.getKeyPairByName("/this/is/root/folder");
     // THEN
-    assertThat(result.isEmpty()).isFalse();
+    assertThat(result).isPresent();
     assertThat(result.get().getName()).isEqualTo("/this/is/root/folder");
     assertThat(result.get().getId()).isEqualTo("12345");
   }
@@ -89,7 +89,7 @@ public class IpnsServiceTest {
     // WHEN
     var result = ipnsService.getKeyPairByName("/unfound/folder");
     // THEN
-    assertThat(result.isEmpty()).isTrue();
+    assertThat(result).isNotPresent();
   }
 
 }

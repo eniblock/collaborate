@@ -4,11 +4,12 @@ import static java.lang.String.format;
 
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;
+import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.authentication.Authentication;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -35,9 +36,8 @@ public class WebServerDatasourceDTO extends DatasourceDTO {
   public WebServerDatasourceDTO(
       UUID id,
       String name,
-
       Authentication authMethod,
-      Set<String> keywords,
+      HashSet<String> keywords,
       List<WebServerResource> resources,
       String baseUrl
   ) {
@@ -47,7 +47,7 @@ public class WebServerDatasourceDTO extends DatasourceDTO {
   }
 
   @Override
-  public void accept(DatasourceDTOVisitor visitor) throws Exception {
+  public void accept(DatasourceDTOVisitor visitor) throws DatasourceVisitorException {
     visitor.visitWebServerDatasource(this);
   }
 

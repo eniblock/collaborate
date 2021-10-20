@@ -30,7 +30,8 @@ public class TestConnectionFactory {
     throw new NotYetImplementedException();
   }
 
-  private BooleanSupplier testWebServerConnectionSupplier(WebServerDatasourceDTO webServerDatasource)
+  private BooleanSupplier testWebServerConnectionSupplier(
+      WebServerDatasourceDTO webServerDatasource)
       throws IOException, SSLContextException, UnrecoverableKeyException {
     var resource = webServerDatasource.getResourceByKeywordOrThrow(PURPOSE_TEST_CONNECTION);
     var uri = uriFactory.create(webServerDatasource, resource);

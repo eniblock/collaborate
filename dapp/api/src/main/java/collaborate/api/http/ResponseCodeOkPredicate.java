@@ -16,7 +16,8 @@ public class ResponseCodeOkPredicate implements Predicate<HttpURLConnection> {
   public boolean test(HttpURLConnection httpURLConnection) {
     try {
       httpURLConnection.connect();
-      log.debug("testing connection to url={}, responseCode={}",httpURLConnection.getURL(), httpURLConnection.getResponseCode());
+      log.debug("testing connection to url={}, responseCode={}", httpURLConnection.getURL(),
+          httpURLConnection.getResponseCode());
       var result = httpURLConnection.getResponseCode() == OK.value();
       httpURLConnection.disconnect();
       return result;

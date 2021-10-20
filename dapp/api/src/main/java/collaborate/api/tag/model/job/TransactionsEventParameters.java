@@ -4,32 +4,33 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 
 public class TransactionsEventParameters<T extends Serializable> implements Serializable {
-    @NotNull
-    private String entrypoint;
 
-    @NotNull T value;
+  @NotNull
+  private String entrypoint;
 
-    public String getEntrypoint() {
-        return entrypoint;
-    }
+  @NotNull T value;
 
-    public void setEntrypoint(String entrypoint) {
-        this.entrypoint = entrypoint;
-    }
+  public String getEntrypoint() {
+    return entrypoint;
+  }
 
-    public T getValue() {
-        return value;
-    }
+  public void setEntrypoint(String entrypoint) {
+    this.entrypoint = entrypoint;
+  }
 
-    public void setValue(T value) {
-        this.value = value;
-    }
+  public T getValue() {
+    return value;
+  }
 
-    @Override
-    public String toString() {
-        return "RequestAccessParameters{" +
-                "entrypoint='" + entrypoint + '\'' +
-                ", value=" + value +
-                '}';
-    }
+  public void setValue(T value) {
+    this.value = value;
+  }
+
+  @Override
+  public String toString() {
+    return "RequestAccessParameters{" +
+        "entrypoint='" + entrypoint + '\'' +
+        ", value=" + value +
+        '}';
+  }
 }

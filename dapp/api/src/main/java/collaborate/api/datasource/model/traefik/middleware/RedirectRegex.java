@@ -8,8 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * Redirecting the Client to a Different Location<br>
- * The RedirectRegex redirects a request using regex matching and replacement.
+ * Redirecting the Client to a Different Location<br> The RedirectRegex redirects a request using
+ * regex matching and replacement.
  *
  * @see <a href="https://doc.traefik.io/traefik/middlewares/redirectregex/">Traefik RedirectRegex
  * middleware doc</a>

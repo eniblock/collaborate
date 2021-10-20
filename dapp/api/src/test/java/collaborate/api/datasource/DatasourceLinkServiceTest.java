@@ -124,8 +124,7 @@ class DatasourceLinkServiceTest {
     // WHEN
     var scopesResult = datasourceService.getScopesByDataSourceId(datasourceId);
     // THEN
-    assertThat(scopesResult).isPresent();
-    assertThat(scopesResult).hasValue(Collections.emptySet());
+    assertThat(scopesResult).isPresent().hasValue(Collections.emptySet());
   }
 
   @Test

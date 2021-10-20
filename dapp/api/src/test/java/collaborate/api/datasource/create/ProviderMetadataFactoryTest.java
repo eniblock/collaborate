@@ -23,45 +23,29 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-public class ProviderMetadataFactoryTest {
+class ProviderMetadataFactoryTest {
 
   @Mock
   AuthenticationProviderMetadataVisitor authenticationProviderMetadataVisitor;
 
-  @Spy
   ObjectMapper objectMapper = Mockito.spy(TestResources.objectMapper);
 
   @InjectMocks
   ProviderMetadataFactory providerMetadataFactory;
 
   @Test
-  void METADATA_REGEXP_shouldMatch_withKeyHavingMinusChars() {
-    // GIVEN
-    String input = "metadata:value.jsonPath:$._embedded.odometer.value:Integer";
-    Matcher matcher = METADATA_REGEXP.matcher(input);
-    // WHEN
-    var found = matcher.matches();
-    // THEN
-    assertThat(found).isTrue();
-    assertThat(matcher.group(NAME_GROUP_INDEX)).isEqualTo("value.jsonPath");
-    assertThat(matcher.group(VALUE_GROUP_INDEX)).isEqualTo("$._embedded.odometer.value");
-    assertThat(matcher.group(TYPE_GROUP_INDEX)).isEqualTo("Integer");
-  }
-
-  @Test
   void METADATA_REGEXP_shouldMatch_withKeyHavingDotChars() {
     // GIVEN
-    String input = "metadata:value.jsonPath:$._embedded.odometer.value:Integer";
+    String input = "metadata:response.jsonPath:$._embedded.odometer.value:Integer";
     Matcher matcher = METADATA_REGEXP.matcher(input);
     // WHEN
     var found = matcher.matches();
     // THEN
     assertThat(found).isTrue();
-    assertThat(matcher.group(NAME_GROUP_INDEX)).isEqualTo("value.jsonPath");
+    assertThat(matcher.group(NAME_GROUP_INDEX)).isEqualTo("response.jsonPath");
     assertThat(matcher.group(VALUE_GROUP_INDEX)).isEqualTo("$._embedded.odometer.value");
     assertThat(matcher.group(TYPE_GROUP_INDEX)).isEqualTo("Integer");
   }

@@ -3,7 +3,7 @@ package collaborate.api.ipfs;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import collaborate.api.config.FeignConfig;
-import collaborate.api.ipfs.domain.Cid;
+import collaborate.api.ipfs.domain.CidResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,15 +34,15 @@ public interface IpfsFilesClient {
    * @see <a href="https://docs.ipfs.io/reference/http/api/#api-v0-files-write">IPFS HTTP API</a>
    */
   @PostMapping(value = "flush")
-  Cid flush(@RequestParam("arg") String absolutePath);
+  CidResponse flush(@RequestParam("arg") String absolutePath);
 
   /**
    * Write to a mutable file in a given filesystem.
    *
    * @param absolutePath Path to write to
-   * @param create Create the file if it does not exist, parent folder won't be created
+   * @param create       Create the file if it does not exist, parent folder won't be created
    * @see <a href="https://docs.ipfs.io/reference/http/api/#api-v0-files-write">docs.ipfs -
-   *    * files-write</a>
+   * * files-write</a>
    */
   @PostMapping(value = "write", consumes = MULTIPART_FORM_DATA_VALUE)
   Void write(@RequestParam("arg") String absolutePath,

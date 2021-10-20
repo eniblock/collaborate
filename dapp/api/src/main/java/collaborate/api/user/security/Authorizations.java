@@ -50,11 +50,14 @@ public final class Authorizations {
     public static final Collection<String> DSP_ROLES = Set.of(
         DSP_ADMIN, DSP_OPERATOR);
 
-    public static final Collection<String> ORGANIZATION_ROLES =
+    private static final Collection<String> ORGANIZATION_ROLES =
         Stream.of(BSP_ROLES, DSP_ROLES, List.of(IDENTITY_ADMIN))
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
+    public static Collection<String> getOrganizationRoles() {
+      return ORGANIZATION_ROLES;
+    }
   }
 
   public static final class HasRoles {
@@ -62,16 +65,18 @@ public final class Authorizations {
     private HasRoles() {
     }
 
+    private static final String HAS_ROLE = "hasRole";
     /*
      * Atomic roles
      */
-    public static final String IDENTITY_ADMIN = "hasRole('" + Roles.IDENTITY_ADMIN + "')";
-    public static final String DSP_ADMIN = "hasRole('" + Roles.DSP_ADMIN + "')";
-    public static final String BSP_ADMIN = "hasRole('" + Roles.BSP_ADMIN + "')";
-    public static final String DSP_OPERATOR = "hasRole('" + Roles.DSP_OPERATOR + "')";
-    public static final String BSP_OPERATOR = "hasRole('" + Roles.BSP_OPERATOR + "')";
-    public static final String PENDING_ASSET_OWNER = "hasRole('" + Roles.PENDING_ASSET_OWNER + "')";
-    public static final String ASSET_OWNER = "hasRole('" + Roles.ASSET_OWNER + "')";
+    public static final String IDENTITY_ADMIN = HAS_ROLE + "('" + Roles.IDENTITY_ADMIN + "')";
+    public static final String DSP_ADMIN = HAS_ROLE + "('" + Roles.DSP_ADMIN + "')";
+    public static final String BSP_ADMIN = HAS_ROLE + "('" + Roles.BSP_ADMIN + "')";
+    public static final String DSP_OPERATOR = HAS_ROLE + "('" + Roles.DSP_OPERATOR + "')";
+    public static final String BSP_OPERATOR = HAS_ROLE + "('" + Roles.BSP_OPERATOR + "')";
+    public static final String PENDING_ASSET_OWNER =
+        HAS_ROLE + "('" + Roles.PENDING_ASSET_OWNER + "')";
+    public static final String ASSET_OWNER = HAS_ROLE + "('" + Roles.ASSET_OWNER + "')";
 
     /*
      * Aggregated roles

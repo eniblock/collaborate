@@ -7,6 +7,6 @@ import lombok.EqualsAndHashCode;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class OrganizationMap extends HashMap<String, TezosMap<String, Organization>>{
+public class OrganizationMap extends HashMap<String, TezosMap<String, Organization>> {
 
 }

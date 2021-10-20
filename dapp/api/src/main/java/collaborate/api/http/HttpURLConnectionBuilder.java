@@ -56,7 +56,6 @@ public class HttpURLConnectionBuilder {
     headers.forEach((key, value) ->
         connection.setRequestProperty(key, String.join(", ", value))
     );
-    connection.setRequestProperty("Authorization", "Basic TVdQRFJWMDE6QkJybEtRMGk=");
     return connection;
 
   }

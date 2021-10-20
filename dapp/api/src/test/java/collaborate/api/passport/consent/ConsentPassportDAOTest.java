@@ -1,6 +1,5 @@
 package collaborate.api.passport.consent;
 
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -26,13 +25,12 @@ class ConsentPassportDAOTest {
   private ApiProperties apiProperties;
 
   private ConsentPassportDAO consentPassportDAO;
-  private TransactionBatchFactory transactionBatchFactory;
-  private final String smartContractAddress = "KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t";
 
   @BeforeEach
   void setUp() {
+    String smartContractAddress = "KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t";
     when(apiProperties.getDigitalPassportContractAddress()).thenReturn(smartContractAddress);
-    transactionBatchFactory = new TransactionBatchFactory();
+    TransactionBatchFactory transactionBatchFactory = new TransactionBatchFactory();
     consentPassportDAO = new ConsentPassportDAO(
         tezosApiGatewayJobClient,
         transactionBatchFactory,
@@ -58,8 +56,8 @@ class ConsentPassportDAOTest {
 
     when(
         tezosApiGatewayJobClient.sendTransactionBatch(
-            eq(ConsentPassportFeatures.consentPassportTransactionBatch),
-            eq(false)
+            ConsentPassportFeatures.consentPassportTransactionBatch,
+            false
         )
     ).thenReturn(mockedJobResult);
 
@@ -68,8 +66,8 @@ class ConsentPassportDAOTest {
     //THEN
     verify(tezosApiGatewayJobClient, times(1))
         .sendTransactionBatch(
-            eq(ConsentPassportFeatures.consentPassportTransactionBatch),
-            eq(false)
+            ConsentPassportFeatures.consentPassportTransactionBatch,
+            false
         );
   }
 

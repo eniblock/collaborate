@@ -35,7 +35,8 @@ public class CreatePassportService {
   private final TokenMetadataFactory tokenMetadataFactory;
   private final TokenMetadataProperties tokenMetadataProperties;
 
-  public Job createMultisig(CreateMultisigPassportDTO createMultisigPassportDTO) throws Exception {
+  public Job createMultisig(CreateMultisigPassportDTO createMultisigPassportDTO)
+      throws IOException {
     String assetOwnerWalletAddress = userService
         .findWalletAddressByEmailOrThrow(createMultisigPassportDTO.getAssetOwnerMail());
     var ipfsMetadataUri = saveMetadata(createMultisigPassportDTO);
@@ -48,8 +49,7 @@ public class CreatePassportService {
     return job;
   }
 
-  String saveMetadata(CreateMultisigPassportDTO createMultisigPassportDTO)
-      throws Exception {
+  String saveMetadata(CreateMultisigPassportDTO createMultisigPassportDTO) throws IOException {
     var assetDataCatalogRelativePath = assetDataCatalogFactory.buildRelativePathForAssetId(
         createMultisigPassportDTO.getAssetId()
     ).toString();

@@ -7,7 +7,7 @@ import collaborate.api.ipfs.IpfsFeature;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 
-public class LsResponseTest {
+class LsResponseTest {
 
   @Test
   void lsResponse_shouldBeDeserializable() throws JsonProcessingException {

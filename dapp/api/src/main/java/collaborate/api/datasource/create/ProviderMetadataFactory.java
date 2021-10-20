@@ -30,7 +30,7 @@ public class ProviderMetadataFactory {
   public static final int VALUE_GROUP_INDEX = 2;
   public static final int TYPE_GROUP_INDEX = 3;
   private static final String METADATA_PREFIX = "metadata:";
-  private static final String KEY_GROUP_REGEXP = "((?:[A-z]*(?:\\.|-[A-z])*)*)";
+  private static final String KEY_GROUP_REGEXP = "([^:]+)";
   private static final String VALUE_GROUP_REGEXP = ":([^:]*)";
   private static final String OPTIONAL_TYPE_GROUP_REGEXP = "(?::([A-z]*))?";
   public static final Pattern METADATA_REGEXP =

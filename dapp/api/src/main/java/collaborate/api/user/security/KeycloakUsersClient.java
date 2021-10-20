@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 @FeignClient(name = "keycloak-client", url = "${keycloak.auth-server-url}/realms/${keycloak.realm}/custom-api/users", configuration = FeignKeycloakConfiguration.class)
 public interface KeycloakUsersClient {
 
-    @Operation(description = "User details")
-    @GetMapping("{id}")
-    Optional<UserDTO> findById(@PathVariable("id") UUID id);
+  @Operation(description = "User details")
+  @GetMapping("{id}")
+  Optional<UserDTO> findById(@PathVariable("id") UUID id);
 
-    @Operation(description = "Users list")
-    @GetMapping(value = "", consumes = APPLICATION_JSON_VALUE)
-    UserSearchResponseDTO findByCriteria(@SpringQueryMap UserSearchCriteria search);
+  @Operation(description = "Users list")
+  @GetMapping(value = "", consumes = APPLICATION_JSON_VALUE)
+  UserSearchResponseDTO findByCriteria(@SpringQueryMap UserSearchCriteria search);
 }
