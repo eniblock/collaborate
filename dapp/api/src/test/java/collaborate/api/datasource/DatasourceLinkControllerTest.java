@@ -54,7 +54,7 @@ class DatasourceLinkControllerTest {
     when(datasourceService.findDetailsById(datasourceUUID.toString()))
         .thenReturn(
             Optional.of(
-                    expectedDatasource
+                expectedDatasource
             )
         );
     // WHEN
@@ -86,9 +86,11 @@ class DatasourceLinkControllerTest {
     // GIVEN
     var scopesOpt = Optional.of(Set.of("scope"));
     // WHEN
-    when(datasourceService.getScopesByDataSourceId(datasourceUUID.toString())).thenReturn(scopesOpt);
+    when(datasourceService.getScopesByDataSourceId(datasourceUUID.toString()))
+        .thenReturn(scopesOpt);
     // THEN
-    assertThat(datasourceController.listScopesByDatasourceId(datasourceUUID.toString()).getStatusCode())
+    assertThat(
+        datasourceController.listScopesByDatasourceId(datasourceUUID.toString()).getStatusCode())
         .isEqualTo(HttpStatus.OK);
   }
 
@@ -97,9 +99,11 @@ class DatasourceLinkControllerTest {
     // GIVEN
     var scopesOpt = Optional.<Set<String>>empty();
     // WHEN
-    when(datasourceService.getScopesByDataSourceId(datasourceUUID.toString())).thenReturn(scopesOpt);
+    when(datasourceService.getScopesByDataSourceId(datasourceUUID.toString()))
+        .thenReturn(scopesOpt);
     // THEN
-    assertThat(datasourceController.listScopesByDatasourceId(datasourceUUID.toString()).getStatusCode())
+    assertThat(
+        datasourceController.listScopesByDatasourceId(datasourceUUID.toString()).getStatusCode())
         .isEqualTo(HttpStatus.NOT_FOUND);
   }
 }

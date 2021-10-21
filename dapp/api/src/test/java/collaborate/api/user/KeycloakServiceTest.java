@@ -5,11 +5,11 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.user.security.UserSearchCriteria;
-import collaborate.api.user.security.UserSearchResponseDTO;
 import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.KeycloakService;
 import collaborate.api.user.security.KeycloakUsersClient;
+import collaborate.api.user.security.UserSearchCriteria;
+import collaborate.api.user.security.UserSearchResponseDTO;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;

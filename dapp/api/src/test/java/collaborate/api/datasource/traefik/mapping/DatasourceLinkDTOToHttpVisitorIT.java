@@ -38,7 +38,8 @@ class DatasourceLinkDTOToHttpVisitorIT {
     // WHEN
     datasource.accept(visitor);
     // THEN
-    var serializedTraefikConfiguration = yamlMapper.writeValueAsString(new TraefikProviderConfiguration(visitor.getHttp()));
+    var serializedTraefikConfiguration = yamlMapper
+        .writeValueAsString(new TraefikProviderConfiguration(visitor.getHttp()));
     System.out.println(serializedTraefikConfiguration);
     assertDoesNotThrow(() -> "No exception is thrown");
   }
