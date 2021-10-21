@@ -25,7 +25,7 @@ sonarcloud-check:
       - .sonar/cache
   script:
     - cd dapp/api
-    - ./mvnw verify sonar:sonar -f . -DskipTests
+    - ./mvnw verify sonar:sonar -f .
 
 # dapp
 
