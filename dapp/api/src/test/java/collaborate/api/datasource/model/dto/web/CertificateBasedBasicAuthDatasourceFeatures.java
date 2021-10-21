@@ -1,6 +1,5 @@
 package collaborate.api.datasource.model.dto.web;
 
-import collaborate.api.datasource.model.dto.enumeration.DatasourceStatus;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.test.TestResources;
 import java.util.ArrayList;
