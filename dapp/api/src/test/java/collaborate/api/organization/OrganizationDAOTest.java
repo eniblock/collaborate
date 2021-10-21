@@ -56,7 +56,8 @@ class OrganizationDAOTest {
   void getAllOrganizations_shouldSerializeRequestAsExpected() throws JsonProcessingException {
     // GIVEN
     // WHEN
-    var serialization = objectMapper.writeValueAsString(OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST);
+    var serialization = objectMapper
+        .writeValueAsString(OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST);
     // THEN
     assertThat(serialization).isEqualTo("{\"dataFields\":[\"organizations\"]}");
   }

@@ -16,7 +16,7 @@ class BytesTest {
   void serialize_shouldConvertToexpectedString() throws JsonProcessingException {
     // GIVEN
     var bytes = new Bytes("YAY9CUHUJNOCWRE1G".getBytes(StandardCharsets.UTF_8));
-    String expected = "\"59 41 59 39 43 55 48 55 4a 4e 4f 43 57 52 45 31 47\"".replace(" ","");
+    String expected = "\"59 41 59 39 43 55 48 55 4a 4e 4f 43 57 52 45 31 47\"".replace(" ", "");
 
     // WHEN
     var actual = mapper.writeValueAsString(bytes);
@@ -27,7 +27,7 @@ class BytesTest {
   @Test
   void deserialize_shouldConvertToExpectedString() throws JsonProcessingException {
     // GIVEN
-    String bytesString = "\"59 41 59 39 43 55 48 55 4a 4e 4f 43 57 52 45 31 47\"".replace(" ","");
+    String bytesString = "\"59 41 59 39 43 55 48 55 4a 4e 4f 43 57 52 45 31 47\"".replace(" ", "");
     var expected = new Bytes("YAY9CUHUJNOCWRE1G".getBytes(StandardCharsets.UTF_8));
 
     // WHEN
@@ -49,7 +49,7 @@ class BytesTest {
   @Test
   void deserialize_shouldGetTheString() throws JsonProcessingException {
     // GIVEN
-    String bytesString = "\"59 41 59 39 43 55 48 55 4a 4e 4f 43 57 52 45 31 47\"".replace(" ","");
+    String bytesString = "\"59 41 59 39 43 55 48 55 4a 4e 4f 43 57 52 45 31 47\"".replace(" ", "");
     var expected = "YAY9CUHUJNOCWRE1G";
 
     // WHEN

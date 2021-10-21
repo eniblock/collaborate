@@ -13,19 +13,19 @@ class RouterFactoryTest {
   RouterFactory routerFactory = new RouterFactory();
 
   @Test
-  void create_shouldExpectedPathPrefix(){
+  void create_shouldExpectedPathPrefix() {
     // GIVEN
     // WHEN
     var actualRouter = routerFactory.create("prefix", "service", Lists.emptyList(), false);
     // THEN
     assertThat(actualRouter).isEqualTo(
         Router.builder()
-        .entryPoints(List.of("websecure"))
-        .rule("PathPrefix(`prefix`)")
-        .service("service")
-        .middlewares(Lists.emptyList())
-        .tls(false)
-        .build()
+            .entryPoints(List.of("websecure"))
+            .rule("PathPrefix(`prefix`)")
+            .service("service")
+            .middlewares(Lists.emptyList())
+            .tls(false)
+            .build()
     );
   }
 }

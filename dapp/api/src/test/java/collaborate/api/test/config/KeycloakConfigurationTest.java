@@ -23,26 +23,26 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Ignore
 public class KeycloakConfigurationTest {
 
-    private MockHttpServletRequest servletRequest;
+  private MockHttpServletRequest servletRequest;
 
-    @Mock
-    public KeycloakSecurityContext keycloakSecurityContext;
+  @Mock
+  public KeycloakSecurityContext keycloakSecurityContext;
 
-    @Mock
-    private KeycloakPrincipal keycloakPrincipal;
+  @Mock
+  private KeycloakPrincipal keycloakPrincipal;
 
-    @Before
-    public void setUp() {
-        MockitoAnnotations.initMocks(this);
-        servletRequest = new MockHttpServletRequest();
-        RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest));
-        servletRequest.setUserPrincipal(keycloakPrincipal);
-        when(keycloakPrincipal.getKeycloakSecurityContext()).thenReturn(keycloakSecurityContext);
-    }
+  @Before
+  public void setUp() {
+    MockitoAnnotations.openMocks(this);
+    servletRequest = new MockHttpServletRequest();
+    RequestContextHolder.setRequestAttributes(new ServletRequestAttributes(servletRequest));
+    servletRequest.setUserPrincipal(keycloakPrincipal);
+    when(keycloakPrincipal.getKeycloakSecurityContext()).thenReturn(keycloakSecurityContext);
+  }
 
-    @Test
-    public void testGetKeycloakSecurityContext() {
-        assertNotNull(keycloakPrincipal.getKeycloakSecurityContext());
-    }
+  @Test
+  public void testGetKeycloakSecurityContext() {
+    assertNotNull(keycloakPrincipal.getKeycloakSecurityContext());
+  }
 
 }

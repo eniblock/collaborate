@@ -1,35 +1,51 @@
 {
-  "type" : "WebServerDatasource",
-  "id" : "525003f6-f85f-11eb-9a03-0242ac130003",
-  "name" : "DSPConsortium1 Digital Passport",
-
-  "authMethod" : {
-    "type" : "CertificateBasedBasicAuth",
-    "user" : "MWPDRV01",
-    "password" : "BBrlKQ0i",
-    "queryParams" : [ {
-      "key" : "client_id",
-      "value" : "c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
-    } ],
-    "passphrase" : "secret",
-    "caEmail" : "certificate@authority.email"
+  "type": "WebServerDatasource",
+  "id": "525003f6-f85f-11eb-9a03-0242ac130003",
+  "name": "DSPConsortium1 Digital Passport",
+  "authMethod": {
+    "type": "CertificateBasedBasicAuth",
+    "user": "MWPDRV01",
+    "password": "BBrlKQ0i",
+    "queryParams": [
+      {
+        "key": "client_id",
+        "value": "c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
+      }
+    ],
+    "passphrase": "secret",
+    "caEmail": "certificate@authority.email"
   },
-  "keywords" : [ "vehicles", "digital-passport" ],
-  "resources" : [ {
-    "description" : "Vehicles list",
-    "keywords" : [ "purpose:test-connection", "assets" ],
-    "url" : "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
-  }, {
-    "description" : "Last odometer values",
-    "keywords" : [ "scope:metric:odometer", "metadata:value.jsonPath:$._embedded.odometer.value:Integer" ],
-    "url" : "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status",
-    "queryParams" : [ {
-      "key" : "profile",
-      "value" : "fleet"
-    }, {
-      "key" : "extension",
-      "value" : "odometer"
-    } ]
-  }],
-  "baseUrl" : "https://api-cert-preprod.dspconsortium1.com"
+  "keywords": [
+    "vehicles",
+    "digital-passport"
+  ],
+  "resources": [
+    {
+      "description": "Vehicles list",
+      "keywords": [
+        "purpose:test-connection",
+        "assets"
+      ],
+      "url": "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
+    },
+    {
+      "description": "Last odometer values",
+      "keywords": [
+        "scope:metric:odometer",
+        "metadata:value.jsonPath:$._embedded.odometer.value:Integer"
+      ],
+      "url": "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status",
+      "queryParams": [
+        {
+          "key": "profile",
+          "value": "fleet"
+        },
+        {
+          "key": "extension",
+          "value": "odometer"
+        }
+      ]
+    }
+  ],
+  "baseUrl": "https://api-cert-preprod.dspconsortium1.com"
 }
