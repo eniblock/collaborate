@@ -13,6 +13,8 @@ spec:
     matchLabels:
       {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: ipfs
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
@@ -22,7 +24,7 @@ spec:
       serviceAccountName: {{ include "collaborate-dapp.serviceAccountName" . }}
       containers:
         - name: {{ .Chart.Name }}-ipfs
-          image: {{ .Values.ipfs.image.repository }}:{{ .Values.ipfs.image.tag }}
+          image: "{{ .Values.ipfs.image.repository }}:{{ .Values.ipfs.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.ipfs.image.pullPolicy }}
           args:
             - daemon
@@ -40,6 +42,10 @@ spec:
           env:
             - name: IPFS_LOGGING
               value: {{ .Values.ipfs.log.level }}
+            {{- if .Values.ipfs.service.swarm.ipAddress }}
+            - name: IPFS_ADDRESS_ANNOUNCE
+              value: /ip4/{{ .Values.ipfs.service.swarm.ipAddress }}/tcp/{{ .Values.ipfs.service.swarm.port }}
+            {{- end }}
           livenessProbe:
             tcpSocket:
               port: swarm
@@ -55,10 +61,9 @@ spec:
           resources:
             {{- toYaml .Values.ipfs.resources | nindent 12 }}
           volumeMounts:
-            - name: {{ include "collaborate-dapp.fullname" . }}-ipfs
-              mountPath: /data
-              readOnly: false
+            - name: data
+              mountPath: /data/ipfs
       volumes:
-        - name: {{ include "collaborate-dapp.fullname" . }}-ipfs
+        - name: data
           persistentVolumeClaim:
             claimName: {{ .Values.ipfs.persistence.existingClaim | default (printf "%s-ipfs" (include "collaborate-dapp.fullname" . )) }}

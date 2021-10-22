@@ -109,7 +109,7 @@ spec:
             - name: TRAEFIK_PFX_UN_PROTECTOR_SCRIPT_PATH
               value: {{ .Values.api.traefik.volumes.cert }}pfx-un-protector.sh
             - name: IPFS_URL
-              value: http://{{ include "collaborate-dapp.fullname" . }}-ipfs:5001
+              value: http://{{ include "collaborate-dapp.fullname" . }}-ipfs-api:5001
 
             # tezos-api-gateway config
             - name: TEZOS_API_GATEWAY_URL

@@ -149,9 +149,10 @@ db:
 
 ipfs:
   image:
-    repository: ipfs/go-ipfs
-    tag: v0.9.1
+    repository: registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/ipfs
     pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    # tag:
   log:
     level: INFO
   persistence:
@@ -162,8 +163,18 @@ ipfs:
       - ReadWriteOnce
     size: 1Gi
   service:
-    type: ClusterIP
-    port: 5001
+    swarm:
+      type: ClusterIP
+      port: 4001
+      ipAddress: null
+    api:
+      type: ClusterIP
+      port: 5001
+      ipAddress: null
+    gtw:
+      type: ClusterIP
+      port: 8080
+      ipAddress: null
   resources:
     requests:
       memory: 50Mi
