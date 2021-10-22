@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.Data;
-import org.apache.commons.lang3.NotImplementedException;
 
 @Data
 public class HttpAuthenticationVisitor implements AuthenticationVisitor<Void> {
@@ -68,8 +67,13 @@ public class HttpAuthenticationVisitor implements AuthenticationVisitor<Void> {
 
   @Override
   public Void visitOAuth2(OAuth2 oAuth2) {
-    // TODO v0.4.0
-    throw new NotImplementedException("oAuth2");
+    if (middlewares == null) {
+      middlewares = new HashMap<>();
+    }
+    serversTransport = ServersTransport.builder()
+        .insecureSkipVerify(true)
+        .build();
+    return null;
   }
 
 }

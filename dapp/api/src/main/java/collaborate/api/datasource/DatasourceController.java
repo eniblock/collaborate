@@ -6,13 +6,12 @@ import collaborate.api.config.OpenApiConfig;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
+import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
-import collaborate.api.http.security.SSLContextException;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.io.IOException;
-import java.security.UnrecoverableKeyException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -53,7 +52,7 @@ public class DatasourceController {
   public Callable<ResponseEntity<Datasource>> create(
       @Valid @RequestPart("datasource") DatasourceDTO datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
-      throws SSLContextException, IOException {
+      throws IOException, DatasourceVisitorException {
     testConnection(datasource, pfxFile);
     return () -> {
       var datasourceResult = datasourceService.create(datasource, pfxFile);
@@ -96,18 +95,12 @@ public class DatasourceController {
   public ResponseEntity<Void> testConnection(
       @RequestPart("datasource") DatasourceDTO datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
-      throws IOException, SSLContextException {
-    try {
-      if (datasourceService.testConnection(datasource, pfxFile)) {
-        return ResponseEntity.ok().build();
-      } else {
-        log.info("Test connection failed");
-        throw new ResponseStatusException(BAD_REQUEST, "Test connection failed");
-      }
-    } catch (UnrecoverableKeyException exception) {
-      log.info("Passphrase", exception);
-      throw new ResponseStatusException(
-          BAD_REQUEST, "Provided passphrase can't be used to decrypt private key");
+      throws IOException, DatasourceVisitorException {
+    if (datasourceService.testConnection(datasource, pfxFile)) {
+      return ResponseEntity.ok().build();
+    } else {
+      log.info("Test connection failed");
+      throw new ResponseStatusException(BAD_REQUEST, "Test connection failed");
     }
   }
 

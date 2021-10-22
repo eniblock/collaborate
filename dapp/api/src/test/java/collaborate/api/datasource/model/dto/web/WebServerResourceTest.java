@@ -60,8 +60,7 @@ class WebServerResourceTest {
     // WHEN
     var actualViolations = validator.validate(webResource);
     // THEN
-    assertThat(actualViolations).hasSize(1);
-    assertThat(actualViolations.iterator().next().getPropertyPath()).hasToString("keywords");
+    ConstraintViolationSetAssert.assertThat(actualViolations).hasViolationOnPath("keywords");
   }
 
   @Test
@@ -71,8 +70,7 @@ class WebServerResourceTest {
     // WHEN
     var actualViolations = validator.validate(webResource);
     // THEN
-    assertThat(actualViolations).hasSize(1);
-    assertThat(actualViolations.iterator().next().getPropertyPath()).hasToString("url");
+    ConstraintViolationSetAssert.assertThat(actualViolations).hasViolationOnPath("url");
   }
 
   @Test

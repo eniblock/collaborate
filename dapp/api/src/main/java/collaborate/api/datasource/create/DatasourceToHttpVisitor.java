@@ -20,7 +20,7 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class DatasourceToHttpVisitor implements DatasourceDTOVisitor {
+public class DatasourceToHttpVisitor implements DatasourceDTOVisitor<Void> {
 
   private final String certificatesPath;
   private final MiddlewareFactory middlewareFactory;
@@ -30,9 +30,9 @@ public class DatasourceToHttpVisitor implements DatasourceDTOVisitor {
   private Http http = new Http();
 
   @Override
-  public void visitWebServerDatasource(WebServerDatasourceDTO datasource) {
+  public Void visitWebServerDatasource(WebServerDatasourceDTO datasource) {
     if (datasource.getResources() == null) {
-      return;
+      return null;
     }
     var datasourceNameSupplier = new DatasourceKeySupplier(datasource);
     var datasourceKey = datasourceNameSupplier.get();
@@ -60,6 +60,7 @@ public class DatasourceToHttpVisitor implements DatasourceDTOVisitor {
               middlewareNames,
               serverTransportName != null));
     }
+    return null;
   }
 
   private List<String> initMiddlewares(HttpAuthenticationVisitor httpAuthenticationVisitor,
@@ -70,12 +71,15 @@ public class DatasourceToHttpVisitor implements DatasourceDTOVisitor {
     var middlewareNames = new ArrayList<>(httpAuthenticationVisitor.getMiddlewares().keySet());
 
     var queryParamsOpt = middlewareFactory.createQueryParamOption(
-        httpAuthenticationVisitor.getQueryParams(), resource.getQueryParams());
-    queryParamsOpt.ifPresent(
-        queryParams -> http.getMiddlewares().put(resourceKey + "-query-params", queryParams)
+        httpAuthenticationVisitor.getQueryParams(), resource.getQueryParams()
     );
 
-    middlewareNames.add(resourceKey + "-query-params");
+    queryParamsOpt.ifPresent(
+        queryParams -> {
+          http.getMiddlewares().put(resourceKey + "-query-params", queryParams);
+          middlewareNames.add(resourceKey + "-query-params");
+        }
+    );
 
     var replacePathRegex = middlewareFactory.createReplacePathRegex(
         new FromRouteRegexSupplier(datasourceKey, resource).get(),

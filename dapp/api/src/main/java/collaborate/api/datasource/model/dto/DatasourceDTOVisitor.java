@@ -2,8 +2,8 @@ package collaborate.api.datasource.model.dto;
 
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 
-public interface DatasourceDTOVisitor {
+public interface DatasourceDTOVisitor<T> {
 
-  void visitWebServerDatasource(WebServerDatasourceDTO webServerResource)
+  T visitWebServerDatasource(WebServerDatasourceDTO webServerResource)
       throws DatasourceVisitorException;
 }

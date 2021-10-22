@@ -47,9 +47,10 @@ public class WebServerDatasourceDTO extends DatasourceDTO {
   }
 
   @Override
-  public void accept(DatasourceDTOVisitor visitor) throws DatasourceVisitorException {
-    visitor.visitWebServerDatasource(this);
+  public <T> T accept(DatasourceDTOVisitor<T> visitor) throws DatasourceVisitorException {
+    return visitor.visitWebServerDatasource(this);
   }
+
 
   public Optional<WebServerResource> findResourceByKeyword(String keyword) {
     Optional<WebServerResource> firstMatchingResource = Optional.empty();
