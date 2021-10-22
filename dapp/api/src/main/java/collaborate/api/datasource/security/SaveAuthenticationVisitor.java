@@ -1,29 +1,53 @@
 package collaborate.api.datasource.security;
 
+import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AuthenticationVisitor;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
-import collaborate.api.security.VaultService;
+import collaborate.api.tag.model.user.UserMetadataDTO;
+import collaborate.api.user.UserService;
+import collaborate.api.user.tag.TezosApiGatewayUserClient;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
+@Slf4j
 @Service
 public class SaveAuthenticationVisitor implements AuthenticationVisitor<Void> {
 
-  private final VaultService vaultService;
-  private final VaultKeyFactory vaultKeyFactory;
   private final ModelMapper modelMapper;
+  private final ObjectMapper objectMapper;
+  private final UserService userService;
+  private final TezosApiGatewayUserClient tagUserClient;
 
   @Override
   public Void visitBasicAuth(BasicAuth basicAuth) {
     var datasourceBasicAuthDto = modelMapper.map(basicAuth, BasicAuthCredentials.class);
-
-    var vaultKey = vaultKeyFactory.createBasicAuth(basicAuth.getDatasource().getId());
-    vaultService.put(vaultKey, datasourceBasicAuthDto);
+    var datasourceId = basicAuth.getDatasource().getId().toString();
+    VaultMetadata vaultMetadata = VaultMetadata.builder()
+        .basicAuthCredentials(datasourceBasicAuthDto)
+        .build();
+    upsertMetadata(datasourceId, vaultMetadata);
     return null;
+  }
+
+  private void upsertMetadata(String datasourceId, VaultMetadata vaultMetadata) {
+    userService.createUser(datasourceId);
+    tagUserClient.upsertMetadata(datasourceId, serialize(vaultMetadata));
+  }
+
+  private UserMetadataDTO serialize(VaultMetadata vaultMetadata) {
+    try {
+      return new UserMetadataDTO(objectMapper.writeValueAsString(vaultMetadata));
+    } catch (JsonProcessingException e) {
+      log.error("can't serialized vaultMetadata={}", vaultMetadata);
+      throw new IllegalStateException("Can't write vaultMetadata");
+    }
   }
 
   @Override
@@ -39,8 +63,10 @@ public class SaveAuthenticationVisitor implements AuthenticationVisitor<Void> {
         .clientSecret(oAuth2.getClientSecret())
         .build();
 
-    var vaultKey = vaultKeyFactory.createOAuth2(oAuth2.getDatasource().getId());
-    vaultService.put(vaultKey, oAuth2ClientSecret);
+    VaultMetadata vaultMetadata = VaultMetadata.builder()
+        .oAuth2ClientSecret(oAuth2ClientSecret)
+        .build();
+    upsertMetadata(oAuth2.getDatasource().getId().toString(), vaultMetadata);
     return null;
   }
 }

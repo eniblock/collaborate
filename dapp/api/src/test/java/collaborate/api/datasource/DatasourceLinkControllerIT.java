@@ -6,7 +6,9 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import collaborate.api.datasource.model.Datasource;
@@ -29,6 +31,7 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 @WebMvcTest(DatasourceController.class)
 @ContextConfiguration(classes = {
@@ -72,11 +75,16 @@ class DatasourceLinkControllerIT {
     // GIVEN
     when(datasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
-    mockMvc.perform(
-        multipart(API_V1_DATASOURCES)
-            .file(oAuth2Datasource)
-        // THEN
-    ).andExpect(status().isCreated());
+    var mvcResult = mockMvc.perform(
+            multipart(API_V1_DATASOURCES)
+                .file(oAuth2Datasource)
+
+        ).andExpect(request().asyncStarted())
+        .andDo(MockMvcResultHandlers.log())
+        .andReturn();
+    // THEN
+    mockMvc.perform(asyncDispatch(mvcResult))
+        .andExpect(status().isCreated());
   }
 
 
@@ -97,10 +105,10 @@ class DatasourceLinkControllerIT {
     when(datasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
     mockMvc.perform(
-        multipart(API_V1_DATASOURCES)
-            .file(pfxFile)
-            .file(basicAuthDatasource)
-    )// THEN
+            multipart(API_V1_DATASOURCES)
+                .file(pfxFile)
+                .file(basicAuthDatasource)
+        )// THEN
         .andExpect(status().isBadRequest());
   }
 
@@ -121,10 +129,10 @@ class DatasourceLinkControllerIT {
     when(datasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
     mockMvc.perform(
-        multipart(API_V1_DATASOURCES)
-            .file(pfxFile)
-            .file(basicAuthDatasource)
-    )// THEN
+            multipart(API_V1_DATASOURCES)
+                .file(pfxFile)
+                .file(basicAuthDatasource)
+        )// THEN
         .andExpect(status().isBadRequest());
   }
 
@@ -144,11 +152,15 @@ class DatasourceLinkControllerIT {
     );
     when(datasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
-    mockMvc.perform(
-        multipart(API_V1_DATASOURCES)
-            .file(pfxFile)
-            .file(basicAuthDatasource)
-    )// THEN
+    var mvcResult = mockMvc.perform(
+            multipart(API_V1_DATASOURCES)
+                .file(pfxFile)
+                .file(basicAuthDatasource)
+        ).andExpect(request().asyncStarted())
+        .andDo(MockMvcResultHandlers.log())
+        .andReturn();
+    // THEN
+    mockMvc.perform(asyncDispatch(mvcResult))
         .andExpect(status().isCreated());
   }
 
@@ -168,11 +180,15 @@ class DatasourceLinkControllerIT {
     );
     when(datasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
-    mockMvc.perform(
-        multipart(API_V1_DATASOURCES)
-            .file(pfxFile)
-            .file(basicAuthDatasource)
-    )// THEN
+    var mvcResult = mockMvc.perform(
+            multipart(API_V1_DATASOURCES)
+                .file(pfxFile)
+                .file(basicAuthDatasource)
+        ).andExpect(request().asyncStarted())
+        .andDo(MockMvcResultHandlers.log())
+        .andReturn();
+    // THEN    // THEN
+    mockMvc.perform(asyncDispatch(mvcResult))
         .andExpect(status().isCreated());
   }
 
@@ -184,11 +200,15 @@ class DatasourceLinkControllerIT {
     when(datasourceService.create(any(), any())).thenReturn(new Datasource());
 
     // WHEN
-    mockMvc.perform(
-        multipart(API_V1_DATASOURCES)
-            .file(pfxFile)
-            .file(basicAuthDatasource)
-    )// THEN
+    var mvcResult = mockMvc.perform(
+            multipart(API_V1_DATASOURCES)
+                .file(pfxFile)
+                .file(basicAuthDatasource)
+        ).andExpect(request().asyncStarted())
+        .andDo(MockMvcResultHandlers.log())
+        .andReturn();
+    // THEN
+    mockMvc.perform(asyncDispatch(mvcResult))
         .andExpect(status().isCreated());
   }
 
@@ -199,10 +219,10 @@ class DatasourceLinkControllerIT {
     when(datasourceService.testConnection(any(), any())).thenReturn(false);
     // WHEN
     mockMvc.perform(
-        multipart(API_V1_DATASOURCES)
-            .file(pfxFile)
-            .file(basicAuthDatasource)
-    )// THEN
+            multipart(API_V1_DATASOURCES)
+                .file(pfxFile)
+                .file(basicAuthDatasource)
+        )// THEN
         .andExpect(status().isBadRequest());
   }
 
