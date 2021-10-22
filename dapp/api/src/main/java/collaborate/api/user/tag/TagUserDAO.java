@@ -53,7 +53,7 @@ public class TagUserDAO {
     } catch (FeignClientException exception) {
       log.error("[TAG] create", exception);
       throw new ResponseStatusException(
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          HttpStatus.BAD_GATEWAY,
           format("Can't create TAG users, errors:{%s}", exception.getMessage()));
     }
   }
@@ -75,7 +75,7 @@ public class TagUserDAO {
     } catch (FeignClientException exception) {
       log.error("[TAG] findOneByPublicKeyHash", exception);
       throw new ResponseStatusException(
-          HttpStatus.INTERNAL_SERVER_ERROR,
+          HttpStatus.BAD_GATEWAY,
           format("Can't get TAG users, errors:{%s}", exception.getMessage()));
     }
     return walletOptResult;

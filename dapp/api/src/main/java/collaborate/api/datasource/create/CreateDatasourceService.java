@@ -6,6 +6,7 @@ import collaborate.api.datasource.create.provider.traefik.TraefikProviderService
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
+import collaborate.api.datasource.security.SaveAuthenticationVisitor;
 import collaborate.api.datasource.traefik.routing.AuthHeaderKeySupplier;
 import collaborate.api.datasource.traefik.routing.DatasourceKeySupplier;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -23,6 +24,7 @@ public class CreateDatasourceService {
   private final DatasourceDAO datasourceDAO;
   private final ObjectMapper objectMapper;
   private final ProviderMetadataFactory providerMetadataFactory;
+  private final SaveAuthenticationVisitor saveAuthenticationVisitor;
   private final TraefikProviderService traefikProviderService;
   private final UUIDGenerator uuidGenerator;
   private final Clock clock;
@@ -31,6 +33,8 @@ public class CreateDatasourceService {
   public Datasource create(DatasourceDTO datasourceDTO) throws Exception {
     datasourceDTO.getAuthMethod().setDatasource(datasourceDTO);
     datasourceDTO.setId(uuidGenerator.randomUUID());
+
+    datasourceDTO.getAuthMethod().accept(saveAuthenticationVisitor);
 
     var providerConfiguration = traefikProviderService.save(datasourceDTO);
     var datasource = buildDatasource(datasourceDTO, providerConfiguration);

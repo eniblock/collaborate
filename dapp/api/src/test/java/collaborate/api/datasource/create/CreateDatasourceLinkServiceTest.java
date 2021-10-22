@@ -10,6 +10,7 @@ import collaborate.api.datasource.create.provider.traefik.TraefikProviderService
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
 import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
+import collaborate.api.datasource.security.SaveAuthenticationVisitor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.time.Clock;
@@ -30,12 +31,15 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class CreateDatasourceLinkServiceTest {
 
   private final UUID datasourceUUID = UUID.fromString("525003f6-f85f-11eb-9a03-0242ac130003");
+
   @Mock
   UUIDGenerator uuidGenerator;
   @Mock
   DatasourceDAO datasourceDAO;
   @Mock
   ProviderMetadataFactory providerMetadataFactory;
+  @Mock
+  SaveAuthenticationVisitor saveAuthenticationVisitor;
   @Mock
   TraefikProviderService traefikProviderService;
   @InjectMocks
@@ -49,6 +53,7 @@ class CreateDatasourceLinkServiceTest {
             datasourceDAO,
             objectMapper,
             providerMetadataFactory,
+            saveAuthenticationVisitor,
             traefikProviderService,
             uuidGenerator,
             clock);
@@ -76,7 +81,6 @@ class CreateDatasourceLinkServiceTest {
     var datasourceResult =
         createDatasourceService.buildDatasource(datasourceDTO, traefikConfiguration);
     // THEN
-    var httpResult = (LinkedHashMap<?, ?>) datasourceResult.getProviderConfiguration().get("http");
     var middlewareResult =
         (LinkedHashMap<?, ?>) datasourceResult.getProviderConfiguration().get("middlewares");
     var serializedDatasourceResult = objectMapper.writeValueAsString(middlewareResult);

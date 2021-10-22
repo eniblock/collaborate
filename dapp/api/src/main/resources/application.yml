@@ -146,7 +146,7 @@ feign:
     config:
       tag-user-client:
         connectTimeout: 10000
-        readTimeout: 90000
+        readTimeout: 240000
       ipfs-name-client:
         connectTimeout: 10000
         readTimeout: 300000
