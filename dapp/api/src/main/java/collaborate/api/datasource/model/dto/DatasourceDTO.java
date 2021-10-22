@@ -66,10 +66,6 @@ public abstract class DatasourceDTO implements Keywords<String>, Serializable {
     this.keywords = keywords;
   }
 
-  public abstract void accept(DatasourceDTOVisitor visitor) throws DatasourceVisitorException;
+  public abstract <T> T accept(DatasourceDTOVisitor<T> visitor) throws DatasourceVisitorException;
 
-  public boolean anyKeywordsContains(String searched) {
-    return keywords != null && getKeywords().stream()
-        .anyMatch(s -> s.contains(searched));
-  }
 }

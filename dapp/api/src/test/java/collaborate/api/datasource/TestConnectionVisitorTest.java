@@ -3,13 +3,13 @@ package collaborate.api.datasource;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
-import collaborate.api.http.HttpURLConnectionFactory;
-import collaborate.api.http.security.SSLContextException;
-import java.io.IOException;
-import java.security.UnrecoverableKeyException;
+import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
+import collaborate.api.http.HttpURLConnectionVisitorFactory;
+import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
@@ -20,29 +20,35 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class TestConnectionFactoryTest {
+class TestConnectionVisitorTest {
 
   @Mock
   URIFactory uriFactory;
   @Mock
-  HttpURLConnectionFactory httpURLConnectionFactory;
+  HttpURLConnectionVisitorFactory httpURLConnectionVisitorFactory;
   @InjectMocks
-  TestConnectionFactory testConnectionFactory;
+  TestConnectionVisitor testConnectionVisitor;
 
   @Test
   void create_shouldCallUriFactoryWithExpectedResource_withWebServerDatasourceContainingPurposeTestConnectionResource()
-      throws UnrecoverableKeyException, SSLContextException, IOException {
+      throws Exception {
     // GIVEN
     var expectedResource = WebServerResource.builder()
         .url("myExpectedResourceUrl")
         .keywords(Set.of("purpose:test-connection"))
         .build();
+    String baseUrl = "http://baseUrl";
     WebServerDatasourceDTO datasource = WebServerDatasourceDTO
         .builder()
+        .baseUrl(baseUrl)
         .resources(List.of(expectedResource))
+        .authMethod(new BasicAuth())
         .build();
+    when(uriFactory.create(datasource, expectedResource)).thenCallRealMethod();
+    when(httpURLConnectionVisitorFactory.create(
+        URI.create(baseUrl + "/myExpectedResourceUrl"))).thenCallRealMethod();
     // WHEN
-    testConnectionFactory.create(datasource);
+    datasource.accept(testConnectionVisitor);
     // THEN
     verify(uriFactory, times(1)).create(datasource, expectedResource);
   }
@@ -66,7 +72,7 @@ class TestConnectionFactoryTest {
     // THEN
     Assertions.assertThrows(IllegalStateException.class, () -> {
       // WHEN
-      testConnectionFactory.create(datasource);
+      datasource.accept(testConnectionVisitor);
     });
 
     verify(uriFactory, times(0)).create(any(), any());

@@ -8,14 +8,13 @@ import collaborate.api.datasource.model.Attribute;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
+import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
-import collaborate.api.http.security.SSLContextException;
 import collaborate.api.ipfs.domain.dto.ContentWithCid;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.security.UnrecoverableKeyException;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -37,7 +36,7 @@ public class DatasourceService {
   private final ObjectMapper objectMapper;
   private final CreateDatasourceService createDatasourceService;
   private final DatasourceDAO datasourceDAO;
-  private final TestConnectionFactory testConnectionFactory;
+  private final TestConnectionVisitor testConnectionVisitor;
 
   public Datasource create(DatasourceDTO datasource, Optional<MultipartFile> pfxFile)
       throws Exception {
@@ -46,9 +45,9 @@ public class DatasourceService {
   }
 
   public boolean testConnection(DatasourceDTO datasource, Optional<MultipartFile> pfxFile)
-      throws UnrecoverableKeyException, SSLContextException, IOException {
-    BooleanSupplier connectionTester =
-        testConnectionFactory.create(copyWithPfxFileContent(datasource, pfxFile));
+      throws DatasourceVisitorException, IOException {
+    BooleanSupplier connectionTester = copyWithPfxFileContent(datasource, pfxFile)
+        .accept(testConnectionVisitor);
     return connectionTester.getAsBoolean();
   }
 

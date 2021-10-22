@@ -47,7 +47,7 @@ class DatasourceLinkControllerIT {
   private MockMvc mockMvc;
 
   @MockBean
-  TestConnectionFactory testConnectionFactory;
+  TestConnectionVisitor testConnectionVisitor;
   @MockBean
   DatasourceService datasourceService;
 

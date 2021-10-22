@@ -36,7 +36,7 @@ class DatasourceLinkServiceTest {
   @Mock
   DatasourceDAO datasourceDAO;
   @Mock
-  TestConnectionFactory testConnectionFactory;
+  TestConnectionVisitor testConnectionVisitor;
 
   @InjectMocks
   private DatasourceService datasourceService;
@@ -47,7 +47,7 @@ class DatasourceLinkServiceTest {
         objectMapper,
         createDatasourceService,
         datasourceDAO,
-        testConnectionFactory
+        testConnectionVisitor
     );
   }
 

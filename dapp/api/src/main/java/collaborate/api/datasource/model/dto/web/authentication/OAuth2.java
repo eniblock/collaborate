@@ -14,7 +14,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class OAuth2 extends Authentication {
 
-  private String accessMethod;
+  private String grantType;
   private URI issuerIdentifierUri;
   private URI wellKnownURIPathSuffix;
   private String transferMethod;
@@ -25,14 +25,14 @@ public class OAuth2 extends Authentication {
 
   @Builder(toBuilder = true)
   public OAuth2(
-      String accessMethod,
+      String grantType,
       URI issuerIdentifierUri,
       URI wellKnownURIPathSuffix,
       String transferMethod,
       String clientId,
       String clientSecret
   ) {
-    this.accessMethod = accessMethod;
+    this.grantType = grantType;
     this.issuerIdentifierUri = issuerIdentifierUri;
     this.wellKnownURIPathSuffix = wellKnownURIPathSuffix;
     this.transferMethod = transferMethod;
