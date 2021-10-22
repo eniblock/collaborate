@@ -1,6 +1,7 @@
 package collaborate.api.user;
 
 import static java.lang.String.format;
+import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.mail.MailService;
@@ -205,12 +206,22 @@ public class UserService {
 
   public UserDTO updateCurrentUserWithAssetOwnerRole() {
     var token = connectedUserDAO.getAuthToken();
-    tagUserDAO.create(token.getEmail());
+    createUser(token.getEmail());
     return modifyUser(token.getSubject(), new RolesDTO(Set.of(Roles.ASSET_OWNER)));
   }
 
   public Optional<UserWalletDTO> findOneByWalletAddress(String walletAddress) {
     return tagUserDAO.findOneByWalletAddress(walletAddress);
+  }
+
+  public UserWalletDTO createUser(String userId) {
+    return tagUserDAO.create(userId).orElseThrow(
+        () -> {
+          log.error("Can't create userId={} wallet", userId);
+          throw new ResponseStatusException(
+              BAD_GATEWAY, "Can't create userId=" + userId);
+        }
+    );
   }
 
   public UserWalletDTO buildUserWalletDTO(String userAccountAddress) {

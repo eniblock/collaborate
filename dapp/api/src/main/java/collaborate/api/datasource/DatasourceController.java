@@ -16,6 +16,7 @@ import java.security.UnrecoverableKeyException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.Callable;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,13 +50,15 @@ public class DatasourceController {
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DSP_ADMIN)
-  public ResponseEntity<Datasource> create(
+  public Callable<ResponseEntity<Datasource>> create(
       @Valid @RequestPart("datasource") DatasourceDTO datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
-      throws Exception {
+      throws SSLContextException, IOException {
     testConnection(datasource, pfxFile);
-    var datasourceResult = datasourceService.create(datasource, pfxFile);
-    return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
+    return () -> {
+      var datasourceResult = datasourceService.create(datasource, pfxFile);
+      return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
+    };
   }
 
 
