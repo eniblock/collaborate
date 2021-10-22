@@ -5,29 +5,42 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.datasource.create.HttpURLConnectionFactory;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import collaborate.api.http.HttpURLConnectionVisitorFactory;
+import collaborate.api.http.ResponseCodeOkPredicate;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class TestConnectionVisitorTest {
 
   @Mock
-  URIFactory uriFactory;
-  @Mock
   HttpURLConnectionVisitorFactory httpURLConnectionVisitorFactory;
-  @InjectMocks
+  @Mock
+  URIFactory uriFactory;
+
+  ResponseCodeOkPredicate responseCodeOkPredicate = Mockito.spy(new ResponseCodeOkPredicate());
+
   TestConnectionVisitor testConnectionVisitor;
+
+  @BeforeEach
+  void setUp() {
+    HttpURLConnectionFactory httpURLConnectionFactory = Mockito.spy(
+        new HttpURLConnectionFactory(httpURLConnectionVisitorFactory, uriFactory)
+    );
+    testConnectionVisitor = new TestConnectionVisitor(httpURLConnectionFactory, null);
+  }
 
   @Test
   void create_shouldCallUriFactoryWithExpectedResource_withWebServerDatasourceContainingPurposeTestConnectionResource()

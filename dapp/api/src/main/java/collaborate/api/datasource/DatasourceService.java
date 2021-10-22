@@ -5,8 +5,8 @@ import static java.util.function.Function.identity;
 
 import collaborate.api.datasource.create.CreateDatasourceService;
 import collaborate.api.datasource.metadata.MetadataService;
-import collaborate.api.datasource.model.Attribute;
 import collaborate.api.datasource.model.Datasource;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
@@ -136,7 +136,7 @@ public class DatasourceService {
         );
   }
 
-  public Set<Attribute> getMetadata(String datasourceId) {
+  public Set<Metadata> getMetadata(String datasourceId) {
     return datasourceDAO.findById(datasourceId)
         .map(ContentWithCid::getContent)
         .map(Datasource::getProviderMetadata)

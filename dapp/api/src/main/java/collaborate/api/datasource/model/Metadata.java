@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @AllArgsConstructor
 @Builder(toBuilder = true)
-public class Attribute {
+public class Metadata {
 
   private String name;
   private String value;

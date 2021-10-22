@@ -2,14 +2,16 @@ package collaborate.api.datasource.create;
 
 import static collaborate.api.test.TestResources.objectMapper;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceDAO;
 import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
-import collaborate.api.datasource.model.Attribute;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
+import collaborate.api.datasource.model.dto.DatasourceEnrichment;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
@@ -22,6 +24,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -41,6 +44,8 @@ class CreateDatasourceServiceTest {
   @Mock
   DatasourceDAO datasourceDAO;
   @Mock
+  DatasourceEnricherVisitor datasourceEnricherVisitor;
+  @Mock
   DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
   @Mock
   SaveAuthenticationVisitor saveAuthenticationVisitor;
@@ -59,6 +64,7 @@ class CreateDatasourceServiceTest {
             authenticationMetadataVisitor,
             datasourceDAO,
             datasourceDTOMetadataVisitor,
+            datasourceEnricherVisitor,
             objectMapper,
             saveAuthenticationVisitor,
             traefikProviderService,
@@ -71,6 +77,8 @@ class CreateDatasourceServiceTest {
   void createDatasourceIpfsFile_shouldRemoveBasicAuthCredentialsToIpfs() throws Exception {
     // GIVEN
     DatasourceDTO datasourceDTO = CertificateBasedBasicAuthDatasourceFeatures.datasource;
+    var enrichment = new DatasourceEnrichment<>(datasourceDTO, emptySet());
+
     var datasourceId = datasourceDTO.getId().toString();
     var mapper = new ObjectMapper(new YAMLFactory());
     var traefikConfiguration =
@@ -87,7 +95,7 @@ class CreateDatasourceServiceTest {
     // WHEN
 
     var datasourceResult =
-        createDatasourceService.buildDatasource(datasourceDTO, traefikConfiguration);
+        createDatasourceService.buildDatasource(enrichment, traefikConfiguration);
     // THEN
     var middlewareResult =
         (LinkedHashMap<?, ?>) datasourceResult.getProviderConfiguration().get("middlewares");
@@ -99,25 +107,36 @@ class CreateDatasourceServiceTest {
   void buildMetadata_shouldContainsAuthenticationAndDatasourceMetadata()
       throws DatasourceVisitorException {
     // GIVEN
-    var datasource = CertificateBasedBasicAuthDatasourceFeatures.datasource;
-    var authMetadata = Attribute.builder()
+    var enrichmentMetadata = Metadata.builder()
+        .name("enrichmentNameA")
+        .name("enrichmentValueA")
+        .build();
+    var enrichment =
+        new DatasourceEnrichment<>(
+            CertificateBasedBasicAuthDatasourceFeatures.datasource,
+            Set.of(enrichmentMetadata)
+        );
+    var datasource = enrichment.getDatasource();
+    var authMetadata = Metadata.builder()
         .name("authName")
         .value("authValue")
         .build();
     when(authenticationMetadataVisitor
-        .visitCertificateBasedBasicAuth((CertificateBasedBasicAuth) datasource.getAuthMethod())
+        .visitCertificateBasedBasicAuth(
+            (CertificateBasedBasicAuth) datasource.getAuthMethod())
     ).thenReturn(Stream.of(authMetadata));
 
-    var datasourceMetadata = Attribute.builder()
+    var datasourceMetadata = Metadata.builder()
         .name("dsName")
         .value("dsValue")
         .build();
     when(datasourceDTOMetadataVisitor.visitWebServerDatasource(datasource))
         .thenReturn(Stream.of(datasourceMetadata));
     // WHEN
-    var metadataResult = createDatasourceService.buildMetadata(datasource);
+    var metadataResult = createDatasourceService.buildMetadata(enrichment);
     // THEN
     assertThat(metadataResult).containsExactlyInAnyOrder(
+        enrichmentMetadata,
         authMetadata,
         datasourceMetadata
     );

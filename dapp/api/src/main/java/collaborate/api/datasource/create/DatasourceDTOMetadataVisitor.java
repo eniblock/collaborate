@@ -7,7 +7,7 @@ import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Reg
 import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.VALUE_GROUP_INDEX;
 import static lombok.AccessLevel.PRIVATE;
 
-import collaborate.api.datasource.model.Attribute;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
@@ -29,8 +29,7 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @RequiredArgsConstructor
-@Component
-public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream<Attribute>> {
+public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream<Metadata>> {
 
   @NoArgsConstructor(access = PRIVATE)
   public static final class Regexp {
@@ -59,7 +58,7 @@ public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream
   private final ObjectMapper objectMapper;
 
   @Override
-  public Stream<Attribute> visitWebServerDatasource(
+  public Stream<Metadata> visitWebServerDatasource(
       WebServerDatasourceDTO webServerDatasourceDTO) throws DatasourceVisitorException {
     return Stream.concat(
         Stream.of(
@@ -70,18 +69,18 @@ public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream
     );
   }
 
-  Attribute buildType(DatasourceDTO datasourceDTO) {
-    return Attribute.builder()
+  Metadata buildType(DatasourceDTO datasourceDTO) {
+    return Metadata.builder()
         .name(DATASOURCE_TYPE)
         .value(datasourceDTO.getClass().getSimpleName())
         .type("string")
         .build();
   }
 
-  private Attribute buildPurpose(Set<String> keywords)
+  private Metadata buildPurpose(Set<String> keywords)
       throws DatasourceVisitorException {
     try {
-      return new Attribute(
+      return new Metadata(
           DATASOURCE_PURPOSE,
           objectMapper.writeValueAsString(keywords),
           "string[]");
@@ -91,13 +90,13 @@ public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream
     }
   }
 
-  private Stream<Attribute> buildResources(List<WebServerResource> webServerResources) {
+  private Stream<Metadata> buildResources(List<WebServerResource> webServerResources) {
     return webServerResources.stream()
         .map(WebServerResource::getKeywords)
         .flatMap(this::buildResourceKeywords);
   }
 
-  Stream<Attribute> buildResourceKeywords(Collection<String> keywords) {
+  Stream<Metadata> buildResourceKeywords(Collection<String> keywords) {
     var routingKey = new RoutingKeyFromKeywordSupplier(keywords).get();
     return keywords.stream()
         .map(METADATA_REGEXP::matcher)
@@ -106,8 +105,8 @@ public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream
   }
 
 
-  private Attribute buildResourceKeyword(Matcher matcher, String routingKey) {
-    return Attribute.builder()
+  private Metadata buildResourceKeyword(Matcher matcher, String routingKey) {
+    return Metadata.builder()
         .name(routingKey + ":" + matcher.group(Regexp.NAME_GROUP_INDEX))
         .value(matcher.group(VALUE_GROUP_INDEX))
         .type(matcher.group(TYPE_GROUP_INDEX))

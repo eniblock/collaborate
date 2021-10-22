@@ -24,6 +24,8 @@ public class ResponseCodeOkPredicate implements Predicate<HttpURLConnection> {
     } catch (IOException e) {
       log.error("While testing connection to URL=" + httpURLConnection.getURL(), e);
       return false;
+    } finally {
+      httpURLConnection.disconnect();
     }
   }
 }

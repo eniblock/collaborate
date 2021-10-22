@@ -27,7 +27,7 @@ public class Datasource {
   @Schema(description = "The provider class used to configure the datasource access", example = "collaborate.api.datasource.provider.TraefikConfiguration", required = true)
   private String provider;
   @Schema(description = "Addition data about the datasource usage and configuration", required = true)
-  private Set<Attribute> providerMetadata;
+  private Set<Metadata> providerMetadata;
   @Schema(description = "The datasource provider configuration", required = true)
   private LinkedHashMap<?, ?> providerConfiguration;
   @ISO8601JsonStringFormat

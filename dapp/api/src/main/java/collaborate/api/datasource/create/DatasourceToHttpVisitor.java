@@ -28,22 +28,22 @@ public class DatasourceToHttpVisitor implements DatasourceDTOVisitor<Http> {
   private final ServiceFactory serviceFactory;
 
   @Override
-  public Http visitWebServerDatasource(WebServerDatasourceDTO datasource) {
+  public Http visitWebServerDatasource(WebServerDatasourceDTO serverDatasourceDTO) {
     Http http = new Http();
-    if (datasource.getResources() == null) {
+    if (serverDatasourceDTO.getResources() == null) {
       return null;
     }
-    var datasourceNameSupplier = new DatasourceKeySupplier(datasource);
+    var datasourceNameSupplier = new DatasourceKeySupplier(serverDatasourceDTO);
     var datasourceKey = datasourceNameSupplier.get();
     var httpAuthenticationVisitor =
-        initHttpAuthenticationVisitor(http, datasourceNameSupplier, datasource);
+        initHttpAuthenticationVisitor(http, datasourceNameSupplier, serverDatasourceDTO);
     String serverTransportName = initServerTransport(http, datasourceKey,
         httpAuthenticationVisitor);
 
-    var service = serviceFactory.create(datasource.getBaseUrl(), serverTransportName);
+    var service = serviceFactory.create(serverDatasourceDTO.getBaseUrl(), serverTransportName);
     http.getServices().put(datasourceKey, service);
 
-    for (WebServerResource resource : datasource.getResources()) {
+    for (WebServerResource resource : serverDatasourceDTO.getResources()) {
       var resourceKey = datasourceKey
           + "-" + new RoutingKeyFromKeywordSupplier(resource.getKeywords()).get();
 
@@ -118,7 +118,8 @@ public class DatasourceToHttpVisitor implements DatasourceDTOVisitor<Http> {
 
   private HttpAuthenticationVisitor initHttpAuthenticationVisitor(
       Http http,
-      DatasourceKeySupplier datasourceKeySupplier, DatasourceDTO dataSource) {
+      DatasourceKeySupplier datasourceKeySupplier,
+      DatasourceDTO dataSource) {
     var authHeaderKeySupplier = new AuthHeaderKeySupplier(datasourceKeySupplier);
     var httpAuthenticationVisitor = new HttpAuthenticationVisitor(
         authHeaderKeySupplier,

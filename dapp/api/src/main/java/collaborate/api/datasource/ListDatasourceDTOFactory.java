@@ -2,7 +2,7 @@ package collaborate.api.datasource;
 
 import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Keys.DATASOURCE_PURPOSE;
 
-import collaborate.api.datasource.model.Attribute;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
 import collaborate.api.datasource.model.dto.enumeration.DatasourceStatus;
@@ -34,7 +34,7 @@ public class ListDatasourceDTOFactory {
           .purpose(
               datasourceDto.getProviderMetadata().stream()
                   .filter(m -> DATASOURCE_PURPOSE.equals(m.getName()))
-                  .map(Attribute::getValue)
+                  .map(Metadata::getValue)
                   .map(
                       v -> {
                         try {
