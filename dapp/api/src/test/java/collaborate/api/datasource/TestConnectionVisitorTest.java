@@ -35,7 +35,7 @@ class TestConnectionVisitorTest {
     // GIVEN
     var expectedResource = WebServerResource.builder()
         .url("myExpectedResourceUrl")
-        .keywords(Set.of("purpose:test-connection"))
+        .keywords(Set.of("scope:list-asset"))
         .build();
     String baseUrl = "http://baseUrl";
     WebServerDatasourceDTO datasource = WebServerDatasourceDTO

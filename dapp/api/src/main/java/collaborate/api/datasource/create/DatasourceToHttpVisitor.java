@@ -20,25 +20,25 @@ import java.util.List;
 import lombok.Data;
 
 @Data
-public class DatasourceToHttpVisitor implements DatasourceDTOVisitor<Void> {
+public class DatasourceToHttpVisitor implements DatasourceDTOVisitor<Http> {
 
   private final String certificatesPath;
   private final MiddlewareFactory middlewareFactory;
   private final RouterFactory routerFactory;
   private final ServiceFactory serviceFactory;
 
-  private Http http = new Http();
-
   @Override
-  public Void visitWebServerDatasource(WebServerDatasourceDTO datasource) {
+  public Http visitWebServerDatasource(WebServerDatasourceDTO datasource) {
+    Http http = new Http();
     if (datasource.getResources() == null) {
       return null;
     }
     var datasourceNameSupplier = new DatasourceKeySupplier(datasource);
     var datasourceKey = datasourceNameSupplier.get();
     var httpAuthenticationVisitor =
-        initHttpAuthenticationVisitor(datasourceNameSupplier, datasource);
-    String serverTransportName = initServerTransport(datasourceKey, httpAuthenticationVisitor);
+        initHttpAuthenticationVisitor(http, datasourceNameSupplier, datasource);
+    String serverTransportName = initServerTransport(http, datasourceKey,
+        httpAuthenticationVisitor);
 
     var service = serviceFactory.create(datasource.getBaseUrl(), serverTransportName);
     http.getServices().put(datasourceKey, service);
@@ -48,6 +48,7 @@ public class DatasourceToHttpVisitor implements DatasourceDTOVisitor<Void> {
           + "-" + new RoutingKeyFromKeywordSupplier(resource.getKeywords()).get();
 
       List<String> middlewareNames = initMiddlewares(
+          http,
           httpAuthenticationVisitor,
           datasourceKey,
           resource,
@@ -60,10 +61,12 @@ public class DatasourceToHttpVisitor implements DatasourceDTOVisitor<Void> {
               middlewareNames,
               serverTransportName != null));
     }
-    return null;
+    return http;
   }
 
-  private List<String> initMiddlewares(HttpAuthenticationVisitor httpAuthenticationVisitor,
+  private List<String> initMiddlewares(
+      Http http,
+      HttpAuthenticationVisitor httpAuthenticationVisitor,
       String datasourceKey,
       WebServerResource resource,
       String resourceKey) {
@@ -100,7 +103,8 @@ public class DatasourceToHttpVisitor implements DatasourceDTOVisitor<Void> {
     return middlewareNames;
   }
 
-  private String initServerTransport(String datasourceName,
+  private String initServerTransport(Http http,
+      String datasourceName,
       HttpAuthenticationVisitor httpAuthenticationVisitor) {
     String serverTransportName = null;
     if (httpAuthenticationVisitor.getServersTransport() != null) {
@@ -113,6 +117,7 @@ public class DatasourceToHttpVisitor implements DatasourceDTOVisitor<Void> {
   }
 
   private HttpAuthenticationVisitor initHttpAuthenticationVisitor(
+      Http http,
       DatasourceKeySupplier datasourceKeySupplier, DatasourceDTO dataSource) {
     var authHeaderKeySupplier = new AuthHeaderKeySupplier(datasourceKeySupplier);
     var httpAuthenticationVisitor = new HttpAuthenticationVisitor(

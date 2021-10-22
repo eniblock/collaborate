@@ -9,12 +9,12 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = HasTestConnectionValidator.class)
+@Constraint(validatedBy = HasAssetListValidator.class)
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HasTestConnectionConstraint {
+public @interface HasAssetListConstraint {
 
-  String message() default "Datasource should have at least on resource with 'purpose:test-connection' keyword";
+  String message() default "Datasource should have at least on resource with 'scope:list-asset' keyword";
 
   Class<?>[] groups() default {};
 

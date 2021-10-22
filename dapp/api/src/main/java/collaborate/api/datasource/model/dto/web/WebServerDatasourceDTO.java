@@ -24,7 +24,7 @@ import lombok.NoArgsConstructor;
 public class WebServerDatasourceDTO extends DatasourceDTO {
 
   @NotEmpty
-  @HasTestConnectionConstraint
+  @HasAssetListConstraint
   @Schema(description = "The resources definition this datasource exposes")
   private List<WebServerResource> resources;
 

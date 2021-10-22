@@ -1,6 +1,6 @@
 package collaborate.api.datasource;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.PURPOSE_TEST_CONNECTION;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
 
 import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
@@ -20,7 +20,7 @@ public class TestConnectionVisitor implements DatasourceDTOVisitor<BooleanSuppli
 
   @Override
   public BooleanSupplier visitWebServerDatasource(WebServerDatasourceDTO webServerDatasourceDTO) {
-    var resource = webServerDatasourceDTO.getResourceByKeywordOrThrow(PURPOSE_TEST_CONNECTION);
+    var resource = webServerDatasourceDTO.getResourceByKeywordOrThrow(SCOPE_ASSET_LIST);
     var uri = uriFactory.create(webServerDatasourceDTO, resource);
 
     var httpURLConnectionVisitor = httpURLConnectionVisitorFactory.create(uri);
