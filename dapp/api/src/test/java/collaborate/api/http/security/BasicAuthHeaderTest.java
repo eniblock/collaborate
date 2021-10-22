@@ -10,13 +10,13 @@ class BasicAuthHeaderTest {
   @Test
   void name() {
     // GIVEN
-    String user = "MWPDRV01";
-    String pwd = "BBrlKQ0i";
+    String user = "username";
+    String pwd = "password";
 
     // WHEN
     BasicAuthHeader basicAuthHeader = new BasicAuthHeader(user, pwd);
     // THEN
     assertThat(BasicAuthHeader.KEY).isEqualTo("Authorization");
-    assertThat(basicAuthHeader.getValue()).isEqualTo("Basic TVdQRFJWMDE6QkJybEtRMGk=");
+    assertThat(basicAuthHeader.getValue()).isEqualTo("Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
   }
 }

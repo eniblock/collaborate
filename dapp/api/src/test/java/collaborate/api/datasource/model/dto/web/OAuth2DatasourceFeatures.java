@@ -16,7 +16,7 @@ public class OAuth2DatasourceFeatures {
       .keywords(new LinkedHashSet<>(List.of("vehicles", "digital-passport")))
       .baseUrl("http://DSPConsortium1.datasource")
       .authMethod(OAuth2.builder()
-          .accessMethod("OAUTH2_CLIENT_CREDENTIALS_GRANT")
+          .grantType("OAUTH2_CLIENT_CREDENTIALS_GRANT")
           .clientId("collaborate")
           .clientSecret("secret")
           .issuerIdentifierUri(URI.create("http://dspconsortium1.localhost"))

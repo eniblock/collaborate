@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import collaborate.api.test.TestResources;
 import org.junit.jupiter.api.Test;
 
-public class UserMetadataDTOTest {
+class UserMetadataDTOTest {
 
   @Test
   void deserialize_shouldResultInExpectedObject() {
