@@ -26,4 +26,15 @@ public class TransactionBatchFactory {
         sender.orElse(ORGANIZATION_SECURE_KEY_NAME)
     );
   }
+
+  public TransactionBatch createEntryPointBatchJob(
+      // No generic, because this is a transaction list with heterogeneous params
+      List<Transaction<Object>> transactions,
+      Optional<String> sender) {
+    return new TransactionBatch(
+        transactions,
+        sender.orElse(ORGANIZATION_SECURE_KEY_NAME)
+    );
+  }
+
 }

@@ -36,6 +36,7 @@ public class CreateDatasourceService {
   private final TraefikProviderService traefikProviderService;
   private final UUIDGenerator uuidGenerator;
   private final Clock clock;
+  private final CreateBusinessDataNftDAO createBusinessDataNftDAO;
 
   @Transactional
   public Datasource create(DatasourceDTO datasourceDTO)
@@ -47,7 +48,17 @@ public class CreateDatasourceService {
 
     var providerConfiguration = traefikProviderService.save(datasourceDTO);
     var datasource = buildDatasource(datasourceDTO, providerConfiguration);
+    if (true) { // TODO check if the datasource is a datasource for business data
+      // Datasource for business data
+      var ipfsMetadataUri = saveMetadataInIPFS(datasourceDTO);
+      createBusinessDataNftDAO.mintBusinessDataNFT(datasourceDTO.getId(), ipfsMetadataUri);
+    }
     return datasourceDAO.save(datasource).getContent();
+  }
+
+  String saveMetadataInIPFS(DatasourceDTO datasourceDTO) {
+    // TODO !!!
+    return "TODO_ipfs_metadata";
   }
 
   Datasource buildDatasource(

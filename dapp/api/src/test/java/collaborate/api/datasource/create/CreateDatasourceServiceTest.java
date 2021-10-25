@@ -46,6 +46,8 @@ class CreateDatasourceServiceTest {
   SaveAuthenticationVisitor saveAuthenticationVisitor;
   @Mock
   TraefikProviderService traefikProviderService;
+  @Mock
+  CreateBusinessDataNftDAO createBusinessDataNftDAO;
   @InjectMocks
   CreateDatasourceService createDatasourceService;
 
@@ -61,7 +63,8 @@ class CreateDatasourceServiceTest {
             saveAuthenticationVisitor,
             traefikProviderService,
             uuidGenerator,
-            clock);
+            clock,
+            createBusinessDataNftDAO);
   }
 
   @Test
