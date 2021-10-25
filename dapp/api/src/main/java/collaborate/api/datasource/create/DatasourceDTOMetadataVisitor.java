@@ -28,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 @Slf4j
+@Component
 @RequiredArgsConstructor
 public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream<Metadata>> {
 
@@ -72,7 +73,7 @@ public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream
   Metadata buildType(DatasourceDTO datasourceDTO) {
     return Metadata.builder()
         .name(DATASOURCE_TYPE)
-        .value(datasourceDTO.getClass().getSimpleName())
+        .value(datasourceDTO.getType())
         .type("string")
         .build();
   }

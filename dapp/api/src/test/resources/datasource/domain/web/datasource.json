@@ -1,5 +1,6 @@
 {
   "id": "898df5a9-0970-4908-8226-ecdfd7161060",
+  "creationDatetime": "2021-10-25T13:42:01.343Z",
   "name": "DSPConsortium1 Digital Passport",
   "provider": "collaborate.api.datasource.model.traefik.TraefikProviderConfiguration",
   "providerMetadata": [
@@ -7,6 +8,26 @@
       "name": "scope:metric:odometer:value.jsonPath",
       "value": "$._embedded.odometer.value",
       "type": "Integer"
+    },
+    {
+      "name": "datasource:type",
+      "value": "WebServerDatasourceDTO",
+      "type": "string"
+    },
+    {
+      "name": "datasource:authentication",
+      "value": "BasicAuth",
+      "type": "string"
+    },
+    {
+      "name": "datasource:purpose",
+      "value": "[\"digital-passport\"]",
+      "type": "string"
+    },
+    {
+      "name": "datasource:caEmail",
+      "value": "caEmail",
+      "type": "string"
     }
   ],
   "providerConfiguration": {

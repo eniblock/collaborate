@@ -28,6 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
@@ -40,7 +41,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
     NoSecurityTestConfig.class})
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
-class DatasourceLinkControllerIT {
+@ActiveProfiles({"default", "test"})
+class DatasourceControllerIT {
 
   public static final String API_V1_DATASOURCES = "/api/v1/datasources";
   @Autowired

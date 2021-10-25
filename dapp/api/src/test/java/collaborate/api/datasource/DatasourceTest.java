@@ -9,7 +9,7 @@ import collaborate.api.test.TestResources;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
 
-class DatasourceLinkTest {
+class DatasourceTest {
 
   @Test
   void deserialize_canTypeProvider() throws ClassNotFoundException {

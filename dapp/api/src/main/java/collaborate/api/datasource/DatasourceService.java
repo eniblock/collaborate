@@ -87,10 +87,10 @@ public class DatasourceService {
             getScopesByDataSourceId(datasource.getId())
                 .orElse(emptySet())
         ).baseURI(buildDatasourceBaseUri(datasource))
-        .authenticationType(metadataService.buildDatasourceType(datasource))
-        .certificateEmail(metadataService.buildCertificate(datasource))
-        .accessMethod(metadataService.buildAuthentication(datasource))
-        .datasourceType(metadataService.buildDatasourceType(datasource))
+        .authenticationType(metadataService.getAuthentication(datasource))
+        .certificateEmail(metadataService.getCertificate(datasource))
+        .accessMethod(metadataService.getAuthentication(datasource))
+        .datasourceType(metadataService.getType(datasource))
         .build();
   }
 

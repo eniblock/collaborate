@@ -38,10 +38,11 @@ public class WebServerDatasourceDTO extends DatasourceDTO {
       String name,
       Authentication authMethod,
       HashSet<String> keywords,
+      String type,
       List<WebServerResource> resources,
       String baseUrl
   ) {
-    super(id, name, authMethod, keywords);
+    super(id, name, authMethod, keywords, type);
     this.baseUrl = baseUrl;
     this.resources = resources;
   }

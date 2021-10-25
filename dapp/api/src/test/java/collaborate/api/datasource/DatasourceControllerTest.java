@@ -24,7 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 
 @ExtendWith(MockitoExtension.class)
-class DatasourceLinkControllerTest {
+class DatasourceControllerTest {
 
   UUID datasourceUUID = UUID.fromString("1fc84579-69fa-40bd-a4bd-b4b79139e53b");
   @Mock

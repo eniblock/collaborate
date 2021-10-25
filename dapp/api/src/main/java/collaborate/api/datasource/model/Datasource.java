@@ -17,7 +17,6 @@ import lombok.NoArgsConstructor;
 @Builder
 public class Datasource {
 
-  private String type;
   @Schema(description = "The unique identifier of the datasource", example = "5NPET4AC8AH593530", required = true)
   @NotNull
   private String id;

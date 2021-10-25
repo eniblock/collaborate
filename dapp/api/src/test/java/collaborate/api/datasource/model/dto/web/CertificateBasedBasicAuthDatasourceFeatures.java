@@ -12,6 +12,7 @@ public class CertificateBasedBasicAuthDatasourceFeatures {
   public static final WebServerDatasourceDTO datasource = WebServerDatasourceDTO.builder()
       .id(UUID.fromString("525003f6-f85f-11eb-9a03-0242ac130003"))
       .name("DSPConsortium1 Digital Passport")
+      .type("WebServerDatasource")
       .keywords(new LinkedHashSet<>(List.of("vehicles", "digital-passport")))
       .authMethod(CertificateBasedBasicAuth.builder()
           .user("MWPDRV01")

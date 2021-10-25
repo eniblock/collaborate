@@ -29,7 +29,7 @@ class DatasourceDTOMetadataVisitorTest {
 
   Metadata datasourceTypeMetadata = Metadata.builder()
       .name("datasource:type")
-      .value("WebServerDatasourceDTO")
+      .value("WebServerDatasource")
       .type("string")
       .build();
   Metadata datasourcePurposeMetadata = Metadata.builder()
