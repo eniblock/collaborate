@@ -3,12 +3,16 @@ package collaborate.api.datasource.create;
 import static collaborate.api.test.TestResources.objectMapper;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceDAO;
 import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
+import collaborate.api.datasource.model.Attribute;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
+import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
+import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
 import collaborate.api.datasource.security.SaveAuthenticationVisitor;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +22,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.LinkedHashMap;
 import java.util.Objects;
-import java.util.UUID;
+import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,16 +32,16 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class CreateDatasourceLinkServiceTest {
-
-  private final UUID datasourceUUID = UUID.fromString("525003f6-f85f-11eb-9a03-0242ac130003");
+class CreateDatasourceServiceTest {
 
   @Mock
   UUIDGenerator uuidGenerator;
   @Mock
+  AuthenticationMetadataVisitor authenticationMetadataVisitor;
+  @Mock
   DatasourceDAO datasourceDAO;
   @Mock
-  ProviderMetadataFactory providerMetadataFactory;
+  DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
   @Mock
   SaveAuthenticationVisitor saveAuthenticationVisitor;
   @Mock
@@ -50,9 +54,10 @@ class CreateDatasourceLinkServiceTest {
     Clock clock = Clock.fixed(Instant.parse("2018-08-19T16:45:42.00Z"), ZoneOffset.UTC);
     createDatasourceService =
         new CreateDatasourceService(
+            authenticationMetadataVisitor,
             datasourceDAO,
+            datasourceDTOMetadataVisitor,
             objectMapper,
-            providerMetadataFactory,
             saveAuthenticationVisitor,
             traefikProviderService,
             uuidGenerator,
@@ -69,7 +74,7 @@ class CreateDatasourceLinkServiceTest {
         mapper.readValue(
             IOUtils.toString(
                 Objects.requireNonNull(
-                    CreateDatasourceLinkServiceTest.class.getResourceAsStream(
+                    CreateDatasourceServiceTest.class.getResourceAsStream(
                         "/datasource/domain/traefik/entrypoint.yml")),
                 UTF_8.name()),
             TraefikProviderConfiguration.class);
@@ -85,5 +90,33 @@ class CreateDatasourceLinkServiceTest {
         (LinkedHashMap<?, ?>) datasourceResult.getProviderConfiguration().get("middlewares");
     var serializedDatasourceResult = objectMapper.writeValueAsString(middlewareResult);
     assertThat(serializedDatasourceResult).doesNotContain(datasourceId + "-auth-headers");
+  }
+
+  @Test
+  void buildMetadata_shouldContainsAuthenticationAndDatasourceMetadata()
+      throws DatasourceVisitorException {
+    // GIVEN
+    var datasource = CertificateBasedBasicAuthDatasourceFeatures.datasource;
+    var authMetadata = Attribute.builder()
+        .name("authName")
+        .value("authValue")
+        .build();
+    when(authenticationMetadataVisitor
+        .visitCertificateBasedBasicAuth((CertificateBasedBasicAuth) datasource.getAuthMethod())
+    ).thenReturn(Stream.of(authMetadata));
+
+    var datasourceMetadata = Attribute.builder()
+        .name("dsName")
+        .value("dsValue")
+        .build();
+    when(datasourceDTOMetadataVisitor.visitWebServerDatasource(datasource))
+        .thenReturn(Stream.of(datasourceMetadata));
+    // WHEN
+    var metadataResult = createDatasourceService.buildMetadata(datasource);
+    // THEN
+    assertThat(metadataResult).containsExactlyInAnyOrder(
+        authMetadata,
+        datasourceMetadata
+    );
   }
 }
