@@ -4,6 +4,7 @@ import static java.util.Collections.emptySet;
 import static java.util.function.Function.identity;
 
 import collaborate.api.datasource.create.CreateDatasourceService;
+import collaborate.api.datasource.metadata.MetadataService;
 import collaborate.api.datasource.model.Attribute;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
@@ -36,10 +37,11 @@ public class DatasourceService {
   private final ObjectMapper objectMapper;
   private final CreateDatasourceService createDatasourceService;
   private final DatasourceDAO datasourceDAO;
+  private final MetadataService metadataService;
   private final TestConnectionVisitor testConnectionVisitor;
 
   public Datasource create(DatasourceDTO datasource, Optional<MultipartFile> pfxFile)
-      throws Exception {
+      throws IOException, DatasourceVisitorException {
     datasource = copyWithPfxFileContent(datasource, pfxFile);
     return createDatasourceService.create(datasource);
   }
@@ -85,14 +87,10 @@ public class DatasourceService {
             getScopesByDataSourceId(datasource.getId())
                 .orElse(emptySet())
         ).baseURI(buildDatasourceBaseUri(datasource))
-        // FIXME to make it dynamic
-        .authenticationType("Basic Authentication")
-        // FIXME to make it dynamic
-        .certificateEmail("ca@dsp.com")
-        // FIXME to make it dynamic
-        .accessMethod("Basic Authentication")
-        // FIXME to make it dynamic
-        .datasourceType("Web Server API")
+        .authenticationType(metadataService.buildDatasourceType(datasource))
+        .certificateEmail(metadataService.buildCertificate(datasource))
+        .accessMethod(metadataService.buildAuthentication(datasource))
+        .datasourceType(metadataService.buildDatasourceType(datasource))
         .build();
   }
 

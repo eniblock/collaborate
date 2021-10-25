@@ -87,7 +87,6 @@ public class DigitalPassportDetailsDTOFactory {
         .assetDataCatalog(null)
         .assetId(passportsIndexerToken.getAssetId())
         .assetOwner(userService.buildUserWalletDTO(passportsIndexerToken.getTokenOwnerAddress()))
-        // TODO accessStatus
         .accessStatus(getAccessStatusByAssetId(passportsIndexerToken.getAssetId()))
         // TODO creationDatetime
         .creationDatetime(null)

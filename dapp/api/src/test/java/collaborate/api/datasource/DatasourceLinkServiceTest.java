@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.datasource.create.CreateDatasourceService;
+import collaborate.api.datasource.metadata.MetadataService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
 import collaborate.api.datasource.model.traefik.Http;
@@ -36,6 +37,8 @@ class DatasourceLinkServiceTest {
   @Mock
   DatasourceDAO datasourceDAO;
   @Mock
+  MetadataService metadataService;
+  @Mock
   TestConnectionVisitor testConnectionVisitor;
 
   @InjectMocks
@@ -47,6 +50,7 @@ class DatasourceLinkServiceTest {
         objectMapper,
         createDatasourceService,
         datasourceDAO,
+        metadataService,
         testConnectionVisitor
     );
   }
