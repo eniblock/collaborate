@@ -1,6 +1,7 @@
 package collaborate.api.datasource;
 
-import collaborate.api.datasource.create.ProviderMetadataFactory;
+import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Keys.DATASOURCE_PURPOSE;
+
 import collaborate.api.datasource.model.Attribute;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
@@ -32,7 +33,7 @@ public class ListDatasourceDTOFactory {
           .status(DatasourceStatus.CREATED)
           .purpose(
               datasourceDto.getProviderMetadata().stream()
-                  .filter(m -> ProviderMetadataFactory.DATASOURCE_PURPOSE.equals(m.getName()))
+                  .filter(m -> DATASOURCE_PURPOSE.equals(m.getName()))
                   .map(Attribute::getValue)
                   .map(
                       v -> {

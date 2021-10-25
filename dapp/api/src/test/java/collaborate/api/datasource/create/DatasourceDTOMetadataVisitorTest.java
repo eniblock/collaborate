@@ -1,40 +1,41 @@
 package collaborate.api.datasource.create;
 
-import static collaborate.api.datasource.create.ProviderMetadataFactory.METADATA_REGEXP;
-import static collaborate.api.datasource.create.ProviderMetadataFactory.NAME_GROUP_INDEX;
-import static collaborate.api.datasource.create.ProviderMetadataFactory.TYPE_GROUP_INDEX;
-import static collaborate.api.datasource.create.ProviderMetadataFactory.VALUE_GROUP_INDEX;
-import static collaborate.api.test.TestResources.readPath;
+import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.METADATA_REGEXP;
+import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.NAME_GROUP_INDEX;
+import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.TYPE_GROUP_INDEX;
+import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.VALUE_GROUP_INDEX;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
 import collaborate.api.datasource.model.Attribute;
+import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
-import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
-import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.test.TestResources;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class ProviderMetadataFactoryTest {
-
-  @Mock
-  AuthenticationProviderMetadataVisitor authenticationProviderMetadataVisitor;
+class DatasourceDTOMetadataVisitorTest {
 
   ObjectMapper objectMapper = Mockito.spy(TestResources.objectMapper);
 
   @InjectMocks
-  ProviderMetadataFactory providerMetadataFactory;
+  DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
+
+  Attribute datasourceTypeMetadata = Attribute.builder()
+      .name("datasource:type")
+      .value("WebServerDatasourceDTO")
+      .type("string")
+      .build();
+  Attribute datasourcePurposeMetadata = Attribute.builder()
+      .name("datasource:purpose")
+      .value("[\"digital-passport\",\"vehicles\"]")
+      .type("string[]").build();
 
   @Test
   void METADATA_REGEXP_shouldMatch_withKeyHavingDotChars() {
@@ -91,60 +92,47 @@ class ProviderMetadataFactoryTest {
   }
 
   @Test
-  void fromWebServerDatasource_withSimpleScope() {
+  void buildResourceKeywords_withSimpleScope() {
     // GIVEN
     Set<String> keywords =
         Set.of(
             "scope:odometer",
             "metadata:value.jsonPath:$.odometer.mileage");
-    WebServerDatasourceDTO webServerDatasourceDTO = CertificateBasedBasicAuthDatasourceFeatures.datasource;
-    webServerDatasourceDTO.setResources(
-        List.of(WebServerResource.builder().keywords(keywords).build()));
-
     // WHEN
-    var attributesResult = providerMetadataFactory.from(webServerDatasourceDTO);
+    var attributesResult = datasourceDTOMetadataVisitor.buildResourceKeywords(keywords);
     // THEN
     assertThat(attributesResult)
-        .containsAnyOf(
-            Attribute.builder()
-                .name("datasource:purpose")
-                .value("[\"digital-passport\",\"vehicles\"]")
-                .type("string[]").build(),
+        .containsExactlyInAnyOrder(
             Attribute.builder()
                 .name("scope:odometer:value.jsonPath")
                 .value("$.odometer.mileage")
-                .build());
+                .build()
+        );
   }
 
   @Test
-  void fromWebServerDatasource_shouldReturnExpected_withSingleMetadata() {
+  void buildResourceKeywords_shouldReturnExpected_withSingleMetadata() {
     // GIVEN
     Set<String> keywords =
         Set.of(
             "scope:metric:odometer",
             "metadata:value.jsonPath:$._embedded.odometer.value:Integer");
-    WebServerDatasourceDTO webServerDatasourceDTO = CertificateBasedBasicAuthDatasourceFeatures.datasource;
-    webServerDatasourceDTO.setResources(
-        List.of(WebServerResource.builder().keywords(keywords).build()));
 
     // WHEN
-    var attributesResult = providerMetadataFactory.from(webServerDatasourceDTO);
+    var attributesResult = datasourceDTOMetadataVisitor.buildResourceKeywords(keywords);
     // THEN
     assertThat(attributesResult)
-        .containsAnyOf(
-            Attribute.builder()
-                .name("datasource:purpose")
-                .value("[\"digital-passport\",\"vehicles\"]")
-                .type("string[]").build(),
+        .containsExactlyInAnyOrder(
             Attribute.builder()
                 .name("scope:metric:odometer:value.jsonPath")
                 .value("$._embedded.odometer.value")
                 .type("Integer")
-                .build());
+                .build()
+        );
   }
 
   @Test
-  void fromWebServerDatasource_shouldReturnExpected_withMultipleMetadata() {
+  void buildResourceKeywords_shouldReturnExpected_withMultipleMetadata() {
     // GIVEN
     Set<String> keywords =
         Set.of(
@@ -152,21 +140,12 @@ class ProviderMetadataFactoryTest {
             "metadata:smart-contract-token:true",
             "metadata:assets-json-path:$._embedded.business-data",
             "metadata:asset-scope-json-path:$.scope");
-    WebServerDatasourceDTO webServerDatasourceDTO =
-        readPath(
-            "/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
-            WebServerDatasourceDTO.class);
-    webServerDatasourceDTO.setResources(
-        List.of(WebServerResource.builder().keywords(keywords).build()));
     // WHEN
-    var attributesResult = providerMetadataFactory.from(webServerDatasourceDTO);
+    var attributesResult = datasourceDTOMetadataVisitor.buildResourceKeywords(keywords);
     // THEN
+
     assertThat(attributesResult)
-        .containsAnyOf(
-            Attribute.builder()
-                .name("datasource:purpose")
-                .value("[\"digital-passport\",\"vehicles\"]")
-                .type("string[]").build(),
+        .containsExactlyInAnyOrder(
             Attribute.builder()
                 .name("scope:assets:list-business-data:smart-contract-token")
                 .value("true")
@@ -178,26 +157,34 @@ class ProviderMetadataFactoryTest {
             Attribute.builder()
                 .name("scope:assets:list-business-data:asset-scope-json-path")
                 .value("$.scope")
-                .build());
+                .build()
+        );
   }
 
   @Test
-  void fromWebServerDatasource_shouldGenerateBasicAuthKey_withBasicAuthDto() {
+  void visitWebServerDatasource() throws DatasourceVisitorException {
     // GIVEN
-    var datasourceDto = CertificateBasedBasicAuthDatasourceFeatures.datasource;
-    when(authenticationProviderMetadataVisitor.visitCertificateBasedBasicAuth(any()))
-        .thenCallRealMethod();
-    when(authenticationProviderMetadataVisitor.visitBasicAuth(any())).thenCallRealMethod();
+    var datasource = CertificateBasedBasicAuthDatasourceFeatures.datasource;
     // WHEN
-    var metadataResult = providerMetadataFactory.from(datasourceDto);
+    var metadataResult = datasourceDTOMetadataVisitor.visitWebServerDatasource(datasource);
     // THEN
+    assertThat(metadataResult).containsExactlyInAnyOrder(
+        Attribute.builder()
+            .name("datasource:purpose")
+            .value("[\"vehicles\",\"digital-passport\"]")
+            .type("string[]").build(),
+        datasourceTypeMetadata
+    );
+  }
 
-    assertThat(metadataResult)
-        .contains(
-            Attribute.builder()
-                .name("configuration.required.basicAuth")
-                .type("Boolean")
-                .value("true")
-                .build());
+  @Test
+  void buildType() {
+    // GIVEN
+    var expectedMetadata = datasourceTypeMetadata;
+    // WHEN
+    var metadataResult = datasourceDTOMetadataVisitor.buildType(
+        CertificateBasedBasicAuthDatasourceFeatures.datasource);
+    // THEN
+    assertThat(metadataResult).isEqualTo(expectedMetadata);
   }
 }
