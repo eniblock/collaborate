@@ -1,0 +1,22 @@
+api:
+  digitalPassportContractAddress: KT1VzQ7jB8hXSk5iddUtGoraXx8Cd329ftJE
+  businessDataContractAddress: KT19juhbuKpBmcpccwDMY7WasLo7rSnmRE47
+  platform: dspA
+
+ipfs:
+  url: http://localhost:5010
+
+keycloak:
+  enabled: false
+
+spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+      - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
+      - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
+
+traefik:
+  certificatesPath: /etc/ssl/certs/xdev/collaborate/
+  pfxUnProtectorScriptPath: /etc/ssl/certs/xdev/collaborate/pfx-un-protector.sh
+  providersPath: /etc/traefik/xdev/collaborate/providers/

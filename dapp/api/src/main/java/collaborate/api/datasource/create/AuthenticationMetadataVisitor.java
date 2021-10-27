@@ -11,7 +11,9 @@ import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedB
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
 import java.util.stream.Stream;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
+@Component
 public class AuthenticationMetadataVisitor implements AuthenticationVisitor<Stream<Attribute>> {
 
   @NoArgsConstructor(access = PRIVATE)
