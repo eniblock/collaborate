@@ -2,7 +2,7 @@ api:
   platform:
   idp-admin-role: service_identity_provider_administrator
   digitalPassportContractAddress:
-  businessDataContractAddress:
+  businessDataContractAddress: KT1VzQ7jB8hXSk5iddUtGoraXx8Cd329ftJE
 
 transaction:
   watchers:
