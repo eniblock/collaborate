@@ -3,6 +3,7 @@ package collaborate.api.test.config;
 import org.keycloak.representations.AccessToken;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.annotation.Scope;
 import org.springframework.context.annotation.ScopedProxyMode;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -13,6 +14,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 @Configuration
 @EnableWebSecurity
+@Profile({"test"})
 public class NoSecurityTestConfig extends WebSecurityConfigurerAdapter {
 
   @Override
