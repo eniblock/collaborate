@@ -1,0 +1,29 @@
+{{- if .Values.datasourceDspA.autoscaling.enabled }}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "fake-datasource.fullname" . }}-api-dsp-a
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fake-datasource.labels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "fake-datasource.fullname" . }}-api-dsp-a
+  minReplicas: {{ .Values.datasourceDspA.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.datasourceDspA.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.datasourceDspA.autoscaling.targetCPUUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageUtilization: {{ .Values.datasourceDspA.autoscaling.targetCPUUtilizationPercentage }}
+    {{- end }}
+    {{- if .Values.datasourceDspA.autoscaling.targetMemoryUtilizationPercentage }}
+    - type: Resource
+      resource:
+        name: memory
+        targetAverageUtilization: {{ .Values.datasourceDspA.autoscaling.targetMemoryUtilizationPercentage }}
+    {{- end }}
+{{- end }}
