@@ -5,6 +5,7 @@ import collaborate.api.transaction.TransactionEventManager;
 import collaborate.api.transaction.TransactionProperties;
 import collaborate.api.transaction.TransactionWatcher;
 import collaborate.api.transaction.TransactionWatcherProperty;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,9 +15,6 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
 import org.springframework.stereotype.Component;
 
-/**
- * This is specific to collaborate
- */
 @RequiredArgsConstructor
 @Slf4j
 @Component
@@ -55,7 +53,9 @@ public class TransactionWatcherConfig {
 
   private TransactionEventManager initBusinessDataEventManager() {
     // TODO The differents handlers muust be defined here
-    return new TransactionEventManager();
+    return new TransactionEventManager(List.of(
+        transaction -> log.info("{}", transaction)
+    ));
   }
 
 }
