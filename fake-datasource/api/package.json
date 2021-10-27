@@ -1,0 +1,19 @@
+{
+  "name": "datasource-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
+  "dependencies": {
+    "get-keycloak-public-key": "^1.0.3",
+    "hal": "^1.2.0",
+    "json-server": "^0.16.3",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
