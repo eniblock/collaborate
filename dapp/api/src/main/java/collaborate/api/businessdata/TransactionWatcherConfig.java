@@ -5,6 +5,7 @@ import collaborate.api.transaction.TransactionEventManager;
 import collaborate.api.transaction.TransactionProperties;
 import collaborate.api.transaction.TransactionWatcher;
 import collaborate.api.transaction.TransactionWatcherProperty;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class TransactionWatcherConfig {
 
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
   private final TransactionProperties transactionProperties;
+  private final ObjectMapper objectMapper;
   private final ApiProperties apiProperties;
 
   @EventListener
@@ -39,7 +41,8 @@ public class TransactionWatcherConfig {
   private TransactionWatcher buildWatcher(TransactionWatcherProperty watcherProperty) {
     return new TransactionWatcher(
         watcherProperty.getSmartContractAddress(),
-        initBusinessDataEventManager()
+        initBusinessDataEventManager(),
+        objectMapper
     );
   }
 
