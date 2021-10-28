@@ -1,12 +1,12 @@
 package collaborate.api.businessdata;
 
 import collaborate.api.config.api.ApiProperties;
+import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
 import collaborate.api.transaction.TransactionProperties;
 import collaborate.api.transaction.TransactionWatcher;
 import collaborate.api.transaction.TransactionWatcherProperty;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +21,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class TransactionWatcherConfig {
 
+  private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
   private final TransactionProperties transactionProperties;
   private final ObjectMapper objectMapper;
   private final ApiProperties apiProperties;
+  private final LogInitDataCatalogCreationHandler logInitDataCatalogCreationHandler;
+  private final LogDataCatalogConsentHandler logDataCatalogConsentHandler;
 
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -42,7 +45,8 @@ public class TransactionWatcherConfig {
     return new TransactionWatcher(
         watcherProperty.getSmartContractAddress(),
         initBusinessDataEventManager(),
-        objectMapper
+        objectMapper,
+        tezosApiGatewayTransactionClient
     );
   }
 
@@ -55,10 +59,11 @@ public class TransactionWatcherConfig {
   }
 
   private TransactionEventManager initBusinessDataEventManager() {
-    // TODO The differents handlers muust be defined here
-    return new TransactionEventManager(List.of(
-        transaction -> log.info("{}", transaction)
-    ));
+    // The different handlers must be defined here
+    var transactionEventManager = new TransactionEventManager();
+    transactionEventManager.subscribe(logInitDataCatalogCreationHandler);
+    transactionEventManager.subscribe(logDataCatalogConsentHandler);
+    return transactionEventManager;
   }
 
 }
