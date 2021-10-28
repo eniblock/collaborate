@@ -1,0 +1,150 @@
+global:
+  iam: {}
+
+nameOverride: ""
+fullnameOverride: ""
+
+datasourceDspA:
+  image:
+    tag: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/api"
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets:
+    - name: gitlab-registry
+
+  replicaCount: 1
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+  # fsGroup: 2000
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 3000
+
+  ingress:
+    from:
+      - podSelector: {}
+        namespaceSelector:
+          matchLabels:
+            name: ingress
+
+  networkPolicy:
+    enabled: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+datasourceIam:
+  image:
+    tag: "registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/iam:develop"
+    pullPolicy: IfNotPresent
+
+  imagePullSecrets:
+    - name: gitlab-registry
+
+  replicaCount: 1
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name: ""
+
+  podAnnotations: {}
+
+  podSecurityContext: {}
+
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  ingress:
+    from:
+      - podSelector: {}
+        namespaceSelector:
+          matchLabels:
+            name: ingress
+
+  networkPolicy:
+    enabled: true
+
+  resources:
+    requests:
+      cpu: 50m
+      memory: 750Mi
+
+  autoscaling:
+    enabled: false
+    minReplicas: 1
+    maxReplicas: 100
+    targetCPUUtilizationPercentage: 80
+    # targetMemoryUtilizationPercentage: 80
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  postgresql:
+    name: iam-db
+    postgresqlDatabase: iam
+    postgresqlUsername: iam_db_user
+
+  username: kcadmin
+
+iam-db:
+  postgresqlDatabase: iam
+  postgresqlUsername: iam_db_user
+  persistence:
+    enabled: true
+    size: 1Gi
+  image:
+    tag: 12.6.0-debian-10-r14
+  resources:
+    requests:
+      memory: 256Mi
+      cpu: 50m
+  primary:
+    annotations:
+      reloader.stakater.com/auto: "true"
+  rbac:
+    create: true
+  serviceAccount:
+    enabled: true
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+    resources:
+      requests:
+        memory: 32Mi
+        cpu: 10m
+  networkPolicy:
+    enabled: true
+    allowExternal: false

@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fake-datasource.fullname" . }}-api-dsp-a
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fake-datasource.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api-dsp-a
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  {{- if not .Values.datasourceDspA.autoscaling.enabled }}
+  replicas: {{ .Values.datasourceDspA.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "fake-datasource.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: api-dsp-a
+  template:
+    metadata:
+      {{- with .Values.datasourceDspA.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "fake-datasource.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: api-dsp-a
+    spec:
+      {{- with .Values.datasourceDspA.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: fake-datasource-api-dsp-a
+      securityContext:
+        {{- toYaml .Values.datasourceDspA.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.datasourceDspA.securityContext | nindent 12 }}
+          image: {{ .Values.datasourceDspA.image.tag }}
+          imagePullPolicy: {{ .Values.datasourceDspA.image.pullPolicy }}
+          env:
+            - name: WEB_URL
+              value: {{ .Values.datasourceDspA.url | quote }}
+            - name: IAM_URL
+              value: {{ .Values.datasourceDspA.iamUrl | quote }}
+            - name: NODE_TLS_REJECT_UNAUTHORIZED
+              value: {{ .Values.datasourceDspA.nodeTlsRejectUnauthorized | quote }}
+            - name: DB_PATH
+              value: {{ .Values.datasourceDspA.dbPath | quote }}
+          ports:
+            - name: http
+              containerPort: 3000
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          resources:
+            {{- toYaml .Values.datasourceDspA.resources | nindent 12 }}
+      {{- with .Values.datasourceDspA.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.datasourceDspA.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.datasourceDspA.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

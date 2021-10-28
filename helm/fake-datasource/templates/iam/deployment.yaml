@@ -1,0 +1,118 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "fake-datasource.fullname" . }}-iam
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "fake-datasource.labels" . | nindent   4 }}
+    app.kubernetes.io/component: iam
+  annotations:
+    reloader.stakater.com/auto: "true"
+spec:
+  {{- if not .Values.datasourceIam.autoscaling.enabled }}
+  replicas: {{ .Values.datasourceIam.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      {{- include "fake-datasource.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: iam
+  template:
+    metadata:
+      {{- with .Values.datasourceIam.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "fake-datasource.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: iam
+        {{ .Release.Name }}-iam-db-client: "true"
+    spec:
+      {{- with .Values.datasourceIam.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: fake-datasource-iam
+      securityContext:
+        {{- toYaml .Values.datasourceIam.podSecurityContext | nindent 8 }}
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            {{- toYaml .Values.datasourceIam.securityContext | nindent 12 }}
+          image: {{ .Values.datasourceIam.image.tag }}
+          imagePullPolicy: {{ .Values.datasourceIam.image.pullPolicy }}
+          env:
+            - name: KEYCLOAK_USER
+              value: {{ .Values.datasourceIam.username | quote }}
+            - name: KEYCLOAK_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-iam"
+                  key: iam-password
+            - name: DB_ADDR
+              value: "{{ .Release.Name }}-{{ .Values.datasourceIam.postgresql.name }}"
+            - name: DB_DATABASE
+              value: {{ .Values.datasourceIam.postgresql.postgresqlDatabase | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-{{ .Values.datasourceIam.postgresql.name }}"
+                  key: postgresql-password
+            - name: DB_USER
+              value: {{ .Values.datasourceIam.postgresql.postgresqlUsername | quote }}
+            - name: DB_VENDOR
+              value: postgres
+            - name: SMTP_HOST
+              value: "{{ .Release.Name }}-{{ .Values.datasourceIam.smtp.name }}"
+            - name: SMTP_AUTH
+              value: {{ .Values.datasourceIam.smtp.auth | quote }}
+            - name: SMTP_SSL
+              value: {{ .Values.datasourceIam.smtp.ssl | quote }}
+            {{ if .Values.datasourceIam.smtp.auth }}
+            - name: SMTP_USER
+              value: {{ .Values.datasourceIam.smtp.username | quote }}
+            - name: SMTP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-iam"
+                  key: smtp-password
+            {{ end }}
+            - name: CLIENT_SECRET_COLLABORATE
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-iam"
+                  key: client-secret-collaborate
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+            - name: https
+              containerPort: 8443
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+          startupProbe:
+            httpGet:
+              path: /
+              port: http
+            periodSeconds: 5
+            failureThreshold: 60
+          resources:
+            {{- toYaml .Values.datasourceIam.resources | nindent 12 }}
+      {{- with .Values.datasourceIam.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.datasourceIam.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.datasourceIam.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
