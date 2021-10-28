@@ -1,7 +1,5 @@
 package collaborate.api.businessdata;
 
-import collaborate.api.businessdata.create.LogDataCatalogConsentHandler;
-import collaborate.api.businessdata.create.LogInitDataCatalogCreationHandler;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
@@ -28,8 +26,7 @@ public class TransactionWatcherConfig {
   private final TransactionProperties transactionProperties;
   private final ObjectMapper objectMapper;
   private final ApiProperties apiProperties;
-  private final LogInitDataCatalogCreationHandler logInitDataCatalogCreationHandler;
-  private final LogDataCatalogConsentHandler logDataCatalogConsentHandler;
+  private final SaveTransactionHandler saveTransactionHandler;
 
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -62,8 +59,7 @@ public class TransactionWatcherConfig {
 
   private TransactionEventManager initBusinessDataEventManager() {
     var transactionEventManager = new TransactionEventManager();
-    transactionEventManager.subscribe(logInitDataCatalogCreationHandler);
-    transactionEventManager.subscribe(logDataCatalogConsentHandler);
+    transactionEventManager.subscribe(saveTransactionHandler);
     return transactionEventManager;
   }
 

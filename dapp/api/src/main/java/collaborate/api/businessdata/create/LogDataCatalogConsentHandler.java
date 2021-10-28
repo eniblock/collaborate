@@ -11,7 +11,7 @@ public class LogDataCatalogConsentHandler implements TransactionHandler {
 
   @Override
   public void handle(Transaction transaction) {
-    if (transaction.getEntrypoint().equals("init_data_catalog_creation")) {
+    if (transaction.getEntrypoint().equals("data_catalog_consent")) {
       log.info("Entrypoint = {}, params = {}", transaction.getEntrypoint(),
           transaction.getParameters());
     }
