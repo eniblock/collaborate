@@ -81,7 +81,7 @@ public class DatasourceEnricherVisitor implements
 
   DatasourceEnrichment<WebServerDatasourceDTO> enrich(WebServerDatasourceDTO datasource,
       String jsonResponse) {
-    var resourcesPath = JSONPath.compile("$._embedded.resources");
+    var resourcesPath = JSONPath.compile("$._embedded.metadatas");
     if (resourcesPath.contains(jsonResponse)) {
 
       var resources = resourcesPath.<JSONArray>eval(jsonResponse, JSONArray.class);

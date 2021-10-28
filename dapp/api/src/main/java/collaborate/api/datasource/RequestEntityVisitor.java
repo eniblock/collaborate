@@ -11,6 +11,7 @@ import collaborate.api.datasource.model.dto.web.authentication.OpenIdConfigurati
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.http.RequestEntityBuilder;
 import collaborate.api.http.security.SSLContextFactory;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.function.Supplier;
 import javax.net.ssl.SSLContext;
 import lombok.RequiredArgsConstructor;
@@ -25,17 +26,17 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 @RequiredArgsConstructor
 public class RequestEntityVisitor implements
-    AuthenticationVisitor<Supplier<ResponseEntity<String>>> {
+    AuthenticationVisitor<Supplier<ResponseEntity<JsonNode>>> {
 
   private final RequestEntityBuilder<?> requestEntityBuilder;
   private final HttpClientFactory httpClientFactory;
   private final SSLContextFactory sslContextCreator;
 
   @Override
-  public Supplier<ResponseEntity<String>> visitBasicAuth(BasicAuth basicAuth) {
+  public Supplier<ResponseEntity<JsonNode>> visitBasicAuth(BasicAuth basicAuth) {
     var restTemplate = new RestTemplate();
     addBasicAuth(basicAuth);
-    return () -> restTemplate.exchange(requestEntityBuilder.build(), String.class);
+    return () -> restTemplate.exchange(requestEntityBuilder.build(), JsonNode.class);
   }
 
   private void addBasicAuth(BasicAuth basicAuth) {
@@ -43,7 +44,7 @@ public class RequestEntityVisitor implements
   }
 
   @Override
-  public Supplier<ResponseEntity<String>> visitCertificateBasedBasicAuth(
+  public Supplier<ResponseEntity<JsonNode>> visitCertificateBasedBasicAuth(
       CertificateBasedBasicAuth certificateBasedBasicAuth) {
     addBasicAuth(certificateBasedBasicAuth);
 
@@ -58,7 +59,7 @@ public class RequestEntityVisitor implements
               httpClientFactory.createNoHostnameVerifier(sslContext)
           )
       );
-      return () -> restTemplate.exchange(requestEntityBuilder.build(), String.class);
+      return () -> restTemplate.exchange(requestEntityBuilder.build(), JsonNode.class);
     } catch (Exception e) {
       log.error(
           "Can't create HttpURLConnection for certificateBasedBasicAuth={}",
@@ -69,7 +70,7 @@ public class RequestEntityVisitor implements
   }
 
   @Override
-  public Supplier<ResponseEntity<String>> visitOAuth2(OAuth2 oAuth2) {
+  public Supplier<ResponseEntity<JsonNode>> visitOAuth2(OAuth2 oAuth2) {
     var openIdConfigurationUrl = UriComponentsBuilder
         .fromUriString(
             oAuth2.getIssuerIdentifierUri() + "/" + oAuth2.getWellKnownURIPathSuffix()
@@ -100,7 +101,7 @@ public class RequestEntityVisitor implements
       ).getBody();
 
       requestEntityBuilder.jwt(requireNonNull(accessTokenResponse));
-      return () -> restTemplate.exchange(requestEntityBuilder.build(), String.class);
+      return () -> restTemplate.exchange(requestEntityBuilder.build(), JsonNode.class);
     } catch (RestClientException e) {
       log.error("Can't create HttpURLConnection for oAuth2={}", oAuth2);
       throw new IllegalStateException(e);

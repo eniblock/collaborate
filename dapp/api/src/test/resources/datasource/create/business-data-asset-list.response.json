@@ -1,23 +1,23 @@
 {
   "_links": {
     "self": {
-      "href": "https://dsp.com/pcc"
+      "href": "https://datasource-dsp-a.fake-datasource.localhost/documents"
     }
   },
   "_embedded": {
-    "resources": [
+    "metadatas": [
       {
         "_links": {
           "self": {
-            "href": "https://dsp.com/pcc/centers"
+            "href": "https://datasource-dsp-a.fake-datasource.localhost/documents/dspA1"
           },
           "download": {
-            "href": "https://dsp.com/pcc/centers/download"
+            "href": "https://datasource-dsp-a.fake-datasource.localhost/documents/dspA1/download"
           }
         },
-        "id": "centersId",
-        "title": "Center title",
-        "scope": "center-scope"
+        "id": "dspA1",
+        "title": "Centres ouverts",
+        "scope": "referentials"
       }
     ]
   }

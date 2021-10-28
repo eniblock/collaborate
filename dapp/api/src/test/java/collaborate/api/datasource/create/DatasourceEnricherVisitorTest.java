@@ -22,7 +22,7 @@ class DatasourceEnricherVisitorTest {
     // GIVEN
     var assetListJson = readPath("/datasource/create/business-data-asset-list.response.json");
     var datasourceDTO = WebServerDatasourceDTO.builder()
-        .baseUrl("https://dsp.com")
+        .baseUrl("https://datasource-dsp-a.fake-datasource.localhost/documents")
         .resources(emptyList())
         .build();
     // WHEN
@@ -35,20 +35,20 @@ class DatasourceEnricherVisitorTest {
             datasourceDTO.toBuilder()
                 .resources(List.of(
                     WebServerResource.builder()
-                        .url("/pcc/centers")
-                        .keywords(Set.of("document:centersId"))
+                        .url("/dspA1")
+                        .keywords(Set.of("document:dspA1"))
                         .build()
                 ))
                 .build()
         );
     assertThat(enrichmentsResult.getMetadata()).containsExactlyInAnyOrder(
         Metadata.builder()
-            .name("document:centersId:title")
-            .value("Center title")
+            .name("document:dspA1:title")
+            .value("Centres ouverts")
             .build(),
         Metadata.builder()
-            .name("document:centersId:scope")
-            .value("center-scope")
+            .name("document:dspA1:scope")
+            .value("referentials")
             .build()
     );
   }
