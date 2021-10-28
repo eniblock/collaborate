@@ -47,3 +47,9 @@ keycloak:
       value: "7a62e8890c2b5a57d1d6"
     - name: ENABLE_OR_DISABLE_BROKER
       value: "true"
+
+transaction:
+  tagClientUrl: ""
+  watchers:
+    fixedDelayInMs: 2000
+    smartContractAddress: KT1D1YooMGGnTX9gyfhFgYwKJUeB3txefCBk

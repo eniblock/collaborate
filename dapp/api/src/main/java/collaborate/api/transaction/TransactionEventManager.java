@@ -1,21 +1,20 @@
 package collaborate.api.transaction;
 
+import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 
-@AllArgsConstructor
 @NoArgsConstructor
 public class TransactionEventManager {
 
-  private List<TransactionHandler> listeners;
+  private List<TransactionHandler> listeners = new ArrayList<>();
 
-  void subscribe(TransactionHandler handler) {
-    // TODO
+  public void subscribe(TransactionHandler handler) {
+    listeners.add(handler);
   }
 
-  void unsubscribe(TransactionHandler handler) {
-    // TODO
+  public void unsubscribe(TransactionHandler handler) {
+    listeners.remove(handler);
   }
 
   void notify(Transaction transaction) {
