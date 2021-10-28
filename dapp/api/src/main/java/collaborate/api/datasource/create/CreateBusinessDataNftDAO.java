@@ -5,7 +5,6 @@ import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.job.Job;
-import collaborate.api.tag.model.job.Transaction;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.user.UserService;
 import feign.FeignException;
@@ -29,36 +28,20 @@ public class CreateBusinessDataNftDAO {
   private final TezosApiGatewayBusinessDataDatasourceClient tezosApiGatewayBusinessDataDatasourceClient;
   private final UserService userService;
 
-  private static final String INIT_DATA_CATALOG_CREATION_ENTRYPOINT = "init_data_catalog_creation";
-  private static final String DATA_CATALOG_CONSENT_ENTRYPOINT = "data_catalog_consent";
+  private static final String DATA_CATALOG_CREATION_ENTRYPOINT = "create_business_datasource";
 
   public Job mintBusinessDataNFT(UUID assetId, String ipfsMetadataUri) {
-    var nextTokenId = getMultisigCounter();
-
     var paramsDataCatalogCreation = DataCatalogCreationDTO.builder()
         .nftOperatorAddress(userService.getAdminUser().getAddress())
         .assetId(assetId.toString())
         .metadataUri(new Bytes(ipfsMetadataUri))
         .build();
 
-    var transactions =
-        List.of(
-            Transaction.builder()
-                .entryPoint(INIT_DATA_CATALOG_CREATION_ENTRYPOINT)
-                .contractAddress(apiProperties.getBusinessDataContractAddress())
-                .entryPointParams(paramsDataCatalogCreation)
-                .build()
-            ,
-            Transaction.builder()
-                .entryPoint(DATA_CATALOG_CONSENT_ENTRYPOINT)
-                .contractAddress(apiProperties.getBusinessDataContractAddress())
-                .entryPointParams(nextTokenId)
-                .build()
-        );
-
-    var transactionBatch = transactionBatchFactory.createEntryPointBatchJob(
-        transactions,
-        Optional.empty()
+    var transactionBatch = transactionBatchFactory.createEntryPointJob(
+        DATA_CATALOG_CREATION_ENTRYPOINT,
+        paramsDataCatalogCreation,
+        Optional.empty(),
+        apiProperties.getBusinessDataContractAddress()
     );
 
     Job job;

@@ -60,7 +60,6 @@ public class DatasourceController {
     };
   }
 
-
   @GetMapping("/{id}")
   @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
