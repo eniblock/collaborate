@@ -2,24 +2,25 @@ package collaborate.api.datasource.create;
 
 import collaborate.api.datasource.URIFactory;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
-import collaborate.api.http.HttpURLConnectionVisitorFactory;
-import java.net.HttpURLConnection;
+import collaborate.api.http.RequestEntityVisitorFactory;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class HttpURLConnectionFactory {
+public class RequestEntitySupplierFactory {
 
-  private final HttpURLConnectionVisitorFactory httpURLConnectionVisitorFactory;
+  private final RequestEntityVisitorFactory requestEntityVisitorFactory;
   private final URIFactory uriFactory;
 
-  public HttpURLConnection create(WebServerDatasourceDTO serverDatasourceDTO,
+  public Supplier<ResponseEntity<String>> create(WebServerDatasourceDTO serverDatasourceDTO,
       String resourceKeyword) {
     var resource = serverDatasourceDTO.getResourceByKeywordOrThrow(resourceKeyword);
     var uri = uriFactory.create(serverDatasourceDTO, resource);
 
-    var httpURLConnectionVisitor = httpURLConnectionVisitorFactory.create(uri);
-    return serverDatasourceDTO.getAuthMethod().accept(httpURLConnectionVisitor);
+    var requestEntityVisitor = requestEntityVisitorFactory.create(uri);
+    return serverDatasourceDTO.getAuthMethod().accept(requestEntityVisitor);
   }
 }

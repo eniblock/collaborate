@@ -17,7 +17,7 @@ import org.springframework.http.HttpHeaders;
 
 @Slf4j
 @NoArgsConstructor
-public class HttpURLConnectionBuilder {
+public class HttpUrlConnectionBuilder {
 
   private String url;
   private String requestMethod = "GET";
@@ -26,31 +26,31 @@ public class HttpURLConnectionBuilder {
   private BasicAuthHeader basicAuthHeader;
   private String postData;
 
-  public HttpURLConnectionBuilder(String url) {
+  public HttpUrlConnectionBuilder(String url) {
     this.url = url;
   }
 
-  public HttpURLConnectionBuilder sslContext(SSLContext sslContext) {
+  public HttpUrlConnectionBuilder sslContext(SSLContext sslContext) {
     this.sslContext = sslContext;
     return this;
   }
 
-  public HttpURLConnectionBuilder header(String key, String... values) {
+  public HttpUrlConnectionBuilder header(String key, String... values) {
     this.headers.put(key, Arrays.asList(values));
     return this;
   }
 
-  public HttpURLConnectionBuilder authorizationBasic(String user, String password) {
+  public HttpUrlConnectionBuilder authorizationBasic(String user, String password) {
     basicAuthHeader = new BasicAuthHeader(user, password);
-    return header(BasicAuthHeader.KEY, basicAuthHeader.getValue());
+    return header("Authorization", basicAuthHeader.getValue());
   }
 
-  public HttpURLConnectionBuilder requestMethod(String requestMethod) {
+  public HttpUrlConnectionBuilder requestMethod(String requestMethod) {
     this.requestMethod = requestMethod;
     return this;
   }
 
-  public HttpURLConnectionBuilder body(Map<String, String> body) {
+  public HttpUrlConnectionBuilder body(Map<String, String> body) {
     StringBuilder result = new StringBuilder();
     boolean first = true;
     for (Map.Entry<String, String> entry : body.entrySet()) {

@@ -1,5 +1,6 @@
 package collaborate.api.datasource.create;
 
+import static collaborate.api.test.TestResources.objectMapper;
 import static collaborate.api.test.TestResources.readPath;
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -25,8 +26,9 @@ class DatasourceEnricherVisitorTest {
         .resources(emptyList())
         .build();
     // WHEN
-    var enrichmentsResult = new DatasourceEnricherVisitor(null)
-        .build(datasourceDTO, assetListJson);
+    var enrichmentsResult =
+        new DatasourceEnricherVisitor(null, objectMapper)
+            .enrich(datasourceDTO, assetListJson);
     // THEN
     assertThat(enrichmentsResult.getDatasource())
         .isEqualTo(

@@ -5,11 +5,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.datasource.create.HttpURLConnectionFactory;
+import collaborate.api.datasource.create.RequestEntitySupplierFactory;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
-import collaborate.api.http.HttpURLConnectionVisitorFactory;
+import collaborate.api.http.RequestEntityVisitorFactory;
 import collaborate.api.http.ResponseCodeOkPredicate;
 import java.net.URI;
 import java.util.List;
@@ -26,7 +26,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TestConnectionVisitorTest {
 
   @Mock
-  HttpURLConnectionVisitorFactory httpURLConnectionVisitorFactory;
+  RequestEntityVisitorFactory requestEntityVisitorFactory;
   @Mock
   URIFactory uriFactory;
 
@@ -36,10 +36,10 @@ class TestConnectionVisitorTest {
 
   @BeforeEach
   void setUp() {
-    HttpURLConnectionFactory httpURLConnectionFactory = Mockito.spy(
-        new HttpURLConnectionFactory(httpURLConnectionVisitorFactory, uriFactory)
+    RequestEntitySupplierFactory requestEntitySupplierFactory = Mockito.spy(
+        new RequestEntitySupplierFactory(requestEntityVisitorFactory, uriFactory)
     );
-    testConnectionVisitor = new TestConnectionVisitor(httpURLConnectionFactory, null);
+    testConnectionVisitor = new TestConnectionVisitor(requestEntitySupplierFactory, null);
   }
 
   @Test
@@ -58,7 +58,7 @@ class TestConnectionVisitorTest {
         .authMethod(new BasicAuth())
         .build();
     when(uriFactory.create(datasource, expectedResource)).thenCallRealMethod();
-    when(httpURLConnectionVisitorFactory.create(
+    when(requestEntityVisitorFactory.create(
         URI.create(baseUrl + "/myExpectedResourceUrl"))).thenCallRealMethod();
     // WHEN
     datasource.accept(testConnectionVisitor);

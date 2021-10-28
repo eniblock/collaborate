@@ -12,12 +12,12 @@ import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;
 import collaborate.api.datasource.model.dto.DatasourceEnrichment;
 import collaborate.api.datasource.model.dto.DatasourcePurpose;
-import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
-import java.io.IOException;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -35,12 +35,12 @@ public class DatasourceEnricherVisitor implements
     DatasourceDTOVisitor<DatasourceEnrichment<? extends DatasourceDTO>> {
 
   public static final String RESOURCE_ID_PATH = "$.id";
-  private final HttpURLConnectionFactory httpUrlConnectionFactory;
+  private final RequestEntitySupplierFactory requestEntitySupplierFactory;
+  private final ObjectMapper objectMapper;
 
   @Override
   public DatasourceEnrichment<? extends DatasourceDTO> visitWebServerDatasource(
-      WebServerDatasourceDTO webServerDatasourceDTO)
-      throws DatasourceVisitorException {
+      WebServerDatasourceDTO webServerDatasourceDTO) {
 
     if (DatasourcePurpose.BUSINESS_DATA.match(webServerDatasourceDTO)) {
       return enrichBusinessData(webServerDatasourceDTO);
@@ -49,44 +49,37 @@ public class DatasourceEnricherVisitor implements
   }
 
   private DatasourceEnrichment<WebServerDatasourceDTO> enrichBusinessData(
-      WebServerDatasourceDTO webServerDatasourceDTO)
-      throws DatasourceVisitorException {
-
+      WebServerDatasourceDTO webServerDatasourceDTO) {
     var response = getAssetListResponse(webServerDatasourceDTO);
-    return build(webServerDatasourceDTO, response);
+    return enrich(webServerDatasourceDTO, response);
   }
 
-  private String getAssetListResponse(WebServerDatasourceDTO webServerDatasourceDTO)
-      throws DatasourceVisitorException {
-    var httpURLConnection = httpUrlConnectionFactory.create(
+  private String getAssetListResponse(WebServerDatasourceDTO webServerDatasourceDTO) {
+    var assetListResponseSupplier = requestEntitySupplierFactory.create(
         webServerDatasourceDTO,
         SCOPE_ASSET_LIST
     );
 
-    try {
-      httpURLConnection.connect();
-
-      log.debug("fetching url={}, responseCode={}",
-          httpURLConnection.getURL(),
-          httpURLConnection.getResponseCode()
+    log.debug("fetching assetList for 1datasource={}", webServerDatasourceDTO.getId());
+    var response = assetListResponseSupplier.get();
+    if (response.getStatusCode() != OK) {
+      throw new ResponseStatusException(
+          BAD_REQUEST,
+          "Getting business data documents failed with responseCode=" + response.getStatusCode()
       );
-
-      if (httpURLConnection.getResponseCode() != OK.value()) {
-        throw new ResponseStatusException(BAD_REQUEST,
-            "Getting business data documents failed with responseCode="
-                + httpURLConnection.getResponseCode());
-      }
-      return httpURLConnection.getResponseMessage();
-    } catch (IOException e) {
-      httpURLConnection.disconnect();
-      log.error("While testing connection to URL=" + httpURLConnection.getURL(), e);
-      throw new DatasourceVisitorException(e);
-    } finally {
-      httpURLConnection.disconnect();
+    }
+    try {
+      return objectMapper.writeValueAsString(response.getBody());
+    } catch (JsonProcessingException e) {
+      throw new ResponseStatusException(
+          BAD_REQUEST,
+          "Getting business data documents failed reading response",
+          e
+      );
     }
   }
 
-  DatasourceEnrichment<WebServerDatasourceDTO> build(WebServerDatasourceDTO datasource,
+  DatasourceEnrichment<WebServerDatasourceDTO> enrich(WebServerDatasourceDTO datasource,
       String jsonResponse) {
     var resourcesPath = JSONPath.compile("$._embedded.resources");
     if (resourcesPath.contains(jsonResponse)) {

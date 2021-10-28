@@ -1,6 +1,6 @@
 package collaborate.api.http;
 
-import collaborate.api.datasource.HttpURLConnectionVisitor;
+import collaborate.api.datasource.RequestEntityVisitor;
 import collaborate.api.http.security.SSLContextFactory;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;
@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class HttpURLConnectionVisitorFactory {
+public class RequestEntityVisitorFactory {
 
   private final SSLContextFactory sslContextCreator;
   private final HttpClientFactory httpClientFactory;
 
-  public HttpURLConnectionVisitor create(URI uri) {
-    return new HttpURLConnectionVisitor(
-        new HttpURLConnectionBuilder(uri.toString()),
+  public RequestEntityVisitor create(URI uri) {
+    return new RequestEntityVisitor(
+        new RequestEntityBuilder<>(uri.toString()),
         httpClientFactory,
         sslContextCreator
     );
