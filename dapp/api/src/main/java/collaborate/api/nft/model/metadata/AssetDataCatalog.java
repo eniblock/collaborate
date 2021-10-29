@@ -1,6 +1,6 @@
-package collaborate.api.passport.model.metadata;
+package collaborate.api.nft.model.metadata;
 
-import collaborate.api.passport.create.DatasourceLink;
+import collaborate.api.nft.create.DatasourceLink;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

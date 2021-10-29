@@ -1,16 +1,16 @@
-package collaborate.api.passport.create;
+package collaborate.api.nft.create;
 
 import collaborate.api.date.DateFormatterFactory;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.ipfs.IpnsService;
-import collaborate.api.passport.TokenMetadataProperties;
-import collaborate.api.passport.model.metadata.Attribute;
-import collaborate.api.passport.model.metadata.License;
-import collaborate.api.passport.model.metadata.TokenMetadata;
+import collaborate.api.nft.TokenMetadataProperties;
+import collaborate.api.nft.model.metadata.Attribute;
+import collaborate.api.nft.model.metadata.TokenMetadata;
 import java.nio.file.Path;
 import java.time.Clock;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -18,32 +18,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class TokenMetadataFactory {
 
-  public static final String NFT_NAME = "DigitalPassport";
-  public static final String NFT_SYMBOLE = "CDP";
-  public static final int NFT_DECIMALS = 0;
-  public static final String NFT_VERSION = "digital-passport.0.1";
-  public static final String NFT_LICENCE = "MIT";
-  public static final List<String> NFT_AUTHOR = List.of("The Blockchain Xdev team");
-  public static final String NFT_HOMEPAGE = "https://www.theblockchainxdev.com/";
-  public static final List<String> NFT_INTERFACES = List.of("TZIP-012", "TZIP-021");
-
   private final Clock clock;
   private final DateFormatterFactory dateFormatterFactory;
   private final IpnsService ipnsService;
   private final TokenMetadataProperties tokenMetadataProperties;
 
-  public Path buildPathForAssetId(String assetId) {
+  public Path buildPathForAssetId(AssetDTO assetDTO) {
     return Path.of(
         tokenMetadataProperties.getNftMetadataRootFolder(),
-        NFT_NAME,
+        assetDTO.getAssetType(),
         dateFormatterFactory
             .forPattern(tokenMetadataProperties.getNftMetadataPartitionDatePattern()),
-        assetId + "_" + clock.millis()
+        assetDTO.getAssetId() + "_" + clock.millis()
     );
   }
 
-  public TokenMetadata create(CreateMultisigPassportDTO createMultisigPassportDTO,
-      String assetDataCatalogRelativePath) {
+  public TokenMetadata create(
+      Supplier<TokenMetadata> tokenMetadataSupplier,
+      AssetDTO assetDTO, String assetDataCatalogRelativePath) {
     var attribute = Attribute.builder()
         .name("assetDataCatalog")
         .value(IpfsService.IPNS_PROTOCOL_PREFIX
@@ -51,19 +43,11 @@ public class TokenMetadataFactory {
         ).type("URI")
         .build();
 
-    return TokenMetadata.builder()
-        .name(NFT_NAME)
-        .symbol(NFT_SYMBOLE)
-        .decimals(NFT_DECIMALS)
+    return tokenMetadataSupplier.get().toBuilder()
         .description(
-            "The metadata for the digital-passport asset having '"
-                + createMultisigPassportDTO.getAssetId()
+            "The metadata for the " + assetDTO.getAssetType() + " asset having '"
+                + assetDTO.getAssetId()
                 + "' assetId")
-        .version(NFT_VERSION)
-        .license(License.builder().name(NFT_LICENCE).build())
-        .authors(NFT_AUTHOR)
-        .homepage(NFT_HOMEPAGE)
-        .interfaces(NFT_INTERFACES)
         .attributes(List.of(attribute))
         .build();
   }

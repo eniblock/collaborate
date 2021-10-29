@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import collaborate.api.datasource.create.CreateDatasourceService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
 import collaborate.api.datasource.model.dto.web.OAuth2DatasourceFeatures;
@@ -52,6 +53,8 @@ class DatasourceControllerIT {
   TestConnectionVisitor testConnectionVisitor;
   @MockBean
   DatasourceService datasourceService;
+  @MockBean
+  CreateDatasourceService createDatasourceService;
 
   final MockMultipartFile oAuth2Datasource = new MockMultipartFile(
       "datasource",
@@ -75,7 +78,7 @@ class DatasourceControllerIT {
   @Test
   void postDatasource_shouldReturnCreatedStatus_withOAuth2() throws Exception {
     // GIVEN
-    when(datasourceService.testConnection(any(), any())).thenReturn(true);
+    when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
     var mvcResult = mockMvc.perform(
             multipart(API_V1_DATASOURCES)
@@ -104,7 +107,7 @@ class DatasourceControllerIT {
         APPLICATION_JSON,
         datasourceJson.getBytes()
     );
-    when(datasourceService.testConnection(any(), any())).thenReturn(true);
+    when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
     mockMvc.perform(
             multipart(API_V1_DATASOURCES)
@@ -128,7 +131,7 @@ class DatasourceControllerIT {
         APPLICATION_JSON,
         datasourceJson.getBytes()
     );
-    when(datasourceService.testConnection(any(), any())).thenReturn(true);
+    when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
     mockMvc.perform(
             multipart(API_V1_DATASOURCES)
@@ -152,7 +155,7 @@ class DatasourceControllerIT {
         APPLICATION_JSON,
         datasourceJson.getBytes()
     );
-    when(datasourceService.testConnection(any(), any())).thenReturn(true);
+    when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
     var mvcResult = mockMvc.perform(
             multipart(API_V1_DATASOURCES)
@@ -180,7 +183,7 @@ class DatasourceControllerIT {
         APPLICATION_JSON,
         datasourceJson.getBytes()
     );
-    when(datasourceService.testConnection(any(), any())).thenReturn(true);
+    when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
     var mvcResult = mockMvc.perform(
             multipart(API_V1_DATASOURCES)
@@ -198,8 +201,8 @@ class DatasourceControllerIT {
   void create_shouldReturnCreated_withValidCertificateBasedDatasource()
       throws Exception {
     // GIVEN
-    when(datasourceService.testConnection(any(), any())).thenReturn(true);
-    when(datasourceService.create(any(), any())).thenReturn(new Datasource());
+    when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
+    when(createDatasourceService.create(any(), any())).thenReturn(new Datasource());
 
     // WHEN
     var mvcResult = mockMvc.perform(
@@ -218,7 +221,7 @@ class DatasourceControllerIT {
   void create_shouldReturnBadRequest_withTestConnectionFailure()
       throws Exception {
     // GIVEN
-    when(datasourceService.testConnection(any(), any())).thenReturn(false);
+    when(createDatasourceService.testConnection(any(), any())).thenReturn(false);
     // WHEN
     mockMvc.perform(
             multipart(API_V1_DATASOURCES)

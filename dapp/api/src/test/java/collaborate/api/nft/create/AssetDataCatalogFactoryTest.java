@@ -1,11 +1,11 @@
-package collaborate.api.passport.create;
+package collaborate.api.nft.create;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.date.DateFormatterFactory;
-import collaborate.api.passport.TokenMetadataProperties;
+import collaborate.api.nft.TokenMetadataProperties;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -16,7 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class AssetDataFactoryTest {
+class AssetDataCatalogFactoryTest {
 
   private final Clock clock = Clock.fixed(
       Instant.parse("2021-10-09T16:02:42.12Z"),
@@ -46,7 +46,11 @@ class AssetDataFactoryTest {
     // GIVEN
     when(tokenMetadataProperties.getAssetDataCatalogPartitionDatePattern()).thenReturn("yyyyMMdd");
     // WHEN
-    var currentPath = assetDataCatalogFactory.buildRelativePathForAssetId("assetId");
+    var currentPath = assetDataCatalogFactory.buildRelativePathForAssetId(AssetDTO.builder()
+        .assetType("DigitalPassport")
+        .assetId("assetId")
+        .build()
+    );
     // THEN
     assertThat(currentPath).hasToString("DigitalPassport/20211009/assetId_" + clock.millis());
   }

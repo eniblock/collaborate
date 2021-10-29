@@ -7,6 +7,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.datasource.create.CreateDatasourceService;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
@@ -29,6 +30,8 @@ class DatasourceControllerTest {
   UUID datasourceUUID = UUID.fromString("1fc84579-69fa-40bd-a4bd-b4b79139e53b");
   @Mock
   private DatasourceService datasourceService;
+  @Mock
+  private CreateDatasourceService createDatasourceService;
   @InjectMocks
   private DatasourceController datasourceController;
 
@@ -72,13 +75,13 @@ class DatasourceControllerTest {
             .id(UUID.fromString("1fc84579-69fa-40bd-a4bd-b4b79139e53b"))
             .authMethod(new OAuth2())
             .build();
-    when(datasourceService.create(datasource, Optional.empty())).thenReturn(null);
-    when(datasourceService.testConnection(datasource, Optional.empty())).thenReturn(true);
+    when(createDatasourceService.create(datasource, Optional.empty())).thenReturn(null);
+    when(createDatasourceService.testConnection(datasource, Optional.empty())).thenReturn(true);
     // WHEN
     datasourceController.create(datasource, Optional.empty()).call();
     // THEN
-    verify(datasourceService, times(1)).create(datasource, Optional.empty());
-    verify(datasourceService, times(1)).testConnection(datasource, Optional.empty());
+    verify(createDatasourceService, times(1)).create(datasource, Optional.empty());
+    verify(createDatasourceService, times(1)).testConnection(datasource, Optional.empty());
   }
 
   @Test

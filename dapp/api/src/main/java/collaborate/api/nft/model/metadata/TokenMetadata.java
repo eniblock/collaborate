@@ -1,6 +1,6 @@
-package collaborate.api.passport.model.metadata;
+package collaborate.api.nft.model.metadata;
 
-import static collaborate.api.passport.model.metadata.TokenMetadata.AttributeKeys.ASSET_DATA_CATALOG;
+import static collaborate.api.nft.model.metadata.TokenMetadata.AttributeKeys.ASSET_DATA_CATALOG;
 import static lombok.AccessLevel.PRIVATE;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 @AllArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 public class TokenMetadata {
 
   @NoArgsConstructor(access = PRIVATE)

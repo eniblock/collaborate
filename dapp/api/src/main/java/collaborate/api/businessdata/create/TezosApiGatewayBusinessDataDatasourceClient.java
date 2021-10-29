@@ -1,5 +1,6 @@
-package collaborate.api.datasource.create;
+package collaborate.api.businessdata.create;
 
+import collaborate.api.datasource.create.MultisigCounterResponseDTO;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PathVariable;

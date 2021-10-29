@@ -1,4 +1,4 @@
-package collaborate.api.passport;
+package collaborate.api.nft;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotEmpty;

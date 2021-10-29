@@ -6,7 +6,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.datasource.create.CreateDatasourceService;
 import collaborate.api.datasource.metadata.MetadataService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
@@ -33,13 +32,9 @@ import org.springframework.data.domain.Pageable;
 class DatasourceServiceTest {
 
   @Mock
-  CreateDatasourceService createDatasourceService;
-  @Mock
   DatasourceDAO datasourceDAO;
   @Mock
   MetadataService metadataService;
-  @Mock
-  TestConnectionVisitor testConnectionVisitor;
 
   @InjectMocks
   private DatasourceService datasourceService;
@@ -48,10 +43,8 @@ class DatasourceServiceTest {
   void setUp() {
     datasourceService = new DatasourceService(
         objectMapper,
-        createDatasourceService,
         datasourceDAO,
-        metadataService,
-        testConnectionVisitor
+        metadataService
     );
   }
 

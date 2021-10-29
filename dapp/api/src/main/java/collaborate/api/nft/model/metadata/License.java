@@ -1,4 +1,4 @@
-package collaborate.api.passport.model.metadata;
+package collaborate.api.nft.model.metadata;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

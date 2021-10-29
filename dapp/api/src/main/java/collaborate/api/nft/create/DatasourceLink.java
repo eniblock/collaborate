@@ -1,4 +1,4 @@
-package collaborate.api.passport.create;
+package collaborate.api.nft.create;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

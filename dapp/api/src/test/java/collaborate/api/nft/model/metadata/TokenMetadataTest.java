@@ -1,4 +1,4 @@
-package collaborate.api.passport.model.metadata;
+package collaborate.api.nft.model.metadata;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
