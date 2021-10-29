@@ -9,7 +9,6 @@ import collaborate.api.datasource.create.provider.traefik.TraefikProviderService
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
-import collaborate.api.datasource.model.dto.DatasourceEnrichment;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
 import collaborate.api.datasource.security.SaveAuthenticationVisitor;
@@ -22,7 +21,6 @@ import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.stream.Stream;
-import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,7 +31,6 @@ public class CreateDatasourceService {
   private final AuthenticationMetadataVisitor authenticationMetadataVisitor;
   private final DatasourceDAO datasourceDAO;
   private final DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
-  private final DatasourceEnricherVisitor datasourceEnricherVisitor;
   private final ObjectMapper objectMapper;
   private final SaveAuthenticationVisitor saveAuthenticationVisitor;
   private final TraefikProviderService traefikProviderService;
@@ -41,14 +38,12 @@ public class CreateDatasourceService {
   private final Clock clock;
   private final CreateBusinessDataNftDAO createBusinessDataNftDAO;
 
-  @Transactional
   public Datasource create(DatasourceDTO datasourceDTO)
       throws DatasourceVisitorException, IOException {
     datasourceDTO.getAuthMethod().setDatasource(datasourceDTO);
     datasourceDTO.setId(uuidGenerator.randomUUID());
 
     datasourceDTO.getAuthMethod().accept(saveAuthenticationVisitor);
-    var enrichment = datasourceDTO.accept(datasourceEnricherVisitor);
 
     var providerConfiguration = traefikProviderService.save(datasourceDTO);
     var datasource = buildDatasource(datasourceDTO, providerConfiguration);
@@ -61,11 +56,10 @@ public class CreateDatasourceService {
   }
 
   Datasource buildDatasource(
-      DatasourceEnrichment<?> enrichment,
+      DatasourceDTO datasourceDTO,
       TraefikProviderConfiguration providerConfiguration
   ) throws DatasourceVisitorException {
 
-    var datasourceDTO = enrichment.getDatasource();
     var authHeaderKeySupplier = new AuthHeaderKeySupplier(new DatasourceKeySupplier(datasourceDTO));
     providerConfiguration.getHttp().getMiddlewares().remove(authHeaderKeySupplier.get());
 
@@ -76,15 +70,13 @@ public class CreateDatasourceService {
         .providerConfiguration(
             objectMapper.convertValue(providerConfiguration, LinkedHashMap.class)
         ).provider(TraefikProviderConfiguration.class.getName())
-        .providerMetadata(buildMetadata(enrichment))
+        .providerMetadata(buildMetadata(datasourceDTO))
         .build();
   }
 
-  Set<Metadata> buildMetadata(DatasourceEnrichment<?> enrichment)
+  Set<Metadata> buildMetadata(DatasourceDTO datasourceDTO)
       throws DatasourceVisitorException {
-    var datasourceDTO = enrichment.getDatasource();
     return Stream.of(
-            enrichment.getMetadata().stream(),
             datasourceDTO.getAuthMethod().accept(authenticationMetadataVisitor),
             datasourceDTO.accept(datasourceDTOMetadataVisitor)
         ).flatMap(identity())
