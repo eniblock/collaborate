@@ -4,7 +4,7 @@ package collaborate.api.datasource.create;
 import static java.util.stream.Collectors.toSet;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 
-import collaborate.api.datasource.model.Attribute;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
@@ -23,7 +23,7 @@ class AuthenticationMetadataVisitorTest {
         .collect(toSet());
     // THEN
     assertThat(metadataResult).containsExactlyInAnyOrder(
-        Attribute.builder()
+        Metadata.builder()
             .name("datasource:authentication")
             .value("BasicAuth")
             .type("string")
@@ -43,12 +43,12 @@ class AuthenticationMetadataVisitorTest {
         .collect(toSet());
     // THEN
     assertThat(metadataResult).containsExactlyInAnyOrder(
-        Attribute.builder()
+        Metadata.builder()
             .name("datasource:authentication")
             .value("CertificateBasedBasicAuth")
             .type("string")
             .build(),
-        Attribute.builder()
+        Metadata.builder()
             .name("datasource:caEmail")
             .value("caMail.com")
             .type("string")
@@ -64,7 +64,7 @@ class AuthenticationMetadataVisitorTest {
     var metadataResult = authenticationMetadataVisitor.visitOAuth2(oAuth2);
     // THEN
     assertThat(metadataResult).containsExactlyInAnyOrder(
-        Attribute.builder()
+        Metadata.builder()
             .name("datasource:authentication")
             .value("OAuth2")
             .type("string")

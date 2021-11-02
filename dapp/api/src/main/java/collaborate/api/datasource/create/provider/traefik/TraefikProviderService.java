@@ -18,6 +18,7 @@ public class TraefikProviderService {
   public TraefikProviderConfiguration save(DatasourceDTO datasource)
       throws DatasourceVisitorException, IOException {
     saveCertificate(datasource);
+
     var providerConfiguration = traefikProviderConfigurationFactory.create(datasource);
     traefikProviderDAO.save(providerConfiguration, datasource.getId().toString());
     return providerConfiguration;

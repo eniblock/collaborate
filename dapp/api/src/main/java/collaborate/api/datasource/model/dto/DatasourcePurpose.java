@@ -4,6 +4,7 @@ import static java.lang.String.format;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.Getter;
@@ -34,5 +35,9 @@ public enum DatasourcePurpose {
         .map(DatasourcePurpose::getKeyword)
         .collect(Collectors.toSet());
   }
-}
 
+  public boolean match(DatasourceDTO datasourceDTO) {
+    Objects.requireNonNull(datasourceDTO);
+    return datasourceDTO.getKeywords() != null && datasourceDTO.getKeywords().contains(keyword);
+  }
+}
