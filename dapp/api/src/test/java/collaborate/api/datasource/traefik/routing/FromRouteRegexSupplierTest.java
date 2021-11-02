@@ -15,15 +15,15 @@ class FromRouteRegexSupplierTest {
   @Test
   void get_shouldReturnExpectedPath_withoutQueryParams() throws JsonProcessingException {
     // GIVEN
-    String resourceKeyword = "purpose:test-connection";
+    String resourceKeyword = "scope:list-asset";
     var resource = objectMapper
         .readValue(objectMapper.writeValueAsString(
-            getResourceByKeyword(resourceKeyword)),
+                getResourceByKeyword(resourceKeyword)),
             WebServerResource.class);
     // WHEN
     var supplier = new FromRouteRegexSupplier(datasourceName, resource);
     // THEN
-    assertThat(supplier.get()).isEqualTo("/datasource/ds1/purpose:test-connection");
+    assertThat(supplier.get()).isEqualTo("/datasource/ds1/scope:list-asset");
   }
 
   @Test

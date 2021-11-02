@@ -1,0 +1,36 @@
+---
+http:
+  routers:
+    "5822ce9f-0b5c-4b9d-8b85-00b4b422428f-tests:connection-router":
+      entryPoints:
+        - "websecure"
+      rule: "PathPrefix(`/datasource/5822ce9f-0b5c-4b9d-8b85-00b4b422428f/test:connection`)"
+      service: "5822ce9f-0b5c-4b9d-8b85-00b4b422428f"
+      middlewares:
+        - "5822ce9f-0b5c-4b9d-8b85-00b4b422428f-test:connection-replace-path-regex"
+        - "5822ce9f-0b5c-4b9d-8b85-00b4b422428f-test:connection-strip-prefix"
+      tls: true
+    "5822ce9f-0b5c-4b9d-8b85-00b4b422428f-document:center-router":
+      entryPoints:
+        - "websecure"
+      rule: "PathPrefix(`/datasource/5822ce9f-0b5c-4b9d-8b85-00b4b422428f/document:center`)"
+      service: "5822ce9f-0b5c-4b9d-8b85-00b4b422428f"
+      middlewares:
+        - "5822ce9f-0b5c-4b9d-8b85-00b4b422428f-document:center-replace-path-regex"
+        - "5822ce9f-0b5c-4b9d-8b85-00b4b422428f-document:center-strip-prefix"
+      tls: true
+  services:
+    "5822ce9f-0b5c-4b9d-8b85-00b4b422428f":
+      loadBalancer:
+        servers:
+          - url: "https://datasourcebb.psa.com"
+        passHostHeader: false
+  middlewares:
+    "5822ce9f-0b5c-4b9d-8b85-00b4b422428f-test:connection-replace-path-regex":
+      replacePathRegex:
+        regex: "/datasource/5822ce9f-0b5c-4b9d-8b85-00b4b422428f/test:connection"
+        replacement: "/business-data/api/pcc"
+    "5822ce9f-0b5c-4b9d-8b85-00b4b422428f-document:center-replace-path-regex":
+      replacePathRegex:
+        regex: "/datasource/5822ce9f-0b5c-4b9d-8b85-00b4b422428f/document:center"
+        replacement: "/business-data/api/pcc/centers"

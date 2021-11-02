@@ -9,7 +9,7 @@ import static org.mockito.Mockito.when;
 
 import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.DatasourceService;
-import collaborate.api.datasource.model.Attribute;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.gateway.GatewayUrlService;
 import collaborate.api.passport.find.FindPassportService;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
@@ -151,30 +151,30 @@ class MetricServiceTest {
   @Test
   void getScopeMetadata_shouldFilterMetadataByScope() {
     // GIVEN
-    Attribute purposeAttribute = Attribute.builder()
+    Metadata purposeMetadata = Metadata.builder()
         .name("datasource:purpose")
         .value("[\"digital-passport\",\"vehicles\"]")
         .build();
-    Attribute odometerJsonPathAttribute = Attribute.builder()
+    Metadata odometerJsonPathMetadata = Metadata.builder()
         .name("scope:metric:odometer:value.jsonPath")
         .value("$._embedded.odometer.value")
         .build();
-    Attribute energyJsonPathAttribute = Attribute.builder()
+    Metadata energyJsonPathMetadata = Metadata.builder()
         .name("scope:metric:energy:value.jsonPath")
         .value("$._embedded.energy.value")
         .build();
 
-    Set<Attribute> metadata = Set.of(
-        purposeAttribute,
-        odometerJsonPathAttribute,
-        energyJsonPathAttribute
+    Set<Metadata> metadata = Set.of(
+        purposeMetadata,
+        odometerJsonPathMetadata,
+        energyJsonPathMetadata
     );
     String scope = "scope:metric:odometer";
     // WHEN
     var scopeMetadata = metricService.getScopeMetadata(scope, metadata);
     // THEN
     assertThat(scopeMetadata).containsExactlyInAnyOrder(
-        Attribute.builder()
+        Metadata.builder()
             .name("value.jsonPath")
             .value("$._embedded.odometer.value")
             .build()
@@ -193,8 +193,8 @@ class MetricServiceTest {
   @MethodSource("extractValuePathParameters")
   void keepPath_shouldReturnExpected_withFieldPath(String path, String expectedResult) {
     // GIVEN
-    Set<Attribute> metadata = Set.of(
-        Attribute.builder()
+    Set<Metadata> metadata = Set.of(
+        Metadata.builder()
             .name("value.jsonPath")
             .value(path)
             .build()

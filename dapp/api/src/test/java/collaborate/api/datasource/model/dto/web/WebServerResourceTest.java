@@ -36,7 +36,7 @@ class WebServerResourceTest {
   @Test
   void validate_keywords_shouldNotReturnViolations_withPurposeKeyword() {
     // GIVEN
-    webResource.setKeywords(Set.of("purpose:test-connection"));
+    webResource.setKeywords(Set.of("scope:list-asset"));
     // WHEN
     var actualViolations = validator.validate(webResource);
     // THEN

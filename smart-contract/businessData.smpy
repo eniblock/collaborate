@@ -8,7 +8,7 @@ import smartpy as sp
 ##############################################################################
 
 ##
-## ## Meta-Programming Configurationtoken_key_ref
+## ## Meta-Programming Configuration
 ##
 ## The `FA2_config` class holds the meta-programming configuration.
 ##
@@ -682,81 +682,6 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
 
 
 
-##############################################################################
-##############################################################################
-################################## MULTISIG ##################################
-##############################################################################
-##############################################################################
-
-participants_type = sp.TRecord(
-    address = sp.TAddress,
-    has_voted = sp.TBool, # Should be always initialized to False
-)
-
-## if :
-# - action_to_perform == 'mint' :
-#     * First participant is NFT Operator
-#     * Second participant is NFT Owner
-#     * param1 is asset_id
-#     * param2 is Link to metadata (in Bytes)
-#     * addr1 is operator
-#     * addr2 is nft_owner
-contract_type = sp.TRecord(
-    weight = sp.TNat, # Number of participants that have signed. Should be always initialized to 0
-    threshold = sp.TNat, # Number of signatures required
-    participants = sp.TList(participants_type),
-    ok = sp.TBool, # True means that the contract is signed by enough participants. Should be always initialised to False
-    action_to_perform = sp.TString,
-    ## Params
-    param1 = sp.TString,
-    param2 = sp.TBytes,
-    addr1 = sp.TAddress,
-    addr2 = sp.TAddress
-)
-
-
-class MultiSigFactory(sp.Contract, FA2):
-    def __init__(self):
-        self.update_initial_storage(
-            multisigs = sp.big_map(
-                tkey = sp.TNat, ## The contract_id
-                tvalue = contract_type
-            ),
-            multisig_counter = 0
-        )
-
-    #@sp.entry_point THAT IS NOT AN ENTRY_POINT BECAUSE WE DON'T WANT THAT ANYONE CAN BUILD (else, anyone can build a "nft_creation" that will implies anyone can mint any nft for any ASSET_ID)
-    # Return the contract_id that has been created
-    def build(self, contract: contract_type):
-        self.data.multisigs[self.data.multisig_counter] = contract
-        self.data.multisig_counter += 1
-        return sp.as_nat(self.data.multisig_counter - 1)
-
-    #@sp.entry_point
-    def sign(self, id: sp.TAddress, contract_id: sp.TNat):
-        sp.verify(id == sp.sender)
-        contract = self.data.multisigs[contract_id]
-        sp.for participant in contract.participants:
-            sp.if participant.address == id:
-                sp.verify(~ participant.has_voted)
-                participant.has_voted = True
-                contract.weight += 1
-                sp.if ~contract.ok & (contract.threshold <= contract.weight):
-                    contract.ok = True
-                    self.on_ok(contract)
-
-    def on_ok(self, contract: contract_type):
-        sp.if contract.action_to_perform == "mint":
-            metadata = DATA_CATALOG.make_uri_metadata(
-                contract.param2
-            )
-            self.private_mint(sp.record(
-                address = contract.addr2,
-                amount = 1,
-                metadata = metadata,
-                token_id = self.data.all_tokens
-            ))
-
 
 ##############################################################################
 ##############################################################################
@@ -768,10 +693,6 @@ nft_creation_type = sp.TRecord(
     nft_operator_address = sp.TAddress,
     asset_id = sp.TString,
     metadata_uri = sp.TBytes
-)
-
-nft_creation_consent_type = sp.TRecord(
-    contract_id = sp.TNat
 )
 
 organization_value_type = sp.TRecord(
@@ -794,12 +715,11 @@ nft_indexer_token_type = sp.TRecord(
 )
 
 nft_indexer_type = sp.TRecord(
-    tokens = sp.TSet(nft_indexer_token_type),
-    unsigned_multisigs = sp.TSet(sp.TNat)
+    tokens = sp.TSet(nft_indexer_token_type)
 )
 
 
-class NFT_Creation_Management(sp.Contract, FA2, MultiSigFactory):
+class NFT_Creation_Management(sp.Contract, FA2):
     def __init__(self, _org: organizations_type):
         self.update_initial_storage(
             organizations = _org,
@@ -825,78 +745,40 @@ class NFT_Creation_Management(sp.Contract, FA2, MultiSigFactory):
                 self.data.nft_indexer[adr].tokens = sp.set([token_info])
         sp.else:
             self.data.nft_indexer[adr] = sp.record(
-                unsigned_multisigs = sp.set(l=[], t = sp.TNat),
                 tokens = sp.set(l = [token_info], t = nft_indexer_token_type)
-            )
-
-    def add_unsigned_multisig_in_nft_indexer(self, adr, multisig_id):
-        sp.if self.data.nft_indexer.contains(adr):
-            sp.if sp.len(self.data.nft_indexer[adr].unsigned_multisigs.elements()) != 0:
-                self.data.nft_indexer[adr].unsigned_multisigs.add(multisig_id)
-            sp.else:
-                self.data.nft_indexer[adr].unsigned_multisigs = sp.set([multisig_id])
-        sp.else:
-            self.data.nft_indexer[adr] = sp.record(
-                unsigned_multisigs = sp.set(l=[multisig_id], t = sp.TNat),
-                tokens = sp.set(l = [], t = nft_indexer_token_type)
             )
 
 
     @sp.entry_point
-    def init_data_catalog_creation(self, params: nft_creation_type):
+    def create_business_datasource(self, params: nft_creation_type):
         sp.verify(self.data.organizations.contains(sp.sender))
         sp.verify(self.data.organizations[sp.sender].roles.contains(1))
         sp.verify(~ self.data.token_id_by_asset_id.contains(params.asset_id), message = "EXISTING_TOKEN_WITH_THE_SAME_ASSET_ID")
 
-        contract = sp.record(
-            weight = 1, # The NFT operator signs
-            threshold = 2,
-            participants = [
-                sp.record(
-                    address = sp.sender,
-                    has_voted = True, # The NFT Operator signs
-                ),
-                sp.record(
-                    address = params.nft_operator_address,
-                    has_voted = False
-                )
-            ],
-            ok = False,
-            action_to_perform = 'mint',
-            param1 = params.asset_id,
-            param2 = params.metadata_uri,
-            addr1 = params.nft_operator_address,
-            addr2 = sp.sender,
+        ### Mint token
+        metadata = DATA_CATALOG.make_uri_metadata(
+            params.metadata_uri
         )
-        contract_id = self.build(contract)
-
-        ### Update indexers
-        #index waiting_consent nft
-        self.add_unsigned_multisig_in_nft_indexer(params.nft_operator_address, contract_id)
-
-    @sp.entry_point
-    def data_catalog_consent(self, params: nft_creation_consent_type):
-        multisig = self.data.multisigs[params.contract_id]
-        nft_operator_address = multisig.addr1
-        nft_owner_address = multisig.addr2
-        sp.verify(sp.sender == nft_operator_address)
-        self.sign(nft_operator_address, params.contract_id)
+        self.private_mint(sp.record(
+            address = sp.sender,
+            amount = 1,
+            metadata = metadata,
+            token_id = self.data.all_tokens
+        ))
         created_token_id = self.data.all_tokens
         ### Operator
         self.update_operators([
                 sp.variant("add_operator", self.operator_param.make(
-                    owner = nft_owner_address,
-                    operator = nft_operator_address,
+                    owner = sp.sender,
+                    operator = params.nft_operator_address,
                     token_id = created_token_id
                 ))
             ])
         ### Update indexers
         #index token_id by asset_id
-        self.data.token_id_by_asset_id[multisig.param1] = created_token_id
-        #remove indexed waiting_consent NFT
-        self.data.nft_indexer[nft_operator_address].unsigned_multisigs.remove(params.contract_id)
+        self.data.token_id_by_asset_id[params.asset_id] = created_token_id
         #index NFT
-        self.add_token_in_nft_indexer(nft_operator_address, created_token_id, multisig.param1, nft_owner_address)
+        self.add_token_in_nft_indexer(params.nft_operator_address, created_token_id, params.asset_id, sp.sender)
 
 
 
@@ -911,7 +793,6 @@ class NFT_Creation_Management(sp.Contract, FA2, MultiSigFactory):
 
 access_request_parameters_type = sp.TRecord(
     nft_id = sp.TNat,
-    requester_address = sp.TAddress,
     provider_address = sp.TAddress,
     scopes = sp.TList(sp.TString)
 )
@@ -927,8 +808,6 @@ access_request_value_type = sp.TRecord(
 
 grant_access_request_type = sp.TRecord(
     id = sp.TNat,
-    requester_address = sp.TAddress,
-    provider_address = sp.TAddress,
     access_token_hash = sp.TString
 )
 
@@ -944,12 +823,11 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
 
     @sp.entry_point
     def request_access(self, params: access_request_parameters_type):
-        sp.verify(self.data.organizations.contains(params.requester_address))
+        sp.verify(self.data.organizations.contains(sp.sender))
         sp.verify(self.data.organizations.contains(params.provider_address))
         sp.verify(self.data.token_metadata.contains(params.nft_id))
         user = self.ledger_key.make(params.provider_address, params.nft_id)
         sp.verify(self.data.ledger.contains(user))
-        sp.verify(sp.sender == params.requester_address)
 
         key = self.data.access_requests_counter
 
@@ -957,7 +835,7 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
 
         self.data.access_requests[key] = sp.record(
             nft_id = params.nft_id,
-            requester_address = params.requester_address,
+            requester_address = sp.sender,
             provider_address = params.provider_address,
             scopes = params.scopes,
             access_granted = False,
@@ -974,8 +852,6 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
         access_request = self.data.access_requests[key]
 
         sp.verify(sp.sender == access_request.provider_address)
-        sp.verify(params.provider_address == access_request.provider_address)
-        sp.verify(params.requester_address == access_request.requester_address)
         sp.verify(access_request.access_granted == False)
         access_request.access_token_hash = sp.some(params.access_token_hash)
         access_request.access_granted = True
@@ -985,14 +861,13 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
 
 ##############################################################################
 ##############################################################################
-############################### DATA CATALOG CLASS ###############################
+############################### DATA CATALOG CLASS ###########################
 ##############################################################################
 ##############################################################################
 
-class DATA_CATALOG(FA2, MultiSigFactory, NFT_Creation_Management, AccessManagement):
+class DATA_CATALOG(FA2, NFT_Creation_Management, AccessManagement):
     def __init__(self, config, metadata, admin, orgs):
         FA2.__init__(self, config, metadata, admin)
-        MultiSigFactory.__init__(self)
         NFT_Creation_Management.__init__(self, orgs)
         AccessManagement.__init__(self)
 
@@ -1062,143 +937,29 @@ def add_test(config, is_default = True):
         ## Data Catalog test
         scenario.h2("Data Catalog creation")
         scenario.p("DSPConsortium1 can create a Data Catalog")
-        scenario += c1.init_data_catalog_creation(sp.record(
+        scenario += c1.create_business_datasource(sp.record(
                         nft_operator_address = orga_BSPConsortium2.address,
                         asset_id = "5YJSA1DG9DFP14705",
                         metadata_uri = sp.utils.bytes_of_string("my-url://abc")
                     )).run(sender = orga_DSPConsortium1.address)
 
         scenario.p("Alice cannot create a Data Catalog")
-        scenario += c1.init_data_catalog_creation(sp.record(
-                        nft_operator_address = alice.address,
+        scenario += c1.create_business_datasource(sp.record(
+                        nft_operator_address = orga_BSPConsortium2.address,
                         asset_id = "5YJSA1DG9DFP14709",
                         metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghi")
                     )).run(sender = alice, valid = False)
 
         scenario.p("BSPConsortium2 cannot create a Data Catalog")
-        scenario += c1.init_data_catalog_creation(sp.record(
-                        nft_operator_address = alice.address,
+        scenario += c1.create_business_datasource(sp.record(
+                        nft_operator_address = orga_BSPConsortium2.address,
                         asset_id = "5YJSA1DG9DFP14710",
                         metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghijkl")
                     )).run(sender = orga_BSPConsortium2.address, valid = False)
 
-        ## Data Catalog test : number 2
-        scenario.h2("Data Catalog creation : number 2")
-        scenario += c1.init_data_catalog_creation(sp.record(
-                        nft_operator_address = orga_BSPConsortium2.address,
-                        asset_id = "6ZKTB2EH0REZ63895",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcabc")
-                    )).run(sender = orga_DSPConsortium1.address)
 
 
-        ## Data Catalog test : number 3
-        scenario.h2("Data Catalog creations : number 3")
-        scenario += c1.init_data_catalog_creation(sp.record(
-                        nft_operator_address = bob.address,
-                        asset_id = "3EZGD4GO0DKS24456",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcabcabc")
-                    )).run(sender = orga_DSPConsortium1.address)
 
-
-        ## DSPConsortium1 2 signs
-        scenario.h2("BSPConsortium2 sign Data Catalog creation")
-        sig = sp.record(
-            contract_id = 0
-        )
-        scenario += c1.data_catalog_consent(sig).run(sender = orga_BSPConsortium2.address)
-
-
-        scenario.p("DSPConsortium1 cannot create many Data Catalog for the same UUID")
-        scenario += c1.init_data_catalog_creation(sp.record(
-                        nft_operator_address = orga_BSPConsortium2.address,
-                        asset_id = "5YJSA1DG9DFP14705",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcdef")
-                    )).run(sender = orga_DSPConsortium1.address, valid = False)
-
-        ## Bob signs
-        scenario.h2("Bob sign Data Catalog creation")
-        sig = sp.record(
-            contract_id = 2
-        )
-        scenario += c1.data_catalog_consent(sig).run(sender = bob)
-
-        ## Bob signs two times
-        scenario.h2("Bob sign Data Catalog creation two times : can not vote two times")
-        sig = sp.record(
-            contract_id = 2
-        )
-        scenario += c1.data_catalog_consent(sig).run(sender = bob, valid = False)
-
-        ## Bob signs consent a Data Catalog creation that is not for himself : error !
-        scenario.h2("Bob consents a Data Catalog creation that is not for himself")
-        sig = sp.record(
-            contract_id = 1
-        )
-        scenario += c1.data_catalog_consent(sig).run(sender = bob, valid = False)
-
-        ## DSPConsortium1 try to create a Data Catalog for an asset_id that corresponds to a NFT already minted
-        scenario.p("DSPConsortium1 cannot create a Data Catalog for an asset_id that corresponds to a NFT already minted")
-        scenario += c1.init_data_catalog_creation(sp.record(
-                        nft_operator_address = bob.address,
-                        asset_id = "3EZGD4GO0DKS24456",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcabcabc")
-                    )).run(sender = orga_DSPConsortium1.address, valid = False)
-
-        # AccessRequest Test
-        access_request_id = 0
-        access_request = sp.record(
-            nft_id = 1,
-            scopes = ["scope1", "scope2"],
-            requester_address = orga_matmut.address,
-            provider_address = orga_DSPConsortium1.address
-        )
-
-        scenario += c1.request_access(access_request).run(sender = orga_matmut.address)
-        scenario.verify(c1.data.access_requests.contains(access_request_id) == True)
-        scenario.verify(c1.data.access_requests[access_request_id].nft_id == 1)
-        scenario.verify(c1.data.access_requests[access_request_id].requester_address == orga_matmut.address)
-        scenario.verify(c1.data.access_requests[access_request_id].provider_address == orga_DSPConsortium1.address)
-        scenario.verify(c1.data.access_requests[access_request_id].access_granted == False)
-        # grant access
-        grant_access_request = sp.record(
-            id = access_request_id,
-            requester_address = orga_matmut.address,
-            provider_address = orga_DSPConsortium1.address,
-            access_token_hash = "string_access_token_hash_example"
-        )
-        scenario += c1.grant_access(grant_access_request).run(sender = orga_DSPConsortium1.address)
-        scenario.verify(c1.data.access_requests[access_request_id].access_granted == True)
-        scenario.verify(c1.data.access_requests[access_request_id].access_token_hash == sp.some("string_access_token_hash_example"))
-
-        # should not add the access_request if the nft_id doesn't exist
-        access_request_id = 1
-        access_request = sp.record(
-            nft_id = 4,
-            scopes = ["scope1", "scope2"],
-            requester_address = orga_matmut.address,
-            provider_address = orga_DSPConsortium1.address
-        )
-        scenario += c1.request_access(access_request).run(sender = orga_BSPConsortium2.address, valid = False)
-
-        # should not add the access_request if the requester address is not in the organizations list
-        access_request = sp.record(
-            nft_id = 1,
-            scopes = ["scope1", "scope2"],
-            requester_address = alice.address,
-            provider_address = orga_DSPConsortium1.address
-        )
-        scenario += c1.request_access(access_request).run(sender = orga_BSPConsortium2.address, valid = False)
-        scenario.verify(c1.data.access_requests.contains(access_request_id) == False)
-
-        # should not add the access_request if the provider address is not in the organizations list
-        access_request = sp.record(
-            nft_id = 1,
-            scopes = ["scope1", "scope2"],
-            requester_address = orga_BSPConsortium2.address,
-            provider_address = alice.address
-        )
-        scenario += c1.request_access(access_request).run(sender = orga_BSPConsortium2.address, valid = False)
-        scenario.verify(c1.data.access_requests.contains(access_request_id) == False)
 
 ##
 ## ## Global Environment Parameters

@@ -40,7 +40,7 @@ public class HttpAuthenticationVisitor implements AuthenticationVisitor<Void> {
         Middleware.builder().
             headers(Headers.builder()
                 .customRequestHeaders(
-                    Map.of(BasicAuthHeader.KEY, basicAuthHeader.getValue())
+                    Map.of("Authorization", basicAuthHeader.getValue())
                 ).build())
             .build()
     );

@@ -29,7 +29,7 @@ public class WebServerResource implements Keywords<String>, Serializable {
   @NoArgsConstructor(access = PRIVATE)
   public static class Keywords {
 
-    public static final String PURPOSE_TEST_CONNECTION = "purpose:test-connection";
+    public static final String SCOPE_ASSET_LIST = "scope:list-asset";
   }
 
   @Schema(description = "A human readable description of this resource")
