@@ -56,14 +56,15 @@ public abstract class DatasourceDTO implements Keywords<String>, Serializable {
    * DB inheritance field
    */
   @Schema(description = "Used for serialization", example = "WebServerDatasource")
-  private String type;
+  protected String type;
 
   protected DatasourceDTO(UUID id, String name, Authentication authMethod,
-      HashSet<String> keywords) {
+      HashSet<String> keywords, String type) {
     this.id = id;
     this.name = name;
     this.authMethod = authMethod;
     this.keywords = keywords;
+    this.type = type;
   }
 
   public abstract <T> T accept(DatasourceDTOVisitor<T> visitor) throws DatasourceVisitorException;

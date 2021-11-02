@@ -69,37 +69,6 @@ for r in [
 ]:
   k8s_resource(r, labels=['keycloak'])
 
-### Fake Datasource
-k8s_yaml(
-    helm(
-        'helm/fake-datasource',
-        values=['./helm/fake-datasource/values-dev.yaml'],
-        name="fake-datasource",
-    )
-)
-
-image_build(
-    'registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/api',
-    'fake-datasource/api',
-    target='dev'
-)
-
-docker_build(
-    'registry.gitlab.com/the-blockchain-xdev/xdev-product/collaborate/fake-datasource/iam',
-    'fake-datasource/iam'
-)
-
-for r in [
-  'fake-datasource-api-dsp-a',
-  'fake-datasource-iam',
-  'fake-datasource-iam-db'
-]:
-  k8s_resource(r, labels=['fake-datasource'])
-
-print('exposing DSP A Fake Datasource API on port 9229')
-k8s_resource('fake-datasource-api-dsp-a', port_forwards=['9229:9229'])
-
-# add some dependencies, so all the resources won't start in parallel
 print('exposing tag-api on port 3333')
 k8s_resource('col-tag-api', port_forwards='3333:3333',
              resource_deps=['col-tag-rabbitmq'])

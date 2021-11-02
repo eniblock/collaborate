@@ -8,9 +8,9 @@ http:
       service: "525003f6-f85f-11eb-9a03-0242ac130003"
       middlewares:
         - "525003f6-f85f-11eb-9a03-0242ac130003-auth-headers"
-        - "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-query-params"
-        - "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-replace-path-regex"
-        - "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-strip-prefix"
+        - "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-query-params"
+        - "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-replace-path-regex"
+        - "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-strip-prefix"
       tls: true
     "525003f6-f85f-11eb-9a03-0242ac130003-kilometer-router":
       entryPoints:
@@ -35,15 +35,15 @@ http:
       headers:
         customRequestHeaders:
           Authorization: "Basic TVdQRFJWMDE6QkJybEtRMGk="
-    "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-strip-prefix":
+    "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-strip-prefix":
       stripPrefix:
         prefixes:
           - "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/vehicles"
-    "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-query-params":
+    "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-query-params":
       redirectRegex:
         regex: "/([^\\?\\s]*)(\\??)(.*)"
         replacement: "/${1}?client_id=c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
-    "525003f6-f85f-11eb-9a03-0242ac130003-purpose:test-connection-replace-path-regex":
+    "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-replace-path-regex":
       replacePathRegex:
         regex: "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/test-connection"
         replacement: "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/test-connection/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
