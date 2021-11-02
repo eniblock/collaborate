@@ -8,7 +8,7 @@ import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.DatasourceService;
-import collaborate.api.datasource.model.Attribute;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.gateway.GatewayUrlService;
 import collaborate.api.passport.find.FindPassportService;
 import collaborate.api.passport.model.DatasourceDTO;
@@ -95,7 +95,7 @@ public class MetricService {
   }
 
   Stream<MetricGatewayDTO> buildMetricUrls(DatasourceDTO datasourceDTO) {
-    Set<Attribute> metadata = datasourceService.getMetadata(datasourceDTO.getId());
+    Set<Metadata> metadata = datasourceService.getMetadata(datasourceDTO.getId());
     var urlPrefix = UriComponentsBuilder.fromUriString(traefikProperties.getUrl())
         .path("/datasource")
         .path("/" + datasourceDTO.getId()).build().toUriString();
@@ -113,7 +113,7 @@ public class MetricService {
         );
   }
 
-  Set<Attribute> getScopeMetadata(String scope, Set<Attribute> metadata) {
+  Set<Metadata> getScopeMetadata(String scope, Set<Metadata> metadata) {
     return metadata.stream()
         .filter(m -> startsWith(m.getName(), scope))
         .map(m -> m.toBuilder().name(removeStart(m.getName(), scope).substring(1)).build())
@@ -136,13 +136,13 @@ public class MetricService {
         .collect(toList());
   }
 
-  JsonNode extractValuePath(String jsonResponse, Set<Attribute> metadata) {
+  JsonNode extractValuePath(String jsonResponse, Set<Metadata> metadata) {
     Optional<String> jsonPathOpt = Optional.empty();
     var result = jsonResponse;
     if (metadata != null) {
       jsonPathOpt = metadata.stream()
           .filter(m -> VALUE_JSON_PATH.equalsIgnoreCase(m.getName()))
-          .map(Attribute::getValue)
+          .map(Metadata::getValue)
           .findFirst();
     }
     if (jsonPathOpt.isPresent()) {

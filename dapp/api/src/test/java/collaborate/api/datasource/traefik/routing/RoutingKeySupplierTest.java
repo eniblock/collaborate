@@ -19,13 +19,13 @@ class RoutingKeySupplierTest {
   }
 
   @Test
-  void get_shouldReturnKeywordWithoutRoutingKeyPrefix_withPurposePrefix() {
+  void get_shouldReturnKeywordWithoutRoutingKeyPrefix_withDocumentPrefix() {
     // GIVEN
-    List<String> keywords = List.of("purpose:test");
+    List<String> keywords = List.of("document:test");
     // WHEN
     var route = new RoutingKeyFromKeywordSupplier(keywords).get();
     // THEN
-    assertThat(route).isEqualTo("purpose:test");
+    assertThat(route).isEqualTo("document:test");
   }
 
   @Test

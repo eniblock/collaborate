@@ -5,29 +5,42 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.datasource.create.RequestEntitySupplierFactory;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
-import collaborate.api.http.HttpURLConnectionVisitorFactory;
+import collaborate.api.http.RequestEntityVisitorFactory;
+import collaborate.api.http.ResponseCodeOkPredicate;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
 class TestConnectionVisitorTest {
 
   @Mock
-  URIFactory uriFactory;
+  RequestEntityVisitorFactory requestEntityVisitorFactory;
   @Mock
-  HttpURLConnectionVisitorFactory httpURLConnectionVisitorFactory;
-  @InjectMocks
+  URIFactory uriFactory;
+
+  ResponseCodeOkPredicate responseCodeOkPredicate = Mockito.spy(new ResponseCodeOkPredicate());
+
   TestConnectionVisitor testConnectionVisitor;
+
+  @BeforeEach
+  void setUp() {
+    RequestEntitySupplierFactory requestEntitySupplierFactory = Mockito.spy(
+        new RequestEntitySupplierFactory(requestEntityVisitorFactory, uriFactory)
+    );
+    testConnectionVisitor = new TestConnectionVisitor(requestEntitySupplierFactory, null);
+  }
 
   @Test
   void create_shouldCallUriFactoryWithExpectedResource_withWebServerDatasourceContainingPurposeTestConnectionResource()
@@ -35,7 +48,7 @@ class TestConnectionVisitorTest {
     // GIVEN
     var expectedResource = WebServerResource.builder()
         .url("myExpectedResourceUrl")
-        .keywords(Set.of("purpose:test-connection"))
+        .keywords(Set.of("scope:list-asset"))
         .build();
     String baseUrl = "http://baseUrl";
     WebServerDatasourceDTO datasource = WebServerDatasourceDTO
@@ -45,7 +58,7 @@ class TestConnectionVisitorTest {
         .authMethod(new BasicAuth())
         .build();
     when(uriFactory.create(datasource, expectedResource)).thenCallRealMethod();
-    when(httpURLConnectionVisitorFactory.create(
+    when(requestEntityVisitorFactory.create(
         URI.create(baseUrl + "/myExpectedResourceUrl"))).thenCallRealMethod();
     // WHEN
     datasource.accept(testConnectionVisitor);

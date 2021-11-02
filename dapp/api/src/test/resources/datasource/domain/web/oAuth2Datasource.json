@@ -29,7 +29,7 @@
     {
       "description": "Test connection",
       "keywords": [
-        "purpose:test-connection"
+        "scope:list-asset"
       ],
       "url": "https://developer.dspconsortium1.io/webapi/b2b/api-reference-v3/specification/"
     }

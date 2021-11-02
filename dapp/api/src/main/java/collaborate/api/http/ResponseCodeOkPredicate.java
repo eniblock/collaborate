@@ -2,28 +2,23 @@ package collaborate.api.http;
 
 import static org.springframework.http.HttpStatus.OK;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
+import com.fasterxml.jackson.databind.JsonNode;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 @Slf4j
+@RequiredArgsConstructor
 @Component
-public class ResponseCodeOkPredicate implements Predicate<HttpURLConnection> {
+public class ResponseCodeOkPredicate implements Predicate<Supplier<ResponseEntity<JsonNode>>> {
 
   @Override
-  public boolean test(HttpURLConnection httpURLConnection) {
-    try {
-      httpURLConnection.connect();
-      log.debug("testing connection to url={}, responseCode={}", httpURLConnection.getURL(),
-          httpURLConnection.getResponseCode());
-      var result = httpURLConnection.getResponseCode() == OK.value();
-      httpURLConnection.disconnect();
-      return result;
-    } catch (IOException e) {
-      log.error("While testing connection to URL=" + httpURLConnection.getURL(), e);
-      return false;
-    }
+  public boolean test(Supplier<ResponseEntity<JsonNode>> responseSupplier) {
+    var response = responseSupplier.get();
+    log.debug("testing connection  - responseCode={}", response.getStatusCode());
+    return response.getStatusCode() == OK;
   }
 }

@@ -1,5 +1,6 @@
 {
   "id": "898df5a9-0970-4908-8226-ecdfd7161060",
+  "creationDatetime": "2021-10-25T13:42:01.343Z",
   "name": "DSPConsortium1 Digital Passport",
   "provider": "collaborate.api.datasource.model.traefik.TraefikProviderConfiguration",
   "providerMetadata": [
@@ -7,6 +8,26 @@
       "name": "scope:metric:odometer:value.jsonPath",
       "value": "$._embedded.odometer.value",
       "type": "Integer"
+    },
+    {
+      "name": "datasource:type",
+      "value": "WebServerDatasourceDTO",
+      "type": "string"
+    },
+    {
+      "name": "datasource:authentication",
+      "value": "BasicAuth",
+      "type": "string"
+    },
+    {
+      "name": "datasource:purpose",
+      "value": "[\"digital-passport\"]",
+      "type": "string"
+    },
+    {
+      "name": "datasource:caEmail",
+      "value": "caEmail",
+      "type": "string"
     }
   ],
   "providerConfiguration": {
@@ -26,7 +47,7 @@
           ],
           "tls": true
         },
-        "898df5a9-0970-4908-8226-ecdfd7161060-purpose:test-connection-router": {
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-router": {
           "entryPoints": [
             "websecure"
           ],
@@ -34,9 +55,9 @@
           "service": "898df5a9-0970-4908-8226-ecdfd7161060",
           "middlewares": [
             "898df5a9-0970-4908-8226-ecdfd7161060-auth-headers",
-            "898df5a9-0970-4908-8226-ecdfd7161060-purpose:test-connection-query-params",
-            "898df5a9-0970-4908-8226-ecdfd7161060-purpose:test-connection-replace-path-regex",
-            "898df5a9-0970-4908-8226-ecdfd7161060-purpose:test-connection-strip-prefix"
+            "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-query-params",
+            "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-replace-path-regex",
+            "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-strip-prefix"
           ],
           "tls": true
         }
@@ -55,7 +76,7 @@
         }
       },
       "middlewares": {
-        "898df5a9-0970-4908-8226-ecdfd7161060-purpose:test-connection-query-params": {
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-query-params": {
           "redirectRegex": {
             "regex": "/([^\\?\\s]*)(\\??)(.*)",
             "replacement": "/${1}?client_id=c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
@@ -80,14 +101,14 @@
             "replacement": "/${1}?client_id=c8fc43d5-f43f-44e5-acc2-b8aebaee90e2&profile=fleet&extension=odometer"
           }
         },
-        "898df5a9-0970-4908-8226-ecdfd7161060-purpose:test-connection-strip-prefix": {
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-strip-prefix": {
           "stripPrefix": {
             "prefixes": [
               "/datasource/898df5a9-0970-4908-8226-ecdfd7161060/purpose/test-connection"
             ]
           }
         },
-        "898df5a9-0970-4908-8226-ecdfd7161060-purpose:test-connection-replace-path-regex": {
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-replace-path-regex": {
           "replacePathRegex": {
             "regex": "/datasource/898df5a9-0970-4908-8226-ecdfd7161060/purpose/test-connection",
             "replacement": "/datasource/898df5a9-0970-4908-8226-ecdfd7161060/purpose/test-connection/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"

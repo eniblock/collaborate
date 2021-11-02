@@ -12,8 +12,8 @@ import java.util.function.Supplier;
 public class RoutingKeyFromKeywordSupplier implements Supplier<String> {
 
   public static final String SCOPE_PREFIX = "scope:";
-  public static final String PURPOSE_PREFIX = "purpose:";
-  public static final Set<String> ROUTING_KEY_PREFIXES = Set.of(SCOPE_PREFIX, PURPOSE_PREFIX);
+  public static final String DOCUMENT_PREFIX = "document:";
+  public static final Set<String> ROUTING_KEY_PREFIXES = Set.of(SCOPE_PREFIX, DOCUMENT_PREFIX);
 
   private final String routingKey;
 
@@ -28,7 +28,7 @@ public class RoutingKeyFromKeywordSupplier implements Supplier<String> {
         .findFirst().orElseThrow(() ->
             new IllegalStateException(
                 "no keyword beginning with one of the following prefixes: ["
-                    + ROUTING_KEY_PREFIXES.stream().collect(joining(",", "\"", "\""))
+                    + ROUTING_KEY_PREFIXES.stream().collect(joining(", ", "\"", "\""))
                     + "]"
             )
         );

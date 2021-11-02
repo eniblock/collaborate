@@ -5,38 +5,33 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-public class FromRoutePrefixSupplierTest {
+class FromRoutePrefixSupplierTest {
 
-  @Test
-  void get_shouldReturnExpected_withSimpleScopePrefix() {
-    // GIVEN
-    var supplier = new FromRoutePrefixSupplier("datasource-name", Set.of("scope:odometer"));
-    // WHEN
-    var routePrefixResult = supplier.get();
-    // THEN
-    assertThat(routePrefixResult).isEqualTo("/datasource/datasource-name/scope:odometer");
+  public static final String DATASOURCE_NAME = "datasource-name";
+
+  private static Stream<Arguments> getParameters() {
+    return Stream.of(
+        Arguments.of("scope:odometer", "/datasource/datasource-name/scope:odometer"),
+        Arguments.of("scope:metric:odometer", "/datasource/datasource-name/scope:metric:odometer"),
+        Arguments.of("document:test", "/datasource/datasource-name/document:test")
+    );
   }
 
-  @Test
-  void get_shouldReturnExpected_withComposedScopePrefix() {
+  @ParameterizedTest
+  @MethodSource("getParameters")
+  void get(String scope, String expectedRoutePrefix) {
     // GIVEN
-    var supplier = new FromRoutePrefixSupplier("datasource-name", Set.of("scope:metric:odometer"));
+    var supplier = new FromRoutePrefixSupplier(DATASOURCE_NAME, Set.of(scope));
     // WHEN
     var routePrefixResult = supplier.get();
     // THEN
-    assertThat(routePrefixResult).isEqualTo("/datasource/datasource-name/scope:metric:odometer");
-  }
-
-  @Test
-  void get_shouldReturnExpected_withPurposePrefix() {
-    // GIVEN
-    var supplier = new FromRoutePrefixSupplier("datasource-name", Set.of("purpose:test"));
-    // WHEN
-    var routePrefixResult = supplier.get();
-    // THEN
-    assertThat(routePrefixResult).isEqualTo("/datasource/datasource-name/purpose:test");
+    assertThat(routePrefixResult).isEqualTo(expectedRoutePrefix);
   }
 
   @Test

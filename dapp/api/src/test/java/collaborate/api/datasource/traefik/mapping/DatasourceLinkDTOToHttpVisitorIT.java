@@ -36,10 +36,10 @@ class DatasourceLinkDTOToHttpVisitorIT {
     );
 
     // WHEN
-    datasource.accept(visitor);
+    var http = datasource.accept(visitor);
     // THEN
     var serializedTraefikConfiguration = yamlMapper
-        .writeValueAsString(new TraefikProviderConfiguration(visitor.getHttp()));
+        .writeValueAsString(new TraefikProviderConfiguration(http));
     System.out.println(serializedTraefikConfiguration);
     assertDoesNotThrow(() -> "No exception is thrown");
   }
@@ -56,10 +56,9 @@ class DatasourceLinkDTOToHttpVisitorIT {
     );
 
     // WHEN
-    datasource.accept(visitor);
+    var actualHttp = datasource.accept(visitor);
 
     // THEN
-    var actualHttp = visitor.getHttp();
     var expectedHttp = HttpFeatures.PROVIDER_CONFIGURATION.getHttp();
     assertThat(actualHttp.getServersTransports()).as("Checking serverTransports")
         .isEqualTo(expectedHttp.getServersTransports());
