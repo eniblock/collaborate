@@ -17,33 +17,19 @@ import lombok.NoArgsConstructor;
 public class Transaction {
 
   private String indexer;
-
   private String destination;
-
   private String source;
-
   private ZonedDateTime timestamp;
-
   private String status;
-
   private Double bakerFee;
-
   private Double storageFee;
-
   private Long storageLimit;
-
   private Long counter;
-
   private String hash;
-
   private String block;
-
   private String type;
-
   private Long height;
-
   private String entrypoint;
-
   private JsonNode parameters;
 
 }

@@ -1,4 +1,4 @@
-package collaborate.api.businessdata;
+package collaborate.api.passport.consent;
 
 import collaborate.api.transaction.Transaction;
 import collaborate.api.transaction.TransactionHandler;
@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-public class LogInitDataCatalogCreationHandler implements TransactionHandler {
+public class LogPassportConsentHandler implements TransactionHandler {
 
   @Override
   public void handle(Transaction transaction) {
-    if (transaction.getEntrypoint().equals("data_catalog_consent")) {
+    if (transaction.getEntrypoint().equals("passport_consent")) {
       log.info("Entrypoint = {}, params = {}", transaction.getEntrypoint(),
           transaction.getParameters());
     }

@@ -23,9 +23,7 @@ public class TransactionWatcher implements Runnable {
     var transactionList = this.getTransactionPage(page * limit + lastIndex);
 
     if (!transactionList.isEmpty()) {
-      // For each transaction int the result, call eventManager.notify(transaction)
       transactionList.forEach(eventManager::notify);
-
       if (transactionList.size() >= limit) {
         page++;
       } else {

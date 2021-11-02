@@ -225,11 +225,14 @@ spec:
             # Tag Transactions
             - name: TRANSACTION_TAG_CLIENT_URL
               value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "nameOverride" }}-api:3333"
-            - name: TRANSACTION_WATCHER_FIXED_DELAY_IN_MS
+            - name: TRANSACTION_WATCHERS_0_FIXED_DELAY_IN_MS
               value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
-            - name: TRANSACTION_WATCHER_SMART_CONTRACT_ADDRESS
-              value: {{ .Values.transaction.watchers.smartContractAddress |quote }}
-
+            - name: TRANSACTION_WATCHER_0_SMART_CONTRACT_ADDRESS
+              value: {{ .Values.api.businessDataContractAddress | quote }}
+            - name: TRANSACTION_WATCHERS_1_FIXED_DELAY_IN_MS
+              value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
+            - name: TRANSACTION_WATCHER_1_SMART_CONTRACT_ADDRESS
+              value: {{ .Values.api.digitalPassportContractAddress | quote }}
           ports:
             - name: http
               containerPort: 7772
