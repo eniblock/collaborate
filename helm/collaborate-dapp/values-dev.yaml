@@ -11,7 +11,7 @@ mail:
 api:
   platform: DSPConsortium1
   digitalPassportContractAddress: KT1VzQ7jB8hXSk5iddUtGoraXx8Cd329ftJE
-  businessDataContractAddress: KT19juhbuKpBmcpccwDMY7WasLo7rSnmRE47
+  businessDataContractAddress: KT1AK9SFPYcitQzwGV8JomriMQr6an7PSh18
   tezosApiGatewayUrl: https://tezos-api-gateway.localhost
 
   traefik:

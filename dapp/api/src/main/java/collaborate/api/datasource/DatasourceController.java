@@ -3,6 +3,7 @@ package collaborate.api.datasource;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 
 import collaborate.api.config.OpenApiConfig;
+import collaborate.api.datasource.create.CreateDatasourceService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
@@ -45,6 +46,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class DatasourceController {
 
   private final DatasourceService datasourceService;
+  private final CreateDatasourceService createDatasourceService;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
@@ -55,11 +57,10 @@ public class DatasourceController {
       throws IOException, DatasourceVisitorException {
     testConnection(datasource, pfxFile);
     return () -> {
-      var datasourceResult = datasourceService.create(datasource, pfxFile);
+      var datasourceResult = createDatasourceService.create(datasource, pfxFile);
       return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
     };
   }
-
 
   @GetMapping("/{id}")
   @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
@@ -96,7 +97,7 @@ public class DatasourceController {
       @RequestPart("datasource") DatasourceDTO datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
       throws IOException, DatasourceVisitorException {
-    if (datasourceService.testConnection(datasource, pfxFile)) {
+    if (createDatasourceService.testConnection(datasource, pfxFile)) {
       return ResponseEntity.ok().build();
     } else {
       log.info("Test connection failed");

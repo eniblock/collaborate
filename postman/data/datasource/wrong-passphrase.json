@@ -1,37 +1,58 @@
 {
-  "type" : "WebServerDatasource",
-  "baseUrl" : "https://api-cert-preprod.dspconsortium1.com",
-  "name" : "DSPConsortium1 Digital Passport",
-  "authMethod" : {
-    "passphrase" : "wrong",
-    "caEmail" : "certificate@authority.email",
-    "type" : "CertificateBasedBasicAuth",
-    "user" : "myUser",
-    "password" : "password",
-    "queryParams" : [ {
-      "key" : "client_id",
-      "value" : "c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
-    } ]
+  "type": "WebServerDatasource",
+  "baseUrl": "https://api-cert-preprod.dspconsortium1.com",
+  "name": "DSPConsortium1 Digital Passport",
+  "authMethod": {
+    "passphrase": "wrong",
+    "caEmail": "certificate@authority.email",
+    "type": "CertificateBasedBasicAuth",
+    "user": "myUser",
+    "password": "password",
+    "queryParams": [
+      {
+        "key": "client_id",
+        "value": "c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
+      }
+    ]
   },
-  "keywords" : [ "vehicles", "digital-passport" ],
-  "resources" : [ {
-    "description" : "Vehicles list",
-    "keywords" : [ "purpose:test-connection", "assets" ],
-    "url" : "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
-  }, {
-    "description" : "Last odometer values",
-    "keywords" : [ "scope:odometer", "event_usage" ],
-    "url" : "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status",
-    "queryParams" : [ {
-      "key" : "profile",
-      "value" : "fleet"
-    }, {
-      "key" : "extension",
-      "value" : "odometer"
-    } ]
-  }, {
-    "description" : "maintenance",
-    "keywords" : [ "scope:maintenance", "event_usage" ],
-    "url" : "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/maintenance/$2"
-  } ]
+  "keywords": [
+    "vehicles",
+    "digital-passport"
+  ],
+  "resources": [
+    {
+      "description": "Vehicles list",
+      "keywords": [
+        "scope:list-asset",
+        "assets"
+      ],
+      "url": "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
+    },
+    {
+      "description": "Last odometer values",
+      "keywords": [
+        "scope:odometer",
+        "event_usage"
+      ],
+      "url": "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status",
+      "queryParams": [
+        {
+          "key": "profile",
+          "value": "fleet"
+        },
+        {
+          "key": "extension",
+          "value": "odometer"
+        }
+      ]
+    },
+    {
+      "description": "maintenance",
+      "keywords": [
+        "scope:maintenance",
+        "event_usage"
+      ],
+      "url": "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/maintenance/$2"
+    }
+  ]
 }

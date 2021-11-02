@@ -1,7 +1,10 @@
 package collaborate.api.datasource.model.dto;
 
+import collaborate.api.config.ISO8601JsonStringFormat;
 import collaborate.api.datasource.model.dto.enumeration.DatasourceStatus;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.ZonedDateTime;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,7 +20,8 @@ public class ListDatasourceDTO {
       description = "The creation date of the datasource.",
       example = "2019-03-27T10:15:30",
       required = true)
-  String creationDate;
+  @ISO8601JsonStringFormat
+  ZonedDateTime creationDateTime;
 
   @Schema(description = "The datasource type.", example = "web", required = true)
   String datasourceType;
@@ -35,7 +39,7 @@ public class ListDatasourceDTO {
       description = "The purpose of the datasource.",
       example = "digital passport",
       required = true)
-  String purpose;
+  List<String> purpose;
 
   @Schema(
       description = "The number of GrantedAccess of the datasource.",

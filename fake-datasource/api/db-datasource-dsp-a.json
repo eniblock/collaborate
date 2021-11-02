@@ -11,39 +11,9 @@
       "scope": "workshop-analytics"
     },
     {
-      "id": "dspA3",
-      "title": "Part des clients identifiés sur les tickets (par mois)",
-      "scope": "customers-analytics"
-    },
-    {
-      "id": "dspA4",
-      "title": "Données démographiques des clients",
-      "scope": "customers-analytics"
-    },
-    {
-      "id": "dspA5",
-      "title": "Données démographiques des automobilistes (par constructeur)",
-      "scope": "customers-analytics"
-    },
-    {
       "id": "dspA6",
       "title": "Contactabilité des clients (à date)",
       "scope": "customers-analytics"
-    },
-    {
-      "id": "dspA7",
-      "title": "Prestations atelier (quote part / mois)",
-      "scope": "workshop-analytics"
-    },
-    {
-      "id": "dspA9",
-      "title": "Parc entrant (Age/Marque/modele) 2020",
-      "scope": "workshop-analytics"
-    },
-    {
-      "id": "dspA10",
-      "title": "Univers produits (1er niveau du référentiel)",
-      "scope": "referentials"
     }
   ]
 }

@@ -1,5 +1,6 @@
 package collaborate.api.datasource.model.dto.web.authentication;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import javax.validation.constraints.NotNull;
@@ -15,5 +16,10 @@ public class AccessTokenResponse {
   private String refreshToken;
   private String tokenType;
   private String scope;
+
+  @JsonIgnore
+  public String getBearerHeaderValue() {
+    return "Bearer " + accessToken;
+  }
 
 }
