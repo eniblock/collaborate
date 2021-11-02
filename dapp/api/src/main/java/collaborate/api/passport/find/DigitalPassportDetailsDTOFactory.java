@@ -1,12 +1,10 @@
 package collaborate.api.passport.find;
 
 import static collaborate.api.passport.model.AccessStatus.GRANTED;
-import static collaborate.api.passport.model.AccessStatus.NO_ACCESS;
+import static collaborate.api.passport.model.AccessStatus.LOCKED;
 import static collaborate.api.passport.model.AccessStatus.PENDING;
 import static java.lang.Boolean.TRUE;
-import static java.util.function.Function.identity;
 
-import collaborate.api.ipfs.IpfsService;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.passport.model.AccessStatus;
 import collaborate.api.passport.model.DigitalPassportDetailsDTO;
@@ -25,7 +23,6 @@ import org.springframework.stereotype.Service;
 public class DigitalPassportDetailsDTOFactory {
 
   private final FindPassportDAO findPassportDAO;
-  private final IpfsService ipfsService;
   private final OrganizationService organizationService;
   private final TokenMetadataService tokenMetadataService;
   private final UserService userService;
@@ -51,16 +48,16 @@ public class DigitalPassportDetailsDTOFactory {
 
   AccessStatus getAccessStatus(Multisig multisig) {
     var connectedUserWalletAddress = userService.getConnectedUserWallet().getAddress();
-    if (connectedUserWalletAddress.equals(multisig.getAddr2())) {
+    if (connectedUserWalletAddress.equals(multisig.getAddr2())) { // We are the NFT owner
       return GRANTED;
-    } else if (multisig.getAddr1().equals(connectedUserWalletAddress)) {
+    } else if (multisig.getAddr1().equals(connectedUserWalletAddress)) { // We are the NFT operator
       if (TRUE.equals(multisig.getOk())) {
         return GRANTED;
       } else {
         return PENDING;
       }
     }
-    return NO_ACCESS;
+    return LOCKED; // We are someone else
   }
 
   public DigitalPassportDetailsDTO fromMultisig(TagEntry<Integer, Multisig> multisigEntry) {
@@ -70,7 +67,7 @@ public class DigitalPassportDetailsDTOFactory {
         .assetDataCatalog(null)
         .assetId(multisig.getParam1())
         .assetOwner(userService.buildUserWalletDTO(multisig.getAddr2()))
-        .accessStatus(null) // No token => no access status
+        .accessStatus(PENDING)
         .creationDatetime(null) // No token => no creation datetime
         .operator(organizationService.getByWalletAddress(multisig.getAddr1()))
         .multisigContractId(contractId)
@@ -87,7 +84,10 @@ public class DigitalPassportDetailsDTOFactory {
         .assetDataCatalog(null)
         .assetId(passportsIndexerToken.getAssetId())
         .assetOwner(userService.buildUserWalletDTO(passportsIndexerToken.getTokenOwnerAddress()))
-        .accessStatus(getAccessStatusByAssetId(passportsIndexerToken.getAssetId()))
+        .accessStatus(
+            makeAccessStatus(
+                passportsIndexerToken.getTokenOwnerAddress(),
+                dspWalletAddress))
         // TODO creationDatetime
         .creationDatetime(null)
         .operator(
@@ -99,31 +99,14 @@ public class DigitalPassportDetailsDTOFactory {
         .build();
   }
 
-  private AccessStatus getAccessStatusByAssetId(String assetId) {
-    // FIXME
-    log.error("Not implemented");
-    return null;
+  private AccessStatus makeAccessStatus(String nftOwnerAddress, String operatorAddress) {
+    var connectedUserWalletAddress = userService.getConnectedUserWallet().getAddress();
+    if (connectedUserWalletAddress.equals(nftOwnerAddress) || connectedUserWalletAddress.equals(
+        operatorAddress)) {
+      return GRANTED;
+    }
+    return LOCKED;
   }
-
-  public DigitalPassportDetailsDTO loadFullDetails(DigitalPassportDetailsDTO digitalPassport) {
-    // Load assetOwner data
-    var assetOwner = userService.buildUserWalletDTO(digitalPassport.getAssetOwner().getAddress());
-    digitalPassport.setAssetOwner(assetOwner);
-
-    // Load asset data catalog
-    var assetDataCatalog = findPassportDAO
-        .findTokenMetadataByTokenId(digitalPassport.getTokenId())
-        .map(tokenMetadata -> tokenMetadataService.findDataCatalog(tokenMetadata.getIpfsUri()))
-        .flatMap(identity())
-        .orElse(null);
-    digitalPassport.setAssetDataCatalog(assetDataCatalog);
-
-    // Load the creation datetime
-    // TODO : load creationDatetime
-
-    return digitalPassport;
-  }
-
 
   public DigitalPassportDetailsDTO createFromPassportIndexer(String dspAddress,
       PassportsIndexerToken indexerToken) {
@@ -132,18 +115,9 @@ public class DigitalPassportDetailsDTOFactory {
             "No tokenMetadata found for tokenId=" + indexerToken.getTokenId())
         );
     var assetDataCatalogDTO = tokenMetadataService.findDataCatalog(tokenMetadata.getIpfsUri());
-    return DigitalPassportDetailsDTO.builder()
-        .assetDataCatalog(assetDataCatalogDTO.orElse(null))
-        .assetId(indexerToken.getAssetId())
-        .assetOwner(userService.buildUserWalletDTO(indexerToken.getTokenOwnerAddress()))
-        .accessStatus(getAccessStatusByAssetId(indexerToken.getAssetId()))
-        // TODO : load creationDatetime
-        .creationDatetime(null)
-        .operator(organizationService.getByWalletAddress(dspAddress))
-        .multisigContractId(null) // No need to get the multisig contract id
-        .tokenId(indexerToken.getTokenId())
-        .tokenStatus(TokenStatus.CREATED)
-        .build();
+    var digitalPassortsDetails = fromPassportsIndexerToken(indexerToken, dspAddress);
+    digitalPassortsDetails.setAssetDataCatalog(assetDataCatalogDTO.orElse(null));
+    return digitalPassortsDetails;
   }
 
 }
