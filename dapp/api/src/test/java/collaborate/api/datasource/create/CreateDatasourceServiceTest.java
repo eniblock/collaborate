@@ -5,10 +5,12 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.businessdata.create.CreateBusinessDataService;
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceDAO;
+import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
-import collaborate.api.datasource.model.Attribute;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
@@ -39,15 +41,17 @@ class CreateDatasourceServiceTest {
   @Mock
   AuthenticationMetadataVisitor authenticationMetadataVisitor;
   @Mock
+  CreateBusinessDataService createBusinessDataService;
+  @Mock
   DatasourceDAO datasourceDAO;
   @Mock
   DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
   @Mock
   SaveAuthenticationVisitor saveAuthenticationVisitor;
   @Mock
-  TraefikProviderService traefikProviderService;
+  TestConnectionVisitor testConnectionVisitor;
   @Mock
-  CreateBusinessDataNftDAO createBusinessDataNftDAO;
+  TraefikProviderService traefikProviderService;
   @InjectMocks
   CreateDatasourceService createDatasourceService;
 
@@ -57,20 +61,22 @@ class CreateDatasourceServiceTest {
     createDatasourceService =
         new CreateDatasourceService(
             authenticationMetadataVisitor,
+            createBusinessDataService,
             datasourceDAO,
             datasourceDTOMetadataVisitor,
             objectMapper,
             saveAuthenticationVisitor,
+            testConnectionVisitor,
             traefikProviderService,
             uuidGenerator,
-            clock,
-            createBusinessDataNftDAO);
+            clock);
   }
 
   @Test
   void createDatasourceIpfsFile_shouldRemoveBasicAuthCredentialsToIpfs() throws Exception {
     // GIVEN
     DatasourceDTO datasourceDTO = CertificateBasedBasicAuthDatasourceFeatures.datasource;
+
     var datasourceId = datasourceDTO.getId().toString();
     var mapper = new ObjectMapper(new YAMLFactory());
     var traefikConfiguration =
@@ -100,15 +106,16 @@ class CreateDatasourceServiceTest {
       throws DatasourceVisitorException {
     // GIVEN
     var datasource = CertificateBasedBasicAuthDatasourceFeatures.datasource;
-    var authMetadata = Attribute.builder()
+    var authMetadata = Metadata.builder()
         .name("authName")
         .value("authValue")
         .build();
     when(authenticationMetadataVisitor
-        .visitCertificateBasedBasicAuth((CertificateBasedBasicAuth) datasource.getAuthMethod())
+        .visitCertificateBasedBasicAuth(
+            (CertificateBasedBasicAuth) datasource.getAuthMethod())
     ).thenReturn(Stream.of(authMetadata));
 
-    var datasourceMetadata = Attribute.builder()
+    var datasourceMetadata = Metadata.builder()
         .name("dsName")
         .value("dsValue")
         .build();

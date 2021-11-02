@@ -971,7 +971,7 @@
                         "method": "GET",
                         "header": [],
                         "url": {
-                          "raw": "{{dAppApiUrl}}/api/v1/gateway/datasource/{{test-datasource-id}}/purpose:test-connection",
+                          "raw": "{{dAppApiUrl}}/api/v1/gateway/datasource/{{test-datasource-id}}/scope:list-asset",
                           "host": [
                             "{{dAppApiUrl}}"
                           ],

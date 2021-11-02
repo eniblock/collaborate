@@ -16,7 +16,6 @@ class BasicAuthHeaderTest {
     // WHEN
     BasicAuthHeader basicAuthHeader = new BasicAuthHeader(user, pwd);
     // THEN
-    assertThat(BasicAuthHeader.KEY).isEqualTo("Authorization");
     assertThat(basicAuthHeader.getValue()).isEqualTo("Basic dXNlcm5hbWU6cGFzc3dvcmQ=");
   }
 }

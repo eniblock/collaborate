@@ -6,7 +6,7 @@ import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Reg
 import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.VALUE_GROUP_INDEX;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import collaborate.api.datasource.model.Attribute;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
 import collaborate.api.test.TestResources;
@@ -27,12 +27,12 @@ class DatasourceDTOMetadataVisitorTest {
   @InjectMocks
   DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
 
-  Attribute datasourceTypeMetadata = Attribute.builder()
+  Metadata datasourceTypeMetadata = Metadata.builder()
       .name("datasource:type")
-      .value("WebServerDatasourceDTO")
+      .value("WebServerDatasource")
       .type("string")
       .build();
-  Attribute datasourcePurposeMetadata = Attribute.builder()
+  Metadata datasourcePurposeMetadata = Metadata.builder()
       .name("datasource:purpose")
       .value("[\"digital-passport\",\"vehicles\"]")
       .type("string[]").build();
@@ -103,7 +103,7 @@ class DatasourceDTOMetadataVisitorTest {
     // THEN
     assertThat(attributesResult)
         .containsExactlyInAnyOrder(
-            Attribute.builder()
+            Metadata.builder()
                 .name("scope:odometer:value.jsonPath")
                 .value("$.odometer.mileage")
                 .build()
@@ -123,7 +123,7 @@ class DatasourceDTOMetadataVisitorTest {
     // THEN
     assertThat(attributesResult)
         .containsExactlyInAnyOrder(
-            Attribute.builder()
+            Metadata.builder()
                 .name("scope:metric:odometer:value.jsonPath")
                 .value("$._embedded.odometer.value")
                 .type("Integer")
@@ -146,15 +146,15 @@ class DatasourceDTOMetadataVisitorTest {
 
     assertThat(attributesResult)
         .containsExactlyInAnyOrder(
-            Attribute.builder()
+            Metadata.builder()
                 .name("scope:assets:list-business-data:smart-contract-token")
                 .value("true")
                 .build(),
-            Attribute.builder()
+            Metadata.builder()
                 .name("scope:assets:list-business-data:assets-json-path")
                 .value("$._embedded.business-data")
                 .build(),
-            Attribute.builder()
+            Metadata.builder()
                 .name("scope:assets:list-business-data:asset-scope-json-path")
                 .value("$.scope")
                 .build()
@@ -169,7 +169,7 @@ class DatasourceDTOMetadataVisitorTest {
     var metadataResult = datasourceDTOMetadataVisitor.visitWebServerDatasource(datasource);
     // THEN
     assertThat(metadataResult).containsExactlyInAnyOrder(
-        Attribute.builder()
+        Metadata.builder()
             .name("datasource:purpose")
             .value("[\"vehicles\",\"digital-passport\"]")
             .type("string[]").build(),
