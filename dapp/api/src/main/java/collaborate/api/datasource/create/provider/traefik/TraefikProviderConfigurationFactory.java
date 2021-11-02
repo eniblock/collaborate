@@ -25,7 +25,6 @@ public class TraefikProviderConfigurationFactory {
         routerFactory,
         serviceFactory
     );
-    datasource.accept(datasourceToHttpVisitor);
-    return new TraefikProviderConfiguration(datasourceToHttpVisitor.getHttp());
+    return new TraefikProviderConfiguration(datasource.accept(datasourceToHttpVisitor));
   }
 }

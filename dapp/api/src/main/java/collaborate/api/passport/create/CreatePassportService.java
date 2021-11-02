@@ -1,18 +1,16 @@
 package collaborate.api.passport.create;
 
-import static collaborate.api.ipfs.IpfsService.IPFS_PROTOCOL_PREFIX;
 import static collaborate.api.mail.MailService.NOREPLY_THEBLOCKCHAINXDEV_COM;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
-import collaborate.api.ipfs.IpfsDAO;
 import collaborate.api.mail.MailDTO;
 import collaborate.api.mail.MailService;
-import collaborate.api.passport.TokenMetadataProperties;
+import collaborate.api.nft.create.AssetDTO;
+import collaborate.api.nft.create.CreateNFTService;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.user.UserService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
 import javax.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,19 +25,18 @@ public class CreatePassportService {
 
   private static final String CONTACT_EMAIL_HTML_TEMPLATE = "html/contactEmail.html";
 
-  private final AssetDataCatalogFactory assetDataCatalogFactory;
   private final CreatePassportDAO createPassportDAO;
-  private final IpfsDAO ipfsDAO;
   private final MailService mailService;
+  private final CreateNFTService createNFTService;
   private final UserService userService;
-  private final TokenMetadataFactory tokenMetadataFactory;
-  private final TokenMetadataProperties tokenMetadataProperties;
+  private final PassportTokenMetadataSupplier passportTokenMetadataSupplier;
 
   public Job createMultisig(CreateMultisigPassportDTO createMultisigPassportDTO)
       throws IOException {
     String assetOwnerWalletAddress = userService
         .findWalletAddressByEmailOrThrow(createMultisigPassportDTO.getAssetOwnerMail());
-    var ipfsMetadataUri = saveMetadata(createMultisigPassportDTO);
+    AssetDTO assetDTO = buildAssetDTO(createMultisigPassportDTO);
+    var ipfsMetadataUri = createNFTService.saveMetadata(assetDTO, passportTokenMetadataSupplier);
     var job = createPassportDAO.create(
         ipfsMetadataUri,
         assetOwnerWalletAddress,
@@ -49,29 +46,13 @@ public class CreatePassportService {
     return job;
   }
 
-  String saveMetadata(CreateMultisigPassportDTO createMultisigPassportDTO) throws IOException {
-    var assetDataCatalogRelativePath = assetDataCatalogFactory.buildRelativePathForAssetId(
-        createMultisigPassportDTO.getAssetId()
-    ).toString();
-
-    saveAssetDataCatalog(createMultisigPassportDTO, assetDataCatalogRelativePath);
-
-    return IPFS_PROTOCOL_PREFIX + ipfsDAO.add(
-        tokenMetadataFactory.buildPathForAssetId(createMultisigPassportDTO.getAssetId()),
-        tokenMetadataFactory.create(createMultisigPassportDTO, assetDataCatalogRelativePath)
-    );
-  }
-
-  private void saveAssetDataCatalog(CreateMultisigPassportDTO createMultisigPassportDTO,
-      String assetDataCatalogRelativePath) throws IOException {
-    var assetDataCatalogPath = Path.of(
-        tokenMetadataProperties.getAssetDataCatalogRootFolder(),
-        assetDataCatalogRelativePath
-    );
-    ipfsDAO.add(
-        assetDataCatalogPath,
-        assetDataCatalogFactory.create(createMultisigPassportDTO)
-    );
+  private AssetDTO buildAssetDTO(CreateMultisigPassportDTO createMultisigPassportDTO) {
+    return AssetDTO.builder()
+        .assetId(createMultisigPassportDTO.getAssetId())
+        .assetIdForDatasource(createMultisigPassportDTO.getAssetIdForDatasource())
+        .datasourceUUID(createMultisigPassportDTO.getDatasourceUUID())
+        .assetType("digital-passport")
+        .build();
   }
 
   void sendMultisigCreatedEmail(String recipient) {
