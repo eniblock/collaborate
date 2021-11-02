@@ -1,5 +1,7 @@
 package collaborate.api.businessdata;
 
+import collaborate.api.businessdata.create.LogDataCatalogConsentHandler;
+import collaborate.api.businessdata.create.LogInitDataCatalogCreationHandler;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
@@ -59,7 +61,6 @@ public class TransactionWatcherConfig {
   }
 
   private TransactionEventManager initBusinessDataEventManager() {
-    // The different handlers must be defined here
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(logInitDataCatalogCreationHandler);
     transactionEventManager.subscribe(logDataCatalogConsentHandler);

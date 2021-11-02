@@ -7,8 +7,6 @@ api:
 transaction:
   tag-client-url:
   watchers:
-    - fixed-delay-in-ms: 2000
-      smart-contract-address: KT1D1YooMGGnTX9gyfhFgYwKJUeB3txefCBk
 
 datasource:
   root-folder: /data/ipfs/xdev/collaborate/datasource
