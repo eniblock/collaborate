@@ -15,7 +15,7 @@ if config.tilt_subcommand == 'up':
   local(clk_k8s + 'add-domain col.localhost')
   # update the helm package dependencies a first time at startup, so helm can load the helm chart
   local(clk_k8s + 'helm-dependency-update helm/collaborate-dapp')
-
+  local(clk_k8s + 'helm-dependency-update helm/fake-datasource')
 # manually download the dependencies
 local_resource('helm dependencies',
                clk_k8s + 'helm-dependency-update helm/collaborate-dapp -ft Tiltfile',
@@ -120,10 +120,15 @@ print('exposing IPFS API on port 5010')
 k8s_resource('col-collaborate-dapp-ipfs', port_forwards=['5010:5001'])
 k8s_resource('col-tag-rabbitmq', port_forwards=['15672:15672'])
 
-local_resource('helm lint',
+local_resource('helm lint - dApp',
                'docker run --rm -t -v $PWD:/app registry.gitlab.com/xdev-tech/build/helm:2.0' +
                ' lint helm/collaborate-dapp --values helm/collaborate-dapp/values-dev.yaml',
                'helm/collaborate-dapp/', allow_parallel=True)
+
+local_resource('helm lint fake-datasource',
+               'docker run --rm -t -v $PWD:/app registry.gitlab.com/xdev-tech/build/helm:2.0' +
+               ' lint helm/fake-datasource --values helm/fake-datasource/values-dev.yaml',
+               'helm/fake-datasource/', allow_parallel=True)
 
 if config.tilt_subcommand == 'down' and not cfg.get("no-volumes"):
   local(
