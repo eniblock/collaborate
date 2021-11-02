@@ -85,3 +85,11 @@ helm-dapp:
     - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - helm dependency update ./helm/collaborate-dapp
     - build $CI_REGISTRY_IMAGE/helm/collaborate-dapp ./helm/collaborate-dapp .keycloak.image.tag
+
+helm-fake-datasource:
+  stage: helm
+  image: registry.gitlab.com/xdev-tech/build/helm:2.0
+  script:
+    - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - helm dependency update ./helm/fake-datasource
+    - build $CI_REGISTRY_IMAGE/helm/fake-datasource ./helm/fake-datasource .keycloak.image.tag
