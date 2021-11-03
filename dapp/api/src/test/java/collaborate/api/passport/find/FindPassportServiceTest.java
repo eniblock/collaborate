@@ -5,10 +5,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.nft.model.storage.TokenIndex;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.model.OrganizationRole;
-import collaborate.api.passport.model.storage.PassportsIndexerToken;
 import collaborate.api.test.TestResources;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collections;
@@ -57,7 +57,7 @@ class FindPassportServiceTest {
     // WHEN
     var dspAndPassportResult = findPassportService.findDspAndPassportIndexerTokenByTokenId(1);
     // THEN
-    var expectedPassportIndexerToken = PassportsIndexerToken.builder()
+    var expectedPassportIndexerToken = TokenIndex.builder()
         .tokenId(1)
         .tokenOwnerAddress("tz1hKFkiMgruSuLbFits2rjBEHuvdfeiUGeK")
         .assetId("1GCDT13X04K151762")

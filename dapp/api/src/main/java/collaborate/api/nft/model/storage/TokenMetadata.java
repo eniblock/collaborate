@@ -1,4 +1,4 @@
-package collaborate.api.passport.model.storage;
+package collaborate.api.nft.model.storage;
 
 import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.TezosMap;
