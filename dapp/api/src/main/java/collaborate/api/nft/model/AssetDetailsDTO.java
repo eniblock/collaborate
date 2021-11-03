@@ -5,7 +5,6 @@ import collaborate.api.passport.model.AccessStatus;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
 import collaborate.api.passport.model.DatasourceDTO;
 import collaborate.api.passport.model.TokenStatus;
-import collaborate.api.tag.model.user.UserWalletDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
@@ -28,7 +27,7 @@ public class AssetDetailsDTO {
   private String assetId;
 
   @Schema(description = "The owner of the asset")
-  private UserWalletDTO assetOwner;
+  private OrganizationDTO assetOwner;
 
   @Schema(description = "The status of the the asset", example = "GRANTED")
   private AccessStatus accessStatus;

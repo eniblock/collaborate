@@ -1,0 +1,28 @@
+{
+  "nft_indexer": [
+    {
+      "key": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
+      "value": {
+        "0": {
+          "asset_id": "1c2a9927-7a35-40de-ac34-926f79b43a09:referentials",
+          "token_key_ref": "4",
+          "token_owner_address": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"
+        }
+      }
+    },
+    {
+      "key": "tz1YEAJSJ7j4HNn9adywXxtwttSSHBgyYbyT",
+      "value": {
+        "0": {
+          "asset_id": "dee7329c-545c-48d9-9a7d-a58d6fd28845:workshop-analytics",
+          "token_key_ref": "19",
+          "token_owner_address": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"
+        }
+      }
+    },
+    {
+      "key": "tzAnotherWallet",
+      "error": "The current map does not contain this key"
+    }
+  ]
+}

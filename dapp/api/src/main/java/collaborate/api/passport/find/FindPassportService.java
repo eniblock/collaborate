@@ -1,6 +1,5 @@
 package collaborate.api.passport.find;
 
-import static collaborate.api.organization.model.OrganizationRole.DSP;
 import static collaborate.api.user.security.Authorizations.Roles.ASSET_OWNER;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
@@ -58,12 +57,7 @@ public class FindPassportService {
    */
   Optional<SimpleEntry<String, TokenIndex>> findDspAndPassportIndexerTokenByTokenId(
       Integer tokenId) {
-    var dspAddresses = organizationService.getAllOrganizations()
-        .stream()
-        .filter(o -> o.getRoles() != null)
-        .filter(o -> o.getRoles().contains(DSP))
-        .map(OrganizationDTO::getAddress)
-        .collect(Collectors.toList());
+    var dspAddresses = organizationService.getAllDspWallets();
 
     return findPassportDAO.findPassportsIndexersByDsps(dspAddresses).getPassportsIndexerByDsp()
         .stream()
