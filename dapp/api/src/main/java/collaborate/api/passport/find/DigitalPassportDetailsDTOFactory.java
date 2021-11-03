@@ -5,12 +5,12 @@ import static collaborate.api.passport.model.AccessStatus.LOCKED;
 import static collaborate.api.passport.model.AccessStatus.PENDING;
 import static java.lang.Boolean.TRUE;
 
+import collaborate.api.nft.model.storage.Multisig;
+import collaborate.api.nft.model.storage.TokenIndex;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.passport.model.AccessStatus;
 import collaborate.api.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.passport.model.TokenStatus;
-import collaborate.api.passport.model.storage.Multisig;
-import collaborate.api.passport.model.storage.PassportsIndexerToken;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.user.UserService;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +78,7 @@ public class DigitalPassportDetailsDTOFactory {
 
 
   public DigitalPassportDetailsDTO fromPassportsIndexerToken(
-      PassportsIndexerToken passportsIndexerToken,
+      TokenIndex passportsIndexerToken,
       String dspWalletAddress) {
     return DigitalPassportDetailsDTO.builder()
         .assetDataCatalog(null)
@@ -109,7 +109,7 @@ public class DigitalPassportDetailsDTOFactory {
   }
 
   public DigitalPassportDetailsDTO createFromPassportIndexer(String dspAddress,
-      PassportsIndexerToken indexerToken) {
+      TokenIndex indexerToken) {
     var tokenMetadata = findPassportDAO.findTokenMetadataByTokenId(indexerToken.getTokenId())
         .orElseThrow(() -> new IllegalStateException(
             "No tokenMetadata found for tokenId=" + indexerToken.getTokenId())

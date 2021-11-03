@@ -1,6 +1,6 @@
 package collaborate.api.passport.model;
 
-import collaborate.api.passport.model.storage.Multisig;
+import collaborate.api.nft.model.storage.Multisig;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public enum TokenStatus {

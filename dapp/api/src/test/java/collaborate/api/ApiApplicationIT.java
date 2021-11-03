@@ -17,11 +17,9 @@ class ApiApplicationIT {
   @Autowired
   private WebApplicationContext webApplicationContext;
 
-
   @Test
   void contextLoads() {
     ServletContext servletContext = webApplicationContext.getServletContext();
-
     assertThat(servletContext).isNotNull()
         .isInstanceOf(MockServletContext.class);
   }

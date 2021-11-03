@@ -1,4 +1,4 @@
-package collaborate.api.passport.model.storage;
+package collaborate.api.nft.model.storage;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

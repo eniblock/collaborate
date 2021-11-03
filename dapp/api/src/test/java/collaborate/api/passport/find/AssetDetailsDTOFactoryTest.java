@@ -6,8 +6,8 @@ import static collaborate.api.passport.model.AccessStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.nft.model.storage.Multisig;
 import collaborate.api.passport.model.AccessStatus;
-import collaborate.api.passport.model.storage.Multisig;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.UserService;
 import org.junit.jupiter.api.Test;
@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class DigitalPassportDetailsDTOFactoryTest {
+class AssetDetailsDTOFactoryTest {
 
   @Mock
   UserService userService;

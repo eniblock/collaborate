@@ -1,4 +1,4 @@
-package collaborate.api.passport.model.storage;
+package collaborate.api.nft.model.storage;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class PassportsIndexerToken {
+public class TokenIndex {
 
   @JsonProperty("token_key_ref")
   private Integer tokenId;

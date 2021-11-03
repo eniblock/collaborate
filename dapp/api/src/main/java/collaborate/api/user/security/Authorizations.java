@@ -84,6 +84,7 @@ public final class Authorizations {
     public static final String BSP = HasRoles.BSP_OPERATOR + " OR " + HasRoles.BSP_ADMIN;
     public static final String DSP = HasRoles.DSP_OPERATOR + " OR " + HasRoles.DSP_ADMIN;
     public static final String ORGANIZATION_READ = HasRoles.BSP + " OR " + HasRoles.DSP;
+    public static final String BUSINESS_DATA_READ = HasRoles.BSP + " OR " + HasRoles.DSP;
     public static final String DATASOURCE_READ =
         HasRoles.DSP_ADMIN
             + " OR " + HasRoles.BSP_OPERATOR;
