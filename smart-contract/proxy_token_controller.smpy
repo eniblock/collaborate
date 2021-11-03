@@ -1,5 +1,18 @@
 import smartpy as sp
 
+update_preconfigured_roles_type = sp.TList(
+    sp.TVariant(
+            add_super_admin = sp.TAddress,
+            remove_super_admin = sp.TAddress,
+            add_super_minter = sp.TAddress,
+            remove_super_minter = sp.TAddress,
+            add_minter = sp.TAddress,
+            remove_minter = sp.TAddress,
+            add_batch_minter = sp.TAddress,
+            remove_batch_minter = sp.TAddress
+        )
+)
+
 contract_metadata_type = sp.TRecord(
     k = sp.TString,
     v= sp.TBytes
@@ -47,12 +60,12 @@ mint_params_type = sp.TRecord(
     )
 
 multisig_build_params_type = sp.TRecord(
-    multisigId = sp.TString,
-    thresholdWeight = sp.TNat,
-    groups = sp.TMap(sp.TString, sp.TRecord(thresholdVoters = sp.TNat, weight = sp.TNat)),
+    multisig_id = sp.TString,
+    threshold_weight = sp.TNat,
+    groups = sp.TMap(sp.TString, sp.TRecord(threshold_votes = sp.TNat, weight = sp.TNat)),
     signers = sp.TList(sp.TAddress),
     on_ok_call = sp.TRecord(
-        targetAddress = sp.TAddress,
+        target_address = sp.TAddress,
         entry_point = sp.TString,
         adr1 = sp.TAddress,
         adr2 = sp.TAddress,
@@ -66,53 +79,48 @@ multisig_build_params_type = sp.TRecord(
 
 
 class ProxyTokenController(sp.Contract):
-    def __init__(self, config, superAdmins, admins, batch_minters):
+    def __init__(self, proxy_admin, super_admins, super_minters, minters, batch_minters):
         self.init(
-            config = config,
+        #    config = config,
             multisigs = sp.big_map(),
-            superAdmins = sp.set(superAdmins),
-            admins = sp.set(admins),
-            batch_minters = sp.set(batch_minters),
-            multisig_entry_points = {"batch_mint", "mint"}
+            proxy_admin = proxy_admin,
+            super_admins = sp.set(super_admins),
+            super_minters = sp.set(super_minters),
+            minters = sp.set(minters),
+            batch_minters = sp.set(batch_minters)
         )
 
     @sp.entry_point
-    def addSuperAdmin(self, superAdmin):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
-        self.data.superAdmins.add(superAdmin)
+    def update_preconfigured_roles(self, params: update_preconfigured_roles_type):
+        sp.verify(self.data.proxy_admin == sp.sender, "senderIsNotAuthorized")
+        sp.for update in params:
+            with update.match_cases() as arg:
+                with arg.match("add_super_admin") as upd:
+                    self.data.super_admins.add(upd)    
+                with arg.match("remove_super_admin") as upd:
+                    self.data.super_admins.remove(upd)    
+                with arg.match("add_super_minter") as upd:
+                    self.data.super_minters.add(upd)    
+                with arg.match("remove_super_minter") as upd:
+                    self.data.super_minters.remove(upd)    
+                with arg.match("add_minter") as upd:
+                    self.data.minters.add(upd)    
+                with arg.match("remove_minter") as upd:
+                    self.data.minters.remove(upd)    
+                with arg.match("add_batch_minter") as upd:
+                    self.data.batch_minters.add(upd)    
+                with arg.match("remove_batch_minter") as upd:
+                    self.data.batch_minters.remove(upd)    
 
-    @sp.entry_point
-    def addAdmin(self, admin):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
-        self.data.admins.add(admin)
-    
-    @sp.entry_point
-    def addBatchMinter(self, batch_minter):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
-        self.data.batch_minters.add(batch_minter)
-
-    @sp.entry_point
-    def removeSuperAdmin(self, superAdmin):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
-        self.data.superAdmins.remove(superAdmin)
-
-    @sp.entry_point
-    def removeAdmin(self, admin):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
-        self.data.admins.remove(admin)
-    
-    @sp.entry_point
-    def removeBatchMinter(self, batch_minter):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
-        self.data.batch_minters.remove(batch_minter)
 
     ## define  a multisig operation
     @sp.entry_point
     def build(self, params: multisig_build_params_type):
-        sp.verify(self.data.multisig_entry_points.contains(params.on_ok_call.entry_point), "UnknownEntryPoint")
-        sp.verify(~self.data.multisigs.contains(params.multisigId))
-        
-        # verify participants according to the project
+        sp.verify(self.data.proxy_admin == sp.sender, "senderIsNotAuthorized")
+        multisig_entry_points = sp.set({"batch_mint", "mint"})
+        sp.verify(multisig_entry_points.contains(params.on_ok_call.entry_point), "UnknownEntryPoint")
+        sp.verify(~self.data.multisigs.contains(params.multisig_id))
+        '''# verify participants according to the project
         sp.if self.data.config.PCC:
             sp.if sp.len(params.groups.keys()) == 0:
                 sp.verify(self.data.admins.contains(sp.sender), "senderIsNotAuthorized")
@@ -121,7 +129,7 @@ class ProxyTokenController(sp.Contract):
                     signer = x.head
                     sp.verify(
                         (signer == params.on_ok_call.adr1) &
-                        (params.thresholdWeight == 1)
+                        (params.threshold_weight == 1)
                         )
             sp.else:
                 sp.if sp.len(params.groups.keys()) == 1:
@@ -129,19 +137,16 @@ class ProxyTokenController(sp.Contract):
                 sp.else:
                     sp.failwith("UnauthorizedNumberOfSigners")
         sp.else:
-            # TODO
-            sp.verify(self.data.admins.contains(sp.sender) | self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
-        
-        # Generic group configuration
+            # TODO'''
         participants = sp.local('participants', sp.list([]))
         groups = sp.local('groups', sp.list([]))
         signers = sp.local('signers', sp.list([]))
         sp.for group in params.groups.items():
-            sp.if group.key == "superAdmins":
-                signers.value = self.data.superAdmins.elements()
+            sp.if group.key == "super_minters":
+                signers.value = self.data.super_minters.elements()
             sp.else:
-                sp.if group.key == "admins":
-                    signers.value = self.data.admins.elements()
+                sp.if group.key == "minters":
+                    signers.value = self.data.minters.elements()
                 sp.else:
                     sp.failwith("UnknownGroup")
             sp.for signer in signers.value:
@@ -150,7 +155,7 @@ class ProxyTokenController(sp.Contract):
                 participants = participants.value,
                 votes = 0,
                 ok = False,
-                thresholdVotes = group.value.thresholdVoters, 
+                threshold_votes = group.value.threshold_votes, 
                 weight = group.value.weight
             ))
             participants.value = sp.list([])
@@ -163,18 +168,18 @@ class ProxyTokenController(sp.Contract):
                 participants = participants.value,
                 votes = 0,
                 ok = False,
-                thresholdVotes = sp.len(params.signers), 
+                threshold_votes = sp.len(params.signers), 
                 weight = 1
             ))
 
         contract = sp.record(
              weight          = 0,
-             thresholdWeight = params.thresholdWeight,
+             threshold_weight = params.threshold_weight,
              groups          = groups.value,
              ok              = False,
              on_ok_call      = params.on_ok_call
             )
-        self.data.multisigs[params.multisigId] = contract
+        self.data.multisigs[params.multisig_id] = contract
 
     ## sign a multisig operation
     @sp.entry_point
@@ -189,10 +194,10 @@ class ProxyTokenController(sp.Contract):
                     sp.verify(~ participant.hasVoted, "ParticipantAlreadyVoted")
                     participant.hasVoted = True
                     group.votes += 1
-                    sp.if ~group.ok & (group.thresholdVotes <= group.votes):
+                    sp.if ~group.ok & (group.threshold_votes <= group.votes):
                         group.ok = True
                         contract.weight += group.weight
-                        sp.if ~contract.ok & (contract.thresholdWeight <= contract.weight):
+                        sp.if ~contract.ok & (contract.threshold_weight <= contract.weight):
                             contract.ok = True
                             self.onOK(contract.on_ok_call)
         '''sp.if contract.ok:
@@ -219,7 +224,7 @@ class ProxyTokenController(sp.Contract):
         sp.transfer(
             mint_parameters,
             sp.tez(0),
-            sp.contract(mint_params_type, params.targetAddress, entry_point = "mint").open_some()
+            sp.contract(mint_params_type, params.target_address, entry_point = "mint").open_some()
         )
 
         # add operator along with the mint
@@ -234,7 +239,7 @@ class ProxyTokenController(sp.Contract):
             sp.transfer(
                 add_op_parameters,
                 sp.tez(0),
-                sp.contract(update_operators_params_type, params.targetAddress, entry_point = "update_operators").open_some()
+                sp.contract(update_operators_params_type, params.target_address, entry_point = "update_operators").open_some()
             )
             
 
@@ -247,7 +252,7 @@ class ProxyTokenController(sp.Contract):
         sp.transfer(
             parameters,
             sp.tez(0),
-            sp.contract(batch_mint_params_type, params.targetAddress, entry_point = "batch_mint").open_some()
+            sp.contract(batch_mint_params_type, params.target_address, entry_point = "batch_mint").open_some()
         )
 
 
@@ -255,7 +260,7 @@ class ProxyTokenController(sp.Contract):
 
     @sp.entry_point
     def call_update_operators(self, params):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
         sp.transfer(
             params.op_list,
             sp.tez(0),
@@ -264,7 +269,7 @@ class ProxyTokenController(sp.Contract):
 
     @sp.entry_point
     def call_transfer(self, params):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
         sp.transfer(
             params.transfers,
             sp.tez(0),
@@ -273,7 +278,7 @@ class ProxyTokenController(sp.Contract):
 
     @sp.entry_point
     def call_set_pause(self, params):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
         sp.transfer(
             params.paused,
             sp.tez(0),
@@ -282,7 +287,7 @@ class ProxyTokenController(sp.Contract):
 
     @sp.entry_point
     def call_set_metadata(self, params):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
         sp.transfer(
             sp.record(k = params.k, v = params.v),
             sp.tez(0),
@@ -291,7 +296,7 @@ class ProxyTokenController(sp.Contract):
 
     @sp.entry_point
     def call_set_administrator(self, params):
-        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
         sp.transfer(
             params.administrator,
             sp.tez(0),
@@ -305,90 +310,95 @@ def test():
 
     scenario = sp.test_scenario()
 
-    superAdmin1 = sp.address("tz1PxztX893wouZdQmGVARX5c31Cbor354fv")
-    superAdmin2 = sp.address("tz1R5Sd63TCC37g9wxEe8g3JQ3GYEq1oAv5j")
-    superAdmin3 = sp.address("tz1Tz45dBEsM5RDXCaj1Ut4ay6ZyHKamUBvT")
+    super_admin1 = sp.address("tz1PxztX893wouZdQmGVARX5c31Cbor354fv")
+    super_admin2 = sp.address("tz1R5Sd63TCC37g9wxEe8g3JQ3GYEq1oAv5j")
+
+    super_minter1 = sp.address("tz1Tz45dBEsM5RDXCaj1Ut4ay6ZyHKamUBvT")
+    super_minter2 = sp.address("tz1YjCQ9ATce6gJHTnmn7zZaBaLLWqKNcqdK")
     
-    admin1 = sp.address("tz1XWbzEHXfuEMKR4Vs6ewDMFnKa8VoApVdK")
-    admin2 = sp.address("tz1XxrCBL7RyKFKMMvMG5CHmbc1ubVr7ehHm")
-    admin3 = sp.address("tz1YjCQ9ATce6gJHTnmn7zZaBaLLWqKNcqdK")
+    minter1 = sp.address("tz1XWbzEHXfuEMKR4Vs6ewDMFnKa8VoApVdK")
+    minter2 = sp.address("tz1XxrCBL7RyKFKMMvMG5CHmbc1ubVr7ehHm")
 
     alice = sp.address("tz1YmbuUQagUMY8AycZuvHyf8zm8sgPCMYgG")
 
-    minter = sp.address("tz1bwp2oXPzdHYVzn6cpsmehehdcUuF2Bgk5")
+    batch_minter = sp.address("tz1bwp2oXPzdHYVzn6cpsmehehdcUuF2Bgk5")
+
+    proxy_admin = sp.address("tz1caQoK6ZVwg6CVakpJo14nM43UhoG7TZ9J")
 
     target = sp.address("KT1aDD7H3WgbFgd7YeMn8UbqQeMXJ96kxvD5")
 
     #PCC
-    ## put the real admins/superAdmin addresses here, the contract will be initially deployed with the following parameters
+    ## put the real admins/super_admin addresses here, the contract will be initially deployed with the following parameters
     c0 = ProxyTokenController(
-        sp.record(PCC = True),
-        [superAdmin1, superAdmin2, superAdmin3], 
-        [admin1, admin2, admin3], 
-        [minter])
+        proxy_admin,
+        [super_admin1, super_admin2], 
+        [super_minter1, super_minter2], 
+        [minter1, minter2], 
+        [batch_minter])
     scenario += c0
     
     # DigitalPassport
     scenario += c0.build(
-        multisigId = "0000",
-        thresholdWeight = 1,
+        multisig_id = "0000",
+        threshold_weight = 1,
         signers = [alice], # Owner
         groups = {},
         on_ok_call = sp.record(
-            targetAddress = target,
+            target_address = target,
             entry_point = "mint",
             adr1 = alice, # Owner
-            adr2 = admin2, # Operator
+            adr2 = minter2, # Operator
             bytes_list = [],
             stg_bytes_map = {"": sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")},
             nbr1 = 0,
             nbr2 = 1,
             bl = False
         )
-    ).run(sender = admin2)
+    ).run(sender = proxy_admin)
     scenario += c0.sign(id = alice, contractId = "0000").run(sender = alice)
     
     # DATA Catalog
     scenario += c0.build(
-        multisigId = "1111",
-        thresholdWeight = 2,
+        multisig_id = "1111",
+        threshold_weight = 2,
         signers = [alice],
-        groups = {"superAdmins": sp.record(thresholdVoters = 1, weight = 1)},
+        groups = {"super_minters": sp.record(threshold_votes = 1, weight = 1)},
         on_ok_call = sp.record(
-            targetAddress = target,
+            target_address = target,
             entry_point = "mint",
             adr1 = alice,
-            adr2 = admin2,
+            adr2 = minter2,
             bytes_list = [],
             stg_bytes_map = {},
             nbr1 = 1,
             nbr2 = 1,
             bl = True
         )
-    ).run(sender = admin2)
-    scenario += c0.sign(id = superAdmin1, contractId = "1111").run(sender = superAdmin1)
+    ).run(sender = proxy_admin)
+    scenario += c0.sign(id = super_admin1, contractId = "1111").run(sender = super_admin1)
     scenario += c0.sign(id = alice, contractId = "1111").run(sender = alice)
 
     # CREATE 
     c1 = ProxyTokenController(
-        sp.record(PCC = False),
-        [superAdmin1, superAdmin2, superAdmin3], 
-        [admin1, admin2, admin3], 
-        [minter])
+        proxy_admin,
+        [super_admin1, super_admin2], 
+        [super_minter1, super_minter2], 
+        [minter1, minter2], 
+        [batch_minter])
     
     scenario += c1
 
     scenario += c1.build(
-        multisigId = "0000",
-        thresholdWeight = 1,
+        multisig_id = "0000",
+        threshold_weight = 1,
         signers = [], 
-        groups = {"superAdmins": sp.record(thresholdVoters = 1, weight = 1),
-                  "admins": sp.record(thresholdVoters = 2, weight = 1)},
+        groups = {"super_minters": sp.record(threshold_votes = 1, weight = 1),
+                  "minters": sp.record(threshold_votes = 2, weight = 1)},
         on_ok_call = sp.record(
-            targetAddress = target,
+            target_address = target,
             entry_point = "batch_mint",
-            adr1 = admin1, # Owner
-            adr2 = admin2, # Operator
+            adr1 = minter1, # Owner
+            adr2 = minter2, # Operator
             bytes_list = [
                 sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
                 sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
@@ -398,6 +408,32 @@ def test():
             nbr2 = 1,
             bl = False
         )
-    ).run(sender = admin2)
-    scenario += c1.sign(id = admin1, contractId = "0000").run(sender = admin1)
-    scenario += c1.sign(id = admin2, contractId = "0000").run(sender = admin2) 
+    ).run(sender = proxy_admin)
+    scenario += c1.sign(id = minter1, contractId = "0000").run(sender = minter1)
+    scenario += c1.sign(id = minter2, contractId = "0000").run(sender = minter2) 
+
+    # Test registered roles update
+
+    scenario.verify(c1.data.super_admins.contains(super_admin2))
+    scenario += c1.update_preconfigured_roles([sp.variant("remove_super_admin", super_admin2)]).run(sender = proxy_admin)
+    scenario.verify(~ c1.data.super_admins.contains(super_admin2))
+    scenario += c1.update_preconfigured_roles([sp.variant("add_super_admin", super_admin2)]).run(sender = proxy_admin)
+    scenario.verify(c1.data.super_admins.contains(super_admin2))
+
+    scenario.verify(c1.data.super_minters.contains(super_minter2))
+    scenario += c1.update_preconfigured_roles([sp.variant("remove_super_minter", super_minter2)]).run(sender = proxy_admin)
+    scenario.verify(~ c1.data.super_minters.contains(super_minter2))
+    scenario += c1.update_preconfigured_roles([sp.variant("add_super_minter", super_minter2)]).run(sender = proxy_admin)
+    scenario.verify(c1.data.super_minters.contains(super_minter2))        
+    
+    scenario.verify(c1.data.minters.contains(minter2))
+    scenario += c1.update_preconfigured_roles([sp.variant("remove_minter", minter2)]).run(sender = proxy_admin)
+    scenario.verify(~ c1.data.minters.contains(minter2))
+    scenario += c1.update_preconfigured_roles([sp.variant("add_minter", minter2)]).run(sender = proxy_admin)
+    scenario.verify(c1.data.minters.contains(minter2))        
+    
+    scenario.verify(c1.data.batch_minters.contains(batch_minter))
+    scenario += c1.update_preconfigured_roles([sp.variant("remove_batch_minter", batch_minter)]).run(sender = proxy_admin)
+    scenario.verify(~ c1.data.batch_minters.contains(batch_minter))
+    scenario += c1.update_preconfigured_roles([sp.variant("add_batch_minter", batch_minter)]).run(sender = proxy_admin)
+    scenario.verify(c1.data.batch_minters.contains(batch_minter))
