@@ -227,11 +227,11 @@ spec:
               value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "nameOverride" }}-api:3333"
             - name: TRANSACTION_WATCHERS_0_FIXED_DELAY_IN_MS
               value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
-            - name: TRANSACTION_WATCHER_0_SMART_CONTRACT_ADDRESS
+            - name: TRANSACTION_WATCHERS_0_SMART_CONTRACT_ADDRESS
               value: {{ .Values.api.businessDataContractAddress | quote }}
             - name: TRANSACTION_WATCHERS_1_FIXED_DELAY_IN_MS
               value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
-            - name: TRANSACTION_WATCHER_1_SMART_CONTRACT_ADDRESS
+            - name: TRANSACTION_WATCHERS_1_SMART_CONTRACT_ADDRESS
               value: {{ .Values.api.digitalPassportContractAddress | quote }}
           ports:
             - name: http
