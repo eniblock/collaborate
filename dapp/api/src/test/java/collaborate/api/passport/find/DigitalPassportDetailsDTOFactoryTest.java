@@ -1,7 +1,7 @@
 package collaborate.api.passport.find;
 
 import static collaborate.api.passport.model.AccessStatus.GRANTED;
-import static collaborate.api.passport.model.AccessStatus.NO_ACCESS;
+import static collaborate.api.passport.model.AccessStatus.LOCKED;
 import static collaborate.api.passport.model.AccessStatus.PENDING;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
@@ -39,7 +39,7 @@ class DigitalPassportDetailsDTOFactoryTest {
     // WHEN
     AccessStatus currentResult = digitalPassportDetailsDTOFactory.getAccessStatus(multisig);
     // THEN
-    assertThat(currentResult).isEqualTo(NO_ACCESS);
+    assertThat(currentResult).isEqualTo(LOCKED);
   }
 
   @Test
