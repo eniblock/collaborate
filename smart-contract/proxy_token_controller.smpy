@@ -1,0 +1,403 @@
+import smartpy as sp
+
+contract_metadata_type = sp.TRecord(
+    k = sp.TString,
+    v= sp.TBytes
+    )
+
+operator_param_type = sp.TRecord(
+    owner = sp.TAddress,
+    operator = sp.TAddress,
+    token_id = sp.TNat
+    )
+
+update_operators_params_type = sp.TList(
+    sp.TVariant(
+        add_operator = operator_param_type,
+        remove_operator = operator_param_type
+        )
+    )
+
+transfer_type = sp.TRecord(
+    from_ = sp.TAddress,
+    txs = sp.TList(
+        sp.TRecord(
+            to_ = sp.TAddress,
+            token_id = sp.TNat,
+            amount = sp.TNat
+            ).layout(("to_", ("token_id", "amount")))
+        )
+    ).layout(("from_", "txs"))
+
+transfer_params_type = sp.TList(transfer_type)
+
+batch_mint_params_type = sp.TRecord(
+    metadata_links = sp.TList(sp.TBytes),
+    first_token_id = sp.TNat,
+    address = sp.TAddress
+    )
+
+token_metadata_type = sp.TMap(sp.TString, sp.TBytes)
+
+mint_params_type = sp.TRecord(
+    token_id = sp.TNat, 
+    amount = sp.TNat, 
+    address = sp.TAddress,
+    metadata = token_metadata_type
+    )
+
+multisig_build_params_type = sp.TRecord(
+    multisigId = sp.TString,
+    thresholdWeight = sp.TNat,
+    groups = sp.TMap(sp.TString, sp.TRecord(thresholdVoters = sp.TNat, weight = sp.TNat)),
+    signers = sp.TList(sp.TAddress),
+    on_ok_call = sp.TRecord(
+        targetAddress = sp.TAddress,
+        entry_point = sp.TString,
+        adr1 = sp.TAddress,
+        adr2 = sp.TAddress,
+        bytes_list = sp.TList(sp.TBytes),
+        stg_bytes_map = token_metadata_type,
+        nbr1 = sp.TNat,
+        nbr2 = sp.TNat,
+        bl = sp.TBool # Conf variable, ex : update operator
+        )
+    )
+
+
+class ProxyTokenController(sp.Contract):
+    def __init__(self, config, superAdmins, admins, batch_minters):
+        self.init(
+            config = config,
+            multisigs = sp.big_map(),
+            superAdmins = sp.set(superAdmins),
+            admins = sp.set(admins),
+            batch_minters = sp.set(batch_minters),
+            multisig_entry_points = {"batch_mint", "mint"}
+        )
+
+    @sp.entry_point
+    def addSuperAdmin(self, superAdmin):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        self.data.superAdmins.add(superAdmin)
+
+    @sp.entry_point
+    def addAdmin(self, admin):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        self.data.admins.add(admin)
+    
+    @sp.entry_point
+    def addBatchMinter(self, batch_minter):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        self.data.batch_minters.add(batch_minter)
+
+    @sp.entry_point
+    def removeSuperAdmin(self, superAdmin):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        self.data.superAdmins.remove(superAdmin)
+
+    @sp.entry_point
+    def removeAdmin(self, admin):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        self.data.admins.remove(admin)
+    
+    @sp.entry_point
+    def removeBatchMinter(self, batch_minter):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        self.data.batch_minters.remove(batch_minter)
+
+    ## define  a multisig operation
+    @sp.entry_point
+    def build(self, params: multisig_build_params_type):
+        sp.verify(self.data.multisig_entry_points.contains(params.on_ok_call.entry_point), "UnknownEntryPoint")
+        sp.verify(~self.data.multisigs.contains(params.multisigId))
+        
+        # verify participants according to the project
+        sp.if self.data.config.PCC:
+            sp.if sp.len(params.groups.keys()) == 0:
+                sp.verify(self.data.admins.contains(sp.sender), "senderIsNotAuthorized")
+                sp.verify(sp.sender == params.on_ok_call.adr2)
+                with sp.match_cons(params.signers) as x:
+                    signer = x.head
+                    sp.verify(
+                        (signer == params.on_ok_call.adr1) &
+                        (params.thresholdWeight == 1)
+                        )
+            sp.else:
+                sp.if sp.len(params.groups.keys()) == 1:
+                    pass
+                sp.else:
+                    sp.failwith("UnauthorizedNumberOfSigners")
+        sp.else:
+            # TODO
+            sp.verify(self.data.admins.contains(sp.sender) | self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        
+        # Generic group configuration
+        participants = sp.local('participants', sp.list([]))
+        groups = sp.local('groups', sp.list([]))
+        signers = sp.local('signers', sp.list([]))
+        sp.for group in params.groups.items():
+            sp.if group.key == "superAdmins":
+                signers.value = self.data.superAdmins.elements()
+            sp.else:
+                sp.if group.key == "admins":
+                    signers.value = self.data.admins.elements()
+                sp.else:
+                    sp.failwith("UnknownGroup")
+            sp.for signer in signers.value:
+                participants.value.push(sp.record(hasVoted = False, id = signer))
+            groups.value.push(sp.record(
+                participants = participants.value,
+                votes = 0,
+                ok = False,
+                thresholdVotes = group.value.thresholdVoters, 
+                weight = group.value.weight
+            ))
+            participants.value = sp.list([])
+            signers.value = sp.list([])
+
+        sp.if sp.len(params.signers) != 0:
+            sp.for signer in params.signers:
+                participants.value.push(sp.record(hasVoted = False, id = signer))
+            groups.value.push(sp.record(
+                participants = participants.value,
+                votes = 0,
+                ok = False,
+                thresholdVotes = sp.len(params.signers), 
+                weight = 1
+            ))
+
+        contract = sp.record(
+             weight          = 0,
+             thresholdWeight = params.thresholdWeight,
+             groups          = groups.value,
+             ok              = False,
+             on_ok_call      = params.on_ok_call
+            )
+        self.data.multisigs[params.multisigId] = contract
+
+    ## sign a multisig operation
+    @sp.entry_point
+    def sign(self, params):
+        id = params.id
+        sp.verify(id == sp.sender, "InvalidSender")
+        contractId = params.contractId
+        contract = self.data.multisigs[contractId]
+        sp.for group in contract.groups:
+            sp.for participant in group.participants:
+                sp.if participant.id == id:
+                    sp.verify(~ participant.hasVoted, "ParticipantAlreadyVoted")
+                    participant.hasVoted = True
+                    group.votes += 1
+                    sp.if ~group.ok & (group.thresholdVotes <= group.votes):
+                        group.ok = True
+                        contract.weight += group.weight
+                        sp.if ~contract.ok & (contract.thresholdWeight <= contract.weight):
+                            contract.ok = True
+                            self.onOK(contract.on_ok_call)
+        '''sp.if contract.ok:
+            del self.data.multisigs[contractId]'''
+
+    def onOK(self, params):
+        sp.if params.entry_point == "mint":
+            self._call_mint(params)
+        sp.if params.entry_point == "batch_mint":
+            self._call_batch_mint(params)
+
+
+
+
+    #### GN ENTRYPOINTS WITH MULTISIG####
+
+    def _call_mint(self, params):
+        mint_parameters = sp.record(
+            token_id = params.nbr1, 
+            address = params.adr1,
+            amount = params.nbr2,
+            metadata = params.stg_bytes_map
+            )
+        sp.transfer(
+            mint_parameters,
+            sp.tez(0),
+            sp.contract(mint_params_type, params.targetAddress, entry_point = "mint").open_some()
+        )
+
+        # add operator along with the mint
+        sp.if params.bl == True: 
+            add_op_parameters = [
+                sp.variant("add_operator", sp.record(
+                    owner = params.adr1,
+                    operator = params.adr2,
+                    token_id = params.nbr1
+                ))
+            ]
+            sp.transfer(
+                add_op_parameters,
+                sp.tez(0),
+                sp.contract(update_operators_params_type, params.targetAddress, entry_point = "update_operators").open_some()
+            )
+            
+
+    def _call_batch_mint(self, params):
+        parameters = sp.record(
+            first_token_id = params.nbr1, 
+            address = params.adr1,
+            metadata_links = params.bytes_list
+            )
+        sp.transfer(
+            parameters,
+            sp.tez(0),
+            sp.contract(batch_mint_params_type, params.targetAddress, entry_point = "batch_mint").open_some()
+        )
+
+
+    #### GN ENTRYPOINTS WITH DIRECT CALL####
+
+    @sp.entry_point
+    def call_update_operators(self, params):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.transfer(
+            params.op_list,
+            sp.tez(0),
+            sp.contract(update_operators_params_type, params.targetAdr, entry_point = "update_operators").open_some()
+        )
+
+    @sp.entry_point
+    def call_transfer(self, params):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.transfer(
+            params.transfers,
+            sp.tez(0),
+            sp.contract(transfer_params_type, params.targetAdr, entry_point = "transfer").open_some()
+        )
+
+    @sp.entry_point
+    def call_set_pause(self, params):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.transfer(
+            params.paused,
+            sp.tez(0),
+            sp.contract(sp.TBool, params.targetAdr, entry_point = "set_pause").open_some()
+        )
+
+    @sp.entry_point
+    def call_set_metadata(self, params):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.transfer(
+            sp.record(k = params.k, v = params.v),
+            sp.tez(0),
+            sp.contract(contract_metadata_type, params.targetAdr, entry_point = "set_metadata").open_some()
+        )
+
+    @sp.entry_point
+    def call_set_administrator(self, params):
+        sp.verify(self.data.superAdmins.contains(sp.sender), "senderIsNotAuthorized")
+        sp.transfer(
+            params.administrator,
+            sp.tez(0),
+            sp.contract(sp.TAddress, params.targetAdr, entry_point = "set_administrator").open_some()
+        )
+
+
+# Tests
+@sp.add_test(name = "ProxyTokenController")
+def test():
+
+    scenario = sp.test_scenario()
+
+    superAdmin1 = sp.address("tz1PxztX893wouZdQmGVARX5c31Cbor354fv")
+    superAdmin2 = sp.address("tz1R5Sd63TCC37g9wxEe8g3JQ3GYEq1oAv5j")
+    superAdmin3 = sp.address("tz1Tz45dBEsM5RDXCaj1Ut4ay6ZyHKamUBvT")
+    
+    admin1 = sp.address("tz1XWbzEHXfuEMKR4Vs6ewDMFnKa8VoApVdK")
+    admin2 = sp.address("tz1XxrCBL7RyKFKMMvMG5CHmbc1ubVr7ehHm")
+    admin3 = sp.address("tz1YjCQ9ATce6gJHTnmn7zZaBaLLWqKNcqdK")
+
+    alice = sp.address("tz1YmbuUQagUMY8AycZuvHyf8zm8sgPCMYgG")
+
+    minter = sp.address("tz1bwp2oXPzdHYVzn6cpsmehehdcUuF2Bgk5")
+
+    target = sp.address("KT1aDD7H3WgbFgd7YeMn8UbqQeMXJ96kxvD5")
+
+    #PCC
+    ## put the real admins/superAdmin addresses here, the contract will be initially deployed with the following parameters
+    c0 = ProxyTokenController(
+        sp.record(PCC = True),
+        [superAdmin1, superAdmin2, superAdmin3], 
+        [admin1, admin2, admin3], 
+        [minter])
+    scenario += c0
+    
+    # DigitalPassport
+    scenario += c0.build(
+        multisigId = "0000",
+        thresholdWeight = 1,
+        signers = [alice], # Owner
+        groups = {},
+        on_ok_call = sp.record(
+            targetAddress = target,
+            entry_point = "mint",
+            adr1 = alice, # Owner
+            adr2 = admin2, # Operator
+            bytes_list = [],
+            stg_bytes_map = {"": sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")},
+            nbr1 = 0,
+            nbr2 = 1,
+            bl = False
+        )
+    ).run(sender = admin2)
+    scenario += c0.sign(id = alice, contractId = "0000").run(sender = alice)
+    
+    # DATA Catalog
+    scenario += c0.build(
+        multisigId = "1111",
+        thresholdWeight = 2,
+        signers = [alice],
+        groups = {"superAdmins": sp.record(thresholdVoters = 1, weight = 1)},
+        on_ok_call = sp.record(
+            targetAddress = target,
+            entry_point = "mint",
+            adr1 = alice,
+            adr2 = admin2,
+            bytes_list = [],
+            stg_bytes_map = {},
+            nbr1 = 1,
+            nbr2 = 1,
+            bl = True
+        )
+    ).run(sender = admin2)
+    scenario += c0.sign(id = superAdmin1, contractId = "1111").run(sender = superAdmin1)
+    scenario += c0.sign(id = alice, contractId = "1111").run(sender = alice)
+
+    # CREATE 
+    c1 = ProxyTokenController(
+        sp.record(PCC = False),
+        [superAdmin1, superAdmin2, superAdmin3], 
+        [admin1, admin2, admin3], 
+        [minter])
+    
+    scenario += c1
+
+    scenario += c1.build(
+        multisigId = "0000",
+        thresholdWeight = 1,
+        signers = [], 
+        groups = {"superAdmins": sp.record(thresholdVoters = 1, weight = 1),
+                  "admins": sp.record(thresholdVoters = 2, weight = 1)},
+        on_ok_call = sp.record(
+            targetAddress = target,
+            entry_point = "batch_mint",
+            adr1 = admin1, # Owner
+            adr2 = admin2, # Operator
+            bytes_list = [
+                sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
+            ],
+            stg_bytes_map = {},
+            nbr1 = 0,
+            nbr2 = 1,
+            bl = False
+        )
+    ).run(sender = admin2)
+    scenario += c1.sign(id = admin1, contractId = "0000").run(sender = admin1)
+    scenario += c1.sign(id = admin2, contractId = "0000").run(sender = admin2) 
