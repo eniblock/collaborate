@@ -42,7 +42,7 @@ public class FindBusinessDataService {
                 ))
                 .build()
         ).assetOwner(organizationService.getByWalletAddress(t.getTokenOwnerAddress()))
-        .assetId(StringUtils.substringAfter(t.getAssetId(), ":"))
+        .assetId(t.getAssetId())
         .tokenId(t.getTokenId())
         .tokenStatus(TokenStatus.CREATED)
         .build();
