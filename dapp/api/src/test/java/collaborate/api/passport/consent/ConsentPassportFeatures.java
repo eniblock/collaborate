@@ -10,7 +10,7 @@ public class ConsentPassportFeatures {
   }
 
   public static final String consentPassportTransactionJson = TestResources
-      .readPath("/passport/consent/sc.entrypoint.passportConsent.transaction.json");
+      .readContent("/passport/consent/sc.entrypoint.passportConsent.transaction.json");
 
   public static final TransactionBatch<Integer> consentPassportTransactionBatch =
       TestResources.readValue(

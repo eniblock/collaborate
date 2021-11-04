@@ -39,6 +39,7 @@ keycloak:
 
 transaction:
   tagClientUrl: ""
+  enabled: false
   watchers:
     fixedDelayInMs: 2000
 

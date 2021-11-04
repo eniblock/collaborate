@@ -11,7 +11,7 @@ import lombok.Data;
 public class OrganizationFeature {
 
   public static final String organizationTagResponseJson =
-      TestResources.readPath("/organizations/smartcontract/organization.storage.json");
+      TestResources.readContent("/organizations/smartcontract/organization.storage.json");
 
   public static final OrganizationDTO dspConsortium1Organization = new OrganizationDTO(
       "DSPConsortium1",

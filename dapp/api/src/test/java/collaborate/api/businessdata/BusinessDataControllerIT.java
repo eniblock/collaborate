@@ -1,15 +1,21 @@
 package collaborate.api.businessdata;
 
 import static collaborate.api.test.TestResources.asJsonString;
+import static collaborate.api.test.TestResources.readContent;
 import static java.util.Collections.emptyList;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import collaborate.api.businessdata.access.request.AccessRequestService;
 import collaborate.api.businessdata.find.FindBusinessDataService;
+import collaborate.api.config.ControllerExceptionHandler;
+import collaborate.api.nft.model.AssetDetailsDTO;
 import collaborate.api.test.config.KeycloakTestConfig;
 import collaborate.api.test.config.NoSecurityTestConfig;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,11 +32,17 @@ import org.springframework.web.context.WebApplicationContext;
 
 @WebMvcTest(BusinessDataController.class)
 @ContextConfiguration(
-    classes = {BusinessDataController.class, KeycloakTestConfig.class, NoSecurityTestConfig.class})
+    classes = {
+        BusinessDataController.class,
+        KeycloakTestConfig.class,
+        NoSecurityTestConfig.class,
+        ControllerExceptionHandler.class})
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
 class BusinessDataControllerIT {
 
+  @MockBean
+  AccessRequestService accessRequestService;
   @MockBean
   FindBusinessDataService findBusinessDataService;
 
@@ -40,7 +52,10 @@ class BusinessDataControllerIT {
 
   @BeforeEach
   void setUp() {
-    mockMvc = MockMvcBuilders.webAppContextSetup(context).alwaysDo(print()).build();
+    mockMvc = MockMvcBuilders
+        .webAppContextSetup(context)
+        .alwaysDo(print())
+        .build();
   }
 
   @Test
@@ -67,12 +82,14 @@ class BusinessDataControllerIT {
   }
 
   @Test
-  void grantAccess_shouldResultInBadRequest_withEmptyListElement() throws Exception {
+  void grantAccess_shouldResultInBadRequest_withInvalidListElement() throws Exception {
     // GIVEN
     // WHEN
     mockMvc
         .perform(post("/api/v1/business-data/grant-access")
-            .content(asJsonString(List.of("")))
+            .content(asJsonString(List.of(AssetDetailsDTO.builder()
+                .build()
+            )))
             .contentType(APPLICATION_JSON)
         )
         // THEN
@@ -82,11 +99,16 @@ class BusinessDataControllerIT {
   @Test
   void grantAccess_shouldResultInOk_withValidListElement() throws Exception {
     // GIVEN
+    var assetDetails = List.of(
+        readContent("/businessdata/asset-details.json", AssetDetailsDTO.class)
+    );
+    when(accessRequestService.requestAccess(assetDetails)).thenReturn(null);
     // WHEN
     mockMvc
         .perform(post("/api/v1/business-data/grant-access")
-            .content(asJsonString(List.of(1, 2)))
+            .content(asJsonString(assetDetails))
             .contentType(APPLICATION_JSON)
+            .characterEncoding(StandardCharsets.UTF_8)
         )
         // THEN
         .andExpect(status().isOk());
