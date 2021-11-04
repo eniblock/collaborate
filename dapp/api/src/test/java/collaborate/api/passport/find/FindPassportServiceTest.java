@@ -36,7 +36,7 @@ class FindPassportServiceTest {
     when(organizationService.getAllDspWallets())
         .thenReturn(organizationsWallets);
 
-    var passportsIndexerByDsp = TestResources.readPath(
+    var passportsIndexerByDsp = TestResources.readContent(
         "/passport/find/sc.nft_indexer.response.json",
         PassportsIndexerTagResponseDTO.class
     );

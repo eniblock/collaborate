@@ -1,6 +1,5 @@
 package collaborate.api.passport.metric;
 
-import static collaborate.api.test.TestResources.readPath;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -199,7 +198,7 @@ class MetricServiceTest {
             .value(path)
             .build()
     );
-    var jsonResponse = readPath("/passport/metric/metric.response.json");
+    var jsonResponse = TestResources.readContent("/passport/metric/metric.response.json");
     // WHEN
     var jsonNodeResult = metricService.extractValuePath(jsonResponse, metadata);
     // THEN
