@@ -58,7 +58,7 @@ class FindBusinessDataServiceTest {
                 ))
                 .build()
         ).assetOwner(organization)
-        .assetId("assetId")
+        .assetId("3636ff0b-2295-4750-a6b2-677c680e0bbb:assetId")
         .accessStatus(AccessStatus.LOCKED)
         .tokenStatus(TokenStatus.CREATED)
         .tokenId(11)
