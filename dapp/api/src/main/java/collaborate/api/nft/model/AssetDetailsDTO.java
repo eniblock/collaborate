@@ -3,12 +3,9 @@ package collaborate.api.nft.model;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.passport.model.AccessStatus;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
-import collaborate.api.passport.model.DatasourceDTO;
 import collaborate.api.passport.model.TokenStatus;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -46,15 +43,5 @@ public class AssetDetailsDTO {
 
   @Schema(description = "The token status of the the asset", example = "PENDING_CREATION")
   private TokenStatus tokenStatus;
-
-  @JsonIgnore
-  public long countScopes() {
-    return getAssetDataCatalog()
-        .getDatasources()
-        .stream()
-        .map(DatasourceDTO::getScopes)
-        .mapToLong(Set::size)
-        .sum();
-  }
 
 }
