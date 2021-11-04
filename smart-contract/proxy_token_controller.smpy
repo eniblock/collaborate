@@ -9,7 +9,9 @@ update_preconfigured_roles_type = sp.TList(
             add_minter = sp.TAddress,
             remove_minter = sp.TAddress,
             add_batch_minter = sp.TAddress,
-            remove_batch_minter = sp.TAddress
+            remove_batch_minter = sp.TAddress, 
+            add_multisig_builder = sp.TAddress,
+            remove_multisig_builder = sp.TAddress
         )
 )
 
@@ -79,12 +81,13 @@ multisig_build_params_type = sp.TRecord(
 
 
 class ProxyTokenController(sp.Contract):
-    def __init__(self, proxy_admin, super_admins, super_minters, minters, batch_minters):
+    def __init__(self, proxy_admins, super_admins, multisig_builders, super_minters, minters, batch_minters):
         self.init(
         #    config = config,
             multisigs = sp.big_map(),
-            proxy_admin = proxy_admin,
+            proxy_admins = sp.set(proxy_admins),
             super_admins = sp.set(super_admins),
+            multisig_builders = sp.set(multisig_builders),
             super_minters = sp.set(super_minters),
             minters = sp.set(minters),
             batch_minters = sp.set(batch_minters)
@@ -92,7 +95,7 @@ class ProxyTokenController(sp.Contract):
 
     @sp.entry_point
     def update_preconfigured_roles(self, params: update_preconfigured_roles_type):
-        sp.verify(self.data.proxy_admin == sp.sender, "senderIsNotAuthorized")
+        sp.verify(self.data.proxy_admins.contains(sp.sender), "senderIsNotAuthorized")
         sp.for update in params:
             with update.match_cases() as arg:
                 with arg.match("add_super_admin") as upd:
@@ -111,33 +114,20 @@ class ProxyTokenController(sp.Contract):
                     self.data.batch_minters.add(upd)    
                 with arg.match("remove_batch_minter") as upd:
                     self.data.batch_minters.remove(upd)    
+                with arg.match("add_multisig_builder") as upd:
+                    self.data.multisig_builders.add(upd)    
+                with arg.match("remove_multisig_builder") as upd:
+                    self.data.multisig_builders.remove(upd)    
 
 
     ## define  a multisig operation
     @sp.entry_point
     def build(self, params: multisig_build_params_type):
-        sp.verify(self.data.proxy_admin == sp.sender, "senderIsNotAuthorized")
+        sp.verify(self.data.multisig_builders.contains(sp.sender), "senderIsNotAuthorized")
         multisig_entry_points = sp.set({"batch_mint", "mint"})
         sp.verify(multisig_entry_points.contains(params.on_ok_call.entry_point), "UnknownEntryPoint")
         sp.verify(~self.data.multisigs.contains(params.multisig_id))
-        '''# verify participants according to the project
-        sp.if self.data.config.PCC:
-            sp.if sp.len(params.groups.keys()) == 0:
-                sp.verify(self.data.admins.contains(sp.sender), "senderIsNotAuthorized")
-                sp.verify(sp.sender == params.on_ok_call.adr2)
-                with sp.match_cons(params.signers) as x:
-                    signer = x.head
-                    sp.verify(
-                        (signer == params.on_ok_call.adr1) &
-                        (params.threshold_weight == 1)
-                        )
-            sp.else:
-                sp.if sp.len(params.groups.keys()) == 1:
-                    pass
-                sp.else:
-                    sp.failwith("UnauthorizedNumberOfSigners")
-        sp.else:
-            # TODO'''
+
         participants = sp.local('participants', sp.list([]))
         groups = sp.local('groups', sp.list([]))
         signers = sp.local('signers', sp.list([]))
@@ -259,6 +249,15 @@ class ProxyTokenController(sp.Contract):
     #### GN ENTRYPOINTS WITH DIRECT CALL####
 
     @sp.entry_point
+    def call_batch_mint(self, params):
+        sp.verify(self.data.batch_minters.contains(sp.sender), "senderIsNotAuthorized")
+        sp.transfer(
+            params.batch_mint_params,
+            sp.tez(0),
+            sp.contract(batch_mint_params_type, params.target_address, entry_point = "batch_mint").open_some()
+        )
+
+    @sp.entry_point
     def call_update_operators(self, params):
         sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
         sp.transfer(
@@ -325,13 +324,16 @@ def test():
 
     proxy_admin = sp.address("tz1caQoK6ZVwg6CVakpJo14nM43UhoG7TZ9J")
 
+    multisig_builder = proxy_admin
+
     target = sp.address("KT1aDD7H3WgbFgd7YeMn8UbqQeMXJ96kxvD5")
 
     #PCC
     ## put the real admins/super_admin addresses here, the contract will be initially deployed with the following parameters
     c0 = ProxyTokenController(
-        proxy_admin,
+        [proxy_admin],
         [super_admin1, super_admin2], 
+        [multisig_builder],
         [super_minter1, super_minter2], 
         [minter1, minter2], 
         [batch_minter])
@@ -374,14 +376,15 @@ def test():
             nbr2 = 1,
             bl = True
         )
-    ).run(sender = proxy_admin)
+    ).run(sender = multisig_builder)
     scenario += c0.sign(id = super_admin1, contractId = "1111").run(sender = super_admin1)
     scenario += c0.sign(id = alice, contractId = "1111").run(sender = alice)
 
     # CREATE 
     c1 = ProxyTokenController(
-        proxy_admin,
+        [proxy_admin],
         [super_admin1, super_admin2], 
+        [multisig_builder],
         [super_minter1, super_minter2], 
         [minter1, minter2], 
         [batch_minter])
@@ -408,7 +411,7 @@ def test():
             nbr2 = 1,
             bl = False
         )
-    ).run(sender = proxy_admin)
+    ).run(sender = multisig_builder)
     scenario += c1.sign(id = minter1, contractId = "0000").run(sender = minter1)
     scenario += c1.sign(id = minter2, contractId = "0000").run(sender = minter2) 
 
