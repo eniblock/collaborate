@@ -10,6 +10,7 @@ import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.passport.model.AccessStatus;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
 import collaborate.api.passport.model.DatasourceDTO;
+import collaborate.api.passport.model.TokenStatus;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -43,7 +44,11 @@ class FindBusinessDataServiceTest {
         .assetId("3636ff0b-2295-4750-a6b2-677c680e0bbb:assetId")
         .build();
 
-    AssetDetailsDTO assetDetails = AssetDetailsDTO.builder()
+    // WHEN
+    var assetDetailsResult = findBusinessDataService.toAssetDetails(tokenIndex);
+
+    // THEN
+    assertThat(assetDetailsResult).isEqualTo(AssetDetailsDTO.builder()
         .assetDataCatalog(
             AssetDataCatalogDTO.builder()
                 .datasources(List.of(DatasourceDTO.builder()
@@ -55,11 +60,8 @@ class FindBusinessDataServiceTest {
         ).assetOwner(organization)
         .assetId("assetId")
         .accessStatus(AccessStatus.LOCKED)
+        .tokenStatus(TokenStatus.CREATED)
         .tokenId(11)
-        .build();
-    // WHEN
-    var assetDetailsResult = findBusinessDataService.toAssetDetails(tokenIndex);
-    // THEN
-    assertThat(assetDetailsResult).isEqualTo(assetDetails);
+        .build());
   }
 }

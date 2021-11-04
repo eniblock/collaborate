@@ -6,6 +6,7 @@ import collaborate.api.organization.OrganizationService;
 import collaborate.api.passport.model.AccessStatus;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
 import collaborate.api.passport.model.DatasourceDTO;
+import collaborate.api.passport.model.TokenStatus;
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,6 +32,7 @@ public class FindBusinessDataService {
   AssetDetailsDTO toAssetDetails(TokenIndex t) {
 
     return AssetDetailsDTO.builder()
+        .accessStatus(AccessStatus.LOCKED)
         .assetDataCatalog(
             AssetDataCatalogDTO.builder()
                 .datasources(List.of(DatasourceDTO.builder()
@@ -42,7 +44,7 @@ public class FindBusinessDataService {
         ).assetOwner(organizationService.getByWalletAddress(t.getTokenOwnerAddress()))
         .assetId(StringUtils.substringAfter(t.getAssetId(), ":"))
         .tokenId(t.getTokenId())
-        .accessStatus(AccessStatus.LOCKED)
+        .tokenStatus(TokenStatus.CREATED)
         .build();
   }
 }
