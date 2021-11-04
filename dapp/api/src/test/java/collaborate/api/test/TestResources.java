@@ -49,4 +49,12 @@ public class TestResources {
       throw new IllegalStateException("Can't convert test resource", e);
     }
   }
+
+  public static String asJsonString(Object o) {
+    try {
+      return objectMapper.writeValueAsString(o);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Can't convert o to jsonString", e);
+    }
+  }
 }
