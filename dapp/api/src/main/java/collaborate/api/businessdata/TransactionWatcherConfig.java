@@ -1,7 +1,6 @@
 package collaborate.api.businessdata;
 
-import collaborate.api.businessdata.create.LogDataCatalogConsentHandler;
-import collaborate.api.businessdata.create.LogInitDataCatalogCreationHandler;
+import collaborate.api.businessdata.access.request.AccessRequestWatcher;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
@@ -13,7 +12,6 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
@@ -30,11 +28,10 @@ public class TransactionWatcherConfig {
   private final TransactionProperties transactionProperties;
   private final ObjectMapper objectMapper;
   private final ApiProperties apiProperties;
-  private final LogInitDataCatalogCreationHandler logInitDataCatalogCreationHandler;
-  private final LogDataCatalogConsentHandler logDataCatalogConsentHandler;
+  private final AccessRequestWatcher accessRequestWatcher;
 
   @EventListener
-  public void onApplicationEvent(ContextRefreshedEvent event) {
+  public void onApplicationEvent() {
     for (var watcherProperty : transactionProperties.getWatchers()) {
       if (watcherProperty.isSmartContract(apiProperties.getBusinessDataContractAddress())) {
         transactionWatcherPoolTaskScheduler.schedule(
@@ -64,8 +61,7 @@ public class TransactionWatcherConfig {
 
   private TransactionEventManager initBusinessDataEventManager() {
     var transactionEventManager = new TransactionEventManager();
-    transactionEventManager.subscribe(logInitDataCatalogCreationHandler);
-    transactionEventManager.subscribe(logDataCatalogConsentHandler);
+    transactionEventManager.subscribe(accessRequestWatcher);
     return transactionEventManager;
   }
 
