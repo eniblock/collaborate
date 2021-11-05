@@ -17,7 +17,7 @@ public class AccessRequestService {
   private final OrganizationService organizationService;
 
   public Job requestAccess(List<AssetDetailsDTO> assetDetailsDTOS) {
-    var requester = organizationService.getCurrentOrganizations().getAddress();
+    var requester = organizationService.getCurrentOrganization().getAddress();
     return accessRequestDAO.accessRequest(assetDetailsDTOS, requester);
   }
 }
