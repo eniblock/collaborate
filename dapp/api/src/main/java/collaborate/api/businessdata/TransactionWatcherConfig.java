@@ -1,6 +1,6 @@
 package collaborate.api.businessdata;
 
-import collaborate.api.businessdata.access.request.AccessRequestWatcher;
+import collaborate.api.businessdata.access.grant.AccessRequestWatcher;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;

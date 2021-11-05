@@ -1,10 +1,10 @@
-package collaborate.api.businessdata.access.request;
+package collaborate.api.businessdata.access.grant;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.businessdata.access.request.AccessRequestWatcherIT.TestConfig;
+import collaborate.api.businessdata.access.grant.AccessRequestWatcherIT.TestConfig;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.test.config.KeycloakTestConfig;
@@ -51,7 +51,6 @@ class AccessRequestWatcherIT {
       return organizationService;
     }
   }
-
 
   @Test
   void organizationWallet_shouldBeInitializedOnStartup() {

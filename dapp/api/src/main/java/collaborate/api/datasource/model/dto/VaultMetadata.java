@@ -1,7 +1,7 @@
 package collaborate.api.datasource.model.dto;
 
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
 import collaborate.api.datasource.security.BasicAuthCredentials;
-import collaborate.api.datasource.security.OAuth2ClientSecret;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -19,5 +19,5 @@ import lombok.NoArgsConstructor;
 public class VaultMetadata {
 
   private BasicAuthCredentials basicAuthCredentials;
-  private OAuth2ClientSecret oAuth2ClientSecret;
+  private OAuth2 oAuth2;
 }
