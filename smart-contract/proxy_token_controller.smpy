@@ -1,18 +1,32 @@
 import smartpy as sp
 
-update_preconfigured_roles_type = sp.TList(
+rule_type = sp.TRecord(
+    template_id = sp.TNat,
+    authorized_builders = sp.TSet(sp.TString) # group names
+)
+
+template_type = sp.TRecord(
+    contract_threshold = sp.TNat,
+    groups = sp.TMap(sp.TString, sp.TRecord(group_threshold = sp.TNat, group_weight = sp.TNat))
+)
+
+update_groups_type = sp.TList(
     sp.TVariant(
-            add_super_admin = sp.TAddress,
-            remove_super_admin = sp.TAddress,
-            add_super_minter = sp.TAddress,
-            remove_super_minter = sp.TAddress,
-            add_minter = sp.TAddress,
-            remove_minter = sp.TAddress,
-            add_batch_minter = sp.TAddress,
-            remove_batch_minter = sp.TAddress, 
-            add_multisig_builder = sp.TAddress,
-            remove_multisig_builder = sp.TAddress
-        )
+            add = sp.TMap(sp.TString, sp.TAddress),
+            remove = sp.TMap(sp.TString, sp.TAddress)
+    )
+)
+update_templates_type = sp.TList(
+    sp.TVariant(
+            update = sp.TMap(sp.TNat, template_type),
+            remove = sp.TList(sp.TNat)
+    )
+)
+update_rules_type = sp.TList(
+    sp.TVariant(
+            update = sp.TMap(sp.TString, rule_type),
+            remove = sp.TList(sp.TString)
+    )
 )
 
 contract_metadata_type = sp.TRecord(
@@ -63,119 +77,149 @@ mint_params_type = sp.TRecord(
 
 multisig_build_params_type = sp.TRecord(
     multisig_id = sp.TString,
-    threshold_weight = sp.TNat,
-    groups = sp.TMap(sp.TString, sp.TRecord(threshold_votes = sp.TNat, weight = sp.TNat)),
     signers = sp.TList(sp.TAddress),
-    on_ok_call = sp.TRecord(
+    build_and_sign = sp.TBool,
+    call_params = sp.TRecord(
         target_address = sp.TAddress,
         entry_point = sp.TString,
         adr1 = sp.TAddress,
         adr2 = sp.TAddress,
         bytes_list = sp.TList(sp.TBytes),
-        stg_bytes_map = token_metadata_type,
+        str_bytes_map = token_metadata_type,
         nbr1 = sp.TNat,
         nbr2 = sp.TNat,
+        str = sp.TString,
+        bytes = sp.TBytes,
         bl = sp.TBool # Conf variable, ex : update operator
         )
     )
 
 
 class ProxyTokenController(sp.Contract):
-    def __init__(self, proxy_admins, super_admins, multisig_builders, super_minters, minters, batch_minters):
+    def __init__(self, proxy_admins, groups, multisig_templates, rules):
         self.init(
-        #    config = config,
-            multisigs = sp.big_map(),
             proxy_admins = sp.set(proxy_admins),
-            super_admins = sp.set(super_admins),
-            multisig_builders = sp.set(multisig_builders),
-            super_minters = sp.set(super_minters),
-            minters = sp.set(minters),
-            batch_minters = sp.set(batch_minters)
+            multisigs = sp.big_map(),
+            #nb_multisigs = @TODO consecutive?!?
+            groups = sp.map(
+                l = groups, 
+                tkey = sp.TString, 
+                tvalue = sp.TSet(sp.TAddress)
+            ),
+            multisig_templates = sp.map(
+                l = multisig_templates, 
+                tkey = sp.TNat, 
+                tvalue = template_type
+            ),
+            rules = sp.map(
+                l = rules, 
+                tkey = sp.TString, # entrypoint
+                tvalue = rule_type
+            )
         )
 
     @sp.entry_point
-    def update_preconfigured_roles(self, params: update_preconfigured_roles_type):
+    def update_groups(self, params: update_groups_type):
         sp.verify(self.data.proxy_admins.contains(sp.sender), "senderIsNotAuthorized")
-        sp.for update in params:
-            with update.match_cases() as arg:
-                with arg.match("add_super_admin") as upd:
-                    self.data.super_admins.add(upd)    
-                with arg.match("remove_super_admin") as upd:
-                    self.data.super_admins.remove(upd)    
-                with arg.match("add_super_minter") as upd:
-                    self.data.super_minters.add(upd)    
-                with arg.match("remove_super_minter") as upd:
-                    self.data.super_minters.remove(upd)    
-                with arg.match("add_minter") as upd:
-                    self.data.minters.add(upd)    
-                with arg.match("remove_minter") as upd:
-                    self.data.minters.remove(upd)    
-                with arg.match("add_batch_minter") as upd:
-                    self.data.batch_minters.add(upd)    
-                with arg.match("remove_batch_minter") as upd:
-                    self.data.batch_minters.remove(upd)    
-                with arg.match("add_multisig_builder") as upd:
-                    self.data.multisig_builders.add(upd)    
-                with arg.match("remove_multisig_builder") as upd:
-                    self.data.multisig_builders.remove(upd)    
+        # TODO verify that TAG supports Variants
+        sp.for updates in params:
+            with updates.match_cases() as arg:
+                with arg.match("add") as upd:
+                    sp.for elt in upd.items():
+                        self.data.groups[elt.key].add(elt.value)    
+                with arg.match("remove") as upd:
+                    sp.for elt in upd.items():
+                        self.data.groups[elt.key].remove(elt.value)    
+
+    @sp.entry_point
+    def update_templates(self, params: update_templates_type):
+        sp.verify(self.data.proxy_admins.contains(sp.sender), "senderIsNotAuthorized")
+        # TODO verify that TAG supports Variants
+        sp.for updates in params:
+            with updates.match_cases() as arg:
+                with arg.match("update") as upd:
+                    sp.for elt in upd.items():
+                        self.data.multisig_templates[elt.key] = elt.value
+                with arg.match("remove") as upd:
+                    sp.for elt in upd:
+                        del self.data.multisig_templates[elt.key]
+
+    @sp.entry_point
+    def update_rules(self, params: update_groups_type):
+        sp.verify(self.data.proxy_admins.contains(sp.sender), "senderIsNotAuthorized")
+        # TODO verify that TAG supports Variants
+        sp.for updates in params:
+            with updates.match_cases() as arg:
+                with arg.match("update") as upd:
+                    sp.for elt in upd.items():
+                        self.data.groups[elt.key] = elt.value    
+                with arg.match("remove") as upd:
+                    sp.for elt in upd:
+                        del self.data.groups[elt.key]
 
 
-    ## define  a multisig operation
+    def _is_builder(self, sender: sp.TAddress, authorized_builders: sp.TSet(sp.TString)):
+        # empty set means that any one can build 
+        sp.if sp.len(authorized_builders) != 0:
+            authorized = sp.local('authorized', False)
+            sp.for group in authorized_builders.elements():
+                sp.verify(self.data.groups.contains(group), "UnknownGroup")
+                sp.for adr in self.data.groups[group].elements():
+                    sp.if sender == adr:
+                        authorized.value = True
+            sp.verify(authorized.value, "NotAuthorizedBuilder")
+                
+    # define a multisig contract
     @sp.entry_point
     def build(self, params: multisig_build_params_type):
-        sp.verify(self.data.multisig_builders.contains(sp.sender), "senderIsNotAuthorized")
-        multisig_entry_points = sp.set({"batch_mint", "mint"})
-        sp.verify(multisig_entry_points.contains(params.on_ok_call.entry_point), "UnknownEntryPoint")
-        sp.verify(~self.data.multisigs.contains(params.multisig_id))
+        sp.verify(self.data.rules.contains(params.call_params.entry_point), "UnknownEntryPoint")
+        sp.verify(~self.data.multisigs.contains(params.multisig_id), "InvalidMultisigId")
 
+        sp.verify(self.data.rules.contains(params.call_params.entry_point), "NoRuleForThisEntrypoint")
+        rule = self.data.rules[params.call_params.entry_point]
+        self._is_builder(sp.sender, rule.authorized_builders)
+
+        sp.verify(self.data.multisig_templates.contains(rule.template_id), "UnknownTemplate")
+        rule_template = self.data.multisig_templates[rule.template_id]
+        
         participants = sp.local('participants', sp.list([]))
         groups = sp.local('groups', sp.list([]))
-        signers = sp.local('signers', sp.list([]))
-        sp.for group in params.groups.items():
-            sp.if group.key == "super_minters":
-                signers.value = self.data.super_minters.elements()
-            sp.else:
-                sp.if group.key == "minters":
-                    signers.value = self.data.minters.elements()
-                sp.else:
-                    sp.failwith("UnknownGroup")
-            sp.for signer in signers.value:
-                participants.value.push(sp.record(hasVoted = False, id = signer))
+        sp.for group in rule_template.groups.items():
+        # empty string group means participants are passed in parameters
+            sp.if group.key == "": 
+                sp.for signer in params.signers:
+                    participants.value.push(sp.record(hasVoted = False, id = signer))
+            sp.else:  
+                sp.for signer in self.data.groups[group.key].elements():
+                    participants.value.push(sp.record(hasVoted = False, id = signer))                
             groups.value.push(sp.record(
                 participants = participants.value,
                 votes = 0,
                 ok = False,
-                threshold_votes = group.value.threshold_votes, 
-                weight = group.value.weight
+                group_threshold = group.value.group_threshold, 
+                group_weight = group.value.group_weight
             ))
             participants.value = sp.list([])
-            signers.value = sp.list([])
-
-        sp.if sp.len(params.signers) != 0:
-            sp.for signer in params.signers:
-                participants.value.push(sp.record(hasVoted = False, id = signer))
-            groups.value.push(sp.record(
-                participants = participants.value,
-                votes = 0,
-                ok = False,
-                threshold_votes = sp.len(params.signers), 
-                weight = 1
-            ))
 
         contract = sp.record(
              weight          = 0,
-             threshold_weight = params.threshold_weight,
+             contract_threshold = rule_template.contract_threshold,
              groups          = groups.value,
              ok              = False,
-             on_ok_call      = params.on_ok_call
+             call_params      = params.call_params
             )
         self.data.multisigs[params.multisig_id] = contract
+        sp.if params.build_and_sign:
+            self._sign(sp.record(contractId = params.multisig_id, id = sp.sender))
 
-    ## sign a multisig operation
+    # sign a multisig contract
     @sp.entry_point
     def sign(self, params):
+        sp.verify(params.id == sp.sender, "InvalidSender")
+        self._sign(params)
+
+    def _sign(self, params):
         id = params.id
-        sp.verify(id == sp.sender, "InvalidSender")
         contractId = params.contractId
         contract = self.data.multisigs[contractId]
         sp.for group in contract.groups:
@@ -184,35 +228,41 @@ class ProxyTokenController(sp.Contract):
                     sp.verify(~ participant.hasVoted, "ParticipantAlreadyVoted")
                     participant.hasVoted = True
                     group.votes += 1
-                    sp.if ~group.ok & (group.threshold_votes <= group.votes):
+                    sp.if ~group.ok & (group.group_threshold <= group.votes):
                         group.ok = True
-                        contract.weight += group.weight
-                        sp.if ~contract.ok & (contract.threshold_weight <= contract.weight):
+                        contract.weight += group.group_weight
+                        sp.if ~contract.ok & (contract.contract_threshold <= contract.weight):
                             contract.ok = True
-                            self.onOK(contract.on_ok_call)
-        '''sp.if contract.ok:
-            del self.data.multisigs[contractId]'''
+                            self.onOK(contract.call_params)
+
 
     def onOK(self, params):
         sp.if params.entry_point == "mint":
             self._call_mint(params)
+        sp.if params.entry_point == "update_operators":
+            self._call_update_operators(params)
+        sp.if params.entry_point == "transfer":
+            self._call_transfer(params)
+        sp.if params.entry_point == "set_pause":
+            self._call_set_pause(params)
+        sp.if params.entry_point == "set_metadata":
+            self._call_set_metadata(params)
+        sp.if params.entry_point == "set_administrator":
+            self._call_set_administrator(params)
         sp.if params.entry_point == "batch_mint":
             self._call_batch_mint(params)
 
 
 
-
-    #### GN ENTRYPOINTS WITH MULTISIG####
-
     def _call_mint(self, params):
-        mint_parameters = sp.record(
+        parameters = sp.record(
             token_id = params.nbr1, 
             address = params.adr1,
             amount = params.nbr2,
-            metadata = params.stg_bytes_map
+            metadata = params.str_bytes_map
             )
         sp.transfer(
-            mint_parameters,
+            parameters,
             sp.tez(0),
             sp.contract(mint_params_type, params.target_address, entry_point = "mint").open_some()
         )
@@ -232,75 +282,88 @@ class ProxyTokenController(sp.Contract):
                 sp.contract(update_operators_params_type, params.target_address, entry_point = "update_operators").open_some()
             )
             
+    def _call_update_operators(self, params):
+        parameters = [
+                sp.variant("add_operator", sp.record(
+                    owner = params.adr1,
+                    operator = params.adr2,
+                    token_id = params.nbr1
+                ))
+            ]
+        sp.transfer(
+            parameters,
+            sp.tez(0),
+            sp.contract(update_operators_params_type, params.target_address, entry_point = "update_operators").open_some()
+        )
+
+    def _call_transfer(self, params):
+        parameters = [
+            sp.record(
+                from_ = params.adr1,
+                txs = [
+                    sp.record(
+                        to_ = params.adr2,
+                        token_id = params.nbr1,
+                        amount = params.nbr2
+                    )
+                ]
+            )
+        ]
+        sp.transfer(
+            parameters,
+            sp.tez(0),
+            sp.contract(transfer_params_type, params.target_address, entry_point = "transfer").open_some()
+        )
+
+    def _call_set_pause(self, params):
+        parameters = params.bl
+        sp.transfer(
+            parameters,
+            sp.tez(0),
+            sp.contract(sp.TBool, params.target_address, entry_point = "set_pause").open_some()
+        )
+
+    def _call_set_metadata(self, params):
+        parameters = sp.record(k = params.str, v = params.bytes)
+        sp.transfer(
+            parameters,
+            sp.tez(0),
+            sp.contract(contract_metadata_type, params.target_address, entry_point = "set_metadata").open_some()
+        )
+
+    def _call_set_administrator(self, params):
+        parameters = params.adr1
+        sp.transfer(
+            parameters,
+            sp.tez(0),
+            sp.contract(sp.TAddress, params.target_address, entry_point = "set_administrator").open_some()
+        )
 
     def _call_batch_mint(self, params):
         parameters = sp.record(
             first_token_id = params.nbr1, 
             address = params.adr1,
             metadata_links = params.bytes_list
-            )
+        )
         sp.transfer(
             parameters,
             sp.tez(0),
             sp.contract(batch_mint_params_type, params.target_address, entry_point = "batch_mint").open_some()
         )
-
-
-    #### GN ENTRYPOINTS WITH DIRECT CALL####
-
-    @sp.entry_point
-    def call_batch_mint(self, params):
-        sp.verify(self.data.batch_minters.contains(sp.sender), "senderIsNotAuthorized")
-        sp.transfer(
-            params.batch_mint_params,
-            sp.tez(0),
-            sp.contract(batch_mint_params_type, params.target_address, entry_point = "batch_mint").open_some()
-        )
-
-    @sp.entry_point
-    def call_update_operators(self, params):
-        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
-        sp.transfer(
-            params.op_list,
-            sp.tez(0),
-            sp.contract(update_operators_params_type, params.targetAdr, entry_point = "update_operators").open_some()
-        )
-
-    @sp.entry_point
-    def call_transfer(self, params):
-        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
-        sp.transfer(
-            params.transfers,
-            sp.tez(0),
-            sp.contract(transfer_params_type, params.targetAdr, entry_point = "transfer").open_some()
-        )
-
-    @sp.entry_point
-    def call_set_pause(self, params):
-        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
-        sp.transfer(
-            params.paused,
-            sp.tez(0),
-            sp.contract(sp.TBool, params.targetAdr, entry_point = "set_pause").open_some()
-        )
-
-    @sp.entry_point
-    def call_set_metadata(self, params):
-        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
-        sp.transfer(
-            sp.record(k = params.k, v = params.v),
-            sp.tez(0),
-            sp.contract(contract_metadata_type, params.targetAdr, entry_point = "set_metadata").open_some()
-        )
-
-    @sp.entry_point
-    def call_set_administrator(self, params):
-        sp.verify(self.data.super_admins.contains(sp.sender), "senderIsNotAuthorized")
-        sp.transfer(
-            params.administrator,
-            sp.tez(0),
-            sp.contract(sp.TAddress, params.targetAdr, entry_point = "set_administrator").open_some()
-        )
+        # add operator along with the batch_mint
+        sp.if params.bl == True: 
+            add_op_parameters = sp.local('add_op_parameters', sp.list([]))
+            sp.for token_id in sp.range(params.nbr1, params.nbr1 + sp.len(params.bytes_list), step = 1):
+                add_op_parameters.value.push(sp.variant("add_operator", sp.record(
+                    owner = params.adr1,
+                    operator = params.adr2,
+                    token_id = token_id
+                )))
+            sp.transfer(
+                add_op_parameters.value,
+                sp.tez(0),
+                sp.contract(update_operators_params_type, params.target_address, entry_point = "update_operators").open_some()
+            )
 
 
 # Tests
@@ -309,8 +372,8 @@ def test():
 
     scenario = sp.test_scenario()
 
-    super_admin1 = sp.address("tz1PxztX893wouZdQmGVARX5c31Cbor354fv")
-    super_admin2 = sp.address("tz1R5Sd63TCC37g9wxEe8g3JQ3GYEq1oAv5j")
+    super_fa2_admin1 = sp.address("tz1PxztX893wouZdQmGVARX5c31Cbor354fv")
+    super_fa2_admin2 = sp.address("tz1R5Sd63TCC37g9wxEe8g3JQ3GYEq1oAv5j")
 
     super_minter1 = sp.address("tz1Tz45dBEsM5RDXCaj1Ut4ay6ZyHKamUBvT")
     super_minter2 = sp.address("tz1YjCQ9ATce6gJHTnmn7zZaBaLLWqKNcqdK")
@@ -328,115 +391,206 @@ def test():
 
     target = sp.address("KT1aDD7H3WgbFgd7YeMn8UbqQeMXJ96kxvD5")
 
+    groups = {
+        "super_fa2_admins": sp.set([super_fa2_admin1, super_fa2_admin2]),
+        "super_minters": sp.set([super_minter1, super_minter2]),
+        "minters": sp.set([minter1, minter2]),
+        "batch_minters": sp.set([batch_minter]),
+        "multisig_builders": sp.set([multisig_builder])
+        }
+
+    multisig_templates = {
+        0: sp.record(
+                contract_threshold = 1,
+                groups = {
+                    "super_fa2_admins": sp.record(group_threshold = 1, group_weight = 1)
+                }
+            ),
+        1: sp.record(
+                contract_threshold = 3,
+                groups = {
+                    "super_minters": sp.record(group_threshold = 1, group_weight = 1),
+                    "minters": sp.record(group_threshold = 2, group_weight = 1),
+                    "": sp.record(group_threshold = 1, group_weight = 2)
+                }
+            ),
+        2: sp.record(
+                contract_threshold = 1,
+                groups = {
+                    "batch_minters": sp.record(group_threshold = 1, group_weight = 1)
+                }
+            )
+    }
+
+    rules = {
+        "mint": sp.record(
+            template_id = 1,
+            authorized_builders = sp.set(["multisig_builders"])
+        ),
+        "batch_mint": sp.record(
+            template_id = 2,
+            authorized_builders = sp.set(["multisig_builders", "batch_minters"])
+        ),
+        "set_administrator": sp.record(
+            template_id = 0,
+            authorized_builders = sp.set(["super_fa2_admins"])
+        ),
+        "update_operators": sp.record(
+            template_id = 0,
+            authorized_builders = sp.set(["super_fa2_admins"])
+        ),
+        "transfer": sp.record(
+            template_id = 0,
+            authorized_builders = sp.set(["super_fa2_admins"])
+        ),
+        "set_pause": sp.record(
+            template_id = 0,
+            authorized_builders = sp.set(["super_fa2_admins"])
+        ),
+        "set_metadata": sp.record(
+            template_id = 0,
+            authorized_builders = sp.set([]) # in order to test if anyone can build when the list is empty
+        )
+    }
+    
     #PCC
-    ## put the real admins/super_admin addresses here, the contract will be initially deployed with the following parameters
+    ## put the real initiator parameters, the contract will be initially deployed with the following parameters
     c0 = ProxyTokenController(
-        [proxy_admin],
-        [super_admin1, super_admin2], 
-        [multisig_builder],
-        [super_minter1, super_minter2], 
-        [minter1, minter2], 
-        [batch_minter])
+        [proxy_admin], 
+        groups, 
+        multisig_templates,
+        rules
+        )
     scenario += c0
     
     # DigitalPassport
     scenario += c0.build(
+        build_and_sign = False,
         multisig_id = "0000",
-        threshold_weight = 1,
         signers = [alice], # Owner
-        groups = {},
-        on_ok_call = sp.record(
+        call_params = sp.record(
             target_address = target,
             entry_point = "mint",
             adr1 = alice, # Owner
-            adr2 = minter2, # Operator
+            adr2 = super_minter1, # Operator
             bytes_list = [],
-            stg_bytes_map = {"": sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")},
+            str_bytes_map = {"": sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")},
             nbr1 = 0,
             nbr2 = 1,
-            bl = False
+            bytes = sp.bytes("0x"),
+            str = "",
+            bl = True
         )
-    ).run(sender = proxy_admin)
+    ).run(sender = multisig_builder)
     scenario += c0.sign(id = alice, contractId = "0000").run(sender = alice)
+    scenario += c0.sign(id = super_minter1, contractId = "0000").run(sender = super_minter1)
     
     # DATA Catalog
     scenario += c0.build(
         multisig_id = "1111",
-        threshold_weight = 2,
-        signers = [alice],
-        groups = {"super_minters": sp.record(threshold_votes = 1, weight = 1)},
-        on_ok_call = sp.record(
-            target_address = target,
-            entry_point = "mint",
-            adr1 = alice,
-            adr2 = minter2,
-            bytes_list = [],
-            stg_bytes_map = {},
-            nbr1 = 1,
-            nbr2 = 1,
-            bl = True
-        )
-    ).run(sender = multisig_builder)
-    scenario += c0.sign(id = super_admin1, contractId = "1111").run(sender = super_admin1)
-    scenario += c0.sign(id = alice, contractId = "1111").run(sender = alice)
-
-    # CREATE 
-    c1 = ProxyTokenController(
-        [proxy_admin],
-        [super_admin1, super_admin2], 
-        [multisig_builder],
-        [super_minter1, super_minter2], 
-        [minter1, minter2], 
-        [batch_minter])
-    
-    scenario += c1
-
-    scenario += c1.build(
-        multisig_id = "0000",
-        threshold_weight = 1,
-        signers = [], 
-        groups = {"super_minters": sp.record(threshold_votes = 1, weight = 1),
-                  "minters": sp.record(threshold_votes = 2, weight = 1)},
-        on_ok_call = sp.record(
+        build_and_sign = True,
+        signers = [],
+        call_params = sp.record(
             target_address = target,
             entry_point = "batch_mint",
-            adr1 = minter1, # Owner
-            adr2 = minter2, # Operator
+            adr1 = alice,
+            adr2 = minter2,
             bytes_list = [
                 sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
                 sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
             ],
-            stg_bytes_map = {},
+            str_bytes_map = {},
+            nbr1 = 1,
+            nbr2 = 1,
+            bytes = sp.bytes("0x"),
+            str = "",
+            bl = True
+        )
+    ).run(sender = batch_minter)
+
+    # CREATE 
+
+    scenario += c0.build(
+        multisig_id = "2222",
+        build_and_sign = False,
+        signers = [], 
+        call_params = sp.record(
+            target_address = target,
+            entry_point = "batch_mint",
+            adr1 = alice,
+            adr2 = minter2,
+            bytes_list = [
+                sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
+            ],
+            str_bytes_map = {},
             nbr1 = 0,
             nbr2 = 1,
+            bytes = sp.bytes("0x"),
+            str = "",
             bl = False
         )
-    ).run(sender = multisig_builder)
-    scenario += c1.sign(id = minter1, contractId = "0000").run(sender = minter1)
-    scenario += c1.sign(id = minter2, contractId = "0000").run(sender = minter2) 
+    ).run(sender = batch_minter)
 
-    # Test registered roles update
+    # Non authorized builder
+    scenario += c0.build(
+        multisig_id = "3333",
+        build_and_sign = True,
+        signers = [], 
+        call_params = sp.record(
+            target_address = target,
+            entry_point = "transfer",
+            adr1 = alice, 
+            adr2 = minter2, 
+            bytes_list = [],
+            str_bytes_map = {},
+            nbr1 = 0,
+            nbr2 = 1,
+            bytes = sp.bytes("0x"),
+            str = "",
+            bl = False
+        )
+    ).run(sender = alice, valid = False)
 
-    scenario.verify(c1.data.super_admins.contains(super_admin2))
-    scenario += c1.update_preconfigured_roles([sp.variant("remove_super_admin", super_admin2)]).run(sender = proxy_admin)
-    scenario.verify(~ c1.data.super_admins.contains(super_admin2))
-    scenario += c1.update_preconfigured_roles([sp.variant("add_super_admin", super_admin2)]).run(sender = proxy_admin)
-    scenario.verify(c1.data.super_admins.contains(super_admin2))
+    scenario += c0.build(
+        multisig_id = "3333",
+        build_and_sign = True,
+        signers = [], 
+        call_params = sp.record(
+            target_address = target,
+            entry_point = "transfer",
+            adr1 = alice, 
+            adr2 = minter2, 
+            bytes_list = [],
+            str_bytes_map = {},
+            nbr1 = 0,
+            nbr2 = 1,
+            bytes = sp.bytes("0x"),
+            str = "",
+            bl = False
+        )
+    ).run(sender = super_fa2_admin1)
+ 
+    # anyone can build when the list is empty
 
-    scenario.verify(c1.data.super_minters.contains(super_minter2))
-    scenario += c1.update_preconfigured_roles([sp.variant("remove_super_minter", super_minter2)]).run(sender = proxy_admin)
-    scenario.verify(~ c1.data.super_minters.contains(super_minter2))
-    scenario += c1.update_preconfigured_roles([sp.variant("add_super_minter", super_minter2)]).run(sender = proxy_admin)
-    scenario.verify(c1.data.super_minters.contains(super_minter2))        
-    
-    scenario.verify(c1.data.minters.contains(minter2))
-    scenario += c1.update_preconfigured_roles([sp.variant("remove_minter", minter2)]).run(sender = proxy_admin)
-    scenario.verify(~ c1.data.minters.contains(minter2))
-    scenario += c1.update_preconfigured_roles([sp.variant("add_minter", minter2)]).run(sender = proxy_admin)
-    scenario.verify(c1.data.minters.contains(minter2))        
-    
-    scenario.verify(c1.data.batch_minters.contains(batch_minter))
-    scenario += c1.update_preconfigured_roles([sp.variant("remove_batch_minter", batch_minter)]).run(sender = proxy_admin)
-    scenario.verify(~ c1.data.batch_minters.contains(batch_minter))
-    scenario += c1.update_preconfigured_roles([sp.variant("add_batch_minter", batch_minter)]).run(sender = proxy_admin)
-    scenario.verify(c1.data.batch_minters.contains(batch_minter))
+    scenario += c0.build(
+        multisig_id = "4444",
+        build_and_sign = False,
+        signers = [], 
+        call_params = sp.record(
+            target_address = target,
+            entry_point = "set_metadata",
+            adr1 = alice, 
+            adr2 = minter2, 
+            bytes_list = [],
+            str_bytes_map = {},
+            nbr1 = 0,
+            nbr2 = 1,
+            bytes = sp.bytes("0x"),
+            str = "",
+            bl = False
+        )
+    )
+
+    # Test groups, templates and rules update
+    # @TODO
