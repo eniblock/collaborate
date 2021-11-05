@@ -1,4 +1,5 @@
-package collaborate.api.businessdata.access.request;
+package collaborate.api.businessdata.access.granted
+    ;
 
 import static collaborate.api.businessdata.access.request.AccessRequestDAO.REQUEST_ACCESS_ENTRY_POINT;
 
@@ -13,7 +14,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class AccessRequestWatcher implements TransactionHandler {
+public class GrantAccessWatcher implements TransactionHandler {
 
   private final OrganizationService organizationService;
   String organizationWallet = "";
@@ -31,8 +32,9 @@ public class AccessRequestWatcher implements TransactionHandler {
   }
 
   boolean isRequestAccessForCurrentOrganisation(Transaction transaction) {
-    boolean isRequestAccessTransaction = REQUEST_ACCESS_ENTRY_POINT.equals(
-        transaction.getEntrypoint());
+    boolean isRequestAccessTransaction = REQUEST_ACCESS_ENTRY_POINT
+        .equals(transaction.getEntrypoint());
+
     if (isRequestAccessTransaction) {
       var providerAddress = transaction.getParameters().get("provider_address");
       return providerAddress != null && organizationWallet.equals(providerAddress.asText());

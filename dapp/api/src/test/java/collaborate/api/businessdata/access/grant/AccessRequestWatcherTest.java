@@ -1,4 +1,4 @@
-package collaborate.api.businessdata.access.request;
+package collaborate.api.businessdata.access.grant;
 
 
 import static collaborate.api.test.TestResources.objectMapper;
