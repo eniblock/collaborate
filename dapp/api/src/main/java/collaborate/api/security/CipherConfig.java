@@ -1,4 +1,4 @@
-package collaborate.api.config;
+package collaborate.api.security;
 
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;

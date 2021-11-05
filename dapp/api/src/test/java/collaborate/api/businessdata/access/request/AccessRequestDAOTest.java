@@ -42,14 +42,14 @@ class AccessRequestDAOTest {
     assertThat(accessRequests).containsExactlyInAnyOrderElementsOf(
         List.of(
             AccessRequestParams.builder()
-                .id(expectedUUID)
+                .scope("customers-analytics-a")
                 .datasourceId("29dba35d-80b5-4e48-ad8b-602b01be843c")
                 .scope("customers-analytics-a")
                 .requesterAddress(requesterWallet)
                 .providerAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
                 .build(),
             AccessRequestParams.builder()
-                .id(expectedUUID)
+                .scope("customers-analytics-b")
                 .datasourceId("1288d1f4-3674-4efb-8ec0-c5e6a4bcffd7")
                 .scope("customers-analytics-b")
                 .requesterAddress(requesterWallet)

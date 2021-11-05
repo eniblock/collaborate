@@ -24,10 +24,10 @@ import org.springframework.web.client.RestTemplate;
 public class RequestEntityVisitor implements
     AuthenticationVisitor<Supplier<ResponseEntity<JsonNode>>> {
 
-  private final RequestEntityBuilder<?> requestEntityBuilder;
-  private final HttpClientFactory httpClientFactory;
-  private final SSLContextFactory sslContextCreator;
   private final OAuth2JWTProvider oAuth2JWTProvider;
+  private final HttpClientFactory httpClientFactory;
+  private final RequestEntityBuilder<?> requestEntityBuilder;
+  private final SSLContextFactory sslContextCreator;
 
   @Override
   public Supplier<ResponseEntity<JsonNode>> visitBasicAuth(BasicAuth basicAuth) {

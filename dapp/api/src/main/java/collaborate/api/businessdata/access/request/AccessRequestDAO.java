@@ -64,7 +64,7 @@ public class AccessRequestDAO {
       String providerAddress
   ) {
     return AccessRequestParams.builder()
-        .id(uuidGenerator.randomUUID())
+        .scope(datasourceDTO.getAssetIdForDatasource())
         .datasourceId(datasourceDTO.getId())
         .scope(datasourceDTO.getAssetIdForDatasource())
         .requesterAddress(requesterWallet)

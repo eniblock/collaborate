@@ -13,14 +13,14 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class GrantAccessDAO {
 
-  public static final String REQUEST_ACCESS_ENTRY_POINT = "grantAccess";
+  public static final String GRANT_ACCESS_ENTRY_POINT = "grantAccess";
   private final ApiProperties apiProperties;
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
 
   public Job grantAccess(AccessGrantParams accessGrantParams) {
     var transactions = transactionBatchFactory.createEntryPointJob(
-        REQUEST_ACCESS_ENTRY_POINT,
+        GRANT_ACCESS_ENTRY_POINT,
         accessGrantParams,
         Optional.empty(),
         apiProperties.getDigitalPassportContractAddress()
