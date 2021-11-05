@@ -1,7 +1,7 @@
 package collaborate.api.businessdata.access.granted
     ;
 
-import static collaborate.api.businessdata.access.request.AccessRequestDAO.REQUEST_ACCESS_ENTRY_POINT;
+import static collaborate.api.businessdata.access.grant.GrantAccessDAO.GRANT_ACCESS_ENTRY_POINT;
 
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.transaction.Transaction;
@@ -26,18 +26,18 @@ public class GrantAccessWatcher implements TransactionHandler {
 
   @Override
   public void handle(Transaction transaction) {
-    if (isRequestAccessForCurrentOrganisation(transaction)) {
+    if (isGrantAccessForCurrentOrganisation(transaction)) {
       log.info("New accessRequest with parameters={}", transaction.getParameters());
     }
   }
 
-  boolean isRequestAccessForCurrentOrganisation(Transaction transaction) {
-    boolean isRequestAccessTransaction = REQUEST_ACCESS_ENTRY_POINT
+  boolean isGrantAccessForCurrentOrganisation(Transaction transaction) {
+    boolean isRequestAccessTransaction = GRANT_ACCESS_ENTRY_POINT
         .equals(transaction.getEntrypoint());
 
     if (isRequestAccessTransaction) {
-      var providerAddress = transaction.getParameters().get("provider_address");
-      return providerAddress != null && organizationWallet.equals(providerAddress.asText());
+      var requesterAddress = transaction.getParameters().get("requester_address");
+      return requesterAddress != null && organizationWallet.equals(requesterAddress.asText());
     }
     return false;
   }

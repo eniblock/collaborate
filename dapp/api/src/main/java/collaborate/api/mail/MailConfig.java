@@ -1,4 +1,4 @@
-package collaborate.api.config;
+package collaborate.api.mail;
 
 import java.util.Collections;
 import org.springframework.context.annotation.Bean;

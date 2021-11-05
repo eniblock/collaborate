@@ -6,13 +6,17 @@ import collaborate.api.datasource.OAuth2JWTProvider;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.organization.OrganizationService;
+import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.security.CipherService;
 import collaborate.api.transaction.Transaction;
 import collaborate.api.user.tag.TezosApiGatewayUserClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.security.InvalidKeyException;
 import java.security.PublicKey;
 import java.util.Optional;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
@@ -50,11 +54,10 @@ public class AccessGrantService {
       AccessTokenResponse accessTokenResponse) {
     try {
       var currentOrganization = organizationService.getCurrentOrganization();
-      PublicKey publicKey = CipherService.getKey(currentOrganization.getEncryptionKey());
-      String cipheredToken = cipherService.cipher(accessTokenResponse.getAccessToken(), publicKey);
+      String cipheredToken = cipherToken(accessTokenResponse, currentOrganization);
 
       return AccessGrantParams.builder()
-          .id(accessRequestParams.getId())
+          .scopeId(accessRequestParams.getScope())
           .jwtToken(cipheredToken)
           .providerAddress(currentOrganization.getAddress())
           .requesterAddress(accessRequestParams.getRequesterAddress())
@@ -63,6 +66,13 @@ public class AccessGrantService {
       log.error(e.getMessage());
       throw new IllegalStateException(e);
     }
+  }
+
+  private String cipherToken(AccessTokenResponse accessTokenResponse,
+      OrganizationDTO currentOrganization)
+      throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    PublicKey publicKey = CipherService.getKey(currentOrganization.getEncryptionKey());
+    return cipherService.cipher(accessTokenResponse.getAccessToken(), publicKey);
   }
 
   private VaultMetadata getVaultMetadata(AccessRequestParams accessRequestParams) {
