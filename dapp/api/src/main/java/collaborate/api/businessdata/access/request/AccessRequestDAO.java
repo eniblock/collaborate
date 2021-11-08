@@ -22,27 +22,26 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class AccessRequestDAO {
 
-  public static final String REQUEST_ACCESS_ENTRY_POINT = "requestAccess";
+  public static final String REQUEST_ACCESS_ENTRY_POINT = "request_access";
   private final ApiProperties apiProperties;
   private final TezosApiGatewayJobClient tezosApiGatewayClient;
   private final TransactionBatchFactory transactionBatchFactory;
   private final UUIDGenerator uuidGenerator;
 
-  public Job accessRequest(List<AssetDetailsDTO> assetDetailsDTOs, String requesterWallet) {
+  public Job accessRequest(List<AssetDetailsDTO> assetDetailsDTOs) {
     var transactions = assetDetailsDTOs.stream()
-        .flatMap(a -> toTransactionsStream(a, requesterWallet))
+        .flatMap(this::toTransactionsStream)
         .collect(toList());
 
     return tezosApiGatewayClient.sendTransactionBatch(
         new TransactionBatch<>(transactions, ORGANIZATION_SECURE_KEY_NAME));
   }
 
-  Stream<Transaction<AccessRequestParams>> toTransactionsStream(AssetDetailsDTO assetDetailsDTO,
-      String requesterWallet) {
+  Stream<Transaction<AccessRequestParams>> toTransactionsStream(AssetDetailsDTO assetDetailsDTO) {
     return assetDetailsDTO.getAssetDataCatalog().getDatasources().stream()
         .map(d -> toAccessRequestParam(
+                assetDetailsDTO.getTokenId(),
                 d,
-                requesterWallet,
                 // FIXME provider Address should be valued from the datasource owner field
                 assetDetailsDTO.getAssetOwner().getAddress()
             )
@@ -50,24 +49,19 @@ public class AccessRequestDAO {
         .map(this::toTransaction);
   }
 
-  public Transaction<AccessRequestParams> toTransaction(AccessRequestParams accessRequest) {
+  public Transaction<AccessRequestParams> toTransaction(AccessRequestParams accessRequestParams) {
     return Transaction.<AccessRequestParams>builder()
         .contractAddress(apiProperties.getBusinessDataContractAddress())
         .entryPoint(REQUEST_ACCESS_ENTRY_POINT)
-        .entryPointParams(accessRequest)
+        .entryPointParams(accessRequestParams)
         .build();
   }
 
-  AccessRequestParams toAccessRequestParam(
-      DatasourceDTO datasourceDTO,
-      String requesterWallet,
-      String providerAddress
-  ) {
+  AccessRequestParams toAccessRequestParam(Integer tokenId, DatasourceDTO datasourceDTO,
+      String providerAddress) {
     return AccessRequestParams.builder()
-        .scope(datasourceDTO.getAssetIdForDatasource())
-        .datasourceId(datasourceDTO.getId())
-        .scope(datasourceDTO.getAssetIdForDatasource())
-        .requesterAddress(requesterWallet)
+        .nftId(tokenId)
+        .scopes(List.of(datasourceDTO.getId() + ":" + datasourceDTO.getAssetIdForDatasource()))
         .providerAddress(providerAddress)
         .build();
   }

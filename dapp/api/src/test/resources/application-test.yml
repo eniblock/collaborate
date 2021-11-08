@@ -16,6 +16,9 @@ spring:
       - org.springframework.boot.autoconfigure.orm.jpa.HibernateJpaAutoConfiguration
       - org.springframework.boot.autoconfigure.jdbc.DataSourceTransactionManagerAutoConfiguration
 
+tezos-api-gateway:
+  url: "127.0.0.1:1084"
+
 transaction:
   tag-client-url: ""
   watchers:

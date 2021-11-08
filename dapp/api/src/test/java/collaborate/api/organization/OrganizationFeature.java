@@ -1,10 +1,16 @@
 package collaborate.api.organization;
 
+import static collaborate.api.test.TestResources.readContent;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.model.OrganizationRole;
 import collaborate.api.test.TestResources;
 import java.util.List;
 import lombok.Data;
+import org.mockserver.integration.ClientAndServer;
+import org.mockserver.model.Header;
 
 
 @Data
@@ -26,4 +32,18 @@ public class OrganizationFeature {
       List.of(OrganizationRole.BSP)
   );
 
+  public static void mockTagOrganizationsStorage(ClientAndServer mockServer) {
+    mockServer.when(
+        request()
+            .withMethod("POST")
+            .withPath("/api/tezos_node/storage/KT1VzQ7jB8hXSk5iddUtGoraXx8Cd329ftJE")
+    ).respond(
+        response()
+            .withStatusCode(200)
+            .withHeaders(
+                new Header("Content-Type", "application/json; charset=utf-8")
+            )
+            .withBody(readContent("/organization/organization-sc-storage.json"))
+    );
+  }
 }

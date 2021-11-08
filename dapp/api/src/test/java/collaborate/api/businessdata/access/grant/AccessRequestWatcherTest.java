@@ -51,8 +51,8 @@ class AccessRequestWatcherTest {
 
   private static Stream<Arguments> isRequestAccessForCurrentOrganisationParams() {
     return Stream.of(
-        Arguments.of("requestAccess", PROVIDER_ADDRESS, true),
-        Arguments.of("requestAccess", "wrongProvider", false),
+        Arguments.of("request_access", PROVIDER_ADDRESS, true),
+        Arguments.of("request_access", "wrongProvider", false),
         Arguments.of("wrongEntrypoint", PROVIDER_ADDRESS, false),
         Arguments.of("wrongEntrypoint", "wrongProvider", false)
     );

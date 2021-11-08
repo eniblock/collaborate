@@ -6,7 +6,6 @@ api:
 
 transaction:
   tag-client-url:
-  enabled: true
   watchers:
 
 datasource:
@@ -22,7 +21,7 @@ token-metadata:
 ipfs:
   url:
   update-ipns-keys:
-    fixed-delay-in-ms: '300000'
+    fixed-delay-in-ms: '30000'
     initial-delay-in-ms: '5000'
 
 keycloak-admin-client-properties:

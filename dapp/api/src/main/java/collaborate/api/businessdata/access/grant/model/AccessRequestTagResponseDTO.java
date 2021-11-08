@@ -1,9 +1,11 @@
-package collaborate.api.businessdata.access.request.model;
+package collaborate.api.businessdata.access.grant.model;
 
+import collaborate.api.businessdata.access.request.model.AccessRequest;
+import collaborate.api.tag.model.TagEntry;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import java.io.Serializable;
 import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,12 +14,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder(toBuilder = true)
+@Builder
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class AccessRequestParams implements Serializable {
+public class AccessRequestTagResponseDTO {
 
-  private Integer nftId;
-  private List<String> scopes;
-  private String providerAddress;
+  private List<TagEntry<UUID, AccessRequest>> accessRequests;
 
 }

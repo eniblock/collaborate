@@ -1,5 +1,8 @@
-package collaborate.api.businessdata.find;
+package collaborate.api.businessdata;
 
+import collaborate.api.businessdata.access.grant.model.AccessRequestTagResponseDTO;
+import collaborate.api.businessdata.find.IndexerTagResponseDTO;
+import collaborate.api.passport.find.MultisigTagResponseDTO;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -14,4 +17,13 @@ public interface TAGBusinessDataClient {
   IndexerTagResponseDTO getPassportsIndexer(
       @PathVariable String contractAddress,
       @RequestBody DataFieldsRequest<MapQuery<String>> request);
+
+  @PostMapping("/tezos_node/storage/{contractAddress}")
+  MultisigTagResponseDTO getMultisigs(@PathVariable String contractAddress,
+      @RequestBody DataFieldsRequest<MapQuery<Integer>> request);
+
+  @PostMapping("/tezos_node/storage/{contractAddress}")
+  AccessRequestTagResponseDTO getAccessRequests(@PathVariable String contractAddress,
+      @RequestBody DataFieldsRequest<MapQuery<Object>> request);
+
 }
