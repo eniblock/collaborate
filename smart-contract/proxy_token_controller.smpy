@@ -1,33 +1,6 @@
 import smartpy as sp
 
-rule_type = sp.TRecord(
-    template_id = sp.TNat,
-    authorized_builders = sp.TSet(sp.TString) # group names
-)
-
-template_type = sp.TRecord(
-    contract_threshold = sp.TNat,
-    groups = sp.TMap(sp.TString, sp.TRecord(group_threshold = sp.TNat, group_weight = sp.TNat))
-)
-
-update_groups_type = sp.TList(
-    sp.TVariant(
-            add = sp.TMap(sp.TString, sp.TAddress),
-            remove = sp.TMap(sp.TString, sp.TAddress)
-    )
-)
-update_templates_type = sp.TList(
-    sp.TVariant(
-            update = sp.TMap(sp.TNat, template_type),
-            remove = sp.TList(sp.TNat)
-    )
-)
-update_rules_type = sp.TList(
-    sp.TVariant(
-            update = sp.TMap(sp.TString, rule_type),
-            remove = sp.TList(sp.TString)
-    )
-)
+################## FA2 Entrypoint parameters types ##################
 
 contract_metadata_type = sp.TRecord(
     k = sp.TString,
@@ -75,6 +48,18 @@ mint_params_type = sp.TRecord(
     metadata = token_metadata_type
     )
 
+fa2_params_types = {
+    "mint": mint_params_type,
+    "update_operators": update_operators_params_type,
+    "transfer": transfer_params_type,
+    "set_pause": sp.TBool,
+    "set_metadata": contract_metadata_type,
+    "set_administrator": sp.TAddress,
+    "batch_mint": batch_mint_params_type
+    } 
+
+################## Proxy types ##################
+
 multisig_build_params_type = sp.TRecord(
     multisig_id = sp.TString,
     signers = sp.TList(sp.TAddress),
@@ -82,17 +67,46 @@ multisig_build_params_type = sp.TRecord(
     call_params = sp.TRecord(
         target_address = sp.TAddress,
         entry_point = sp.TString,
-        adr1 = sp.TAddress,
-        adr2 = sp.TAddress,
-        bytes_list = sp.TList(sp.TBytes),
-        str_bytes_map = token_metadata_type,
-        nbr1 = sp.TNat,
-        nbr2 = sp.TNat,
-        str = sp.TString,
-        bytes = sp.TBytes,
-        bl = sp.TBool # Conf variable, ex : update operator
+        parameters = sp.TVariant(
+            mint = sp.TRecord(mint = mint_params_type, operator = sp.TOption(sp.TAddress)),
+            update_operators = update_operators_params_type,
+            transfer = transfer_params_type,
+            set_pause = sp.TBool,
+            set_metadata = contract_metadata_type,
+            set_administrator = sp.TAddress,
+            batch_mint = sp.TRecord(batch_mint = batch_mint_params_type, operator = sp.TOption(sp.TAddress))         
+            )
         )
     )
+
+rule_type = sp.TRecord(
+    template_id = sp.TNat,
+    authorized_builders = sp.TSet(sp.TString) # group names
+)
+
+template_type = sp.TRecord(
+    contract_threshold = sp.TNat,
+    groups = sp.TMap(sp.TString, sp.TRecord(group_threshold = sp.TNat, group_weight = sp.TNat))
+)
+
+update_groups_type = sp.TList(
+    sp.TVariant(
+            add = sp.TMap(sp.TString, sp.TAddress),
+            remove = sp.TMap(sp.TString, sp.TAddress)
+    )
+)
+update_templates_type = sp.TList(
+    sp.TVariant(
+            update = sp.TMap(sp.TNat, template_type),
+            remove = sp.TList(sp.TNat)
+    )
+)
+update_rules_type = sp.TList(
+    sp.TVariant(
+            update = sp.TMap(sp.TString, rule_type),
+            remove = sp.TList(sp.TString)
+    )
+)
 
 
 class ProxyTokenController(sp.Contract):
@@ -130,7 +144,7 @@ class ProxyTokenController(sp.Contract):
                 with arg.match("remove") as upd:
                     sp.for elt in upd.items():
                         self.data.groups[elt.key].remove(elt.value)    
-
+ 
     @sp.entry_point
     def update_templates(self, params: update_templates_type):
         sp.verify(self.data.proxy_admins.contains(sp.sender), "senderIsNotAuthorized")
@@ -172,7 +186,6 @@ class ProxyTokenController(sp.Contract):
     # define a multisig contract
     @sp.entry_point
     def build(self, params: multisig_build_params_type):
-        sp.verify(self.data.rules.contains(params.call_params.entry_point), "UnknownEntryPoint")
         sp.verify(~self.data.multisigs.contains(params.multisig_id), "InvalidMultisigId")
 
         sp.verify(self.data.rules.contains(params.call_params.entry_point), "NoRuleForThisEntrypoint")
@@ -235,136 +248,66 @@ class ProxyTokenController(sp.Contract):
                             contract.ok = True
                             self.onOK(contract.call_params)
 
-
     def onOK(self, params):
-        sp.if params.entry_point == "mint":
-            self._call_mint(params)
-        sp.if params.entry_point == "update_operators":
-            self._call_update_operators(params)
-        sp.if params.entry_point == "transfer":
-            self._call_transfer(params)
-        sp.if params.entry_point == "set_pause":
-            self._call_set_pause(params)
-        sp.if params.entry_point == "set_metadata":
-            self._call_set_metadata(params)
-        sp.if params.entry_point == "set_administrator":
-            self._call_set_administrator(params)
-        sp.if params.entry_point == "batch_mint":
-            self._call_batch_mint(params)
+        err_msg = "ParametersAndEntrypointAreNotCompatible"
+        with params.parameters.match_cases() as arg:
+            with arg.match("mint") as parameters:
+                sp.verify(params.entry_point == "mint", err_msg)
+                self._execute_call("mint", parameters.mint, params.target_address)
+                sp.if parameters.operator.is_some(): 
+                    # add operator along with the mint
+                    add_op_parameters = [
+                        sp.variant("add_operator", sp.record(
+                            owner = parameters.mint.address,
+                            operator = parameters.operator.open_some("OperatorParamNotFound"),
+                            token_id = parameters.mint.token_id
+                        ))
+                    ]
+                    self._execute_call("update_operators", add_op_parameters, params.target_address)
+            with arg.match("transfer") as parameters:
+                sp.verify(params.entry_point == "transfer", err_msg)
+                self._execute_call("transfer", parameters, params.target_address)
+            with arg.match("update_operators") as parameters:
+                sp.verify(params.entry_point == "update_operators", err_msg)
+                self._execute_call("update_operators", parameters, params.target_address)
+            with arg.match("set_pause") as parameters:
+                sp.verify(params.entry_point == "set_pause", err_msg)
+                self._execute_call("set_pause", parameters, params.target_address)
+            with arg.match("set_metadata") as parameters:
+                sp.verify(params.entry_point == "set_metadata", err_msg)
+                self._execute_call("set_metadata", parameters, params.target_address)
+            with arg.match("set_administrator") as parameters:
+                sp.verify(params.entry_point == "set_administrator", err_msg)
+                self._execute_call("set_administrator", parameters, params.target_address)
+            with arg.match("batch_mint") as parameters:
+                sp.verify(params.entry_point == "batch_mint", err_msg)
+                self._execute_call("batch_mint", parameters.batch_mint, params.target_address)
+                # add operator along with the batch_mint
+                sp.if parameters.operator.is_some(): 
+                    add_op_parameters = sp.local('add_op_parameters', sp.list([]))
+                    batch_length = sp.len(parameters.batch_mint.metadata_links)
+                    token_id_0 = parameters.batch_mint.first_token_id
+                    sp.for token_id in sp.range(token_id_0, token_id_0 + batch_length, step = 1):
+                        add_op_parameters.value.push(sp.variant("add_operator", sp.record(
+                            owner = parameters.batch_mint.address,
+                            operator = parameters.operator.open_some("OperatorParamNotFound"),
+                            token_id = token_id
+                        )))
+                    self._execute_call("update_operators", add_op_parameters.value, params.target_address)
+        
 
 
-
-    def _call_mint(self, params):
-        parameters = sp.record(
-            token_id = params.nbr1, 
-            address = params.adr1,
-            amount = params.nbr2,
-            metadata = params.str_bytes_map
+    def _execute_call(self, entrypoint, parameters, target_address):
+        sp.transfer(
+            parameters,
+            sp.tez(0),
+            sp.contract(
+                fa2_params_types[entrypoint], 
+                target_address, 
+                entry_point = entrypoint
+                ).open_some()
             )
-        sp.transfer(
-            parameters,
-            sp.tez(0),
-            sp.contract(mint_params_type, params.target_address, entry_point = "mint").open_some()
-        )
-
-        # add operator along with the mint
-        sp.if params.bl == True: 
-            add_op_parameters = [
-                sp.variant("add_operator", sp.record(
-                    owner = params.adr1,
-                    operator = params.adr2,
-                    token_id = params.nbr1
-                ))
-            ]
-            sp.transfer(
-                add_op_parameters,
-                sp.tez(0),
-                sp.contract(update_operators_params_type, params.target_address, entry_point = "update_operators").open_some()
-            )
-            
-    def _call_update_operators(self, params):
-        parameters = [
-                sp.variant("add_operator", sp.record(
-                    owner = params.adr1,
-                    operator = params.adr2,
-                    token_id = params.nbr1
-                ))
-            ]
-        sp.transfer(
-            parameters,
-            sp.tez(0),
-            sp.contract(update_operators_params_type, params.target_address, entry_point = "update_operators").open_some()
-        )
-
-    def _call_transfer(self, params):
-        parameters = [
-            sp.record(
-                from_ = params.adr1,
-                txs = [
-                    sp.record(
-                        to_ = params.adr2,
-                        token_id = params.nbr1,
-                        amount = params.nbr2
-                    )
-                ]
-            )
-        ]
-        sp.transfer(
-            parameters,
-            sp.tez(0),
-            sp.contract(transfer_params_type, params.target_address, entry_point = "transfer").open_some()
-        )
-
-    def _call_set_pause(self, params):
-        parameters = params.bl
-        sp.transfer(
-            parameters,
-            sp.tez(0),
-            sp.contract(sp.TBool, params.target_address, entry_point = "set_pause").open_some()
-        )
-
-    def _call_set_metadata(self, params):
-        parameters = sp.record(k = params.str, v = params.bytes)
-        sp.transfer(
-            parameters,
-            sp.tez(0),
-            sp.contract(contract_metadata_type, params.target_address, entry_point = "set_metadata").open_some()
-        )
-
-    def _call_set_administrator(self, params):
-        parameters = params.adr1
-        sp.transfer(
-            parameters,
-            sp.tez(0),
-            sp.contract(sp.TAddress, params.target_address, entry_point = "set_administrator").open_some()
-        )
-
-    def _call_batch_mint(self, params):
-        parameters = sp.record(
-            first_token_id = params.nbr1, 
-            address = params.adr1,
-            metadata_links = params.bytes_list
-        )
-        sp.transfer(
-            parameters,
-            sp.tez(0),
-            sp.contract(batch_mint_params_type, params.target_address, entry_point = "batch_mint").open_some()
-        )
-        # add operator along with the batch_mint
-        sp.if params.bl == True: 
-            add_op_parameters = sp.local('add_op_parameters', sp.list([]))
-            sp.for token_id in sp.range(params.nbr1, params.nbr1 + sp.len(params.bytes_list), step = 1):
-                add_op_parameters.value.push(sp.variant("add_operator", sp.record(
-                    owner = params.adr1,
-                    operator = params.adr2,
-                    token_id = token_id
-                )))
-            sp.transfer(
-                add_op_parameters.value,
-                sp.tez(0),
-                sp.contract(update_operators_params_type, params.target_address, entry_point = "update_operators").open_some()
-            )
-
+        
 
 # Tests
 @sp.add_test(name = "ProxyTokenController")
@@ -471,15 +414,15 @@ def test():
         call_params = sp.record(
             target_address = target,
             entry_point = "mint",
-            adr1 = alice, # Owner
-            adr2 = super_minter1, # Operator
-            bytes_list = [],
-            str_bytes_map = {"": sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")},
-            nbr1 = 0,
-            nbr2 = 1,
-            bytes = sp.bytes("0x"),
-            str = "",
-            bl = True
+            parameters = sp.variant("mint", sp.record(
+                mint = sp.record(
+                    token_id = 0,
+                    amount = 1,
+                    metadata = {"": sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")},
+                    address = alice
+                ),
+                operator = sp.some(super_minter1)
+            ))
         )
     ).run(sender = multisig_builder)
     scenario += c0.sign(id = alice, contractId = "0000").run(sender = alice)
@@ -493,23 +436,21 @@ def test():
         call_params = sp.record(
             target_address = target,
             entry_point = "batch_mint",
-            adr1 = alice,
-            adr2 = minter2,
-            bytes_list = [
-                sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
-                sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
-            ],
-            str_bytes_map = {},
-            nbr1 = 1,
-            nbr2 = 1,
-            bytes = sp.bytes("0x"),
-            str = "",
-            bl = True
+            parameters = sp.variant("batch_mint", sp.record(
+                batch_mint = sp.record(
+                    first_token_id = 1,
+                    metadata_links = [
+                        sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                        sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
+                    ],
+                    address = alice
+                ),
+                operator = sp.some(minter2)
+            ))
         )
     ).run(sender = batch_minter)
 
     # CREATE 
-
     scenario += c0.build(
         multisig_id = "2222",
         build_and_sign = False,
@@ -517,18 +458,17 @@ def test():
         call_params = sp.record(
             target_address = target,
             entry_point = "batch_mint",
-            adr1 = alice,
-            adr2 = minter2,
-            bytes_list = [
-                sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
-                sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
-            ],
-            str_bytes_map = {},
-            nbr1 = 0,
-            nbr2 = 1,
-            bytes = sp.bytes("0x"),
-            str = "",
-            bl = False
+            parameters = sp.variant("batch_mint", sp.record(
+                batch_mint = sp.record(
+                    first_token_id = 1,
+                    metadata_links = [
+                        sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                        sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
+                    ],
+                    address = alice
+                ),
+                operator = sp.some(minter2)
+            ))
         )
     ).run(sender = batch_minter)
 
@@ -540,15 +480,14 @@ def test():
         call_params = sp.record(
             target_address = target,
             entry_point = "transfer",
-            adr1 = alice, 
-            adr2 = minter2, 
-            bytes_list = [],
-            str_bytes_map = {},
-            nbr1 = 0,
-            nbr2 = 1,
-            bytes = sp.bytes("0x"),
-            str = "",
-            bl = False
+            parameters = sp.variant("transfer", [sp.record(
+                from_ = alice,
+                txs = [sp.record(
+                    to_ = minter2,
+                    token_id = 0,
+                    amount = 1
+                    )]
+                )]),
         )
     ).run(sender = alice, valid = False)
 
@@ -559,15 +498,14 @@ def test():
         call_params = sp.record(
             target_address = target,
             entry_point = "transfer",
-            adr1 = alice, 
-            adr2 = minter2, 
-            bytes_list = [],
-            str_bytes_map = {},
-            nbr1 = 0,
-            nbr2 = 1,
-            bytes = sp.bytes("0x"),
-            str = "",
-            bl = False
+            parameters = sp.variant("transfer", [sp.record(
+                from_ = alice,
+                txs = [sp.record(
+                    to_ = minter2,
+                    token_id = 0,
+                    amount = 1
+                    )]
+                )]),
         )
     ).run(sender = super_fa2_admin1)
  
@@ -580,15 +518,10 @@ def test():
         call_params = sp.record(
             target_address = target,
             entry_point = "set_metadata",
-            adr1 = alice, 
-            adr2 = minter2, 
-            bytes_list = [],
-            str_bytes_map = {},
-            nbr1 = 0,
-            nbr2 = 1,
-            bytes = sp.bytes("0x"),
-            str = "",
-            bl = False
+            parameters = sp.variant("set_metadata" , sp.record(
+                k = "",
+                v = sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
+                )),
         )
     )
 
