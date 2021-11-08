@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.scheduling.support.PeriodicTrigger;
@@ -31,7 +32,7 @@ public class TransactionWatcherConfig {
   private final AccessRequestWatcher accessRequestWatcher;
 
   @EventListener
-  public void onApplicationEvent() {
+  public void onApplicationEvent(ContextRefreshedEvent event) {
     for (var watcherProperty : transactionProperties.getWatchers()) {
       if (watcherProperty.isSmartContract(apiProperties.getBusinessDataContractAddress())) {
         transactionWatcherPoolTaskScheduler.schedule(

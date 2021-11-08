@@ -1,6 +1,9 @@
 package collaborate.api.businessdata.access.request.model;
 
-import java.time.ZonedDateTime;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import java.util.List;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -11,15 +14,18 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AccessRequest {
 
-  private UUID id;
-  private Long datasourceId;
-  private Integer tokenId;
   private AccessRequestStatus status = AccessRequestStatus.REQUESTED;
-  private String requesterAddress;
-  private String providerAddress;
-  private ZonedDateTime createdAt;
-  private String jwtToken;
 
+  private UUID id;
+  @JsonProperty("nft_id")
+  private Integer tokenId;
+  @JsonProperty("access_token_hash")
+  private String jwtToken;
+  private String providerAddress;
+  private String requesterAddress;
+  private Boolean accessGranted;
+  private List<String> scopes;
 }

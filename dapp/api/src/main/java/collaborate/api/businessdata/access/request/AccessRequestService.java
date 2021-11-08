@@ -1,7 +1,6 @@
 package collaborate.api.businessdata.access.request;
 
 import collaborate.api.nft.model.AssetDetailsDTO;
-import collaborate.api.organization.OrganizationService;
 import collaborate.api.tag.model.job.Job;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,10 +13,8 @@ import org.springframework.stereotype.Service;
 public class AccessRequestService {
 
   private final AccessRequestDAO accessRequestDAO;
-  private final OrganizationService organizationService;
 
   public Job requestAccess(List<AssetDetailsDTO> assetDetailsDTOS) {
-    var requester = organizationService.getCurrentOrganization().getAddress();
-    return accessRequestDAO.accessRequest(assetDetailsDTOS, requester);
+    return accessRequestDAO.accessRequest(assetDetailsDTOS);
   }
 }

@@ -63,7 +63,7 @@ class BusinessDataControllerIT {
     // GIVEN
     // WHEN
     mockMvc
-        .perform(post("/api/v1/business-data/grant-access"))
+        .perform(post("/api/v1/business-data/access-request"))
         // THEN
         .andExpect(status().isBadRequest());
   }
@@ -73,7 +73,7 @@ class BusinessDataControllerIT {
     // GIVEN
     // WHEN
     mockMvc
-        .perform(post("/api/v1/business-data/grant-access")
+        .perform(post("/api/v1/business-data/access-request")
             .content(asJsonString(emptyList()))
             .contentType(APPLICATION_JSON)
         )
@@ -86,7 +86,7 @@ class BusinessDataControllerIT {
     // GIVEN
     // WHEN
     mockMvc
-        .perform(post("/api/v1/business-data/grant-access")
+        .perform(post("/api/v1/business-data/access-request")
             .content(asJsonString(List.of(AssetDetailsDTO.builder()
                 .build()
             )))
@@ -105,7 +105,7 @@ class BusinessDataControllerIT {
     when(accessRequestService.requestAccess(assetDetails)).thenReturn(null);
     // WHEN
     mockMvc
-        .perform(post("/api/v1/business-data/grant-access")
+        .perform(post("/api/v1/business-data/access-request")
             .content(asJsonString(assetDetails))
             .contentType(APPLICATION_JSON)
             .characterEncoding(StandardCharsets.UTF_8)
