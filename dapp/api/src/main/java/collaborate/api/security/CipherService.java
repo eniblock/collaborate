@@ -31,9 +31,8 @@ public class CipherService {
       KeyFactory kf = KeyFactory.getInstance("RSA");
       return kf.generatePublic(x509publicKey);
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new IllegalStateException(e);
     }
-    return null;
   }
 
   public static PrivateKey getPrivateKey(String key) {
@@ -45,8 +44,8 @@ public class CipherService {
       return kf.generatePrivate(keySpec);
     } catch (Exception e) {
       log.error("While getting private key", e);
+      throw new IllegalStateException(e);
     }
-    return null;
   }
 
   /**
@@ -55,8 +54,9 @@ public class CipherService {
    * string into an array of bytes using UTF-8 - cipher the bytes with the public key - encode the
    * cyphered bytes into a base64 string
    */
-  public synchronized String cipher(String deciphered, PublicKey publicKey)
+  public synchronized String cipher(String deciphered, String rawPublicKey)
       throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    PublicKey publicKey = CipherService.getKey(rawPublicKey);
     cipher.init(Cipher.ENCRYPT_MODE, publicKey);
     cipher.update(deciphered.getBytes(StandardCharsets.UTF_8));
     return Base64.getEncoder().encodeToString(cipher.doFinal());
@@ -67,8 +67,9 @@ public class CipherService {
    * consists in 3 steps: - decode the string with base64 into an array of bytes - decipher the
    * bytes with the private key - transform the bytes into a string using UTF-8
    */
-  public String decipher(String ciphered, PrivateKey privateKey)
+  public String decipher(String ciphered, String rawPrivateKey)
       throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
+    PrivateKey privateKey = CipherService.getPrivateKey(rawPrivateKey);
     cipher.init(Cipher.DECRYPT_MODE, privateKey);
     return new String(cipher.doFinal(Base64.getDecoder().decode(ciphered)), StandardCharsets.UTF_8);
   }

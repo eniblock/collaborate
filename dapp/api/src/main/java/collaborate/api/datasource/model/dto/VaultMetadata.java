@@ -20,4 +20,5 @@ public class VaultMetadata {
 
   private BasicAuthCredentials basicAuthCredentials;
   private OAuth2 oAuth2;
+  private String jwt;
 }
