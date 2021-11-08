@@ -11,7 +11,6 @@ import collaborate.api.user.tag.TezosApiGatewayUserClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.security.InvalidKeyException;
-import java.security.PublicKey;
 import java.util.Optional;
 import java.util.UUID;
 import javax.crypto.BadPaddingException;
@@ -41,7 +40,7 @@ public class AccessGrantService {
 
     // Get the accessRequest Key:
     var currentOrganization = organizationService.getCurrentOrganization();
-    var accessRequest = grantAccessDAO.findAccessRequest(
+    var accessRequest = grantAccessDAO.findOneByRequesterAndProviderAndNft(
         accessRequestParams,
         transaction.getSource(),
         currentOrganization.getAddress()
@@ -98,8 +97,7 @@ public class AccessGrantService {
   private String cipherToken(String accessToken)
       throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
     var currentOrganization = organizationService.getCurrentOrganization();
-    PublicKey publicKey = CipherService.getKey(currentOrganization.getEncryptionKey());
-    return cipherService.cipher(accessToken, publicKey);
+    return cipherService.cipher(accessToken, currentOrganization.getEncryptionKey());
   }
 
   private AccessRequestParams getAccessRequestParams(Transaction transaction) {

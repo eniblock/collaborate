@@ -41,10 +41,27 @@ public class GrantAccessDAO {
 
   }
 
-  public Optional<TagEntry<UUID, AccessRequest>> findAccessRequest(
+  public Optional<AccessRequest> findOneById(UUID id) {
+    var requestAccessRequest = new DataFieldsRequest<>(List.of(
+        new MapQuery<>(ACCESS_REQUESTS_STORAGE_FIELD, List.of(id))
+    ));
+    var accessRequestResult = tagBusinessDataClient.getAccessRequests(
+        apiProperties.getDigitalPassportContractAddress(),
+        requestAccessRequest
+    );
+    if (accessRequestResult.getAccessRequests() != null) {
+      return accessRequestResult.getAccessRequests().stream()
+          .filter(e -> e.getKey().equals(id))
+          .map(TagEntry::getValue)
+          .findFirst();
+    }
+    return Optional.empty();
+  }
+
+  public Optional<TagEntry<UUID, AccessRequest>> findOneByRequesterAndProviderAndNft(
       AccessRequestParams accessRequestParams, String requester, String provider) {
     var requestAccessRequest = new DataFieldsRequest<>(List.of(
-        new MapQuery<>(ACCESS_REQUESTS_STORAGE_FIELD, null)
+        new MapQuery<UUID>(ACCESS_REQUESTS_STORAGE_FIELD, null)
     ));
     Predicate<AccessRequest> requestPredicate = (AccessRequest a) ->
         a.getScopes().equals(accessRequestParams.getScopes())
@@ -52,8 +69,7 @@ public class GrantAccessDAO {
             && a.getProviderAddress().equals(provider)
             && a.getTokenId().equals(accessRequestParams.getNftId());
 
-    return tagBusinessDataClient
-        .getAccessRequests(
+    return tagBusinessDataClient.getAccessRequests(
             apiProperties.getDigitalPassportContractAddress(),
             requestAccessRequest
         ).getAccessRequests().stream()
