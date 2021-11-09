@@ -20,13 +20,14 @@ public class TransactionEventManager {
   }
 
   void notify(Transaction transaction) {
-    listeners.forEach(t -> {
+    listeners.forEach(handler -> {
       try {
-        t.handle(transaction);
+        handler.handle(transaction);
       } catch (Exception e) {
         log.error(
-            "Error with transaction handler={} and transaction={}",
-            t.getClass().getName(),
+            "Error with transaction handler={} and transaction={}, exception={}",
+            handler.getClass().getName(),
+            transaction,
             e
         );
       }

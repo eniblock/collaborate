@@ -4,6 +4,7 @@ import static collaborate.api.tag.TezosApiGatewayJobClient.ORGANIZATION_SECURE_K
 import static java.util.stream.Collectors.toList;
 
 import collaborate.api.businessdata.access.request.model.AccessRequestParams;
+import collaborate.api.config.UUIDGenerator;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.nft.model.AssetDetailsDTO;
 import collaborate.api.passport.model.DatasourceDTO;
@@ -23,6 +24,7 @@ public class AccessRequestDAO {
   public static final String REQUEST_ACCESS_ENTRY_POINT = "request_access";
   private final ApiProperties apiProperties;
   private final TezosApiGatewayJobClient tezosApiGatewayClient;
+  private final UUIDGenerator uuidGenerator;
 
   public Job accessRequest(List<AssetDetailsDTO> assetDetailsDTOs) {
     var transactions = assetDetailsDTOs.stream()
@@ -58,6 +60,7 @@ public class AccessRequestDAO {
   AccessRequestParams toAccessRequestParam(Integer tokenId, DatasourceDTO datasourceDTO,
       String providerAddress) {
     return AccessRequestParams.builder()
+        .accessRequestsUuid(uuidGenerator.randomUUID())
         .nftId(tokenId)
         .scopes(List.of(datasourceDTO.getId() + ":" + datasourceDTO.getAssetIdForDatasource()))
         .providerAddress(providerAddress)
