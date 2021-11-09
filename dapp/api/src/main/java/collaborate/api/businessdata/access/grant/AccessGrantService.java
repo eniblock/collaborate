@@ -38,25 +38,20 @@ public class AccessGrantService {
     // Get OAuth2 vault metadata
     VaultMetadata vaultMetadata = getVaultMetadata(accessRequestParams);
 
-    // Get the accessRequest Key:
-    var currentOrganization = organizationService.getCurrentOrganization();
-    var accessRequest = grantAccessDAO.findOneByRequesterAndProviderAndNft(
-        accessRequestParams,
-        transaction.getSource(),
-        currentOrganization.getAddress()
-    ).orElseThrow(() -> new IllegalStateException("requestAccess not found"));
     // Get JWT
+    // FIXME we should not handle a list of scope
+    var scope = StringUtils.substringAfter(accessRequestParams.getScopes().get(0), ":");
     var accessTokenResponse = oAuth2JWTProvider.get(
         vaultMetadata.getOAuth2(),
-        // FIXME we should not handle a list of scope
-        Optional.of(accessRequestParams.getScopes().get(0))
+        Optional.of(scope)
     );
 
     // Cipher token
     var accessGrantParams = buildAccessGrantParams(
-        accessRequest.getKey(),
+        accessRequestParams.getAccessRequestsUuid(),
         accessTokenResponse.getAccessToken()
     );
+    log.info("accessGrantParams={}", accessGrantParams);
     grantAccessDAO.grantAccess(accessGrantParams);
   }
 
