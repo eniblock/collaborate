@@ -35,6 +35,7 @@ public class AccessGrantService {
 
   public void addAccessGrant(Transaction transaction) {
     AccessRequestParams accessRequestParams = getAccessRequestParams(transaction);
+    var requester = transaction.getSource();
     // Get OAuth2 vault metadata
     VaultMetadata vaultMetadata = getVaultMetadata(accessRequestParams);
 
@@ -49,7 +50,8 @@ public class AccessGrantService {
     // Cipher token
     var accessGrantParams = buildAccessGrantParams(
         accessRequestParams.getAccessRequestsUuid(),
-        accessTokenResponse.getAccessToken()
+        accessTokenResponse.getAccessToken(),
+        requester
     );
     log.info("accessGrantParams={}", accessGrantParams);
     grantAccessDAO.grantAccess(accessGrantParams);
@@ -77,11 +79,12 @@ public class AccessGrantService {
   }
 
   private AccessGrantParams buildAccessGrantParams(UUID uuid,
-      String accessToken) {
+      String accessToken, String requester) {
     try {
+
       return AccessGrantParams.builder()
           .id(uuid)
-          .jwtToken(cipherToken(accessToken))
+          .jwtToken(cipherToken(accessToken, requester))
           .build();
     } catch (Exception e) {
       log.error(e.getMessage());
@@ -89,10 +92,10 @@ public class AccessGrantService {
     }
   }
 
-  private String cipherToken(String accessToken)
+  private String cipherToken(String accessToken, String requester)
       throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-    var currentOrganization = organizationService.getCurrentOrganization();
-    return cipherService.cipher(accessToken, currentOrganization.getEncryptionKey());
+    var encryptionKey = organizationService.getByWalletAddress(requester).getEncryptionKey();
+    return cipherService.cipher(accessToken, encryptionKey);
   }
 
   private AccessRequestParams getAccessRequestParams(Transaction transaction) {
