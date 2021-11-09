@@ -793,6 +793,7 @@ class NFT_Creation_Management(sp.Contract, FA2):
 
 access_request_parameters_type = sp.TRecord(
     nft_id = sp.TNat,
+    access_requests_uuid = sp.TString,
     provider_address = sp.TAddress,
     scopes = sp.TList(sp.TString)
 )
@@ -807,7 +808,7 @@ access_request_value_type = sp.TRecord(
 )
 
 grant_access_request_type = sp.TRecord(
-    id = sp.TNat,
+    access_requests_uuid = sp.TString,
     access_token_hash = sp.TString
 )
 
@@ -815,10 +816,9 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
     def __init__(self):
         self.update_initial_storage(
             access_requests = sp.big_map(
-                tkey = sp.TNat,
+                tkey = sp.TString,
                 tvalue = access_request_value_type
-            ),
-            access_requests_counter = 0
+            )
         )
 
     @sp.entry_point
@@ -829,7 +829,7 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
         user = self.ledger_key.make(params.provider_address, params.nft_id)
         sp.verify(self.data.ledger.contains(user))
 
-        key = self.data.access_requests_counter
+        key = params.access_requests_uuid
 
         sp.verify( ~ self.data.access_requests.contains(key))
 
@@ -841,14 +841,13 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
             access_granted = False,
             access_token_hash = sp.none
         )
-        self.data.access_requests_counter += 1
 
     @sp.entry_point
     def grant_access(self, params: grant_access_request_type):
         sp.verify(self.data.organizations.contains(sp.sender))
         sp.verify(self.data.access_requests.contains(params.id))
 
-        key = params.id
+        key = params.access_requests_uuid
         access_request = self.data.access_requests[key]
 
         sp.verify(sp.sender == access_request.provider_address)
