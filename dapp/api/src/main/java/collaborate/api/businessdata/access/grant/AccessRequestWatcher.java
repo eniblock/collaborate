@@ -29,7 +29,7 @@ public class AccessRequestWatcher implements TransactionHandler {
   public void handle(Transaction transaction) {
     if (isRequestAccessForCurrentOrganisation(transaction)) {
       log.info("New accessRequest with parameters={}", transaction.getParameters());
-      accessGrantService.addAccessGrant(transaction);
+      accessGrantService.grant(transaction);
     }
   }
 

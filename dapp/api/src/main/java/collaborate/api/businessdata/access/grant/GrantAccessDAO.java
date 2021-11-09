@@ -20,7 +20,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class GrantAccessDAO {
 
-  public static final String GRANT_ACCESS_ENTRY_POINT = "grantAccess";
+  public static final String GRANT_ACCESS_ENTRY_POINT = "grant_access";
   public static final String ACCESS_REQUESTS_STORAGE_FIELD = "access_requests";
 
   private final ApiProperties apiProperties;
@@ -33,7 +33,7 @@ public class GrantAccessDAO {
         GRANT_ACCESS_ENTRY_POINT,
         accessGrantParams,
         Optional.empty(),
-        apiProperties.getDigitalPassportContractAddress()
+        apiProperties.getBusinessDataContractAddress()
     );
     return tezosApiGatewayJobClient.sendTransactionBatch(transactions, false);
 
@@ -44,7 +44,7 @@ public class GrantAccessDAO {
         new MapQuery<>(ACCESS_REQUESTS_STORAGE_FIELD, List.of(id))
     ));
     var accessRequestResult = tagBusinessDataClient.getAccessRequests(
-        apiProperties.getDigitalPassportContractAddress(),
+        apiProperties.getBusinessDataContractAddress(),
         requestAccessRequest
     );
     if (accessRequestResult.getAccessRequests() != null) {

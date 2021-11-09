@@ -809,7 +809,8 @@ access_request_value_type = sp.TRecord(
 
 grant_access_request_type = sp.TRecord(
     access_requests_uuid = sp.TString,
-    access_token_hash = sp.TString
+    access_token_hash = sp.TString,
+    requester_address = sp.TAddress
 )
 
 class AccessManagement(sp.Contract, NFT_Creation_Management):
@@ -845,11 +846,11 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
     @sp.entry_point
     def grant_access(self, params: grant_access_request_type):
         sp.verify(self.data.organizations.contains(sp.sender))
-        sp.verify(self.data.access_requests.contains(params.id))
+        sp.verify(self.data.access_requests.contains(params.access_requests_uuid))
 
         key = params.access_requests_uuid
         access_request = self.data.access_requests[key]
-
+        sp.verify(access_request.requester_address == params.requester_address)
         sp.verify(sp.sender == access_request.provider_address)
         sp.verify(access_request.access_granted == False)
         access_request.access_token_hash = sp.some(params.access_token_hash)
