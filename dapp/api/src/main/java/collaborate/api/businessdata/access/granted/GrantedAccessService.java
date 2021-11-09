@@ -1,11 +1,11 @@
 package collaborate.api.businessdata.access.granted;
 
+import collaborate.api.businessdata.access.CipherJwtService;
 import collaborate.api.businessdata.access.grant.GrantAccessDAO;
 import collaborate.api.businessdata.access.grant.model.AccessGrantParams;
-import collaborate.api.config.api.ApiProperties;
-import collaborate.api.security.CipherService;
 import collaborate.api.tag.model.user.UserMetadataDTO;
 import collaborate.api.transaction.Transaction;
+import collaborate.api.user.UserService;
 import collaborate.api.user.tag.TezosApiGatewayUserClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,47 +19,39 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class GrantedAccessService {
 
-  private final ApiProperties apiProperties;
-  private final CipherService cipherService;
+  private final CipherJwtService cipherService;
   private final GrantAccessDAO grantAccessDAO;
   private final ObjectMapper objectMapper;
+  private final UserService userService;
   private final TezosApiGatewayUserClient tagUserClient;
 
-  public void storeJwtToken(Transaction transaction) throws JsonProcessingException {
+  public void storeJwtToken(Transaction transaction) {
+    log.info("New grant_access transaction=={}", transaction);
     var accessGrantParams = getAccessGrantParams(transaction);
 
-    String decipheredJWT;
-    try {
-      decipheredJWT = cipherService.decipher(
-          accessGrantParams.getJwtToken(),
-          apiProperties.getPrivateKey()
-      );
-    } catch (Exception e) {
-      log.error("can't decipher transaction JWT {}", transaction);
-      throw new IllegalStateException(e);
-    }
-
+    String decipheredJWT = cipherService.decipher(accessGrantParams.getCipheredToken());
     storeJWT(accessGrantParams, decipheredJWT);
+    log.info("Credentials has been stored");
   }
 
   private void storeJWT(AccessGrantParams accessGrantParams, String decipheredJWT) {
-    // Get the scope
-    var accessRequest = grantAccessDAO.findOneById(accessGrantParams.getId())
-        .orElseThrow((() -> new NotFoundException("accessRequest" + accessGrantParams.getId())));
+    var accessRequest = grantAccessDAO.findOneById(accessGrantParams.getAccessRequestsUuid())
+        .orElseThrow((() -> new NotFoundException(
+            "accessRequest" + accessGrantParams.getAccessRequestsUuid())));
     var scope = accessRequest.getScopes().stream().findFirst()
         .orElseThrow(() -> new IllegalStateException("No scope in accessRequest" + accessRequest));
-
-    // store the key for the given scopeId
-    tagUserClient.upsertMetadata(scope, new UserMetadataDTO(decipheredJWT));
+    var user = userService.createUser(scope);
+    tagUserClient.upsertMetadata(user.getUserId(), new UserMetadataDTO(decipheredJWT));
   }
 
   private AccessGrantParams getAccessGrantParams(Transaction transaction) {
     try {
-      return objectMapper.treeToValue(transaction.getParameters(),
-          AccessGrantParams.class);
+      return objectMapper.treeToValue(transaction.getParameters(), AccessGrantParams.class);
     } catch (JsonProcessingException e) {
-      log.error("While converting transactionParameters={} to AccessRequestParams",
-          transaction.getParameters());
+      log.error(
+          "While converting transactionParameters={} to AccessRequestParams",
+          transaction.getParameters()
+      );
       throw new IllegalStateException(e);
     }
   }

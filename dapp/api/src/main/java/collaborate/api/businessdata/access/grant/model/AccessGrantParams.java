@@ -1,5 +1,6 @@
 package collaborate.api.businessdata.access.grant.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.io.Serializable;
@@ -18,8 +19,11 @@ import lombok.NoArgsConstructor;
 public class AccessGrantParams implements Serializable {
 
   @NotNull
-  private UUID id;
+  private UUID accessRequestsUuid;
+  @JsonProperty("access_token_hash")
   @NotNull
-  private String jwtToken;
+  private String cipheredToken;
 
+  @NotNull
+  private String requesterAddress;
 }

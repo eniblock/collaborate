@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class GrantAccessWatcher implements TransactionHandler {
 
+  private final GrantedAccessService grantedAccessService;
   private final OrganizationService organizationService;
   String organizationWallet = "";
 
@@ -27,7 +28,8 @@ public class GrantAccessWatcher implements TransactionHandler {
   @Override
   public void handle(Transaction transaction) {
     if (isGrantAccessForCurrentOrganisation(transaction)) {
-      log.info("New accessRequest with parameters={}", transaction.getParameters());
+      log.info("New grantAccess with parameters={}", transaction.getParameters());
+      grantedAccessService.storeJwtToken(transaction);
     }
   }
 

@@ -1,6 +1,7 @@
 package collaborate.api.businessdata;
 
 import collaborate.api.businessdata.access.grant.AccessRequestWatcher;
+import collaborate.api.businessdata.access.granted.GrantAccessWatcher;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
@@ -30,6 +31,7 @@ public class TransactionWatcherConfig {
   private final ObjectMapper objectMapper;
   private final ApiProperties apiProperties;
   private final AccessRequestWatcher accessRequestWatcher;
+  private final GrantAccessWatcher grantAccessWatcher;
 
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
@@ -63,6 +65,7 @@ public class TransactionWatcherConfig {
   private TransactionEventManager initBusinessDataEventManager() {
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(accessRequestWatcher);
+    transactionEventManager.subscribe(grantAccessWatcher);
     return transactionEventManager;
   }
 
