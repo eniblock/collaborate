@@ -1,16 +1,15 @@
 package collaborate.api.passport.find;
 
-import static collaborate.api.organization.model.OrganizationRole.DSP;
 import static collaborate.api.user.security.Authorizations.Roles.ASSET_OWNER;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
+import collaborate.api.nft.model.storage.TokenIndex;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.passport.model.storage.PassportsIndexer;
-import collaborate.api.passport.model.storage.PassportsIndexerToken;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.security.ConnectedUserDAO;
@@ -54,17 +53,11 @@ public class FindPassportService {
   }
 
   /**
-   * @return An optional entry where key is the dspAddress and value the {@link
-   * PassportsIndexerToken}
+   * @return An optional entry where key is the dspAddress and value the {@link TokenIndex}
    */
-  Optional<SimpleEntry<String, PassportsIndexerToken>> findDspAndPassportIndexerTokenByTokenId(
+  Optional<SimpleEntry<String, TokenIndex>> findDspAndPassportIndexerTokenByTokenId(
       Integer tokenId) {
-    var dspAddresses = organizationService.getAllOrganizations()
-        .stream()
-        .filter(o -> o.getRoles() != null)
-        .filter(o -> o.getRoles().contains(DSP))
-        .map(OrganizationDTO::getAddress)
-        .collect(Collectors.toList());
+    var dspAddresses = organizationService.getAllDspWallets();
 
     return findPassportDAO.findPassportsIndexersByDsps(dspAddresses).getPassportsIndexerByDsp()
         .stream()
@@ -75,7 +68,7 @@ public class FindPassportService {
         .findFirst();
   }
 
-  private SimpleEntry<String, PassportsIndexerToken> buildPassportsIndexerByDspAddress(
+  private SimpleEntry<String, TokenIndex> buildPassportsIndexerByDspAddress(
       Integer tokenId, TagEntry<String, PassportsIndexer> dspTokenEntry) {
     return new SimpleEntry<>(dspTokenEntry.getKey(),
         dspTokenEntry.getValue().getTokens().stream()

@@ -1,9 +1,12 @@
 package collaborate.api.organization;
 
+import static collaborate.api.organization.model.OrganizationRole.DSP;
+
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.user.UserService;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -58,9 +61,17 @@ public class OrganizationService {
     });
   }
 
-  public OrganizationDTO getCurrentOrganizations() {
+  public OrganizationDTO getCurrentOrganization() {
     var adminUser = userService.getAdminUser();
     return getByWalletAddress(adminUser.getAddress());
   }
-}
 
+  public List<String> getAllDspWallets() {
+    return getAllOrganizations()
+        .stream()
+        .filter(o -> o.getRoles() != null)
+        .filter(o -> o.getRoles().contains(DSP))
+        .map(OrganizationDTO::getAddress)
+        .collect(Collectors.toList());
+  }
+}

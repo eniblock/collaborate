@@ -793,6 +793,7 @@ class NFT_Creation_Management(sp.Contract, FA2):
 
 access_request_parameters_type = sp.TRecord(
     nft_id = sp.TNat,
+    access_requests_uuid = sp.TString,
     provider_address = sp.TAddress,
     scopes = sp.TList(sp.TString)
 )
@@ -807,18 +808,18 @@ access_request_value_type = sp.TRecord(
 )
 
 grant_access_request_type = sp.TRecord(
-    id = sp.TNat,
-    access_token_hash = sp.TString
+    access_requests_uuid = sp.TString,
+    access_token_hash = sp.TString,
+    requester_address = sp.TAddress
 )
 
 class AccessManagement(sp.Contract, NFT_Creation_Management):
     def __init__(self):
         self.update_initial_storage(
             access_requests = sp.big_map(
-                tkey = sp.TNat,
+                tkey = sp.TString,
                 tvalue = access_request_value_type
-            ),
-            access_requests_counter = 0
+            )
         )
 
     @sp.entry_point
@@ -829,7 +830,7 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
         user = self.ledger_key.make(params.provider_address, params.nft_id)
         sp.verify(self.data.ledger.contains(user))
 
-        key = self.data.access_requests_counter
+        key = params.access_requests_uuid
 
         sp.verify( ~ self.data.access_requests.contains(key))
 
@@ -841,16 +842,15 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
             access_granted = False,
             access_token_hash = sp.none
         )
-        self.data.access_requests_counter += 1
 
     @sp.entry_point
     def grant_access(self, params: grant_access_request_type):
         sp.verify(self.data.organizations.contains(sp.sender))
-        sp.verify(self.data.access_requests.contains(params.id))
+        sp.verify(self.data.access_requests.contains(params.access_requests_uuid))
 
-        key = params.id
+        key = params.access_requests_uuid
         access_request = self.data.access_requests[key]
-
+        sp.verify(access_request.requester_address == params.requester_address)
         sp.verify(sp.sender == access_request.provider_address)
         sp.verify(access_request.access_granted == False)
         access_request.access_token_hash = sp.some(params.access_token_hash)
@@ -903,26 +903,26 @@ def add_test(config, is_default = True):
         orga_DSPConsortium1 = sp.record( # DSP
             legal_name = 'DSPConsortium1',
             address = sp.address('tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV'),
-            encryption_key = 'edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2',
+            encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB',
             roles = {1}
         )
-        orga_matmut = sp.record( # BSP
-            legal_name = 'matmut',
+        orga_DSPConsortium2 = sp.record( # BSP
+            legal_name = 'DSPConsortium2',
             address = sp.address('tz1MPQBaR1r4hKveeCnNYPExnme5KBpbkWUP'),
             encryption_key = 'edpkvWiKH7AEAA6dhLRMSc1jGxsRzcRhd7oLNZEMDHhan2sLT5vKmf',
             roles = {2}
         )
-        orga_BSPConsortium2 = sp.record( # Consortium member DSP
+        orga_BSPConsortium3 = sp.record( # Consortium member DSP
             legal_name = 'BSPConsortium2',
             address = sp.address('tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG'),
-            encryption_key = 'edpkunY3jsNhGnP3mkYnWmBTYxqjSii1pyY9oUSkNnix3pNHRTMaAc',
+            encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB',
             roles = {2}
         )
         organizations = sp.map(
             {
                 orga_DSPConsortium1.address: orga_DSPConsortium1,
-                orga_matmut.address: orga_matmut,
-                orga_BSPConsortium2.address: orga_BSPConsortium2
+                orga_DSPConsortium2.address: orga_DSPConsortium2,
+                orga_BSPConsortium3.address: orga_BSPConsortium3
             }
         )
         ###########################
@@ -938,24 +938,24 @@ def add_test(config, is_default = True):
         scenario.h2("Data Catalog creation")
         scenario.p("DSPConsortium1 can create a Data Catalog")
         scenario += c1.create_business_datasource(sp.record(
-                        nft_operator_address = orga_BSPConsortium2.address,
+                        nft_operator_address = orga_BSPConsortium3.address,
                         asset_id = "5YJSA1DG9DFP14705",
                         metadata_uri = sp.utils.bytes_of_string("my-url://abc")
                     )).run(sender = orga_DSPConsortium1.address)
 
         scenario.p("Alice cannot create a Data Catalog")
         scenario += c1.create_business_datasource(sp.record(
-                        nft_operator_address = orga_BSPConsortium2.address,
+                        nft_operator_address = orga_BSPConsortium3.address,
                         asset_id = "5YJSA1DG9DFP14709",
                         metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghi")
                     )).run(sender = alice, valid = False)
 
         scenario.p("BSPConsortium2 cannot create a Data Catalog")
         scenario += c1.create_business_datasource(sp.record(
-                        nft_operator_address = orga_BSPConsortium2.address,
+                        nft_operator_address = orga_BSPConsortium3.address,
                         asset_id = "5YJSA1DG9DFP14710",
                         metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghijkl")
-                    )).run(sender = orga_BSPConsortium2.address, valid = False)
+                    )).run(sender = orga_BSPConsortium3.address, valid = False)
 
 
 
