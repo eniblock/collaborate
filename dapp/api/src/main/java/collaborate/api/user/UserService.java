@@ -11,7 +11,6 @@ import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.Authorizations.Roles;
 import collaborate.api.user.security.ConnectedUserDAO;
 import collaborate.api.user.security.KeycloakService;
-import collaborate.api.user.tag.TagUserDAO;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;

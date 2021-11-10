@@ -1,4 +1,4 @@
-package collaborate.api.user.tag;
+package collaborate.api.user;
 
 import static collaborate.api.cache.CacheConfig.CacheNames.USER;
 import static java.lang.String.format;
@@ -27,10 +27,9 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-// TODO Setup a feign error decoder
-public class TagUserDAO {
+class TagUserDAO {
 
-  private final TezosApiGatewayUserClient tagUserClient;
+  private final TagUserClient tagUserClient;
 
   /**
    * Vault key that point to wallet (key with coins)

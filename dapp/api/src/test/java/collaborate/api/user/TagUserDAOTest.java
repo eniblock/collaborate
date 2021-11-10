@@ -1,4 +1,4 @@
-package collaborate.api.user.tag;
+package collaborate.api.user;
 
 import static collaborate.api.test.TestResources.objectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -21,7 +21,7 @@ import org.springframework.http.ResponseEntity;
 class TagUserDAOTest {
 
   @Mock
-  private TezosApiGatewayUserClient tezosApiGatewayUserClient;
+  private TagUserClient tagUserClient;
 
   @InjectMocks
   private TagUserDAO tagUserDAO;
@@ -67,13 +67,13 @@ class TagUserDAOTest {
     // WHEN
     List<UserWalletDTO> createResult = objectMapper
         .readValue(UserWalletFeature.tagUserJsonResponse, type);
-    when(tezosApiGatewayUserClient.create(any())).thenReturn(
+    when(tagUserClient.create(any())).thenReturn(
         new ResponseEntity<>(createResult, HttpStatus.CREATED));
 
     var actualResult = tagUserDAO.create(userId);
     // THEN
     // create should return expected type
-    tezosApiGatewayUserClient.create(new UsersDTO());
+    tagUserClient.create(new UsersDTO());
     assertThat(actualResult)
         .isPresent()
         .contains(UserWalletFeature.userWallet);

@@ -1,4 +1,4 @@
-package collaborate.api.user.tag;
+package collaborate.api.user;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(url = "${tezos-api-gateway.url}/api/user", name = "tag-user-client")
-public interface TezosApiGatewayUserClient {
+interface TagUserClient {
 
   /**
    * <ul>

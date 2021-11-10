@@ -1,4 +1,4 @@
-package collaborate.api.user.tag;
+package collaborate.api.user;
 
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.test.TestResources;
