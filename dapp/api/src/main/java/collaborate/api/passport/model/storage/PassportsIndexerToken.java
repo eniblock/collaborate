@@ -1,8 +1,8 @@
 package collaborate.api.passport.model.storage;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,12 +10,15 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class PassportsIndexer {
+public class PassportsIndexerToken {
 
-  private List<PassportsIndexerToken> tokens;
+  @JsonProperty("token_key_ref")
+  private Integer tokenId;
 
-  private List<Integer> unsignedMultisigs;
+  private String tokenOwnerAddress;
+
+  private String assetId;
 }

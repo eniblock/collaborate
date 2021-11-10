@@ -45,9 +45,10 @@ public class OrganizationDAO {
 
   @Cacheable(value = ORGANIZATION)
   public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String address,
-      String smartContractAddress) {
-    return getAllOrganizations(smartContractAddress).stream()
+      String smartcontractAddress) {
+    return getAllOrganizations(smartcontractAddress).stream()
         .filter(o -> address.equals(o.getAddress()))
         .findFirst();
   }
 }
+

@@ -627,90 +627,6 @@
 							]
 						},
 						{
-							"name": "Business data",
-							"item": [
-								{
-									"name": "Get scopes catalog",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-													"var jsonData = pm.response.json();",
-													"console.log(jsonData[jsonData.length-1])",
-													"var pendingSortedByContractIdDesc = jsonData",
-													"    .sort(function(a, b) {return b.contractId - a.contractId})",
-													"    .filter(passport => passport.status == 'PENDING_CREATION');",
-													"",
-													"pm.globals.set(\"test-last-passport-contract-id\", pendingSortedByContractIdDesc[0].contractId);",
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/business-data",
-											"host": [
-												"{{dAppApiUrl}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"business-data"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Acccess request",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "[\n    {\n        \"assetDataCatalog\": {\n            \"datasources\": [\n                {\n                    \"id\": \"ffe8f2f7-1ba1-47cc-adbf-af280136b0c1\",\n                    \"assetIdForDatasource\": \"workshop-analytics\",\n                    \"baseUri\": null,\n                    \"scopes\": null\n                }\n            ]\n        },\n        \"assetId\": \"ffe8f2f7-1ba1-47cc-adbf-af280136b0c1:workshop-analytics\",\n        \"assetOwner\": {\n            \"legalName\": \"psa\",\n            \"address\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n            \"encryptionKey\": \"edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2\",\n            \"roles\": [\n                1\n            ]\n        },\n        \"accessStatus\": \"locked\",\n        \"creationDatetime\": null,\n        \"operator\": null,\n        \"multisigContractId\": null,\n        \"tokenId\": 118,\n        \"tokenStatus\": \"created\"\n    }\n]",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/business-data/access-request",
-											"host": [
-												"{{dAppApiUrl}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"business-data",
-												"access-request"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
 							"name": "Datasource",
 							"item": [
 								{
@@ -1374,15 +1290,14 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/organizations/current",
+											"raw": "{{dAppApiUrl}}/api/v1/organizations",
 											"host": [
 												"{{dAppApiUrl}}"
 											],
 											"path": [
 												"api",
 												"v1",
-												"organizations",
-												"current"
+												"organizations"
 											]
 										}
 									},
@@ -4278,7 +4193,7 @@
 									}
 								},
 								"url": {
-									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{buisiness-data-contract-address}}",
+									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{businessdata-smart-contract-address}}",
 									"host": [
 										"{{tagApiUrl}}"
 									],
@@ -4286,7 +4201,7 @@
 										"api",
 										"tezos_node",
 										"storage",
-										"{{buisiness-data-contract-address}}"
+										"{{businessdata-smart-contract-address}}"
 									]
 								}
 							},
@@ -4671,98 +4586,6 @@
 									"response": []
 								}
 							]
-						}
-					]
-				},
-				{
-					"name": "Business data",
-					"item": [
-						{
-							"name": "Get assets from indexer",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code is 200\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Result contains at least 2 organizations\", function () {",
-											"    var jsonData = pm.response.json();",
-											"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
-											"",
-											"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
-											"    pm.expect(adminOrg).not.eq(undefined);",
-											"",
-											"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
-											"    pm.expect(otherOrg).not.eq(undefined);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"dataFields\": [\n        {\n            \"nft_indexer\" : [\n                {\n                    \"key\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n                },\n                {\n                    \"key\" : \"tz1YEAJSJ7j4HNn9adywXxtwttSSHBgyYbyT\"\n                }\n            ]\n        }\n    ]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{buisiness-data-contract-address}}",
-									"host": [
-										"{{tagApiUrl}}"
-									],
-									"path": [
-										"api",
-										"tezos_node",
-										"storage",
-										"{{buisiness-data-contract-address}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Access request",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1AK9SFPYcitQzwGV8JomriMQr6an7PSh18\",\n      \"entryPoint\": \"requestAccess\",\n      \"entryPointParams\": {\n        \"id\": \"52fddab8-748f-44f4-be77-608c2b3ec2b7\",\n        \"datasourceId\": \"29dba35d-80b5-4e48-ad8b-602b01be843c\",\n        \"scope\": \"customers-analytics\",\n        \"requesterAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n        \"providerAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n      }\n    }\n  ],\n  \"secureKeyName\": \"admin\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{tagApiUrl}}/api/send/jobs?cache=false",
-									"host": [
-										"{{tagApiUrl}}"
-									],
-									"path": [
-										"api",
-										"send",
-										"jobs"
-									],
-									"query": [
-										{
-											"key": "cache",
-											"value": "false"
-										}
-									]
-								}
-							},
-							"response": []
 						}
 					]
 				},
@@ -6335,91 +6158,6 @@
 							"response": []
 						}
 					]
-				},
-				{
-					"name": "Get from ipfs.io",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "https://ipfs.io/ipfs/QmaKmNUXWUV2z6GVxLk1XX4z6W5h6QLPKr3SwjfmNYM7dB",
-							"protocol": "https",
-							"host": [
-								"ipfs",
-								"io"
-							],
-							"path": [
-								"ipfs",
-								"QmaKmNUXWUV2z6GVxLk1XX4z6W5h6QLPKr3SwjfmNYM7dB"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Vault",
-			"item": [
-				{
-					"name": "Encrypt",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Vault-Token",
-								"value": "{{vault-token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"plaintext\":\"dGhlIHF1aWNrIGJyb3duIGZveAo=\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{vault-url}}/v1/transit/encrypt/admin",
-							"host": [
-								"{{vault-url}}"
-							],
-							"path": [
-								"v1",
-								"transit",
-								"encrypt",
-								"admin"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List keys",
-					"request": {
-						"method": "LIST",
-						"header": [
-							{
-								"key": "X-Vault-Token",
-								"value": "{{vault-token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{vault-url}}/v1/transit/keys",
-							"host": [
-								"{{vault-url}}"
-							],
-							"path": [
-								"v1",
-								"transit",
-								"keys"
-							]
-						}
-					},
-					"response": []
 				}
 			]
 		}

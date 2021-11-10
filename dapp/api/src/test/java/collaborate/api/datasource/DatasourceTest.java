@@ -14,7 +14,7 @@ class DatasourceTest {
   @Test
   void deserialize_canTypeProvider() throws ClassNotFoundException {
     // GIVEN
-    String datasourceJson = TestResources.readContent("/datasource/domain/web/datasource.json");
+    String datasourceJson = TestResources.readPath("/datasource/domain/web/datasource.json");
     // WHEN
 
     Datasource genericDatasourceResult = TestResources.readValue(
