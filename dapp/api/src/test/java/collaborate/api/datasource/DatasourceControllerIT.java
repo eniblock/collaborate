@@ -1,7 +1,7 @@
 package collaborate.api.datasource;
 
 import static collaborate.api.test.TestResources.objectMapper;
-import static collaborate.api.test.TestResources.readContent;
+import static collaborate.api.test.TestResources.readPath;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -97,7 +97,7 @@ class DatasourceControllerIT {
   void create_shouldReturnBadRequest_withMissingDatasourceKeyword()
       throws Exception {
     // GIVEN
-    var datasource = readContent("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
+    var datasource = readPath("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
         WebServerDatasourceDTO.class);
     datasource.setKeywords(new HashSet<>(Set.of("invalid-keyword")));
     var datasourceJson = objectMapper.writeValueAsString(datasource);
@@ -121,7 +121,7 @@ class DatasourceControllerIT {
   void create_shouldReturnBadRequest_withNoResourceHavingPurposeTestConnectionKeyword()
       throws Exception {
     // GIVEN
-    var datasource = readContent("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
+    var datasource = readPath("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
         WebServerDatasourceDTO.class);
     datasource.setResources(List.of(new WebServerResource()));
     var datasourceJson = objectMapper.writeValueAsString(datasource);
@@ -145,7 +145,7 @@ class DatasourceControllerIT {
   void create_shouldReturnCreated_withValidBusinessDataKeyword()
       throws Exception {
     // GIVEN
-    var datasource = readContent("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
+    var datasource = readPath("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
         WebServerDatasourceDTO.class);
     datasource.setKeywords(new HashSet<>(Set.of("business-data")));
     var datasourceJson = objectMapper.writeValueAsString(datasource);
@@ -173,7 +173,7 @@ class DatasourceControllerIT {
   void create_shouldReturnBadRequest_withValidDigitalPassportKeyword()
       throws Exception {
     // GIVEN
-    var datasource = readContent("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
+    var datasource = readPath("/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
         WebServerDatasourceDTO.class);
     datasource.setKeywords(new HashSet<>(Set.of("digital-passport")));
     var datasourceJson = objectMapper.writeValueAsString(datasource);

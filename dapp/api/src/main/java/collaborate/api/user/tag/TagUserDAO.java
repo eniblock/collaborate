@@ -95,14 +95,12 @@ public class TagUserDAO {
 
   String cleanUserId(String userID) {
     String cleaned = userID.replace("@", "_._xdev-at_._");
-    cleaned = cleaned.replace(":", "_._xdev-sem_._");
     log.debug("userId {{}} cleaned as {{}}", userID, cleaned);
     return cleaned;
   }
 
   String uncleanUserId(String userID) {
     String uncleaned = userID.replace("_._xdev-at_._", "@");
-    uncleaned = uncleaned.replace("_._xdev-sem_._", ":");
     log.debug("userId {{}} uncleaned as {{}}", userID, uncleaned);
     return uncleaned;
   }

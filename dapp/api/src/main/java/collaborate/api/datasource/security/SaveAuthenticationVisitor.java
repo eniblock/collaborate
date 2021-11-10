@@ -58,8 +58,13 @@ public class SaveAuthenticationVisitor implements AuthenticationVisitor<Void> {
 
   @Override
   public Void visitOAuth2(OAuth2 oAuth2) {
+    OAuth2ClientSecret oAuth2ClientSecret = OAuth2ClientSecret.builder()
+        .clientId(oAuth2.getClientId())
+        .clientSecret(oAuth2.getClientSecret())
+        .build();
+
     VaultMetadata vaultMetadata = VaultMetadata.builder()
-        .oAuth2(oAuth2)
+        .oAuth2ClientSecret(oAuth2ClientSecret)
         .build();
     upsertMetadata(oAuth2.getDatasource().getId().toString(), vaultMetadata);
     return null;

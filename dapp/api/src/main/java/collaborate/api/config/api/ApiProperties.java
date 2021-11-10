@@ -27,8 +27,4 @@ public class ApiProperties {
   @NotEmpty
   private String businessDataContractAddress;
 
-  @Schema(description = "The wallet private key ")
-  @NotEmpty
-  private String privateKey;
-
 }

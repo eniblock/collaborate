@@ -138,7 +138,7 @@ public class HttpFeatures {
           )).build()
       ).build();
 
-  public static final String entryPointYaml = TestResources.readContent(
+  public static final String entryPointYaml = TestResources.readPath(
       "/datasource/domain/traefik/entrypoint.yml");
 
   private HttpFeatures() {

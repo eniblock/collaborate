@@ -6,7 +6,6 @@ api:
 
 transaction:
   tag-client-url:
-  enabled: true
   watchers:
 
 datasource:

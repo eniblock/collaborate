@@ -1,16 +1,15 @@
 package collaborate.api.helper;
 
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.Assert.assertEquals;
 
 import collaborate.api.mail.MailDTO;
 import collaborate.api.user.SetRolesNotificationEmailHelper;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-class SetRolesNotificationEmailHelperTest {
+public class SetRolesNotificationEmailHelperTest {
 
   @Test
-  void buildRolesSetNotificationEmailTest() {
+  public void buildRolesSetNotificationEmailTest() {
     SetRolesNotificationEmailHelper util = new SetRolesNotificationEmailHelper("idpAdmin");
     String[] roles = {"idpAdmin", "service_provider_operator"};
 

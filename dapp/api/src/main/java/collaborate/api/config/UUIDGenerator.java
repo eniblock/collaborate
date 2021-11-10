@@ -9,5 +9,4 @@ public class UUIDGenerator {
   public UUID randomUUID() {
     return UUID.randomUUID();
   }
-
 }

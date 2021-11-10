@@ -11,7 +11,7 @@ class UserMetadataDTOTest {
   void deserialize_shouldResultInExpectedObject() {
     // GIVEN
     // WHEN
-    var userMetadataResult = TestResources.readContent(
+    var userMetadataResult = TestResources.readPath(
         "/tag/model/user/post-metadata-response.json",
         UserMetadataDTO.class
     );

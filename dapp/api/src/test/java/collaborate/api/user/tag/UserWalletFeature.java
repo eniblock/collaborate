@@ -6,7 +6,7 @@ import collaborate.api.test.TestResources;
 public class UserWalletFeature {
 
   public static final String tagUserJsonResponse = TestResources
-      .readContent("/user/tag/create.user.tag.response.json");
+      .readPath("/user/tag/create.user.tag.response.json");
 
   public static final UserWalletDTO userWallet = UserWalletDTO.builder()
       .userId("asset-owner_._xdev-at-_._1630709967219.test")
