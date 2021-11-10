@@ -6,12 +6,10 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.mail.MailService;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.user.UserWalletDTO;
-import collaborate.api.user.tag.TagUserDAO;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,11 +25,7 @@ class CreatePassportDAOTest {
   @Mock
   private TransactionBatchFactory transactionBatchFactory;
   @Mock
-  private TagUserDAO tagUserDAO;
-  @Mock
   private ApiProperties apiProperties;
-  @Mock
-  private MailService mailService;
 
   @InjectMocks
   CreatePassportDAO createPassportDAO;

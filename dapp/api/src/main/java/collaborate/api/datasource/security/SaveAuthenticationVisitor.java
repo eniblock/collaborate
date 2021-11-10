@@ -5,11 +5,8 @@ import collaborate.api.datasource.model.dto.web.authentication.AuthenticationVis
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
-import collaborate.api.tag.model.user.UserMetadataDTO;
 import collaborate.api.user.UserService;
-import collaborate.api.user.tag.TezosApiGatewayUserClient;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import collaborate.api.user.metadata.UserMetadataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -21,9 +18,8 @@ import org.springframework.stereotype.Service;
 public class SaveAuthenticationVisitor implements AuthenticationVisitor<Void> {
 
   private final ModelMapper modelMapper;
-  private final ObjectMapper objectMapper;
   private final UserService userService;
-  private final TezosApiGatewayUserClient tagUserClient;
+  private final UserMetadataService userMetadataService;
 
   @Override
   public Void visitBasicAuth(BasicAuth basicAuth) {
@@ -38,16 +34,7 @@ public class SaveAuthenticationVisitor implements AuthenticationVisitor<Void> {
 
   private void upsertMetadata(String datasourceId, VaultMetadata vaultMetadata) {
     userService.createUser(datasourceId);
-    tagUserClient.upsertMetadata(datasourceId, serialize(vaultMetadata));
-  }
-
-  private UserMetadataDTO serialize(VaultMetadata vaultMetadata) {
-    try {
-      return new UserMetadataDTO(objectMapper.writeValueAsString(vaultMetadata));
-    } catch (JsonProcessingException e) {
-      log.error("can't serialized vaultMetadata={}", vaultMetadata);
-      throw new IllegalStateException("Can't write vaultMetadata");
-    }
+    userMetadataService.upsertMetadata(datasourceId, vaultMetadata);
   }
 
   @Override

@@ -13,6 +13,7 @@ import collaborate.api.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.passport.model.TokenStatus;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.user.UserService;
+import collaborate.api.user.connected.ConnectedUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -22,10 +23,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DigitalPassportDetailsDTOFactory {
 
+  private final ConnectedUserService connectedUserService;
   private final FindPassportDAO findPassportDAO;
   private final OrganizationService organizationService;
-  private final TokenMetadataService tokenMetadataService;
   private final UserService userService;
+  private final TokenMetadataService tokenMetadataService;
 
   public DigitalPassportDetailsDTO createFromMultisigContractid(Integer contractId,
       Multisig multisig) {
@@ -33,7 +35,7 @@ public class DigitalPassportDetailsDTOFactory {
         .assetDataCatalog(tokenMetadataService.findDataCatalog(multisig, contractId)
             .orElse(null)
         ).assetId(multisig.getParam1())
-        .assetOwner(userService.buildUserWalletDTO(multisig.getAddr2()))
+        .assetOwner(userService.getByWalletAddress(multisig.getAddr2()))
         .accessStatus(getAccessStatus(multisig))
         // TODO creationDatetime
         .creationDatetime(null)
@@ -47,7 +49,7 @@ public class DigitalPassportDetailsDTOFactory {
   }
 
   AccessStatus getAccessStatus(Multisig multisig) {
-    var connectedUserWalletAddress = userService.getConnectedUserWallet().getAddress();
+    var connectedUserWalletAddress = connectedUserService.getWalletAddress();
     if (connectedUserWalletAddress.equals(multisig.getAddr2())) { // We are the NFT owner
       return GRANTED;
     } else if (multisig.getAddr1().equals(connectedUserWalletAddress)) { // We are the NFT operator
@@ -66,7 +68,7 @@ public class DigitalPassportDetailsDTOFactory {
     return DigitalPassportDetailsDTO.builder()
         .assetDataCatalog(null)
         .assetId(multisig.getParam1())
-        .assetOwner(userService.buildUserWalletDTO(multisig.getAddr2()))
+        .assetOwner(userService.getByWalletAddress(multisig.getAddr2()))
         .accessStatus(PENDING)
         .creationDatetime(null) // No token => no creation datetime
         .operator(organizationService.getByWalletAddress(multisig.getAddr1()))
@@ -83,7 +85,7 @@ public class DigitalPassportDetailsDTOFactory {
     return DigitalPassportDetailsDTO.builder()
         .assetDataCatalog(null)
         .assetId(passportsIndexerToken.getAssetId())
-        .assetOwner(userService.buildUserWalletDTO(passportsIndexerToken.getTokenOwnerAddress()))
+        .assetOwner(userService.getByWalletAddress(passportsIndexerToken.getTokenOwnerAddress()))
         .accessStatus(
             makeAccessStatus(
                 passportsIndexerToken.getTokenOwnerAddress(),
@@ -100,7 +102,7 @@ public class DigitalPassportDetailsDTOFactory {
   }
 
   private AccessStatus makeAccessStatus(String nftOwnerAddress, String operatorAddress) {
-    var connectedUserWalletAddress = userService.getConnectedUserWallet().getAddress();
+    var connectedUserWalletAddress = connectedUserService.getWalletAddress();
     if (connectedUserWalletAddress.equals(nftOwnerAddress) || connectedUserWalletAddress.equals(
         operatorAddress)) {
       return GRANTED;

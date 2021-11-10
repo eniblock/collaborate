@@ -16,7 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CreatePassportDAO {
+class CreatePassportDAO {
 
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;

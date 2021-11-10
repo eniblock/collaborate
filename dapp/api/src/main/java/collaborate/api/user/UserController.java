@@ -1,6 +1,7 @@
 package collaborate.api.user;
 
 import collaborate.api.config.OpenApiConfig;
+import collaborate.api.user.connected.ConnectedUserService;
 import collaborate.api.user.model.RolesDTO;
 import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.Authorizations.HasRoles;
@@ -38,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   private final UserService userService;
+  private final ConnectedUserService connectedUserService;
 
   @GetMapping()
   @Operation(
@@ -103,6 +105,6 @@ public class UserController {
   })
   @PreAuthorize(HasRoles.PENDING_ASSET_OWNER)
   public Callable<ResponseEntity<UserDTO>> updateAsAssetOwner() {
-    return () -> ResponseEntity.ok(userService.updateCurrentUserWithAssetOwnerRole());
+    return () -> ResponseEntity.ok(connectedUserService.updateWithAssetOwnerRole());
   }
 }

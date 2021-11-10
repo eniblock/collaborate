@@ -21,7 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class CreateBusinessDataNftDAO {
+class CreateBusinessDataNftDAO {
 
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
