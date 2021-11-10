@@ -18,7 +18,7 @@ public class TestResources {
     objectMapper.registerModule(new JavaTimeModule());
   }
 
-  public static String readPath(String testResourcePath) {
+  public static String readContent(String testResourcePath) {
     try {
       return IOUtils.toString(
           Objects.requireNonNull(
@@ -30,8 +30,8 @@ public class TestResources {
     }
   }
 
-  public static <T> T readPath(String testResourcePath, Class<T> clazz) {
-    return readValue(readPath(testResourcePath), clazz);
+  public static <T> T readContent(String testResourcePath, Class<T> clazz) {
+    return readValue(readContent(testResourcePath), clazz);
   }
 
   public static <T> T readValue(String json, TypeReference<T> type) {
@@ -47,6 +47,14 @@ public class TestResources {
       return objectMapper.readValue(json, clazz);
     } catch (JsonProcessingException e) {
       throw new IllegalStateException("Can't convert test resource", e);
+    }
+  }
+
+  public static String asJsonString(Object o) {
+    try {
+      return objectMapper.writeValueAsString(o);
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Can't convert o to jsonString", e);
     }
   }
 }

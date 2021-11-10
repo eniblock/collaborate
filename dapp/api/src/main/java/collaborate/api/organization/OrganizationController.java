@@ -55,7 +55,7 @@ public class OrganizationController {
           content = @Content(schema = @Schema(implementation = OrganizationDTO.class)))})
   @PreAuthorize(HasRoles.ORGANIZATION_READ)
   public OrganizationDTO getCurrent() {
-    return organizationService.getCurrentOrganizations();
+    return organizationService.getCurrentOrganization();
   }
 
 }

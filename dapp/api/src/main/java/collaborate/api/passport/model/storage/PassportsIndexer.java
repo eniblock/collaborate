@@ -1,5 +1,6 @@
 package collaborate.api.passport.model.storage;
 
+import collaborate.api.nft.model.storage.TokenIndex;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.List;
@@ -15,7 +16,7 @@ import lombok.NoArgsConstructor;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PassportsIndexer {
 
-  private List<PassportsIndexerToken> tokens;
+  private List<TokenIndex> tokens;
 
   private List<Integer> unsignedMultisigs;
 }
