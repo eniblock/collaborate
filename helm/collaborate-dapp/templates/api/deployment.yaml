@@ -95,16 +95,8 @@ spec:
               value: {{ .Values.api.digitalPassportContractAddress | quote }}
             - name: API_BUSINESS_DATA_CONTRACT_ADDRESS
               value: {{ .Values.api.businessDataContractAddress | quote }}
-            {{- range $id, $organization := .Values.api.organizations }}
-            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_ID
-              value: {{ $id | quote }}
-            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_NAME
-              value: {{ $organization.name | quote }}
-            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_PUBLIC_KEY_HASH
-              value: {{ $organization.publicKeyHash | quote }}
-            - name: API_ORGANIZATIONS_{{ $organization.publicKeyHash | upper }}_PUBLIC_KEY
-              value: {{ $organization.publicKey | quote }}
-            {{- end }}
+            - name: API_PRIVATE_KEY
+              value: {{ .Values.api.privateKey | quote }}
 
             # Api-gateway
             - name: TRAEFIK_CERTIFICATES_PATH

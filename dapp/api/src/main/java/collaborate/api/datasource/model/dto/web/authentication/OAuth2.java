@@ -1,7 +1,6 @@
 package collaborate.api.datasource.model.dto.web.authentication;
 
 import java.net.URI;
-import javax.persistence.Transient;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -20,7 +19,6 @@ public class OAuth2 extends Authentication {
   private String transferMethod;
   private String clientId;
   @ToString.Exclude
-  @Transient
   private String clientSecret;
 
   @Builder(toBuilder = true)
