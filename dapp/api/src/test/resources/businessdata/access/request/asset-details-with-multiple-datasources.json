@@ -1,0 +1,25 @@
+{
+  "assetDataCatalog": {
+    "datasources": [
+      {
+        "id": "29dba35d-80b5-4e48-ad8b-602b01be843c",
+        "assetIdForDatasource": "customers-analytics-a"
+      },
+      {
+        "id": "1288d1f4-3674-4efb-8ec0-c5e6a4bcffd7",
+        "assetIdForDatasource": "customers-analytics-b"
+      }
+    ]
+  },
+  "assetId": "customers-analytics",
+  "assetOwner": {
+    "legalName": "dsp",
+    "address": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
+    "encryptionKey": "edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2",
+    "roles": [
+      1
+    ]
+  },
+  "accessStatus": "locked",
+  "tokenId": 17
+}

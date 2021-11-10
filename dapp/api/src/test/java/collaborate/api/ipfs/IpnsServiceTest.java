@@ -1,6 +1,6 @@
 package collaborate.api.ipfs;
 
-import static collaborate.api.test.TestResources.readPath;
+import static collaborate.api.test.TestResources.readContent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,10 +38,10 @@ class IpnsServiceTest {
   void initIpnsFolder_shouldCallExpectedWorkflowAndReturnIpns()
       throws ExecutionException, InterruptedException {
     String folderPath = "/this/is/root/folder";
-    CidResponse cid = readPath("/ipfs/init-folder/files.flush.json", CidResponse.class);
-    ListKeyPairResponse listKeyPairResponse = readPath("/ipfs/init-folder/key.list.json",
+    CidResponse cid = readContent("/ipfs/init-folder/files.flush.json", CidResponse.class);
+    ListKeyPairResponse listKeyPairResponse = readContent("/ipfs/init-folder/key.list.json",
         ListKeyPairResponse.class);
-    var publishResponse = readPath("/ipfs/init-folder/name.publish.json", IpnsResponse.class);
+    var publishResponse = readContent("/ipfs/init-folder/name.publish.json", IpnsResponse.class);
     when(ipfsFilesClient.flush(folderPath)).thenReturn(cid);
     when(ipfsKeyClient.getAllKeyPairs()).thenReturn(listKeyPairResponse);
     when(ipfsNameClient.update(cid.getCid(), "12345")).thenReturn(publishResponse);
@@ -68,7 +68,7 @@ class IpnsServiceTest {
 
   @Test
   void getKeyPairByName_find() {
-    ListKeyPairResponse listKeyPairResponse = readPath("/ipfs/init-folder/key.list.json",
+    ListKeyPairResponse listKeyPairResponse = readContent("/ipfs/init-folder/key.list.json",
         ListKeyPairResponse.class);
     when(ipfsKeyClient.getAllKeyPairs()).thenReturn(listKeyPairResponse);
 
@@ -82,7 +82,7 @@ class IpnsServiceTest {
 
   @Test
   void getKeyPairByName_notFind() {
-    ListKeyPairResponse listKeyPairResponse = readPath("/ipfs/init-folder/key.list.json",
+    ListKeyPairResponse listKeyPairResponse = readContent("/ipfs/init-folder/key.list.json",
         ListKeyPairResponse.class);
     when(ipfsKeyClient.getAllKeyPairs()).thenReturn(listKeyPairResponse);
 

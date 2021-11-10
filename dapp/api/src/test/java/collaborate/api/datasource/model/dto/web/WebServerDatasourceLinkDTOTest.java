@@ -1,6 +1,6 @@
 package collaborate.api.datasource.model.dto.web;
 
-import static collaborate.api.test.TestResources.readPath;
+import static collaborate.api.test.TestResources.readContent;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import collaborate.api.test.assertion.ConstraintViolationSetAssert;
@@ -21,7 +21,7 @@ class WebServerDatasourceLinkDTOTest {
 
   @BeforeEach
   void setup() {
-    webServerDatasource = readPath(
+    webServerDatasource = readContent(
         "/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
         WebServerDatasourceDTO.class);
   }
