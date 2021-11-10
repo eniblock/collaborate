@@ -9,7 +9,7 @@ public class CreateFeatures {
   }
 
   public static final String initPassportCreationParamJson = TestResources
-      .readPath("/passport/create/sc.entrypoint.initPassportCreation.param.json");
+      .readContent("/passport/create/sc.entrypoint.initPassportCreation.param.json");
   public static final InitPassportCreationEntryPointParam initPassportCreationEntryPointParam =
       InitPassportCreationEntryPointParam.builder()
           .metadataUri(new Bytes("ipfs://QmXtWB7WJE1NHQDsW7odJM6FmpJT1bawQd6gC6fJav94MP"))

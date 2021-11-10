@@ -13,7 +13,7 @@ class MetadataServiceTest {
 
   MetadataService metadataService = new MetadataService(TestResources.objectMapper);
 
-  Datasource datasource = TestResources.readPath(
+  Datasource datasource = TestResources.readContent(
       "/datasource/domain/web/datasource.json",
       Datasource.class
   );

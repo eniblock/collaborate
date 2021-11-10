@@ -2,6 +2,7 @@ package collaborate.api.passport.model.storage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import collaborate.api.nft.model.storage.Multisig;
 import collaborate.api.passport.model.TokenStatus;
 import org.junit.jupiter.api.Test;
 

@@ -46,7 +46,7 @@ public class CertificateBasedBasicAuthDatasourceFeatures {
           ))
       ).build();
   public static final String datasourceJson = TestResources
-      .readPath("/datasource/domain/web/certificateBasedBasicAuthDatasource.json");
+      .readContent("/datasource/domain/web/certificateBasedBasicAuthDatasource.json");
 
   private CertificateBasedBasicAuthDatasourceFeatures() {
   }
