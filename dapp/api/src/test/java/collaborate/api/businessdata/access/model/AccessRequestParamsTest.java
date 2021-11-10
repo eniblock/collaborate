@@ -1,4 +1,4 @@
-package collaborate.api.businessdata.access.request.model;
+package collaborate.api.businessdata.access.model;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

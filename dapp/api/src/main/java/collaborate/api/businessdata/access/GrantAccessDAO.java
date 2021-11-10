@@ -1,8 +1,8 @@
-package collaborate.api.businessdata.access.grant;
+package collaborate.api.businessdata.access;
 
 import collaborate.api.businessdata.TAGBusinessDataClient;
-import collaborate.api.businessdata.access.grant.model.AccessGrantParams;
-import collaborate.api.businessdata.access.request.model.AccessRequest;
+import collaborate.api.businessdata.access.model.AccessGrantParams;
+import collaborate.api.businessdata.access.model.AccessRequest;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-public class GrantAccessDAO {
+class GrantAccessDAO {
 
   public static final String GRANT_ACCESS_ENTRY_POINT = "grant_access";
   public static final String ACCESS_REQUESTS_STORAGE_FIELD = "access_requests";

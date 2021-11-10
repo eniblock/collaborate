@@ -11,7 +11,7 @@ import collaborate.api.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.passport.model.storage.PassportsIndexer;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.user.UserService;
-import collaborate.api.user.security.ConnectedUserDAO;
+import collaborate.api.user.connected.ConnectedUserService;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Collections;
@@ -31,7 +31,7 @@ import org.springframework.stereotype.Service;
 public class FindPassportService {
 
   private final DigitalPassportDetailsDTOFactory digitalPassportDetailsDTOFactory;
-  private final ConnectedUserDAO connectedUserDAO;
+  private final ConnectedUserService connectedUserService;
   private final FindPassportDAO findPassportDAO;
   private final OrganizationService organizationService;
   private final UserService userService;
@@ -79,9 +79,9 @@ public class FindPassportService {
   public Collection<DigitalPassportDetailsDTO> getByConnectedUser() {
     Collection<DigitalPassportDetailsDTO> digitalPassports;
 
-    Set<String> roles = connectedUserDAO.getRealmRoles();
+    Set<String> roles = connectedUserService.getRealmRoles();
     if (roles.contains(ASSET_OWNER)) {
-      digitalPassports = getAllPassportsByAssetOwner(connectedUserDAO.getEmailOrThrow());
+      digitalPassports = getAllPassportsByAssetOwner(connectedUserService.getEmailOrThrow());
     } else {
       digitalPassports = getAllPassports(Optional.empty());
     }

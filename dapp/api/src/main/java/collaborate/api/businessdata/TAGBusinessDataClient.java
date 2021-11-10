@@ -1,6 +1,6 @@
 package collaborate.api.businessdata;
 
-import collaborate.api.businessdata.access.grant.model.AccessRequestTagResponseDTO;
+import collaborate.api.businessdata.access.model.AccessRequestTagResponseDTO;
 import collaborate.api.businessdata.find.IndexerTagResponseDTO;
 import collaborate.api.passport.find.MultisigTagResponseDTO;
 import collaborate.api.tag.model.storage.DataFieldsRequest;

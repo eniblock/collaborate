@@ -1,8 +1,6 @@
-package collaborate.api.businessdata.access.granted;
+package collaborate.api.businessdata.access;
 
-import collaborate.api.businessdata.access.CipherJwtService;
-import collaborate.api.businessdata.access.grant.GrantAccessDAO;
-import collaborate.api.businessdata.access.grant.model.AccessGrantParams;
+import collaborate.api.businessdata.access.model.AccessGrantParams;
 import collaborate.api.transaction.Transaction;
 import collaborate.api.user.UserService;
 import collaborate.api.user.metadata.UserMetadataService;

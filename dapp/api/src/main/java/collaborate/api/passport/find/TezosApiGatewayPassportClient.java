@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(url = "${tezos-api-gateway.url}/api", name = "tag-passport-client")
-public interface TezosApiGatewayPassportClient {
+interface TezosApiGatewayPassportClient {
 
   @PostMapping("/tezos_node/storage/{contractAddress}")
   PassportsIndexerTagResponseDTO getPassportsIndexer(@PathVariable String contractAddress,

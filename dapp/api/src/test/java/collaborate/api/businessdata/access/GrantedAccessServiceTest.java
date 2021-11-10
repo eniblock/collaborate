@@ -1,9 +1,9 @@
-package collaborate.api.businessdata.access.granted;
+package collaborate.api.businessdata.access;
 
 import static collaborate.api.test.TestResources.readContent;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import collaborate.api.businessdata.access.grant.model.AccessGrantParams;
+import collaborate.api.businessdata.access.model.AccessGrantParams;
 import collaborate.api.test.TestResources;
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.databind.ObjectMapper;

@@ -1,4 +1,4 @@
-package collaborate.api.businessdata.access.request.model;
+package collaborate.api.businessdata.access.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;

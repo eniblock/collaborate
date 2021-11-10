@@ -1,4 +1,4 @@
-package collaborate.api.businessdata.access.request;
+package collaborate.api.businessdata.access;
 
 import collaborate.api.nft.model.AssetDetailsDTO;
 import collaborate.api.tag.model.job.Job;

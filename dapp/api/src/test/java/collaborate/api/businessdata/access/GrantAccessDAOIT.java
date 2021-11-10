@@ -1,4 +1,4 @@
-package collaborate.api.businessdata.access.grant;
+package collaborate.api.businessdata.access;
 
 import static collaborate.api.test.TestResources.readContent;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -6,7 +6,7 @@ import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-import collaborate.api.businessdata.access.request.model.AccessRequest;
+import collaborate.api.businessdata.access.model.AccessRequest;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.test.config.FeignTestConfig;

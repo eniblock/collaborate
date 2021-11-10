@@ -16,11 +16,6 @@ public class GatewayUrlService {
   private final GatewayUrlDAO gatewayURLDAO;
   private final TraefikProperties traefikProperties;
 
-  public JsonNode fetch(HttpServletRequest request) {
-    String apiGatewayTargetURL = replaceBaseUrl(request);
-    return fetch(apiGatewayTargetURL);
-  }
-
   public JsonNode fetch(String apiGatewayTargetURL) {
     return gatewayURLDAO.fetch(apiGatewayTargetURL);
   }
@@ -31,4 +26,9 @@ public class GatewayUrlService {
         traefikProperties.getUrl())).build().toUriString();
   }
 
+  public JsonNode fetch(String datasourceId, HttpServletRequest request) {
+    String apiGatewayTargetURL = replaceBaseUrl(request);
+
+    return fetch(apiGatewayTargetURL);
+  }
 }

@@ -1,6 +1,6 @@
 package collaborate.api.businessdata;
 
-import collaborate.api.businessdata.access.request.AccessRequestService;
+import collaborate.api.businessdata.access.AccessRequestService;
 import collaborate.api.businessdata.find.FindBusinessDataService;
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.nft.model.AssetDetailsDTO;

@@ -1,7 +1,5 @@
-package collaborate.api.businessdata.access.grant
+package collaborate.api.businessdata.access
     ;
-
-import static collaborate.api.businessdata.access.request.AccessRequestDAO.REQUEST_ACCESS_ENTRY_POINT;
 
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.transaction.Transaction;
@@ -34,7 +32,7 @@ public class AccessRequestWatcher implements TransactionHandler {
   }
 
   boolean isRequestAccessForCurrentOrganisation(Transaction transaction) {
-    boolean isRequestAccessTransaction = REQUEST_ACCESS_ENTRY_POINT
+    boolean isRequestAccessTransaction = AccessRequestDAO.REQUEST_ACCESS_ENTRY_POINT
         .equals(transaction.getEntrypoint());
 
     if (isRequestAccessTransaction) {

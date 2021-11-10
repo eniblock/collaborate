@@ -1,10 +1,10 @@
-package collaborate.api.businessdata.access.request;
+package collaborate.api.businessdata.access;
 
 import static collaborate.api.test.TestResources.readContent;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.businessdata.access.request.model.AccessRequestParams;
+import collaborate.api.businessdata.access.model.AccessRequestParams;
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.nft.model.AssetDetailsDTO;
 import collaborate.api.test.UUIDTestGenerator;

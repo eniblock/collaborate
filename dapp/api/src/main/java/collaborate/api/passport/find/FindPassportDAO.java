@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class FindPassportDAO {
+class FindPassportDAO {
 
   private final ApiProperties apiProperties;
   private final TezosApiGatewayPassportClient tezosApiGatewayPassportClient;

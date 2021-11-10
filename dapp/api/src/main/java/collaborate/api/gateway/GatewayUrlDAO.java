@@ -18,7 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Slf4j
 @Repository
-public class GatewayUrlDAO {
+class GatewayUrlDAO {
 
   private final HttpClientFactory httpClientFactory;
   private final ObjectMapper objectMapper;

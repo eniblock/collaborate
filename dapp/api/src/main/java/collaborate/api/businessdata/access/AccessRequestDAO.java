@@ -1,9 +1,9 @@
-package collaborate.api.businessdata.access.request;
+package collaborate.api.businessdata.access;
 
 import static collaborate.api.tag.TezosApiGatewayJobClient.ORGANIZATION_SECURE_KEY_NAME;
 import static java.util.stream.Collectors.toList;
 
-import collaborate.api.businessdata.access.request.model.AccessRequestParams;
+import collaborate.api.businessdata.access.model.AccessRequestParams;
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.nft.model.AssetDetailsDTO;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-public class AccessRequestDAO {
+class AccessRequestDAO {
 
   public static final String REQUEST_ACCESS_ENTRY_POINT = "request_access";
   private final ApiProperties apiProperties;

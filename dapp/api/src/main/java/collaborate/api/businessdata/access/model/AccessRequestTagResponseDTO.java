@@ -1,6 +1,5 @@
-package collaborate.api.businessdata.access.grant.model;
+package collaborate.api.businessdata.access.model;
 
-import collaborate.api.businessdata.access.request.model.AccessRequest;
 import collaborate.api.tag.model.TagEntry;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

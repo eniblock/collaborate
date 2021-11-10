@@ -6,10 +6,9 @@ import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.mail.MailService;
 import collaborate.api.tag.model.user.UserWalletDTO;
+import collaborate.api.user.connected.ConnectedUserService;
 import collaborate.api.user.model.RolesDTO;
 import collaborate.api.user.model.UserDTO;
-import collaborate.api.user.security.Authorizations.Roles;
-import collaborate.api.user.security.ConnectedUserDAO;
 import collaborate.api.user.security.KeycloakService;
 import java.io.IOException;
 import java.util.HashSet;
@@ -52,7 +51,7 @@ public class UserService {
   );
 
   private final ApiProperties apiProperties;
-  private final ConnectedUserDAO connectedUserDAO;
+  private final ConnectedUserService connectedUserService;
   private final KeycloakService keycloakService;
   private final MailProperties mailProperties;
   private final MailService mailService;
@@ -203,14 +202,16 @@ public class UserService {
         .collect(Collectors.toList());
   }
 
-  public UserDTO updateCurrentUserWithAssetOwnerRole() {
-    var token = connectedUserDAO.getAuthToken();
-    createUser(token.getEmail());
-    return modifyUser(token.getSubject(), new RolesDTO(Set.of(Roles.ASSET_OWNER)));
-  }
-
   public Optional<UserWalletDTO> findOneByWalletAddress(String walletAddress) {
     return tagUserDAO.findOneByWalletAddress(walletAddress);
+  }
+
+  public UserWalletDTO getByWalletAddress(String userAccountAddress) {
+    return findOneByWalletAddress(userAccountAddress)
+        .orElseGet(() -> {
+          log.warn("No Tag user found for account={}", userAccountAddress);
+          return UserWalletDTO.builder().address(userAccountAddress).build();
+        });
   }
 
   public UserWalletDTO createUser(String userId) {
@@ -223,34 +224,16 @@ public class UserService {
     );
   }
 
-  public UserWalletDTO buildUserWalletDTO(String userAccountAddress) {
-    return findOneByWalletAddress(userAccountAddress)
-        .orElseGet(() -> {
-          log.warn("No Tag user found for account={}", userAccountAddress);
-          return UserWalletDTO.builder().address(userAccountAddress).build();
-        });
-  }
-
-  public String findWalletAddressByEmailOrThrow(String email) {
+  public UserWalletDTO findByEmailOrThrow(String email) {
     return tagUserDAO
         .findOneByUserEmail(email)
-        .map(UserWalletDTO::getAddress)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, (
             format("No user found for userId=%s", email)
         )));
   }
 
-  public UserWalletDTO getConnectedUserWallet() {
-    if (connectedUserDAO.isOrganization()) {
-      return UserWalletDTO.builder().address(tagUserDAO.getOrganizationAccountAddress()).build();
-    } else {
-      return connectedUserDAO.getEmail()
-          .flatMap(tagUserDAO::findOneByUserEmail)
-          .orElseThrow(() -> new ResponseStatusException(
-              HttpStatus.BAD_REQUEST,
-              "Connected user e-mail not found")
-          );
-    }
+  public String findWalletAddressByEmailOrThrow(String email) {
+    return findByEmailOrThrow(email).getAddress();
   }
 
   public UserWalletDTO getAdminUser() {
