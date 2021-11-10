@@ -14,7 +14,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -35,11 +34,9 @@ public class AccessGrantService {
     VaultMetadata vaultMetadata = getVaultMetadata(accessRequestParams);
 
     // Get JWT
-    // FIXME we should not handle a list of scope
-    var scope = StringUtils.substringAfter(accessRequestParams.getScopes().get(0), ":");
     var accessTokenResponse = oAuth2JWTProvider.get(
         vaultMetadata.getOAuth2(),
-        Optional.of(scope)
+        Optional.of(accessRequestParams.getDatasourceScope())
     );
 
     // Cipher token
@@ -53,16 +50,16 @@ public class AccessGrantService {
   }
 
   private VaultMetadata getVaultMetadata(AccessRequestParams accessRequestParams) {
-    var datasourceId = StringUtils.substringBefore(accessRequestParams.getScopes().get(0), ":");
+    var datasourceId = accessRequestParams.getDatasourceId();
     var vaultMetadataResponse = tagUserClient.getMetadata(datasourceId);
     VaultMetadata vaultMetadata;
     try {
       vaultMetadata = objectMapper.readValue(
-          vaultMetadataResponse.getBody().getData(),
+          vaultMetadataResponse.getData(),
           VaultMetadata.class
       );
     } catch (JsonProcessingException e) {
-      log.error("while converting vaultMetadata");
+      log.error("while converting vaultMetadata of datasourceId={}", datasourceId);
       throw new IllegalStateException(e);
     }
     if (vaultMetadata.getOAuth2() == null) {
@@ -86,17 +83,18 @@ public class AccessGrantService {
     }
   }
 
-  private AccessRequestParams getAccessRequestParams(Transaction transaction) {
-    AccessRequestParams accessRequestParams;
+  AccessRequestParams getAccessRequestParams(Transaction transaction) {
     try {
-      accessRequestParams = objectMapper.treeToValue(transaction.getParameters(),
-          AccessRequestParams.class);
+      return objectMapper.treeToValue(
+          transaction.getParameters(),
+          AccessRequestParams.class
+      );
     } catch (JsonProcessingException e) {
-      log.error("While converting transactionParameters={} to AccessRequestParams",
+      log.error(
+          "While converting transactionParameters={} to AccessRequestParams",
           transaction.getParameters());
       throw new IllegalStateException(e);
     }
-    return accessRequestParams;
   }
 
 }

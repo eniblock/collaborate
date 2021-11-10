@@ -35,7 +35,8 @@ public class GrantedAccessService {
   }
 
   private void storeJWT(AccessGrantParams accessGrantParams, String decipheredJWT) {
-    var accessRequest = grantAccessDAO.findOneById(accessGrantParams.getAccessRequestsUuid())
+    var accessRequest = grantAccessDAO.findOneAccessRequestById(
+            accessGrantParams.getAccessRequestsUuid())
         .orElseThrow((() -> new NotFoundException(
             "accessRequest" + accessGrantParams.getAccessRequestsUuid())));
     var scope = accessRequest.getScopes().stream().findFirst()
@@ -44,12 +45,12 @@ public class GrantedAccessService {
     tagUserClient.upsertMetadata(user.getUserId(), new UserMetadataDTO(decipheredJWT));
   }
 
-  private AccessGrantParams getAccessGrantParams(Transaction transaction) {
+  AccessGrantParams getAccessGrantParams(Transaction transaction) {
     try {
       return objectMapper.treeToValue(transaction.getParameters(), AccessGrantParams.class);
     } catch (JsonProcessingException e) {
       log.error(
-          "While converting transactionParameters={} to AccessRequestParams",
+          "While converting transactionParameters={} to AccessGrantParams",
           transaction.getParameters()
       );
       throw new IllegalStateException(e);
