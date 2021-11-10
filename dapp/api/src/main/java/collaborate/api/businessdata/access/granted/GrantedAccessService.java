@@ -3,10 +3,9 @@ package collaborate.api.businessdata.access.granted;
 import collaborate.api.businessdata.access.CipherJwtService;
 import collaborate.api.businessdata.access.grant.GrantAccessDAO;
 import collaborate.api.businessdata.access.grant.model.AccessGrantParams;
-import collaborate.api.tag.model.user.UserMetadataDTO;
 import collaborate.api.transaction.Transaction;
 import collaborate.api.user.UserService;
-import collaborate.api.user.tag.TezosApiGatewayUserClient;
+import collaborate.api.user.metadata.UserMetadataService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import javax.ws.rs.NotFoundException;
@@ -23,7 +22,7 @@ public class GrantedAccessService {
   private final GrantAccessDAO grantAccessDAO;
   private final ObjectMapper objectMapper;
   private final UserService userService;
-  private final TezosApiGatewayUserClient tagUserClient;
+  private final UserMetadataService userMetadataService;
 
   public void storeJwtToken(Transaction transaction) {
     log.info("New grant_access transaction=={}", transaction);
@@ -42,7 +41,7 @@ public class GrantedAccessService {
     var scope = accessRequest.getScopes().stream().findFirst()
         .orElseThrow(() -> new IllegalStateException("No scope in accessRequest" + accessRequest));
     var user = userService.createUser(scope);
-    tagUserClient.upsertMetadata(user.getUserId(), new UserMetadataDTO(decipheredJWT));
+    userMetadataService.upsertMetadata(user.getUserId(), decipheredJWT);
   }
 
   AccessGrantParams getAccessGrantParams(Transaction transaction) {

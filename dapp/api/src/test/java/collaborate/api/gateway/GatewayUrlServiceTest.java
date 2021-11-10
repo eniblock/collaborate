@@ -37,7 +37,7 @@ class GatewayUrlServiceTest {
     when(traefikProperties.getUrl()).thenReturn("https://localhost:8443");
 
     // WHEN
-    gatewayService.fetch(httpServletRequest);
+    gatewayService.fetch(datasourceUUID, httpServletRequest);
 
     // THEN
     verify(gatewayUrlDAO, times(1)).fetch(

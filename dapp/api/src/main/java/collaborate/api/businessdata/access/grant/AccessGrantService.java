@@ -6,7 +6,7 @@ import collaborate.api.businessdata.access.request.model.AccessRequestParams;
 import collaborate.api.datasource.OAuth2JWTProvider;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.transaction.Transaction;
-import collaborate.api.user.tag.TezosApiGatewayUserClient;
+import collaborate.api.user.metadata.UserMetadataService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
@@ -24,7 +24,7 @@ public class AccessGrantService {
   private final CipherJwtService cipherService;
   private final OAuth2JWTProvider oAuth2JWTProvider;
   private final ObjectMapper objectMapper;
-  private final TezosApiGatewayUserClient tagUserClient;
+  private final UserMetadataService userMetadataService;
   private final GrantAccessDAO grantAccessDAO;
 
   public void grant(Transaction transaction) {
@@ -51,17 +51,7 @@ public class AccessGrantService {
 
   private VaultMetadata getVaultMetadata(AccessRequestParams accessRequestParams) {
     var datasourceId = accessRequestParams.getDatasourceId();
-    var vaultMetadataResponse = tagUserClient.getMetadata(datasourceId);
-    VaultMetadata vaultMetadata;
-    try {
-      vaultMetadata = objectMapper.readValue(
-          vaultMetadataResponse.getData(),
-          VaultMetadata.class
-      );
-    } catch (JsonProcessingException e) {
-      log.error("while converting vaultMetadata of datasourceId={}", datasourceId);
-      throw new IllegalStateException(e);
-    }
+    var vaultMetadata = userMetadataService.getMetadata(datasourceId, VaultMetadata.class);
     if (vaultMetadata.getOAuth2() == null) {
       log.error("Access request for datasourceId={} received but oAuth2 metadata seems to be empty",
           datasourceId);
