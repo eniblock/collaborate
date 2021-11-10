@@ -13,7 +13,7 @@ import lombok.Data;
 public class IpfsFeature {
 
   public static final String ipfsLsResponseJson =
-      TestResources.readContent("/ipfs/ipfs.ls.response.json");
+      TestResources.readPath("/ipfs/ipfs.ls.response.json");
 
   public static final LsResponse ipfsLsResponse = new LsResponse(
       List.of(

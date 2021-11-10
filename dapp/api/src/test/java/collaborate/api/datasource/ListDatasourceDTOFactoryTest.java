@@ -23,7 +23,7 @@ class ListDatasourceDTOFactoryTest {
   @InjectMocks
   ListDatasourceDTOFactory listDatasourceDTOFactory;
 
-  Datasource datasource = TestResources.readContent(
+  Datasource datasource = TestResources.readPath(
       "/datasource/domain/web/datasource.json",
       Datasource.class
   );

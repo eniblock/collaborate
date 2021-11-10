@@ -1,6 +1,6 @@
 package collaborate.api.passport.find;
 
-import collaborate.api.nft.model.storage.Multisig;
+import collaborate.api.passport.model.storage.Multisig;
 import collaborate.api.tag.model.TagEntry;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;

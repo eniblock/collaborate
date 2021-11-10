@@ -47,14 +47,14 @@ public interface TezosApiGatewayUserClient {
   ResponseEntity<List<UserWalletDTO>> findOneByUserId(@RequestParam("userIdList") String userId);
 
   @PostMapping(value = "{userId}/metadata", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-  UserMetadataDTO upsertMetadata(
+  ResponseEntity<UserMetadataDTO> upsertMetadata(
       @PathVariable String userId,
       @RequestBody UserMetadataDTO metadata
   );
 
   @GetMapping(value = "{userId}/metadata", produces = APPLICATION_JSON_VALUE)
-  UserMetadataDTO getMetadata(@PathVariable String userId);
+  ResponseEntity<UserMetadataDTO> getMetadata(@PathVariable String userId);
 
   @DeleteMapping(value = "{userId}/metadata", produces = APPLICATION_JSON_VALUE)
-  UserMetadataDTO deleteMetadata(@PathVariable String userId);
+  ResponseEntity<UserMetadataDTO> deleteMetadata(@PathVariable String userId);
 }
