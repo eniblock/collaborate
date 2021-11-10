@@ -31,30 +31,44 @@ public class CipherJwtService {
     var key = aesCipherService.generateKey(256);
     IvParameterSpec iv = aesCipherService.generateIv();
     var encodedKeyAndIv =
-        base64Encode(key.getEncoded()) + CIPHER_SEPARATOR + base64Encode(iv.getIV());
+        encodeBase64(key.getEncoded()) + CIPHER_SEPARATOR + encodeBase64(iv.getIV());
     var cipheredKeyAndIv = rsaCipherService.cipher(encodedKeyAndIv, encryptionKey);
-    // cipher message
+
     String cipheredToken = aesCipherService.cipher(toCipher, key, iv);
     return cipheredKeyAndIv + CIPHER_SEPARATOR + cipheredToken;
   }
 
-  private String base64Encode(byte[] bytes) {
+  private byte[] decodeBase64(int keyIndex, String[] encodedKeyAndIv) {
+    return Base64.getDecoder().decode(encodedKeyAndIv[keyIndex].getBytes());
+  }
+
+  private String encodeBase64(byte[] bytes) {
     return Base64.getEncoder().encodeToString(bytes);
   }
 
   public String decipher(String message) {
     var keyAndToken = message.split(CIPHER_SEPARATOR);
+
     var encodedKeyAndIv = rsaCipherService.decipher(
         keyAndToken[KEY_AND_SPEC_INDEX],
         apiProperties.getPrivateKey()
     ).split(CIPHER_SEPARATOR);
 
-    var byteKeyResult = Base64.getDecoder().decode(encodedKeyAndIv[KEY_INDEX].getBytes());
-    SecretKey decipheredKey = new SecretKeySpec(byteKeyResult, 0, byteKeyResult.length, "AES");
+    SecretKey decipheredKey = getSecretKey(encodedKeyAndIv);
+    IvParameterSpec ivSpec = getIvParameterSpec(encodedKeyAndIv);
 
-    var byteIvResult = Base64.getDecoder().decode(encodedKeyAndIv[IV_SPEC_INDEX].getBytes());
-    var ivResult = new IvParameterSpec(byteIvResult);
-
-    return aesCipherService.decipher(keyAndToken[TOKEN_INDEX], decipheredKey, ivResult);
+    return aesCipherService.decipher(keyAndToken[TOKEN_INDEX], decipheredKey, ivSpec);
   }
+
+  private IvParameterSpec getIvParameterSpec(String[] encodedKeyAndIv) {
+    var byteIvResult = decodeBase64(IV_SPEC_INDEX, encodedKeyAndIv);
+    return new IvParameterSpec(byteIvResult);
+  }
+
+  private SecretKey getSecretKey(String[] encodedKeyAndIv) {
+    var byteKeyResult = decodeBase64(KEY_INDEX, encodedKeyAndIv);
+    return new SecretKeySpec(byteKeyResult, 0, byteKeyResult.length, "AES");
+  }
+
+
 }

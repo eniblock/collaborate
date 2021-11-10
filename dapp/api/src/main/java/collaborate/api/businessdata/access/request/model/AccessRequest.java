@@ -17,8 +17,6 @@ import lombok.NoArgsConstructor;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AccessRequest {
 
-  private AccessRequestStatus status = AccessRequestStatus.REQUESTED;
-
   private UUID id;
   @JsonProperty("nft_id")
   private Integer tokenId;

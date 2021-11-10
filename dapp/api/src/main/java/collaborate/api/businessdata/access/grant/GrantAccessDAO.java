@@ -11,6 +11,7 @@ import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class GrantAccessDAO {
 
   }
 
-  public Optional<AccessRequest> findOneById(UUID id) {
+  public Optional<AccessRequest> findOneAccessRequestById(UUID id) {
     var requestAccessRequest = new DataFieldsRequest<>(List.of(
         new MapQuery<>(ACCESS_REQUESTS_STORAGE_FIELD, List.of(id))
     ));
@@ -50,6 +51,7 @@ public class GrantAccessDAO {
     if (accessRequestResult.getAccessRequests() != null) {
       return accessRequestResult.getAccessRequests().stream()
           .filter(e -> e.getKey().equals(id))
+          .filter(e -> Objects.nonNull(e.getValue()))
           .map(TagEntry::getValue)
           .findFirst();
     }
