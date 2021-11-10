@@ -1,0 +1,24 @@
+{
+  "indexer": "tzstats",
+  "destination": "KT1X2KDj3opRXbyTRgCTejAUNLHjwyUZoSoU",
+  "source": "tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG",
+  "timestamp": "2021-11-09T19:53:26Z",
+  "status": "applied",
+  "baker_fee": 0.001011,
+  "storage_fee": 0.05,
+  "storage_limit": 200,
+  "counter": 365226,
+  "hash": "oonSpwpW4KaqLFeeZ77FDa8u2vWFhXc8N6VSrwop29Exaoi6Haj",
+  "block": "BLueKHMtjozMJz2bAnoYgeVfZv2yHHT9WCMf1UygkRsnhPanEWB",
+  "type": "transaction",
+  "height": 667938,
+  "entrypoint": "request_access",
+  "parameters": {
+    "access_requests_uuid": "05b108f5-1f4c-448b-bf97-8571a2a1e5dc",
+    "nft_id": "3",
+    "provider_address": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
+    "scopes": [
+      "f40a829f-84d9-4dda-8ea1-3fe2fbe15635:customers-analytics"
+    ]
+  }
+}
