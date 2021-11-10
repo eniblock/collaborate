@@ -1,8 +1,11 @@
 package collaborate.api.user.metadata;
 
+import static java.util.Objects.requireNonNull;
+
 import collaborate.api.tag.model.user.UserMetadataDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
@@ -15,10 +18,15 @@ class TagUserMetadataDAO {
   private final ObjectMapper objectMapper;
   private final TagUserMetadataClient tagUserMetadataClient;
 
-  public <T> T getMetadata(String userId, Class<T> tClass) {
-    var wrappedMetadata = tagUserMetadataClient.getMetadata(userId);
+  public <T> Optional<T> getMetadata(String userId, Class<T> tClass) {
+    var responseEntity = tagUserMetadataClient.getMetadata(userId);
+    if (!responseEntity.getStatusCode().is2xxSuccessful()) {
+      return Optional.empty();
+    }
     try {
-      return objectMapper.readValue(wrappedMetadata.getData(), tClass);
+      return Optional.of(
+          objectMapper.readValue(requireNonNull(responseEntity.getBody()).getData(), tClass)
+      );
     } catch (JsonProcessingException e) {
       log.error("Can't deserialize metadata for userId={}", userId);
       throw new IllegalStateException(e);

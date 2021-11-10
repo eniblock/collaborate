@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 
 import collaborate.api.nft.model.storage.Multisig;
 import collaborate.api.passport.model.AccessStatus;
-import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.UserService;
 import collaborate.api.user.connected.ConnectedUserService;
 import org.junit.jupiter.api.Test;
@@ -33,8 +32,7 @@ class AssetDetailsDTOFactoryTest {
   void getCreateStatus_shouldReturnNoAccess_withUserNotOwnerNorAccessRequester() {
     // GIVEN
     String connectedWalletAddress = "tzC";
-    when(connectedUserService.getWallet())
-        .thenReturn(UserWalletDTO.builder().address(connectedWalletAddress).build());
+    when(connectedUserService.getWalletAddress()).thenReturn(connectedWalletAddress);
     var multisig = Multisig.builder()
         .addr1("tzA")
         .addr2("tzB")
@@ -50,8 +48,7 @@ class AssetDetailsDTOFactoryTest {
   void getCreateStatus_shouldReturnGranted_withOwnerUser() {
     // GIVEN
     String connectedWalletAddress = "tzB";
-    when(connectedUserService.getWallet())
-        .thenReturn(UserWalletDTO.builder().address(connectedWalletAddress).build());
+    when(connectedUserService.getWalletAddress()).thenReturn(connectedWalletAddress);
     var multisig = Multisig.builder()
         .addr1("tzA")
         .addr2("tzB")
@@ -66,8 +63,7 @@ class AssetDetailsDTOFactoryTest {
   void getCreateStatus_shouldReturnGranted_withRequesterUserAndMultisigOk() {
     // GIVEN
     String connectedWalletAddress = "tzA";
-    when(connectedUserService.getWallet())
-        .thenReturn(UserWalletDTO.builder().address(connectedWalletAddress).build());
+    when(connectedUserService.getWalletAddress()).thenReturn(connectedWalletAddress);
     var multisig = Multisig.builder()
         .addr1("tzA")
         .addr2("tzB")
@@ -83,8 +79,7 @@ class AssetDetailsDTOFactoryTest {
   void getCreateStatus_shouldReturnPending_withRequesterUserAndMultisigOkIsNull() {
     // GIVEN
     String connectedWalletAddress = "tzA";
-    when(connectedUserService.getWallet())
-        .thenReturn(UserWalletDTO.builder().address(connectedWalletAddress).build());
+    when(connectedUserService.getWalletAddress()).thenReturn(connectedWalletAddress);
     var multisig = Multisig.builder()
         .addr1("tzA")
         .addr2("tzB")

@@ -6,7 +6,6 @@ import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.mail.MailService;
 import collaborate.api.tag.model.user.UserWalletDTO;
-import collaborate.api.user.connected.ConnectedUserService;
 import collaborate.api.user.model.RolesDTO;
 import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.KeycloakService;
@@ -51,7 +50,6 @@ public class UserService {
   );
 
   private final ApiProperties apiProperties;
-  private final ConnectedUserService connectedUserService;
   private final KeycloakService keycloakService;
   private final MailProperties mailProperties;
   private final MailService mailService;

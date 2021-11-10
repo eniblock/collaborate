@@ -10,9 +10,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import java.util.UUID;
+import javax.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -50,13 +50,15 @@ public class AccessGrantService {
 
   private VaultMetadata getVaultMetadata(AccessRequestParams accessRequestParams) {
     var datasourceId = accessRequestParams.getDatasourceId();
-    var vaultMetadata = userMetadataService.getMetadata(datasourceId, VaultMetadata.class);
-    if (vaultMetadata.getOAuth2() == null) {
-      log.error("Access request for datasourceId={} received but oAuth2 metadata seems to be empty",
-          datasourceId);
-      throw new NotImplementedException();
-    }
-    return vaultMetadata;
+    return userMetadataService
+        .findMetadata(datasourceId, VaultMetadata.class)
+        .filter(m -> m.getOAuth2() != null)
+        .orElseThrow(() -> {
+          log.error(
+              "Access request for datasourceId={} received but oAuth2 metadata seems to be missing",
+              datasourceId);
+          throw new NotFoundException();
+        });
   }
 
   private AccessGrantParams toAccessGrantParams(UUID uuid, String accessToken, String requester) {

@@ -1,9 +1,7 @@
 package collaborate.api.user.connected;
 
-import static collaborate.api.tag.TezosApiGatewayJobClient.ORGANIZATION_SECURE_KEY_NAME;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
-import collaborate.api.organization.OrganizationService;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.UserService;
 import collaborate.api.user.model.RolesDTO;
@@ -20,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class ConnectedUserService {
 
   private final ConnectedUserDAO connectedUserDAO;
-  private final OrganizationService organizationService;
   private final UserService userService;
 
   public Set<String> getRealmRoles() {
@@ -41,11 +38,7 @@ public class ConnectedUserService {
 
   public UserWalletDTO getWallet() {
     if (connectedUserDAO.isOrganization()) {
-      var organization = organizationService.getCurrentOrganization();
-      return UserWalletDTO.builder()
-          .userId(ORGANIZATION_SECURE_KEY_NAME)
-          .address(organization.getAddress())
-          .build();
+      return userService.getAdminUser();
     } else {
       return connectedUserDAO.findEmail()
           .map(userService::findByEmailOrThrow)

@@ -1,5 +1,6 @@
 package collaborate.api.user.metadata;
 
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ public class UserMetadataService {
 
   private final TagUserMetadataDAO tagUserMetadataDAO;
 
-  public <T> T getMetadata(String userId, Class<T> tClass) {
+  public <T> Optional<T> findMetadata(String userId, Class<T> tClass) {
     return tagUserMetadataDAO.getMetadata(userId, tClass);
   }
 
