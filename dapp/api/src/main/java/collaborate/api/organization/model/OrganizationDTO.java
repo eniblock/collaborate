@@ -2,6 +2,7 @@ package collaborate.api.organization.model;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,6 +18,7 @@ public class OrganizationDTO {
   private String legalName;
 
   @Schema(description = "The hash value of the publicKey", example = "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
+  @NotBlank
   private String address;
 
   @Schema(description = "The publicKey key of the organization", example = "edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2")

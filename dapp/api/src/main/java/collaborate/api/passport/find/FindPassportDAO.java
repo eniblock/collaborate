@@ -1,9 +1,9 @@
 package collaborate.api.passport.find;
 
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.passport.model.storage.Multisig;
+import collaborate.api.nft.model.storage.Multisig;
+import collaborate.api.nft.model.storage.TokenMetadata;
 import collaborate.api.passport.model.storage.StorageFields;
-import collaborate.api.passport.model.storage.TokenMetadata;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;

@@ -27,6 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class CreateBusinessDataService {
 
+  public static final String ASSET_ID_SEPARATOR = ":";
   private final CreateBusinessDataNftDAO createBusinessDataNftDAO;
   private final CreateNFTService createNFTService;
   private final ObjectMapper objectMapper;
@@ -38,7 +39,7 @@ public class CreateBusinessDataService {
       var assetListResponse = getAssetListResponse((WebServerDatasourceDTO) datasourceDTO);
       var assetIdAndUris = getScopeFromAssetList(assetListResponse)
           .map(s -> AssetDTO.builder()
-              .assetId(datasourceDTO.getId() + ":" + s)
+              .assetId(datasourceDTO.getId() + ASSET_ID_SEPARATOR + s)
               .assetType("business-data")
               .datasourceUUID(datasourceDTO.getId())
               .assetIdForDatasource(s)
