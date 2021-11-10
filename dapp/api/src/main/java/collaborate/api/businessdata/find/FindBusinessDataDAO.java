@@ -12,7 +12,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class FindBusinessDataDAO {
+class FindBusinessDataDAO {
 
   private final ApiProperties apiProperties;
   private final TAGBusinessDataClient tagBusinessDataClient;

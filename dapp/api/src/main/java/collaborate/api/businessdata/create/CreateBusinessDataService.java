@@ -32,29 +32,32 @@ public class CreateBusinessDataService {
   private final CreateNFTService createNFTService;
   private final ObjectMapper objectMapper;
   private final RequestEntitySupplierFactory requestEntitySupplierFactory;
-  private final BusinessDataTokenMetadataSupplier businesDataTokenMetadataSupplier;
+  private final BusinessDataTokenMetadataSupplier tokenMetadataSupplier;
 
   public void create(DatasourceDTO datasourceDTO) {
     if (isOAuth2WebServer(datasourceDTO)) {
       var assetListResponse = getAssetListResponse((WebServerDatasourceDTO) datasourceDTO);
       var assetIdAndUris = getScopeFromAssetList(assetListResponse)
-          .map(s -> AssetDTO.builder()
-              .assetId(datasourceDTO.getId() + ASSET_ID_SEPARATOR + s)
-              .assetType("business-data")
-              .datasourceUUID(datasourceDTO.getId())
-              .assetIdForDatasource(s)
-              .build()
-          ).map(this::initAssetIdAndUri)
+          .map(s -> buildAssetDto(datasourceDTO, s))
+          .map(this::buildAssetIdAndUri)
           .collect(Collectors.toList());
       createBusinessDataNftDAO.mintBusinessDataNFT(assetIdAndUris);
     }
   }
 
-  private AssetIdAndUri initAssetIdAndUri(AssetDTO assetDTO) {
+  private AssetDTO buildAssetDto(DatasourceDTO datasourceDTO, String scope) {
+    return AssetDTO.builder()
+        .assetId(datasourceDTO.getId() + ASSET_ID_SEPARATOR + scope)
+        .assetType("business-data")
+        .datasourceUUID(datasourceDTO.getId())
+        .assetIdForDatasource(scope)
+        .build();
+  }
+
+  private AssetIdAndUri buildAssetIdAndUri(AssetDTO assetDTO) {
     try {
       log.info("Minting asset={}", assetDTO);
-      var ipfsMetadataUri = createNFTService.saveMetadata(assetDTO,
-          businesDataTokenMetadataSupplier);
+      var ipfsMetadataUri = createNFTService.saveMetadata(assetDTO, tokenMetadataSupplier);
       return new AssetIdAndUri(assetDTO.getAssetId(), ipfsMetadataUri);
     } catch (IOException e) {
       log.error("error while minting asset={}", assetDTO);

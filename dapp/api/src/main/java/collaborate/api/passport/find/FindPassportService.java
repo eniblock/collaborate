@@ -3,7 +3,6 @@ package collaborate.api.passport.find;
 import static collaborate.api.user.security.Authorizations.Roles.ASSET_OWNER;
 import static java.util.function.UnaryOperator.identity;
 import static java.util.stream.Collectors.toMap;
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import collaborate.api.nft.model.storage.TokenIndex;
 import collaborate.api.organization.OrganizationService;
@@ -11,9 +10,8 @@ import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.passport.model.storage.PassportsIndexer;
 import collaborate.api.tag.model.TagEntry;
-import collaborate.api.tag.model.user.UserWalletDTO;
-import collaborate.api.user.security.ConnectedUserDAO;
-import collaborate.api.user.tag.TagUserDAO;
+import collaborate.api.user.UserService;
+import collaborate.api.user.connected.ConnectedUserService;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Collections;
@@ -27,17 +25,16 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @Service
 public class FindPassportService {
 
   private final DigitalPassportDetailsDTOFactory digitalPassportDetailsDTOFactory;
-  private final ConnectedUserDAO connectedUserDAO;
+  private final ConnectedUserService connectedUserService;
   private final FindPassportDAO findPassportDAO;
   private final OrganizationService organizationService;
-  private final TagUserDAO tagUserDAO;
+  private final UserService userService;
 
   public Optional<DigitalPassportDetailsDTO> findPassportDetailsFromMultisig(Integer contractId) {
     return findPassportDAO.findMultisigById(contractId)
@@ -82,9 +79,9 @@ public class FindPassportService {
   public Collection<DigitalPassportDetailsDTO> getByConnectedUser() {
     Collection<DigitalPassportDetailsDTO> digitalPassports;
 
-    Set<String> roles = connectedUserDAO.getRealmRoles();
+    Set<String> roles = connectedUserService.getRealmRoles();
     if (roles.contains(ASSET_OWNER)) {
-      digitalPassports = getAllPassportsByAssetOwner(connectedUserDAO.getEmailOrThrow());
+      digitalPassports = getAllPassportsByAssetOwner(connectedUserService.getEmailOrThrow());
     } else {
       digitalPassports = getAllPassports(Optional.empty());
     }
@@ -98,10 +95,7 @@ public class FindPassportService {
 
   private Collection<DigitalPassportDetailsDTO> getAllPassportsByAssetOwner(
       String assetOwnerEmail) {
-    var assetOwnerAddress = tagUserDAO.findOneByUserEmail(assetOwnerEmail)
-        .map(UserWalletDTO::getAddress)
-        .orElseThrow(() -> new ResponseStatusException(INTERNAL_SERVER_ERROR,
-            "No vehicleOwner account found for current user=" + assetOwnerEmail));
+    var assetOwnerAddress = userService.findWalletAddressByEmailOrThrow(assetOwnerEmail);
     return getAllPassports(Optional.of(assetOwnerAddress));
   }
 

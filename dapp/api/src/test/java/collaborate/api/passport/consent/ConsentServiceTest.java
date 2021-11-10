@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.job.Job.Status;
 import collaborate.api.tag.model.user.UserWalletDTO;
-import collaborate.api.user.UserService;
+import collaborate.api.user.connected.ConnectedUserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,7 +19,7 @@ class ConsentServiceTest {
   @Mock
   private ConsentPassportDAO consentPassportDAO;
   @Mock
-  private UserService userService;
+  private ConnectedUserService connectedUserService;
   @InjectMocks
   private ConsentService consentService;
 
@@ -41,7 +41,7 @@ class ConsentServiceTest {
         .email(userEmail)
         .build();
     ConsentPassportDTO consentPassportDTO = new ConsentPassportDTO(contractId, userWalletDTO);
-    when(userService.getConnectedUserWallet()).thenReturn(userWalletDTO);
+    when(connectedUserService.getWallet()).thenReturn(userWalletDTO);
     when(consentPassportDAO.consent(consentPassportDTO)).thenReturn(jobResult);
     // WHEN
     Job actual = consentService.consent(contractId);

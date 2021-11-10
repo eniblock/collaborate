@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ConsentPassportDAO {
+class ConsentPassportDAO {
 
   private static final String CONSENT_ENTRY_POINT = "passport_consent";
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;

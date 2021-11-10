@@ -7,6 +7,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import collaborate.api.test.config.KeycloakTestConfig;
 import collaborate.api.test.config.NoSecurityTestConfig;
+import collaborate.api.user.connected.ConnectedUserService;
 import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.KeycloakService;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,6 +34,8 @@ class UserControllerIT {
   KeycloakService keycloakService;
   @MockBean
   UserService userService;
+  @MockBean
+  ConnectedUserService connectedUserService;
   @Autowired
   private WebApplicationContext context;
   private MockMvc mockMvc;
@@ -46,7 +49,7 @@ class UserControllerIT {
   void createTagUser_shouldReturn201Created_withTagUserCreationSuccess() throws Exception {
     // GIVEN
     UserDTO usersDTO = new UserDTO();
-    when(userService.updateCurrentUserWithAssetOwnerRole()).thenReturn(usersDTO);
+    when(connectedUserService.updateWithAssetOwnerRole()).thenReturn(usersDTO);
     // WHEN
     mockMvc
         .perform(post("/api/v1/users/tag/asset-owner"))
