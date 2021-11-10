@@ -9,7 +9,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import collaborate.api.businessdata.access.request.AccessRequestService;
+import collaborate.api.businessdata.access.AccessRequestService;
 import collaborate.api.businessdata.find.FindBusinessDataService;
 import collaborate.api.config.ControllerExceptionHandler;
 import collaborate.api.nft.model.AssetDetailsDTO;

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @Slf4j
 @RequiredArgsConstructor
-public class TraefikProviderDAO {
+class TraefikProviderDAO {
 
   private final YamlMapper yamlMapper;
   private final TraefikProperties traefikProperties;
