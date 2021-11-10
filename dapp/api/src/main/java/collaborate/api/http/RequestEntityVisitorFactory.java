@@ -1,5 +1,6 @@
 package collaborate.api.http;
 
+import collaborate.api.datasource.OAuth2JWTProvider;
 import collaborate.api.datasource.RequestEntityVisitor;
 import collaborate.api.http.security.SSLContextFactory;
 import java.net.URI;
@@ -14,11 +15,13 @@ public class RequestEntityVisitorFactory {
 
   private final SSLContextFactory sslContextCreator;
   private final HttpClientFactory httpClientFactory;
+  private final OAuth2JWTProvider oAuth2JWTProvider;
 
   public RequestEntityVisitor create(URI uri) {
     return new RequestEntityVisitor(
-        new RequestEntityBuilder<>(uri.toString()),
+        oAuth2JWTProvider,
         httpClientFactory,
+        new RequestEntityBuilder<>(uri.toString()),
         sslContextCreator
     );
   }

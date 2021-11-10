@@ -61,7 +61,7 @@ public class OrganizationService {
     });
   }
 
-  public OrganizationDTO getCurrentOrganizations() {
+  public OrganizationDTO getCurrentOrganization() {
     var adminUser = userService.getAdminUser();
     return getByWalletAddress(adminUser.getAddress());
   }

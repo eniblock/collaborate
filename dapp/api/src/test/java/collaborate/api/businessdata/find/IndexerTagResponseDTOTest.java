@@ -10,7 +10,7 @@ class IndexerTagResponseDTOTest {
   @Test
   void canBeDeserialized() {
     // WHEN
-    var indexer = TestResources.readPath(
+    var indexer = TestResources.readContent(
         "/businessdata/indexer-response.json",
         IndexerTagResponseDTO.class
     );
@@ -22,7 +22,7 @@ class IndexerTagResponseDTOTest {
   @Test
   void streamTokenIndexes_hasExpectedSize() {
     // WHEN
-    var indexer = TestResources.readPath(
+    var indexer = TestResources.readContent(
         "/businessdata/indexer-response.json",
         IndexerTagResponseDTO.class
     );

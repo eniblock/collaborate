@@ -1,16 +1,14 @@
 package collaborate.api.security;
 
-import java.nio.charset.StandardCharsets;
-import java.security.InvalidKeyException;
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.security.KeyFactory;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,11 +17,11 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class CipherService {
+public class RsaCipherService {
 
-  private final Cipher cipher;
+  private static final String RSA_ALGORITHM = "RSA/None/OAEPWITHSHA-256ANDMGF1PADDING";
 
-  public static PublicKey getKey(String key) {
+  public PublicKey getPublicKey(String key) {
     try {
       byte[] byteKey = Base64.getDecoder().decode(key);
 
@@ -31,12 +29,11 @@ public class CipherService {
       KeyFactory kf = KeyFactory.getInstance("RSA");
       return kf.generatePublic(x509publicKey);
     } catch (Exception e) {
-      e.printStackTrace();
+      throw new IllegalStateException(e);
     }
-    return null;
   }
 
-  public static PrivateKey getPrivateKey(String key) {
+  public PrivateKey getPrivateKey(String key) {
     try {
       byte[] byteKey = Base64.getDecoder().decode(key);
 
@@ -45,8 +42,8 @@ public class CipherService {
       return kf.generatePrivate(keySpec);
     } catch (Exception e) {
       log.error("While getting private key", e);
+      throw new IllegalStateException(e);
     }
-    return null;
   }
 
   /**
@@ -55,11 +52,16 @@ public class CipherService {
    * string into an array of bytes using UTF-8 - cipher the bytes with the public key - encode the
    * cyphered bytes into a base64 string
    */
-  public synchronized String cipher(String deciphered, PublicKey publicKey)
-      throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-    cipher.init(Cipher.ENCRYPT_MODE, publicKey);
-    cipher.update(deciphered.getBytes(StandardCharsets.UTF_8));
-    return Base64.getEncoder().encodeToString(cipher.doFinal());
+  public String cipher(String deciphered, String rawPublicKey) {
+    try {
+      PublicKey publicKey = getPublicKey(rawPublicKey);
+      var cipher = Cipher.getInstance(RSA_ALGORITHM);
+      cipher.init(Cipher.ENCRYPT_MODE, publicKey);
+      cipher.update(deciphered.getBytes(UTF_8));
+      return Base64.getEncoder().encodeToString(cipher.doFinal());
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
   }
 
   /**
@@ -67,9 +69,14 @@ public class CipherService {
    * consists in 3 steps: - decode the string with base64 into an array of bytes - decipher the
    * bytes with the private key - transform the bytes into a string using UTF-8
    */
-  public String decipher(String ciphered, PrivateKey privateKey)
-      throws InvalidKeyException, IllegalBlockSizeException, BadPaddingException {
-    cipher.init(Cipher.DECRYPT_MODE, privateKey);
-    return new String(cipher.doFinal(Base64.getDecoder().decode(ciphered)), StandardCharsets.UTF_8);
+  public String decipher(String ciphered, String rawPrivateKey) {
+    try {
+      PrivateKey privateKey = getPrivateKey(rawPrivateKey);
+      var cipher = Cipher.getInstance(RSA_ALGORITHM);
+      cipher.init(Cipher.DECRYPT_MODE, privateKey);
+      return new String(cipher.doFinal(Base64.getDecoder().decode(ciphered)), UTF_8);
+    } catch (Exception e) {
+      throw new IllegalStateException(e);
+    }
   }
 }
