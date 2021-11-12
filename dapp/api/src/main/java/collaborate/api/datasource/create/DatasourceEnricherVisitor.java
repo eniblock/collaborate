@@ -33,7 +33,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class DatasourceEnricherVisitor implements
     DatasourceDTOVisitor<DatasourceEnrichment<? extends DatasourceDTO>> {
 
-  public static final String KEY_PATH = "$.scope";
+  public static final String KEY_PATH = "$.id";
   private final RequestEntitySupplierFactory requestEntitySupplierFactory;
   private final ObjectMapper objectMapper;
 
@@ -128,7 +128,7 @@ public class DatasourceEnricherVisitor implements
 
   private <T> SimpleEntry<String, T> buildResourceForKey(T resource, JSONPath keyPath) {
     return new SimpleEntry<>(
-        "scope:" + keyPath.eval(resource, String.class),
+        "document:" + keyPath.eval(resource, String.class),
         resource
     );
   }

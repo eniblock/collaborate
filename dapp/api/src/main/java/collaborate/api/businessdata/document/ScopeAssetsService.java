@@ -3,6 +3,7 @@ package collaborate.api.businessdata.document;
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
 import static java.util.stream.Collectors.toList;
 
+import collaborate.api.businessdata.document.model.DownloadDocument;
 import collaborate.api.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.config.api.ApiProperties;
@@ -12,36 +13,53 @@ import collaborate.api.datasource.model.dto.web.authentication.AccessTokenRespon
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
 import collaborate.api.gateway.GatewayResourceDTO;
 import collaborate.api.gateway.GatewayUrlService;
+import collaborate.api.http.HttpClientFactory;
 import collaborate.api.nft.find.TokenMetadataService;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
 import collaborate.api.user.metadata.UserMetadataService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.net.URI;
 import java.time.Clock;
 import java.time.ZonedDateTime;
 import java.util.Collection;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import javax.servlet.ServletOutputStream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StreamUtils;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class DocumentService {
+public class ScopeAssetsService {
 
   public static final String ASSET_ID_SEPARATOR = ":";
   private final AccessTokenProvider accessTokenProvider;
   private final ApiProperties apiProperties;
   private final Clock clock;
   private final GatewayUrlService gatewayUrlService;
+  private final HttpClientFactory httpClientFactory;
   private final UserMetadataService userMetadataService;
   private final TokenMetadataService tokenMetadataService;
 
@@ -135,5 +153,79 @@ public class DocumentService {
               .build());
     }
     return Stream.empty();
+  }
+
+  public ZipOutputStream download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)
+      throws IOException {
+    var accessTokenResponseOpt = getJwt(scopeAssets.getDatasourceId(), scopeAssets.getScopeName());
+    if (accessTokenResponseOpt.isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
+    var r = scopeAssets.getAssets().stream()
+        .map(ScopeAssetDTO::getDownloadLink)
+        .map(URI::toString)
+        .map(s -> fetch(s, accessTokenResponseOpt.get()))
+        .collect(toList());
+    return
+        zip(r, outputStream);
+  }
+
+  public ZipOutputStream zip(List<DownloadDocument> documents, ServletOutputStream outputStream)
+      throws IOException {
+    try (ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream)) {
+
+      Set<String> fileNameSet = new LinkedHashSet<>();
+
+      for (DownloadDocument downloadDocument : documents) {
+        String fileName = downloadDocument.getFileName();
+        for (int i = 1; !fileNameSet.add(fileName); i++) {
+          // If the value is already present in the set, an index is added
+          fileName = downloadDocument.getFileName() + '_' + i;
+          log.info("Identical file name found : " + fileName);
+        }
+        zipOutputStream.putNextEntry(new ZipEntry(fileName));
+        try (FileInputStream fileInputStream = new FileInputStream(downloadDocument.getFile())) {
+          IOUtils.copy(fileInputStream, zipOutputStream);
+          zipOutputStream.closeEntry();
+        }
+        downloadDocument.getFile().delete();
+      }
+      return zipOutputStream;
+    }
+  }
+
+  public DownloadDocument fetch(String url, AccessTokenResponse oAuth2Jwt) {
+    RestTemplate restTemplate = buildRestTemplate();
+
+    return restTemplate.execute(
+        url,
+        HttpMethod.GET,
+        clientHttpRequest -> clientHttpRequest.getHeaders().set(
+            "Authorization",
+            "Bearer " + oAuth2Jwt.getAccessToken()
+        ),
+        httpResponse -> {
+          var contentDisposition = httpResponse.getHeaders().get("Content-Disposition").get(0);
+          String filename = contentDisposition.substring(
+              contentDisposition.indexOf("\"") + 1,
+              contentDisposition.lastIndexOf("\"")
+          );
+
+          File ret = File.createTempFile(filename, "");
+          StreamUtils.copy(httpResponse.getBody(), new FileOutputStream(ret));
+
+          return new DownloadDocument(filename, ret);
+        });
+  }
+
+  private RestTemplate buildRestTemplate() {
+    var restTemplate = new RestTemplate();
+    restTemplate.setRequestFactory(
+        new HttpComponentsClientHttpRequestFactory(
+            httpClientFactory.createTrustAllAndNoHostnameVerifier()
+        )
+    );
+
+    return restTemplate;
   }
 }

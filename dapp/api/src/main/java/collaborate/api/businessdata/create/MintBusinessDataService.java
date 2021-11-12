@@ -1,6 +1,6 @@
 package collaborate.api.businessdata.create;
 
-import static collaborate.api.businessdata.document.DocumentService.ASSET_ID_SEPARATOR;
+import static collaborate.api.businessdata.document.ScopeAssetsService.ASSET_ID_SEPARATOR;
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;

@@ -1,6 +1,6 @@
 package collaborate.api.businessdata.find;
 
-import static collaborate.api.businessdata.document.DocumentService.ASSET_ID_SEPARATOR;
+import static collaborate.api.businessdata.document.ScopeAssetsService.ASSET_ID_SEPARATOR;
 
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.nft.model.AssetDetailsDTO;

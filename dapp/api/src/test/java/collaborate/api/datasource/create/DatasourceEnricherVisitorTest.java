@@ -33,15 +33,15 @@ class DatasourceEnricherVisitorTest {
             datasourceDTO.toBuilder()
                 .resources(List.of(
                     WebServerResource.builder()
-                        .url("/documents/referentials")
-                        .keywords(Set.of("scope:referentials"))
+                        .url("/documents/dspA1")
+                        .keywords(Set.of("document:dspA1"))
                         .build()
                 ))
                 .build()
         );
     assertThat(enrichmentsResult.getMetadata()).containsExactlyInAnyOrder(
         Metadata.builder()
-            .name("scope:referentials:title")
+            .name("document:dspA1:title")
             .value("Centres ouverts")
             .type("string")
             .build()

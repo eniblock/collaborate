@@ -10,6 +10,7 @@ import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
 import collaborate.api.gateway.GatewayUrlService;
+import collaborate.api.http.HttpClientFactory;
 import collaborate.api.nft.find.TokenMetadataService;
 import collaborate.api.test.TestResources;
 import collaborate.api.user.metadata.UserMetadataService;
@@ -32,7 +33,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 @ExtendWith(MockitoExtension.class)
-class DocumentServiceTest {
+class ScopeAssetsServiceTest {
 
   @Mock
   AccessTokenProvider accessTokenProvider;
@@ -42,20 +43,23 @@ class DocumentServiceTest {
   @Mock
   GatewayUrlService gatewayUrlService;
   @Mock
+  HttpClientFactory httpClientFactory;
+  @Mock
   UserMetadataService userMetadataService;
   @Mock
   TokenMetadataService tokenMetadataService;
 
   @InjectMocks
-  DocumentService documentService;
+  ScopeAssetsService scopeAssetsService;
 
   @BeforeEach
   void setUp() {
-    documentService = new DocumentService(
+    scopeAssetsService = new ScopeAssetsService(
         accessTokenProvider,
         apiProperties,
         clock,
         gatewayUrlService,
+        httpClientFactory,
         userMetadataService,
         tokenMetadataService);
   }
@@ -70,7 +74,7 @@ class DocumentServiceTest {
         .thenReturn(Optional.ofNullable(vaultMetadata));
 
     // WHEN
-    var oAuth2ResultO = documentService.getOAuth2(datasourceId);
+    var oAuth2ResultO = scopeAssetsService.getOAuth2(datasourceId);
     // THEN
     assertThat(oAuth2ResultO).isEqualTo(expectedOAuth2Opt);
   }
@@ -113,7 +117,7 @@ class DocumentServiceTest {
     }
 
     // WHEN
-    var oAuth2ResultO = documentService.getJwt(datasourceId, scope);
+    var oAuth2ResultO = scopeAssetsService.getJwt(datasourceId, scope);
     // THEN
     assertThat(oAuth2ResultO).isEqualTo(expectedResult);
   }
@@ -146,12 +150,12 @@ class DocumentServiceTest {
     var assetListJsonString = TestResources.readContent("/businessdata/document/asset-list.json");
     var scope = "customers-analytics";
     // WHEN
-    var scopeAssetsResult = documentService.filterByScope(assetListJsonString, scope);
+    var scopeAssetsResult = scopeAssetsService.filterByScope(assetListJsonString, scope);
     // THEN
     assertThat(scopeAssetsResult).containsExactlyInAnyOrder(
         ScopeAssetDTO.builder()
             .name("Nombre de metrics saisis en atelier (par mois)")
-            .type("")
+            .type("MVP document")
             .synchronizedDate(ZonedDateTime.now(clock))
             .link(URI.create("http://fake-datasource-api-dsp-a:3000/documents/dspA2"))
             .downloadLink(
@@ -159,7 +163,7 @@ class DocumentServiceTest {
             .build(),
         ScopeAssetDTO.builder()
             .name("Contactabilité des clients (à date)")
-            .type("")
+            .type("MVP document")
             .synchronizedDate(ZonedDateTime.now(clock))
             .link(URI.create("http://fake-datasource-api-dsp-a:3000/documents/dspA6"))
             .downloadLink(
