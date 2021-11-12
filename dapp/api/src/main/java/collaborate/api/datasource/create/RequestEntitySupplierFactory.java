@@ -24,4 +24,5 @@ public class RequestEntitySupplierFactory {
     var requestEntityVisitor = requestEntityVisitorFactory.create(uri);
     return serverDatasourceDTO.getAuthMethod().accept(requestEntityVisitor);
   }
+
 }

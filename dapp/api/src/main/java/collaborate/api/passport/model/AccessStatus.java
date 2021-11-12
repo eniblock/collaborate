@@ -7,8 +7,6 @@ public enum AccessStatus {
   PENDING,
   @JsonProperty("granted")
   GRANTED,
-  @JsonProperty("available")
-  AVAILABLE,
   @JsonProperty("locked")
   LOCKED
 }

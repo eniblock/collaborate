@@ -30,7 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 class TagUserDAO {
 
   private final TagUserClient tagUserClient;
-
+  private final CleanUserService cleanUserService;
   /**
    * Vault key that point to wallet (key with coins)
    */
@@ -41,7 +41,7 @@ class TagUserDAO {
   public Optional<UserWalletDTO> create(String userEmail) {
     UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)
-        .userIdList(Set.of(cleanUserId(userEmail)))
+        .userIdList(Set.of(cleanUserService.cleanUserId(userEmail)))
         .build();
     log.debug("[TAG] create({})", createUsersDTO);
     try {
@@ -82,7 +82,7 @@ class TagUserDAO {
 
   @Cacheable(value = USER)
   public Optional<UserWalletDTO> findOneByUserEmail(String userEmail) {
-    return findOneByUserId(cleanUserId(userEmail));
+    return findOneByUserId(cleanUserService.cleanUserId(userEmail));
   }
 
   @Cacheable(value = USER)
@@ -90,20 +90,6 @@ class TagUserDAO {
     return findOneByUserEmail(secureKeyName)
         .map(UserWalletDTO::getAddress)
         .orElseThrow(() -> new IllegalStateException("No current organization account found"));
-  }
-
-  String cleanUserId(String userID) {
-    String cleaned = userID.replace("@", "_._xdev-at_._");
-    cleaned = cleaned.replace(":", "_._xdev-sem_._");
-    log.debug("userId {{}} cleaned as {{}}", userID, cleaned);
-    return cleaned;
-  }
-
-  String uncleanUserId(String userID) {
-    String uncleaned = userID.replace("_._xdev-at_._", "@");
-    uncleaned = uncleaned.replace("_._xdev-sem_._", ":");
-    log.debug("userId {{}} uncleaned as {{}}", userID, uncleaned);
-    return uncleaned;
   }
 
   void expectResponseStatusCode(ResponseEntity<?> response,
@@ -133,7 +119,7 @@ class TagUserDAO {
           .map(w -> UserWalletDTO.builder()
               .userId(w.getUserId())
               .address(w.getAddress())
-              .email(uncleanUserId(w.getUserId()))
+              .email(cleanUserService.uncleanUserId(w.getUserId()))
               .build()
           );
     }

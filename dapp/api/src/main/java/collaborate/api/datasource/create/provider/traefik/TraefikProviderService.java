@@ -3,7 +3,6 @@ package collaborate.api.datasource.create.provider.traefik;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
-import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,12 +15,17 @@ public class TraefikProviderService {
   private final TraefikProviderConfigurationFactory traefikProviderConfigurationFactory;
 
   public TraefikProviderConfiguration save(DatasourceDTO datasource)
-      throws DatasourceVisitorException, IOException {
+      throws DatasourceVisitorException {
     saveCertificate(datasource);
 
     var providerConfiguration = traefikProviderConfigurationFactory.create(datasource);
-    traefikProviderDAO.save(providerConfiguration, datasource.getId().toString());
+    var datasourceId = datasource.getId().toString();
+    save(providerConfiguration, datasourceId);
     return providerConfiguration;
+  }
+
+  public void save(TraefikProviderConfiguration providerConfiguration, String datasourceId) {
+    traefikProviderDAO.save(providerConfiguration, datasourceId);
   }
 
   private void saveCertificate(DatasourceDTO datasource) {

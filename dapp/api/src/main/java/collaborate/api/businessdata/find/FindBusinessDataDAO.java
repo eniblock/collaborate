@@ -23,11 +23,10 @@ class FindBusinessDataDAO {
         new MapQuery<>(StorageFields.NFT_INDEXER, dspAddresses)
     ));
     return tagBusinessDataClient
-        .getPassportsIndexer(
+        .getIndexer(
             apiProperties.getBusinessDataContractAddress(),
             requestPassportsIndexer
         );
   }
-
 
 }

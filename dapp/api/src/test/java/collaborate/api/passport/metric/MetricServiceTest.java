@@ -6,9 +6,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.model.Metadata;
+import collaborate.api.gateway.GatewayResourceDTO;
 import collaborate.api.gateway.GatewayUrlService;
 import collaborate.api.passport.find.FindPassportService;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
@@ -41,8 +41,6 @@ class MetricServiceTest {
   FindPassportService findPassportService;
   @Mock
   GatewayUrlService gatewayUrlService;
-  @Mock
-  TraefikProperties traefikProperties;
   ObjectMapper objectMapper = spy(TestResources.objectMapper);
   @InjectMocks
   MetricService metricService;
@@ -56,21 +54,22 @@ class MetricServiceTest {
         .baseUri("unused")
         .scopes(Set.of("scope:metric:A", "scope:metric:B"))
         .build();
-    when(traefikProperties.getUrl()).thenReturn(traefikUrl);
     when(datasourceService.getMetadata("dsId")).thenReturn(emptySet());
     // WHEN
     var metricUrl = metricService.buildMetricUrls(datasourceDTO);
 
     // THEN
     assertThat(metricUrl.collect(toList())).containsExactlyInAnyOrder(
-        MetricGatewayDTO.builder()
+        GatewayResourceDTO.builder()
             .scope("A")
-            .uri(traefikUrl + "/datasource/dsId/scope:metric:A/assetId")
+            .datasourceId("dsId")
+            .assetIdForDatasource("assetId")
             .metadata(emptySet())
             .build(),
-        MetricGatewayDTO.builder()
+        GatewayResourceDTO.builder()
             .scope("B")
-            .uri(traefikUrl + "/datasource/dsId/scope:metric:B/assetId")
+            .datasourceId("dsId")
+            .assetIdForDatasource("assetId")
             .metadata(emptySet())
             .build()
     );
@@ -79,7 +78,6 @@ class MetricServiceTest {
   @Test
   void buildMetricUrl_shouldResultInExpectedFormattedUrl_withEndingSlashInTraefikUrl() {
     // GIVEN
-    when(traefikProperties.getUrl()).thenReturn(traefikUrl + "/");
     when(datasourceService.getMetadata("dsId")).thenReturn(emptySet());
     DatasourceDTO datasourceDTO = DatasourceDTO.builder()
         .id("dsId")
@@ -92,9 +90,10 @@ class MetricServiceTest {
 
     // THEN
     assertThat(metricUrl.collect(toList())).containsExactlyInAnyOrder(
-        MetricGatewayDTO.builder()
+        GatewayResourceDTO.builder()
+            .datasourceId("dsId")
             .scope("A")
-            .uri(traefikUrl + "/datasource/dsId/scope:metric:A/assetId")
+            .assetIdForDatasource("assetId")
             .metadata(emptySet())
             .build()
     );
@@ -103,8 +102,6 @@ class MetricServiceTest {
   @Test
   void getMetricsAndUriStream_shouldResultInExpectedMergedUrlList_withMultipleDatasources() {
     // GIVEN
-    when(traefikProperties.getUrl()).thenReturn(traefikUrl + "/");
-
     DigitalPassportDetailsDTO passportDetailsDTO = DigitalPassportDetailsDTO.builder()
         .assetDataCatalog(
             new AssetDataCatalogDTO(
@@ -119,7 +116,10 @@ class MetricServiceTest {
                         .id("dsB")
                         .assetIdForDatasource("assetIdB")
                         .baseUri("unused")
-                        .scopes(Set.of("scope:metric:A", "scope:metric:B"))
+                        .scopes(Set.of(
+                            "scope:metric:A",
+                            "scope:metric:B")
+                        )
                         .build()
                 )
             )
@@ -129,19 +129,22 @@ class MetricServiceTest {
     var metricUrls = metricService.buildMetricUrls(passportDetailsDTO);
     // THEN
     assertThat(metricUrls.collect(toList())).containsExactlyInAnyOrder(
-        MetricGatewayDTO.builder()
+        GatewayResourceDTO.builder()
             .scope("A")
-            .uri(traefikUrl + "/datasource/dsA/scope:metric:A/assetIdA")
+            .datasourceId("dsA")
+            .assetIdForDatasource("assetIdA")
             .metadata(emptySet())
             .build(),
-        MetricGatewayDTO.builder()
+        GatewayResourceDTO.builder()
             .scope("A")
-            .uri(traefikUrl + "/datasource/dsB/scope:metric:A/assetIdB")
+            .datasourceId("dsB")
+            .assetIdForDatasource("assetIdB")
             .metadata(emptySet())
             .build(),
-        MetricGatewayDTO.builder()
+        GatewayResourceDTO.builder()
             .scope("B")
-            .uri(traefikUrl + "/datasource/dsB/scope:metric:B/assetIdB")
+            .datasourceId("dsB")
+            .assetIdForDatasource("assetIdB")
             .metadata(emptySet())
             .build()
     );

@@ -1,20 +1,20 @@
 package collaborate.api.passport.metric;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.startsWith;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
 
-import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.model.Metadata;
+import collaborate.api.gateway.GatewayResourceDTO;
 import collaborate.api.gateway.GatewayUrlService;
 import collaborate.api.passport.find.FindPassportService;
 import collaborate.api.passport.model.DatasourceDTO;
 import collaborate.api.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.passport.model.Metric;
-import collaborate.api.user.UserService;
 import collaborate.api.user.connected.ConnectedUserService;
 import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -33,7 +33,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import org.springframework.web.util.UriComponentsBuilder;
 
 
 @RequiredArgsConstructor
@@ -49,9 +48,6 @@ public class MetricService {
   private final FindPassportService findPassportService;
   private final ObjectMapper objectMapper;
   private final GatewayUrlService gatewayUrlService;
-  private final TraefikProperties traefikProperties;
-  private final UserService userService;
-
 
   public Optional<Page<Metric>> findAll(Integer tokenId, Pageable pageable, String query) {
     // TODO handle query parameter
@@ -88,7 +84,7 @@ public class MetricService {
     }
   }
 
-  Stream<MetricGatewayDTO> buildMetricUrls(
+  Stream<GatewayResourceDTO> buildMetricUrls(
       DigitalPassportDetailsDTO passportDetailsDTO) {
     return passportDetailsDTO
         .getAssetDataCatalog()
@@ -96,21 +92,15 @@ public class MetricService {
         .flatMap(this::buildMetricUrls);
   }
 
-  Stream<MetricGatewayDTO> buildMetricUrls(DatasourceDTO datasourceDTO) {
+  Stream<GatewayResourceDTO> buildMetricUrls(DatasourceDTO datasourceDTO) {
     Set<Metadata> metadata = datasourceService.getMetadata(datasourceDTO.getId());
-    var urlPrefix = UriComponentsBuilder.fromUriString(traefikProperties.getUrl())
-        .path("/datasource")
-        .path("/" + datasourceDTO.getId()).build().toUriString();
     return datasourceDTO.getScopes().stream()
         .filter(s -> startsWith(s, SCOPE_METRIC_PREFIX))
-        .map(scope -> MetricGatewayDTO.builder()
+        .map(scope -> GatewayResourceDTO.builder()
+            .datasourceId(datasourceDTO.getId())
+            .assetIdForDatasource(datasourceDTO.getAssetIdForDatasource())
             .scope(removeStart(scope, SCOPE_METRIC_PREFIX))
-            .uri(UriComponentsBuilder
-                .fromUriString(urlPrefix)
-                .path("/" + scope)
-                .path("/" + datasourceDTO.getAssetIdForDatasource())
-                .toUriString()
-            ).metadata(getScopeMetadata(scope, metadata))
+            .metadata(getScopeMetadata(scope, metadata))
             .build()
         );
   }
@@ -122,15 +112,19 @@ public class MetricService {
         .collect(toSet());
   }
 
-  List<Metric> fetchMetrics(Stream<MetricGatewayDTO> metricsAndUriResult) {
+  List<Metric> fetchMetrics(Stream<GatewayResourceDTO> metricsAndUriResult) {
     return metricsAndUriResult
         .map(
-            metricDTO -> CompletableFuture.supplyAsync(() -> {
-                  String jsonResponse = gatewayUrlService.fetch(metricDTO.getUri()).toString();
+            gtwResource -> CompletableFuture.supplyAsync(() -> {
+                  String jsonResponse = requireNonNull(
+                      gatewayUrlService
+                          .fetch(gtwResource, Optional.empty())
+                          .getBody()
+                  ).toString();
                   return Metric.builder()
                       .updatedAt(ZonedDateTime.now(clock))
-                      .scope(metricDTO.getScope())
-                      .value(extractValuePath(jsonResponse, metricDTO.getMetadata()))
+                      .scope(gtwResource.getScope())
+                      .value(extractValuePath(jsonResponse, gtwResource.getMetadata()))
                       .build();
                 }
             )

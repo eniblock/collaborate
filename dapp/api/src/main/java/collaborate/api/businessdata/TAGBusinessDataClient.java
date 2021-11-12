@@ -2,7 +2,7 @@ package collaborate.api.businessdata;
 
 import collaborate.api.businessdata.access.model.AccessRequestTagResponseDTO;
 import collaborate.api.businessdata.find.IndexerTagResponseDTO;
-import collaborate.api.passport.find.MultisigTagResponseDTO;
+import collaborate.api.nft.model.storage.TokenMetadataResponseDTO;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
 import java.util.UUID;
@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 public interface TAGBusinessDataClient {
 
   @PostMapping("/tezos_node/storage/{contractAddress}")
-  IndexerTagResponseDTO getPassportsIndexer(
+  IndexerTagResponseDTO getIndexer(
       @PathVariable String contractAddress,
       @RequestBody DataFieldsRequest<MapQuery<String>> request);
 
   @PostMapping("/tezos_node/storage/{contractAddress}")
-  MultisigTagResponseDTO getMultisigs(@PathVariable String contractAddress,
+  TokenMetadataResponseDTO getTokenMetadata(@PathVariable String contractAddress,
       @RequestBody DataFieldsRequest<MapQuery<Integer>> request);
 
   @PostMapping("/tezos_node/storage/{contractAddress}")

@@ -1,6 +1,7 @@
-package collaborate.api.passport.find;
+package collaborate.api.nft.find;
 
 import collaborate.api.datasource.DatasourceService;
+import collaborate.api.datasource.model.Datasource;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.ipfs.domain.dto.ContentWithCid;
 import collaborate.api.nft.create.DatasourceLink;
@@ -9,10 +10,12 @@ import collaborate.api.nft.model.metadata.TokenMetadata;
 import collaborate.api.nft.model.storage.Multisig;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
 import collaborate.api.passport.model.DatasourceDTO;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -23,8 +26,31 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class TokenMetadataService {
 
-  private final IpfsService ipfsService;
   private final DatasourceService datasourceService;
+  private final IpfsService ipfsService;
+  private final TokenMedataDAO tokenMedataDAO;
+
+  public Optional<AssetDataCatalogDTO> findByTokenId(Integer tokenId, String smartContract) {
+    var tokenMedataOpt = tokenMedataDAO.findById(tokenId, smartContract);
+    return tokenMedataOpt
+        .map(collaborate.api.nft.model.storage.TokenMetadata::getIpfsUri)
+        .flatMap(this::findDataCatalog);
+  }
+
+  public Stream<Datasource> getDatasourceProviderConfigurations(Integer tokenId,
+      String smartContract) {
+    var tokenMedataOpt = tokenMedataDAO.findById(tokenId, smartContract);
+    return tokenMedataOpt
+        .map(collaborate.api.nft.model.storage.TokenMetadata::getIpfsUri)
+        .map(uri -> ipfsService.cat(uri, TokenMetadata.class))
+        .flatMap(TokenMetadata::getAssetDataCatalogUri)
+        .map(catalogUri -> ipfsService.cat(catalogUri, AssetDataCatalog.class))
+        .map(AssetDataCatalog::getDatasources)
+        .stream()
+        .flatMap(Collection::stream)
+        .map(DatasourceLink::getUri)
+        .map(dsUri -> ipfsService.cat(dsUri, Datasource.class));
+  }
 
   public Optional<AssetDataCatalogDTO> findDataCatalog(Multisig multisig,
       Integer multisigContractId) {

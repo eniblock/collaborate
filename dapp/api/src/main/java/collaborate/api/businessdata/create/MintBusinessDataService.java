@@ -1,5 +1,6 @@
 package collaborate.api.businessdata.create;
 
+import static collaborate.api.businessdata.document.DocumentService.ASSET_ID_SEPARATOR;
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
@@ -25,16 +26,15 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class CreateBusinessDataService {
+public class MintBusinessDataService {
 
-  public static final String ASSET_ID_SEPARATOR = ":";
   private final CreateBusinessDataNftDAO createBusinessDataNftDAO;
   private final CreateNFTService createNFTService;
   private final ObjectMapper objectMapper;
   private final RequestEntitySupplierFactory requestEntitySupplierFactory;
   private final BusinessDataTokenMetadataSupplier tokenMetadataSupplier;
 
-  public void create(DatasourceDTO datasourceDTO) {
+  public void mint(DatasourceDTO datasourceDTO) {
     if (isOAuth2WebServer(datasourceDTO)) {
       var assetListResponse = getAssetListResponse((WebServerDatasourceDTO) datasourceDTO);
       var assetIdAndUris = getScopeFromAssetList(assetListResponse)
