@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,41 +23,11 @@ class TagUserDAOTest {
 
   @Mock
   private TagUserClient tagUserClient;
-
+  @Spy
+  private CleanUserService cleanUserService;
   @InjectMocks
   private TagUserDAO tagUserDAO;
 
-  @Test
-  void clean_shouldConvertStringAsExpected() {
-    // GIVEN
-    String email = "asset@owner.net";
-    String expected = "asset_._xdev-at_._owner.net";
-    // WHEN
-    String actual = tagUserDAO.cleanUserId(email);
-    // THEN
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  @Test
-  void unclean_shouldConvertStringAsExpected() {
-    // GIVEN
-    String toUnclean = "asset_._xdev-at_._owner.net";
-    String expected = "asset@owner.net";
-    // WHEN
-    String actual = tagUserDAO.uncleanUserId(toUnclean);
-    // THEN
-    assertThat(actual).isEqualTo(expected);
-  }
-
-  @Test
-  void cleanThenUnclean_shouldBeIdentity() {
-    // GIVEN
-    String email = "asset@owner.net";
-    // WHEN
-    String actual = tagUserDAO.uncleanUserId(tagUserDAO.cleanUserId(email));
-    // THEN
-    assertThat(actual).isEqualTo(email);
-  }
 
   @Test
   void create_shouldDeserialize_withTagJsonResponse() throws JsonProcessingException {
@@ -69,7 +40,6 @@ class TagUserDAOTest {
         .readValue(UserWalletFeature.tagUserJsonResponse, type);
     when(tagUserClient.create(any())).thenReturn(
         new ResponseEntity<>(createResult, HttpStatus.CREATED));
-
     var actualResult = tagUserDAO.create(userId);
     // THEN
     // create should return expected type

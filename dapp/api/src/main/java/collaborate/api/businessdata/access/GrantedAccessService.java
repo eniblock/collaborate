@@ -1,6 +1,7 @@
 package collaborate.api.businessdata.access;
 
 import collaborate.api.businessdata.access.model.AccessGrantParams;
+import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.transaction.Transaction;
 import collaborate.api.user.UserService;
 import collaborate.api.user.metadata.UserMetadataService;
@@ -39,7 +40,9 @@ public class GrantedAccessService {
     var scope = accessRequest.getScopes().stream().findFirst()
         .orElseThrow(() -> new IllegalStateException("No scope in accessRequest" + accessRequest));
     var user = userService.createUser(scope);
-    userMetadataService.upsertMetadata(user.getUserId(), decipheredJWT);
+
+    userMetadataService.upsertMetadata(user.getUserId(),
+        VaultMetadata.builder().jwt(decipheredJWT).build());
   }
 
   AccessGrantParams getAccessGrantParams(Transaction transaction) {
