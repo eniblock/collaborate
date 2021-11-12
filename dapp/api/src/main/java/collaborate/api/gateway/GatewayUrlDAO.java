@@ -4,7 +4,6 @@ import collaborate.api.datasource.model.dto.web.authentication.AccessTokenRespon
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.http.RequestEntityBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +18,6 @@ import org.springframework.web.client.RestTemplate;
 class GatewayUrlDAO {
 
   private final HttpClientFactory httpClientFactory;
-  private final ObjectMapper objectMapper;
 
   public ResponseEntity<JsonNode> fetch(String url, Optional<AccessTokenResponse> oAuth2Jwt) {
     RestTemplate restTemplate = buildRestTemplate();

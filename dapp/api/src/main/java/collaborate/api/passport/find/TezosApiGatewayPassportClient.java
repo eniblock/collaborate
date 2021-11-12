@@ -1,6 +1,7 @@
 package collaborate.api.passport.find;
 
 import collaborate.api.nft.model.storage.TokenMetadata;
+import collaborate.api.nft.model.storage.TokenMetadataResponseDTO;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
 import org.springframework.cloud.openfeign.FeignClient;

@@ -2,16 +2,18 @@ package collaborate.api.datasource.create;
 
 import static collaborate.api.test.TestResources.objectMapper;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.businessdata.create.CreateBusinessDataService;
+import collaborate.api.businessdata.create.MintBusinessDataService;
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceDAO;
 import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
+import collaborate.api.datasource.model.dto.DatasourceEnrichment;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
@@ -41,11 +43,13 @@ class CreateDatasourceServiceTest {
   @Mock
   AuthenticationMetadataVisitor authenticationMetadataVisitor;
   @Mock
-  CreateBusinessDataService createBusinessDataService;
+  MintBusinessDataService mintBusinessDataService;
   @Mock
   DatasourceDAO datasourceDAO;
   @Mock
   DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
+  @Mock
+  DatasourceEnricherVisitor datasourceEnricherVisitor;
   @Mock
   SaveAuthenticationVisitor saveAuthenticationVisitor;
   @Mock
@@ -61,10 +65,11 @@ class CreateDatasourceServiceTest {
     createDatasourceService =
         new CreateDatasourceService(
             authenticationMetadataVisitor,
-            createBusinessDataService,
             datasourceDAO,
             datasourceDTOMetadataVisitor,
+            datasourceEnricherVisitor,
             objectMapper,
+            mintBusinessDataService,
             saveAuthenticationVisitor,
             testConnectionVisitor,
             traefikProviderService,
@@ -93,7 +98,9 @@ class CreateDatasourceServiceTest {
     // WHEN
 
     var datasourceResult =
-        createDatasourceService.buildDatasource(datasourceDTO, traefikConfiguration);
+        createDatasourceService.buildDatasource(
+            new DatasourceEnrichment<>(datasourceDTO, emptySet()),
+            traefikConfiguration);
     // THEN
     var middlewareResult =
         (LinkedHashMap<?, ?>) datasourceResult.getProviderConfiguration().get("middlewares");
@@ -122,7 +129,8 @@ class CreateDatasourceServiceTest {
     when(datasourceDTOMetadataVisitor.visitWebServerDatasource(datasource))
         .thenReturn(Stream.of(datasourceMetadata));
     // WHEN
-    var metadataResult = createDatasourceService.buildMetadata(datasource);
+    var metadataResult = createDatasourceService.buildMetadata(
+        new DatasourceEnrichment<>(datasource, emptySet()));
     // THEN
     assertThat(metadataResult).containsExactlyInAnyOrder(
         authMetadata,

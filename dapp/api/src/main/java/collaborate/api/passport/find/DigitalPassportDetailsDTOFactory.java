@@ -5,6 +5,7 @@ import static collaborate.api.passport.model.AccessStatus.LOCKED;
 import static collaborate.api.passport.model.AccessStatus.PENDING;
 import static java.lang.Boolean.TRUE;
 
+import collaborate.api.nft.find.TokenMetadataService;
 import collaborate.api.nft.model.storage.Multisig;
 import collaborate.api.nft.model.storage.TokenIndex;
 import collaborate.api.organization.OrganizationService;

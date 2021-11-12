@@ -3,7 +3,7 @@ package collaborate.api.datasource.create;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toSet;
 
-import collaborate.api.businessdata.create.CreateBusinessDataService;
+import collaborate.api.businessdata.create.MintBusinessDataService;
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceDAO;
 import collaborate.api.datasource.TestConnectionVisitor;
@@ -11,6 +11,7 @@ import collaborate.api.datasource.create.provider.traefik.TraefikProviderService
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
+import collaborate.api.datasource.model.dto.DatasourceEnrichment;
 import collaborate.api.datasource.model.dto.DatasourcePurpose;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
@@ -36,16 +37,16 @@ import org.springframework.web.multipart.MultipartFile;
 public class CreateDatasourceService {
 
   private final AuthenticationMetadataVisitor authenticationMetadataVisitor;
-  private final CreateBusinessDataService createBusinessDataService;
   private final DatasourceDAO datasourceDAO;
   private final DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
+  private final DatasourceEnricherVisitor datasourceEnricherVisitor;
   private final ObjectMapper objectMapper;
+  private final MintBusinessDataService mintBusinessDataService;
   private final SaveAuthenticationVisitor saveAuthenticationVisitor;
   private final TestConnectionVisitor testConnectionVisitor;
   private final TraefikProviderService traefikProviderService;
   private final UUIDGenerator uuidGenerator;
   private final Clock clock;
-
 
   public Datasource create(DatasourceDTO datasourceDTO, Optional<MultipartFile> pfxFile)
       throws DatasourceVisitorException, IOException {
@@ -54,21 +55,23 @@ public class CreateDatasourceService {
     datasourceDTO.setId(uuidGenerator.randomUUID());
 
     datasourceDTO.getAuthMethod().accept(saveAuthenticationVisitor);
+    var enrichment = datasourceDTO.accept(datasourceEnricherVisitor);
+    var providerConfiguration = traefikProviderService.save(enrichment.getDatasource());
+    var datasource = buildDatasource(enrichment, providerConfiguration);
 
-    var providerConfiguration = traefikProviderService.save(datasourceDTO);
-    var datasource = buildDatasource(datasourceDTO, providerConfiguration);
     var datasourceWithCid = datasourceDAO.save(datasource);
     if (DatasourcePurpose.BUSINESS_DATA.match(datasourceDTO)) {
-      createBusinessDataService.create(datasourceDTO);
+      mintBusinessDataService.mint(datasourceDTO);
     }
     return datasourceWithCid.getContent();
   }
 
   Datasource buildDatasource(
-      DatasourceDTO datasourceDTO,
+      DatasourceEnrichment<?> enrichment,
       TraefikProviderConfiguration providerConfiguration
   ) throws DatasourceVisitorException {
 
+    var datasourceDTO = enrichment.getDatasource();
     var authHeaderKeySupplier = new AuthHeaderKeySupplier(new DatasourceKeySupplier(datasourceDTO));
     providerConfiguration.getHttp().getMiddlewares().remove(authHeaderKeySupplier.get());
 
@@ -79,13 +82,15 @@ public class CreateDatasourceService {
         .providerConfiguration(
             objectMapper.convertValue(providerConfiguration, LinkedHashMap.class)
         ).provider(TraefikProviderConfiguration.class.getName())
-        .providerMetadata(buildMetadata(datasourceDTO))
+        .providerMetadata(buildMetadata(enrichment))
         .build();
   }
 
-  Set<Metadata> buildMetadata(DatasourceDTO datasourceDTO)
+  Set<Metadata> buildMetadata(DatasourceEnrichment<?> enrichment)
       throws DatasourceVisitorException {
+    var datasourceDTO = enrichment.getDatasource();
     return Stream.of(
+            enrichment.getMetadata().stream(),
             datasourceDTO.getAuthMethod().accept(authenticationMetadataVisitor),
             datasourceDTO.accept(datasourceDTOMetadataVisitor)
         ).flatMap(identity())

@@ -21,13 +21,17 @@ class TraefikProviderDAO {
   private final YamlMapper yamlMapper;
   private final TraefikProperties traefikProperties;
 
-  public void save(TraefikProviderConfiguration providerConfiguration, String datasourceId)
-      throws IOException {
+  public void save(TraefikProviderConfiguration providerConfiguration, String datasourceId) {
     File outputFile = Paths.get(
         traefikProperties.getProvidersPath(),
         datasourceId + ".yml"
     ).toFile();
-    yamlMapper.writeValue(outputFile, providerConfiguration);
+    try {
+      yamlMapper.writeValue(outputFile, providerConfiguration);
+    } catch (IOException e) {
+      log.error("Can't write datasource provider configuration", e);
+      throw new IllegalStateException(e);
+    }
   }
 
 }

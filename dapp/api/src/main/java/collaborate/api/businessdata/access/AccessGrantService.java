@@ -2,7 +2,7 @@ package collaborate.api.businessdata.access;
 
 import collaborate.api.businessdata.access.model.AccessGrantParams;
 import collaborate.api.businessdata.access.model.AccessRequestParams;
-import collaborate.api.datasource.OAuth2JWTProvider;
+import collaborate.api.datasource.AccessTokenProvider;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.transaction.Transaction;
 import collaborate.api.user.metadata.UserMetadataService;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 public class AccessGrantService {
 
   private final CipherJwtService cipherService;
-  private final OAuth2JWTProvider oAuth2JWTProvider;
+  private final AccessTokenProvider accessTokenProvider;
   private final ObjectMapper objectMapper;
   private final UserMetadataService userMetadataService;
   private final GrantAccessDAO grantAccessDAO;
@@ -33,7 +33,7 @@ public class AccessGrantService {
     VaultMetadata vaultMetadata = getVaultMetadata(accessRequestParams);
 
     // Get JWT
-    var accessTokenResponse = oAuth2JWTProvider.get(
+    var accessTokenResponse = accessTokenProvider.get(
         vaultMetadata.getOAuth2(),
         Optional.of(accessRequestParams.getDatasourceScope())
     );
@@ -51,7 +51,7 @@ public class AccessGrantService {
   private VaultMetadata getVaultMetadata(AccessRequestParams accessRequestParams) {
     var datasourceId = accessRequestParams.getDatasourceId();
     return userMetadataService
-        .findMetadata(datasourceId, VaultMetadata.class)
+        .find(datasourceId, VaultMetadata.class)
         .filter(m -> m.getOAuth2() != null)
         .orElseThrow(() -> {
           log.error(
