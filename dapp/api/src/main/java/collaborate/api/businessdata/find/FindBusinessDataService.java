@@ -30,7 +30,6 @@ public class FindBusinessDataService {
   }
 
   AssetDetailsDTO toAssetDetails(TokenIndex t) {
-
     return AssetDetailsDTO.builder()
         .accessStatus(AccessStatus.LOCKED)
         .assetDataCatalog(

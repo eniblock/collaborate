@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(url = "${tezos-api-gateway.url}/api/user", name = "tag-user-metadata-client")
+@FeignClient(url = "${tezos-api-gateway.url}/api/user", name = "tag-user-metadata-client", decode404 = true)
 interface TagUserMetadataClient {
 
   @PostMapping(value = "{userId}/metadata", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)

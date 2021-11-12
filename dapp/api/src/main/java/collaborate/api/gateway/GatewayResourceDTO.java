@@ -1,4 +1,4 @@
-package collaborate.api.passport.metric;
+package collaborate.api.gateway;
 
 import collaborate.api.datasource.model.Metadata;
 import java.util.HashSet;
@@ -12,9 +12,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class MetricGatewayDTO {
+public class GatewayResourceDTO {
 
+  private String datasourceId;
   private String scope;
-  private String uri;
+  private String assetIdForDatasource;
   private Set<Metadata> metadata = new HashSet<>();
 }

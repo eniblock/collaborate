@@ -9,10 +9,10 @@
       {
         "_links": {
           "self": {
-            "href": "https://datasource-dsp-a.fake-datasource.localhost/documents/dspA1"
+            "href": "https://datasource-dsp-a.fake-datasource.localhost/documents/referentials"
           },
           "download": {
-            "href": "https://datasource-dsp-a.fake-datasource.localhost/documents/dspA1/download"
+            "href": "https://datasource-dsp-a.fake-datasource.localhost/documents/referentials/download"
           }
         },
         "id": "dspA1",

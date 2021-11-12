@@ -9,17 +9,19 @@ import collaborate.api.http.HttpClientFactory;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class OAuth2JWTProvider {
+public class AccessTokenProvider {
 
   private final HttpClientFactory httpClientFactory;
 
@@ -53,8 +55,8 @@ public class OAuth2JWTProvider {
           AccessTokenResponse.class
       ).getBody();
     } catch (RestClientException e) {
-      log.error("Can't create HttpURLConnection for oAuth2={}", oAuth2);
-      throw new IllegalStateException(e);
+      log.error("Can't get JWT for oAuth2={}", oAuth2);
+      throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "HTTP error while getting JWT", e);
     }
   }
 }

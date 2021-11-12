@@ -10,7 +10,7 @@ public class UserMetadataService {
 
   private final TagUserMetadataDAO tagUserMetadataDAO;
 
-  public <T> Optional<T> findMetadata(String userId, Class<T> tClass) {
+  public <T> Optional<T> find(String userId, Class<T> tClass) {
     return tagUserMetadataDAO.getMetadata(userId, tClass);
   }
 
