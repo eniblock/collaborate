@@ -1,7 +1,7 @@
 package collaborate.api.businessdata;
 
 import collaborate.api.businessdata.access.AccessRequestService;
-import collaborate.api.businessdata.document.DocumentService;
+import collaborate.api.businessdata.document.ScopeAssetsService;
 import collaborate.api.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.businessdata.find.FindBusinessDataService;
 import collaborate.api.config.OpenApiConfig;
@@ -11,13 +11,16 @@ import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -37,7 +40,7 @@ import org.springframework.web.server.ResponseStatusException;
 @Validated
 public class BusinessDataController {
 
-  private final DocumentService documentService;
+  private final ScopeAssetsService scopeAssetsService;
   private final FindBusinessDataService findBusinessDataService;
   private final AccessRequestService accessRequestService;
 
@@ -72,7 +75,7 @@ public class BusinessDataController {
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_GRANT_ACCESS_REQUEST)
   public ScopeAssetsDTO listAssetDocuments(@PathVariable Integer tokenId) {
-    var assets = documentService.listScopeAssets(tokenId);
+    var assets = scopeAssetsService.listScopeAssets(tokenId);
     if (assets.isEmpty()) {
       log.debug("No assets documents for token={}", tokenId);
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -80,14 +83,16 @@ public class BusinessDataController {
     return assets.get();
   }
 
-  @GetMapping("asset/{datasourceId}/{scope}")
+  @PostMapping("asset/download")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "See all the Business-data assets (documents) of one scope for the given datasource"
+      description = "Download a set of assets"
   )
-  @PreAuthorize(HasRoles.BUSINESS_DATA_GRANT_ACCESS_REQUEST)
-  public ScopeAssetsDTO listAssetDocuments(
-      @PathVariable String datasourceId, @PathVariable String scope) {
-    return documentService.listScopeAssets(datasourceId, scope);
+  @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
+  public void listAssetDocuments(
+      @RequestBody ScopeAssetsDTO scopeAssets, HttpServletResponse response) throws IOException {
+    response.setHeader("Content-Disposition", "attachment; filename=download.zip");
+    response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    scopeAssetsService.download(scopeAssets, response.getOutputStream());
   }
 }

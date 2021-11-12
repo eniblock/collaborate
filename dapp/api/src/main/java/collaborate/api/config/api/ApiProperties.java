@@ -11,24 +11,27 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class ApiProperties {
 
-  @Schema(description = "The organization name")
+  @Schema(description = "The business data smart-contract address")
   @NotEmpty
-  private String platform;
-
-  @Schema(description = "The \"service identity provider administrator\" role")
-  @NotEmpty
-  private String idpAdminRole;
+  private String businessDataContractAddress;
 
   @Schema(description = "The digital passport smart-contract address")
   @NotEmpty
   private String digitalPassportContractAddress;
 
-  @Schema(description = "The business data smart-contract address")
+  @Schema(description = "The \"service identity provider administrator\" role")
   @NotEmpty
-  private String businessDataContractAddress;
+  private String idpAdminRole;
+
+  @Schema(description = "The organization name")
+  @NotEmpty
+  private String platform;
 
   @Schema(description = "The wallet private key ")
   @NotEmpty
   private String privateKey;
 
+  @Schema(description = "The uri of this api, ex: https://collaborate.localhost")
+  @NotEmpty
+  private String uri;
 }

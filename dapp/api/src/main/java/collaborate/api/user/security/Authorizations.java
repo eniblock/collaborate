@@ -74,6 +74,7 @@ public final class Authorizations {
     public static final String BSP_ADMIN = HAS_ROLE + "('" + Roles.BSP_ADMIN + "')";
     public static final String DSP_OPERATOR = HAS_ROLE + "('" + Roles.DSP_OPERATOR + "')";
     public static final String BSP_OPERATOR = HAS_ROLE + "('" + Roles.BSP_OPERATOR + "')";
+
     public static final String PENDING_ASSET_OWNER =
         HAS_ROLE + "('" + Roles.PENDING_ASSET_OWNER + "')";
     public static final String ASSET_OWNER = HAS_ROLE + "('" + Roles.ASSET_OWNER + "')";
@@ -87,17 +88,20 @@ public final class Authorizations {
     public static final String BUSINESS_DATA_READ = HasRoles.BSP + " OR " + HasRoles.DSP;
     public static final String BUSINESS_DATA_GRANT_ACCESS_REQUEST =
         HasRoles.BSP + " OR " + HasRoles.DSP;
-    
+
     public static final String DATASOURCE_READ =
         HasRoles.DSP_ADMIN
             + " OR " + HasRoles.BSP_OPERATOR;
+
     public static final String DIGITAL_PASSPORT_READ =
         HasRoles.ASSET_OWNER +
             " OR " + HasRoles.BSP +
             " OR " + HasRoles.DSP;
+
     public static final String API_GATEWAY_READ =
         HasRoles.DSP_ADMIN +
             " OR " + HasRoles.ASSET_OWNER;
+
     public static final String PASSPORT_MULTISIG_READ =
         HasRoles.DSP_ADMIN
             + " OR " + HasRoles.ASSET_OWNER
