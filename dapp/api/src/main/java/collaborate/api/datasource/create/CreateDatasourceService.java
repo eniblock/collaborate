@@ -48,7 +48,6 @@ public class CreateDatasourceService {
   private final UUIDGenerator uuidGenerator;
   private final Clock clock;
 
-
   public Datasource create(DatasourceDTO datasourceDTO, Optional<MultipartFile> pfxFile)
       throws DatasourceVisitorException, IOException {
     datasourceDTO = copyWithPfxFileContent(datasourceDTO, pfxFile);

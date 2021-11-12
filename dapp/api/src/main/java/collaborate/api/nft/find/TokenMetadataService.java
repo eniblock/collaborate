@@ -1,4 +1,4 @@
-package collaborate.api.passport.find;
+package collaborate.api.nft.find;
 
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.ipfs.IpfsService;
@@ -23,8 +23,16 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class TokenMetadataService {
 
-  private final IpfsService ipfsService;
   private final DatasourceService datasourceService;
+  private final IpfsService ipfsService;
+  private final TokenMedataDAO tokenMedataDAO;
+
+  public Optional<AssetDataCatalogDTO> findByTokenId(Integer tokenId, String smartContract) {
+    var tokenMedataOpt = tokenMedataDAO.findById(tokenId, smartContract);
+    return tokenMedataOpt
+        .map(collaborate.api.nft.model.storage.TokenMetadata::getIpfsUri)
+        .flatMap(this::findDataCatalog);
+  }
 
   public Optional<AssetDataCatalogDTO> findDataCatalog(Multisig multisig,
       Integer multisigContractId) {

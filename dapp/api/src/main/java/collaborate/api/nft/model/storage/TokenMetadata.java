@@ -2,6 +2,7 @@ package collaborate.api.nft.model.storage;
 
 import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.TezosMap;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,7 @@ public class TokenMetadata {
 
   private TezosMap<String, Bytes> tokenInfo;
 
+  @JsonIgnore
   public String getIpfsUri() {
     return tokenInfo.findValue("")
         .map(Bytes::toString)

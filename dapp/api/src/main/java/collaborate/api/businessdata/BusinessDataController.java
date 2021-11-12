@@ -1,7 +1,6 @@
 package collaborate.api.businessdata;
 
 import collaborate.api.businessdata.access.AccessRequestService;
-import collaborate.api.businessdata.document.AssetIdConstraint;
 import collaborate.api.businessdata.document.DocumentService;
 import collaborate.api.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.businessdata.find.FindBusinessDataService;
@@ -9,7 +8,6 @@ import collaborate.api.config.OpenApiConfig;
 import collaborate.api.nft.model.AssetDetailsDTO;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.user.security.Authorizations.HasRoles;
-import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +18,6 @@ import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
@@ -68,24 +65,29 @@ public class BusinessDataController {
     return accessRequestService.requestAccess(assetDetails);
   }
 
-  @GetMapping("asset/{assetId}")
+  @GetMapping("asset/{tokenId}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "See all the Business-data assets (documents) of one scope"
+      description = "See all the Business-data assets (documents) of the specified token scope"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_GRANT_ACCESS_REQUEST)
-  public ScopeAssetsDTO listAssetDocuments(@PathVariable @AssetIdConstraint String assetId) {
-    return null;
+  public ScopeAssetsDTO listAssetDocuments(@PathVariable Integer tokenId) {
+    var assets = documentService.listScopeAssets(tokenId);
+    if (assets.isEmpty()) {
+      log.debug("No assets documents for token={}", tokenId);
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    return assets.get();
   }
 
   @GetMapping("asset/{datasourceId}/{scope}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "See all the Business-data assets (documents) of one scope"
+      description = "See all the Business-data assets (documents) of one scope for the given datasource"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_GRANT_ACCESS_REQUEST)
-  public ResponseEntity<JsonNode> listAssetDocuments(
+  public ScopeAssetsDTO listAssetDocuments(
       @PathVariable String datasourceId, @PathVariable String scope) {
-    return documentService.listAssetDocuments(datasourceId, scope);
+    return documentService.listScopeAssets(datasourceId, scope);
   }
 }

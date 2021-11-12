@@ -1,16 +1,29 @@
 package collaborate.api.businessdata.document;
 
-import static collaborate.api.businessdata.document.AssetIdValidator.ASSET_ID_SEPARATOR;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
+import static java.util.stream.Collectors.toList;
 
+import collaborate.api.businessdata.document.model.ScopeAssetDTO;
+import collaborate.api.businessdata.document.model.ScopeAssetsDTO;
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.AccessTokenProvider;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
 import collaborate.api.gateway.GatewayResourceDTO;
 import collaborate.api.gateway.GatewayUrlService;
+import collaborate.api.nft.find.TokenMetadataService;
+import collaborate.api.passport.model.AssetDataCatalogDTO;
 import collaborate.api.user.metadata.UserMetadataService;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.net.URI;
+import java.time.Clock;
+import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -24,11 +37,29 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 public class DocumentService {
 
+  public static final String ASSET_ID_SEPARATOR = ":";
+  private final AccessTokenProvider accessTokenProvider;
+  private final ApiProperties apiProperties;
+  private final Clock clock;
   private final GatewayUrlService gatewayUrlService;
   private final UserMetadataService userMetadataService;
-  private final AccessTokenProvider accessTokenProvider;
+  private final TokenMetadataService tokenMetadataService;
 
-  public ResponseEntity<JsonNode> listAssetDocuments(String datasourceId, String scope) {
+  public Optional<ScopeAssetsDTO> listScopeAssets(Integer tokenId) {
+    var catalogOpt = tokenMetadataService.findByTokenId(
+        tokenId,
+        apiProperties.getBusinessDataContractAddress()
+    );
+    return catalogOpt
+        .map(AssetDataCatalogDTO::getDatasources)
+        .stream()
+        .flatMap(Collection::stream)
+        .map(d -> listScopeAssets(d.getId(), d.getAssetIdForDatasource()))
+        .findFirst();
+  }
+
+
+  public ScopeAssetsDTO listScopeAssets(String datasourceId, String scope) {
     var jwtO = getJwt(datasourceId, scope);
     if (jwtO.isEmpty()) {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -39,7 +70,12 @@ public class DocumentService {
       log.error("Can't get asset list for datasourceId={} and scope={}", datasourceId, scope);
       throw new ResponseStatusException(scopesResponse.getStatusCode());
     }
-    return scopesResponse;
+    String assetListJsonString = scopesResponse.getBody().toString();
+    return ScopeAssetsDTO.builder()
+        .datasourceId(datasourceId)
+        .scopeName(scope)
+        .assets(filterByScope(assetListJsonString, scope).collect(toList()))
+        .build();
   }
 
   Optional<AccessTokenResponse> getJwt(String datasourceId, String scope) {
@@ -72,7 +108,7 @@ public class DocumentService {
       AccessTokenResponse accessToken) {
     var gatewayResource = GatewayResourceDTO.builder()
         .datasourceId(datasourceId)
-        .scope(scope)
+        .scope(SCOPE_ASSET_LIST)
         .build();
     return gatewayUrlService.fetch(
         gatewayResource,
@@ -80,4 +116,25 @@ public class DocumentService {
     );
   }
 
+  Stream<ScopeAssetDTO> filterByScope(String jsonResponse, String scope) {
+    var resourcesPath = JSONPath.compile("$._embedded.metadatas");
+    var namePath = JSONPath.compile("$.title");
+    var linkPath = JSONPath.compile("$._links.self.href");
+    var downloadPath = JSONPath.compile("$._links.download.href");
+    var scopePath = JSONPath.compile("$.scope");
+    if (resourcesPath.contains(jsonResponse)) {
+      var docs = resourcesPath.<JSONArray>eval(jsonResponse, JSONArray.class);
+      return docs.stream()
+          .filter(scopePath::contains)
+          .filter(d -> scope.equals(scopePath.eval(d, String.class)))
+          .map(d -> ScopeAssetDTO.builder()
+              .name(namePath.eval(d, String.class))
+              .type("")
+              .synchronizedDate(ZonedDateTime.now(clock))
+              .link(URI.create(linkPath.eval(d, String.class)))
+              .downloadLink(URI.create(downloadPath.eval(d, String.class)))
+              .build());
+    }
+    return Stream.empty();
+  }
 }

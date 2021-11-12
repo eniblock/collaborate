@@ -1,6 +1,5 @@
-package collaborate.api.passport.find;
+package collaborate.api.nft.model.storage;
 
-import collaborate.api.nft.model.storage.TokenMetadata;
 import collaborate.api.tag.model.TagEntry;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
