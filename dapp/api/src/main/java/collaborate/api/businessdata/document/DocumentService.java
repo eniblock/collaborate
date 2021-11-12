@@ -65,7 +65,7 @@ public class DocumentService {
       throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
     }
 
-    var scopesResponse = getAssetListResponse(datasourceId, scope, jwtO.get());
+    var scopesResponse = getAssetListResponse(datasourceId, jwtO.get());
     if (!scopesResponse.getStatusCode().is2xxSuccessful()) {
       log.error("Can't get asset list for datasourceId={} and scope={}", datasourceId, scope);
       throw new ResponseStatusException(scopesResponse.getStatusCode());
@@ -104,7 +104,6 @@ public class DocumentService {
   }
 
   ResponseEntity<JsonNode> getAssetListResponse(String datasourceId,
-      String scope,
       AccessTokenResponse accessToken) {
     var gatewayResource = GatewayResourceDTO.builder()
         .datasourceId(datasourceId)
@@ -129,7 +128,7 @@ public class DocumentService {
           .filter(d -> scope.equals(scopePath.eval(d, String.class)))
           .map(d -> ScopeAssetDTO.builder()
               .name(namePath.eval(d, String.class))
-              .type("")
+              .type("MVP document")
               .synchronizedDate(ZonedDateTime.now(clock))
               .link(URI.create(linkPath.eval(d, String.class)))
               .downloadLink(URI.create(downloadPath.eval(d, String.class)))
