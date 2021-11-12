@@ -97,7 +97,8 @@ spec:
               value: {{ .Values.api.businessDataContractAddress | quote }}
             - name: API_PRIVATE_KEY
               value: {{ .Values.api.privateKey | quote }}
-
+            - name: API_URI
+              value: "https://{{ .Values.ingress.host}}"
             # Api-gateway
             - name: TRAEFIK_CERTIFICATES_PATH
               value: {{ .Values.api.traefik.volumes.cert | quote }}

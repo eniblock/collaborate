@@ -637,7 +637,10 @@
 											"script": {
 												"exec": [
 													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-													""
+													"",
+													"var jsonData = pm.response.json();",
+													"",
+													"pm.globals.set(\"test-scope-asset-token-id\", jsonData[jsonData.length -1].tokenId);"
 												],
 												"type": "text/javascript"
 											}
@@ -668,13 +671,6 @@
 											"script": {
 												"exec": [
 													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-													"var jsonData = pm.response.json();",
-													"console.log(jsonData[jsonData.length-1])",
-													"var pendingSortedByContractIdDesc = jsonData",
-													"    .sort(function(a, b) {return b.contractId - a.contractId})",
-													"    .filter(passport => passport.status == 'PENDING_CREATION');",
-													"",
-													"pm.globals.set(\"test-last-passport-contract-id\", pendingSortedByContractIdDesc[0].contractId);",
 													""
 												],
 												"type": "text/javascript"
@@ -685,7 +681,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/{{test-datasource-id}}/referentials",
+											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/{{test-scope-asset-token-id}}",
 											"host": [
 												"{{dAppApiUrl}}"
 											],
@@ -694,21 +690,21 @@
 												"v1",
 												"business-data",
 												"asset",
-												"{{test-datasource-id}}",
-												"referentials"
+												"{{test-scope-asset-token-id}}"
 											]
 										}
 									},
 									"response": []
 								},
 								{
-									"name": "Get assets of scope Copy",
+									"name": "Download assets",
 									"event": [
 										{
 											"listen": "test",
 											"script": {
 												"exec": [
 													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													"",
 													""
 												],
 												"type": "text/javascript"
@@ -716,10 +712,19 @@
 										}
 									],
 									"request": {
-										"method": "GET",
+										"method": "POST",
 										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"datasourceId\": \"f87ced3e-757d-4594-8ce7-3e4424bc7452\",\n    \"scopeName\": \"workshop-analytics\",\n    \"assets\": [\n        {\n            \"name\": \"Nombre de metrics saisis en atelier (par mois)\",\n            \"type\": \"MVP document\",\n            \"synchronizedDate\": \"2021-11-12T20:16:23.497Z\",\n            \"link\": \"https://datasource-dsp-a.fake-datasource.localhost/documents/dspA3\",\n            \"downloadLink\": \"https://datasource-dsp-a.fake-datasource.localhost/documents/dspA3/download\"\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
 										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/3",
+											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/download",
 											"host": [
 												"{{dAppApiUrl}}"
 											],
@@ -728,7 +733,7 @@
 												"v1",
 												"business-data",
 												"asset",
-												"3"
+												"download"
 											]
 										}
 									},
@@ -751,7 +756,7 @@
 											"listen": "prerequest",
 											"script": {
 												"exec": [
-													"pm.globals.set(\"test-token-id\", JSON.parse(request.body)[0].tokenId);"
+													"//pm.globals.set(\"test-token-id\", JSON.parse(request.body)[0].tokenId);"
 												],
 												"type": "text/javascript"
 											}
@@ -762,7 +767,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "[\n    {\n        \"assetDataCatalog\": {\n            \"datasources\": [\n                {\n                    \"id\": \"5f09b811-4fd8-4544-8401-93ec7e197acb\",\n                    \"assetIdForDatasource\": \"customers-analytics\",\n                    \"baseUri\": null,\n                    \"scopes\": null\n                }\n            ]\n        },\n        \"assetId\": \"5f09b811-4fd8-4544-8401-93ec7e197acb:customers-analytics\",\n        \"assetOwner\": {\n            \"legalName\": \"DSPConsortium1\",\n            \"address\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n            \"encryptionKey\": \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB\",\n            \"roles\": [\n                1\n            ]\n        },\n        \"accessStatus\": \"granted\",\n        \"creationDatetime\": null,\n        \"operator\": null,\n        \"multisigContractId\": null,\n        \"tokenId\": 3,\n        \"tokenStatus\": \"created\"\n    }\n]",
+											"raw": "[\n    {\n        \"assetDataCatalog\": {\n            \"datasources\": [\n                {\n                    \"id\": \"f87ced3e-757d-4594-8ce7-3e4424bc7452\",\n                    \"assetIdForDatasource\": \"workshop-analytics\",\n                    \"baseUri\": null,\n                    \"scopes\": null\n                }\n            ]\n        },\n        \"assetId\": \"f87ced3e-757d-4594-8ce7-3e4424bc7452:workshop-analytics\",\n        \"assetOwner\": {\n            \"legalName\": \"DSPConsortium1\",\n            \"address\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n            \"encryptionKey\": \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB\",\n            \"roles\": [\n                1\n            ]\n        },\n        \"accessStatus\": \"locked\",\n        \"creationDatetime\": null,\n        \"operator\": null,\n        \"multisigContractId\": null,\n        \"tokenId\": 14,\n        \"tokenStatus\": \"created\"\n    }\n]",
 											"options": {
 												"raw": {
 													"language": "json"

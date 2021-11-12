@@ -10,7 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import collaborate.api.businessdata.access.AccessRequestService;
-import collaborate.api.businessdata.document.DocumentService;
+import collaborate.api.businessdata.document.ScopeAssetsService;
 import collaborate.api.businessdata.find.FindBusinessDataService;
 import collaborate.api.config.ControllerExceptionHandler;
 import collaborate.api.nft.model.AssetDetailsDTO;
@@ -47,7 +47,7 @@ class BusinessDataControllerIT {
   @MockBean
   FindBusinessDataService findBusinessDataService;
   @MockBean
-  DocumentService documentService;
+  ScopeAssetsService scopeAssetsService;
 
   @Autowired
   private WebApplicationContext context;
