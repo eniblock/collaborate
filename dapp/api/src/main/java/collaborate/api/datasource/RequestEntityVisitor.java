@@ -24,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
 public class RequestEntityVisitor implements
     AuthenticationVisitor<Supplier<ResponseEntity<JsonNode>>> {
 
-  private final OAuth2JWTProvider oAuth2JWTProvider;
+  private final AccessTokenProvider accessTokenProvider;
   private final HttpClientFactory httpClientFactory;
   private final RequestEntityBuilder<?> requestEntityBuilder;
   private final SSLContextFactory sslContextCreator;
@@ -68,7 +68,7 @@ public class RequestEntityVisitor implements
 
   @Override
   public Supplier<ResponseEntity<JsonNode>> visitOAuth2(OAuth2 oAuth2) {
-    requestEntityBuilder.jwt(requireNonNull(oAuth2JWTProvider.get(oAuth2, Optional.empty())));
+    requestEntityBuilder.jwt(requireNonNull(accessTokenProvider.get(oAuth2, Optional.empty())));
     var restTemplate = new RestTemplate();
     restTemplate.setRequestFactory(
         new HttpComponentsClientHttpRequestFactory(
