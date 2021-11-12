@@ -21,7 +21,7 @@ class FA2_config:
                  add_mutez_transfer                 = False,
                  readable                           = True,
                  force_layouts                      = True,
-                 support_operator                   = True,
+                 support_operator                   = True,v
                  assume_consecutive_token_ids       = True,
                  store_total_supply                 = True,
                  lazy_entry_points                  = False,
