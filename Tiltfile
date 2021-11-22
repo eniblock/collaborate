@@ -37,11 +37,6 @@ image_build(
 )
 
 image_build(
-    'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/ipfs',
-    'dapp/ipfs',
-)
-
-image_build(
     'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam',
     'dapp/iam'
 )

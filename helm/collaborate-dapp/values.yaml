@@ -149,10 +149,9 @@ db:
 
 ipfs:
   image:
-    repository: registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/ipfs
+    repository: ipfs/go-ipfs
     pullPolicy: IfNotPresent
-    # Overrides the image tag whose default is the chart appVersion.
-    # tag:
+    tag: v0.10.0
   log:
     level: INFO
   persistence:

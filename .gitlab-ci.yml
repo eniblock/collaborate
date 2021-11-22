@@ -54,14 +54,6 @@ docker-dapp-api:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/api helm/collaborate-dapp dapp/api
 
-docker-dapp-ipfs:
-  stage: docker
-  image:
-    name: registry.gitlab.com/xdev-tech/build/docker:2.0
-  script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/ipfs helm/collaborate-dapp dapp/ipfs
-
 docker-dapp-iam:
   image:
     name: registry.gitlab.com/xdev-tech/build/docker:2.0

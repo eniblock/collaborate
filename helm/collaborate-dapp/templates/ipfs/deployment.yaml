@@ -63,7 +63,17 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /data/ipfs
+            - name: start-ipfs
+              mountPath: /usr/local/bin/start_ipfs
+              subPath: start_ipfs
       volumes:
         - name: data
           persistentVolumeClaim:
             claimName: {{ .Values.ipfs.persistence.existingClaim | default (printf "%s-ipfs" (include "collaborate-dapp.fullname" . )) }}
+        - name: start-ipfs
+          configMap:
+            name: {{ include "collaborate-dapp.fullname" . }}-ipfs
+            items:
+              - key: start_ipfs
+                path: start_ipfs
+                mode: 0555
