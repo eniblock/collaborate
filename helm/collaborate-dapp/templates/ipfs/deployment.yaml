@@ -54,6 +54,10 @@ spec:
             periodSeconds: 15
           resources:
             {{- toYaml .Values.ipfs.resources | nindent 12 }}
+          volumeMounts:
+            - name: {{ include "collaborate-dapp.fullname" . }}-ipfs
+              mountPath: /data
+              readOnly: false
       volumes:
         - name: {{ include "collaborate-dapp.fullname" . }}-ipfs
           persistentVolumeClaim:
