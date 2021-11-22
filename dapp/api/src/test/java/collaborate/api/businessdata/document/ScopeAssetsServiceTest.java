@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.businessdata.document.model.ScopeAssetDTO;
+import collaborate.api.businessdata.find.FindBusinessDataService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.AccessTokenProvider;
 import collaborate.api.datasource.model.dto.VaultMetadata;
@@ -41,6 +42,8 @@ class ScopeAssetsServiceTest {
   ApiProperties apiProperties;
   Clock clock = Clock.fixed(Instant.parse("2018-08-19T16:45:42.00Z"), ZoneOffset.UTC);
   @Mock
+  FindBusinessDataService findBusinessDataService;
+  @Mock
   GatewayUrlService gatewayUrlService;
   @Mock
   HttpClientFactory httpClientFactory;
@@ -58,6 +61,7 @@ class ScopeAssetsServiceTest {
         accessTokenProvider,
         apiProperties,
         clock,
+        findBusinessDataService,
         gatewayUrlService,
         httpClientFactory,
         userMetadataService,
