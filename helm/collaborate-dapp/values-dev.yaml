@@ -35,7 +35,7 @@ keycloak:
       value: "GitHub for vehicle owner"
     - name: ASSET_OWNER_IDENTITY_PROVIDER_CONFIG_CLIENT_ID
       value: "7a62e8890c2b5a57d1d6"
-    - name: ENABLE_OR_DISABLE_BROKER
+    - name: IDENTITY_BROKER_ENABLED
       value: "true"
 
 transaction:
