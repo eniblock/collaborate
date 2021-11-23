@@ -74,7 +74,8 @@ public class BusinessDataController {
       description = "See all the Business-data assets (documents) of the specified token scope"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_GRANT_ACCESS_REQUEST)
-  public ScopeAssetsDTO listAssetDocuments(@PathVariable Integer tokenId) {
+  public ScopeAssetsDTO listAssetDocuments(@PathVariable Integer tokenId)
+      throws InterruptedException {
     var assets = scopeAssetsService.listScopeAssets(tokenId);
     if (assets.isEmpty()) {
       log.debug("No assets documents for token={}", tokenId);

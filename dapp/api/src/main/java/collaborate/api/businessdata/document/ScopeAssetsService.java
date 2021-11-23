@@ -68,7 +68,7 @@ public class ScopeAssetsService {
   private final TokenMetadataService tokenMetadataService;
   private final TraefikProviderService traefikProviderService;
 
-  public Optional<ScopeAssetsDTO> listScopeAssets(Integer tokenId) {
+  public Optional<ScopeAssetsDTO> listScopeAssets(Integer tokenId) throws InterruptedException {
     var catalogOpt = tokenMetadataService.findByTokenId(
         tokenId,
         apiProperties.getBusinessDataContractAddress()
@@ -87,12 +87,13 @@ public class ScopeAssetsService {
   private void fetchMissingDatasourcesConfiguration(
       Integer tokenId,
       Optional<AssetDataCatalogDTO> catalogOpt
-  ) {
+  ) throws InterruptedException {
     catalogOpt
         .map(AssetDataCatalogDTO::getDatasources)
         .stream()
         .flatMap(Collection::stream)
         .forEach(datasourceDTO -> fetchIfMissing(datasourceDTO, tokenId));
+    Thread.sleep(1000);
   }
 
   public void fetchIfMissing(DatasourceDTO datasourceDTO, Integer tokenId) {
