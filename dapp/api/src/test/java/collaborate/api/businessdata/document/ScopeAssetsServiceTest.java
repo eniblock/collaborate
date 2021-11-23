@@ -7,6 +7,7 @@ import collaborate.api.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.businessdata.find.FindBusinessDataService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.AccessTokenProvider;
+import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
@@ -51,6 +52,8 @@ class ScopeAssetsServiceTest {
   UserMetadataService userMetadataService;
   @Mock
   TokenMetadataService tokenMetadataService;
+  @Mock
+  TraefikProviderService traefikProviderService;
 
   @InjectMocks
   ScopeAssetsService scopeAssetsService;
@@ -65,7 +68,8 @@ class ScopeAssetsServiceTest {
         gatewayUrlService,
         httpClientFactory,
         userMetadataService,
-        tokenMetadataService);
+        tokenMetadataService,
+        traefikProviderService);
   }
 
 

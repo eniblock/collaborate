@@ -9,6 +9,7 @@ import collaborate.api.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.businessdata.find.FindBusinessDataService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.AccessTokenProvider;
+import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
@@ -17,6 +18,7 @@ import collaborate.api.gateway.GatewayUrlService;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.nft.find.TokenMetadataService;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
+import collaborate.api.passport.model.DatasourceDTO;
 import collaborate.api.user.metadata.UserMetadataService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
@@ -64,12 +66,16 @@ public class ScopeAssetsService {
   private final HttpClientFactory httpClientFactory;
   private final UserMetadataService userMetadataService;
   private final TokenMetadataService tokenMetadataService;
+  private final TraefikProviderService traefikProviderService;
 
   public Optional<ScopeAssetsDTO> listScopeAssets(Integer tokenId) {
     var catalogOpt = tokenMetadataService.findByTokenId(
         tokenId,
         apiProperties.getBusinessDataContractAddress()
     );
+
+    fetchMissingDatasourcesConfiguration(tokenId, catalogOpt);
+
     return catalogOpt
         .map(AssetDataCatalogDTO::getDatasources)
         .stream()
@@ -78,6 +84,23 @@ public class ScopeAssetsService {
         .findFirst();
   }
 
+  private void fetchMissingDatasourcesConfiguration(
+      Integer tokenId,
+      Optional<AssetDataCatalogDTO> catalogOpt
+  ) {
+    catalogOpt
+        .map(AssetDataCatalogDTO::getDatasources)
+        .stream()
+        .flatMap(Collection::stream)
+        .forEach(datasourceDTO -> fetchIfMissing(datasourceDTO, tokenId));
+  }
+
+  public void fetchIfMissing(DatasourceDTO datasourceDTO, Integer tokenId) {
+    if (!traefikProviderService.exists(datasourceDTO.getId())) {
+      traefikProviderService.fetchByTokenId(tokenId,
+          apiProperties.getBusinessDataContractAddress());
+    }
+  }
 
   public ScopeAssetsDTO listScopeAssets(String datasourceId, String scope) {
     var scopesResponse = getAssetListResponse(datasourceId);
