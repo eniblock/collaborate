@@ -56,7 +56,7 @@ public class FindBusinessDataService {
         .build();
   }
 
-  AccessStatus getAccessStatus(String datasourceId, String scope) {
+  public AccessStatus getAccessStatus(String datasourceId, String scope) {
     var oAuthScope = StringUtils.removeStart(scope, "scope:");
     var access = getOwnerOAuth2(datasourceId)
         .or(() -> getRequesterAccessToken(datasourceId, oAuthScope));

@@ -6,8 +6,10 @@ import static java.util.stream.Collectors.toList;
 import collaborate.api.businessdata.document.model.DownloadDocument;
 import collaborate.api.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.businessdata.document.model.ScopeAssetsDTO;
+import collaborate.api.businessdata.find.FindBusinessDataService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.AccessTokenProvider;
+import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
@@ -16,6 +18,7 @@ import collaborate.api.gateway.GatewayUrlService;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.nft.find.TokenMetadataService;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
+import collaborate.api.passport.model.DatasourceDTO;
 import collaborate.api.user.metadata.UserMetadataService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
@@ -58,16 +61,21 @@ public class ScopeAssetsService {
   private final AccessTokenProvider accessTokenProvider;
   private final ApiProperties apiProperties;
   private final Clock clock;
+  private final FindBusinessDataService findBusinessDataService;
   private final GatewayUrlService gatewayUrlService;
   private final HttpClientFactory httpClientFactory;
   private final UserMetadataService userMetadataService;
   private final TokenMetadataService tokenMetadataService;
+  private final TraefikProviderService traefikProviderService;
 
-  public Optional<ScopeAssetsDTO> listScopeAssets(Integer tokenId) {
+  public Optional<ScopeAssetsDTO> listScopeAssets(Integer tokenId) throws InterruptedException {
     var catalogOpt = tokenMetadataService.findByTokenId(
         tokenId,
         apiProperties.getBusinessDataContractAddress()
     );
+
+    fetchMissingDatasourcesConfiguration(tokenId, catalogOpt);
+
     return catalogOpt
         .map(AssetDataCatalogDTO::getDatasources)
         .stream()
@@ -76,20 +84,34 @@ public class ScopeAssetsService {
         .findFirst();
   }
 
+  private void fetchMissingDatasourcesConfiguration(
+      Integer tokenId,
+      Optional<AssetDataCatalogDTO> catalogOpt
+  ) throws InterruptedException {
+    catalogOpt
+        .map(AssetDataCatalogDTO::getDatasources)
+        .stream()
+        .flatMap(Collection::stream)
+        .forEach(datasourceDTO -> fetchIfMissing(datasourceDTO, tokenId));
+    Thread.sleep(1000);
+  }
+
+  public void fetchIfMissing(DatasourceDTO datasourceDTO, Integer tokenId) {
+    if (!traefikProviderService.exists(datasourceDTO.getId())) {
+      traefikProviderService.fetchByTokenId(tokenId,
+          apiProperties.getBusinessDataContractAddress());
+    }
+  }
 
   public ScopeAssetsDTO listScopeAssets(String datasourceId, String scope) {
-    var jwtO = getJwt(datasourceId, scope);
-    if (jwtO.isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-    }
-
-    var scopesResponse = getAssetListResponse(datasourceId, jwtO.get());
+    var scopesResponse = getAssetListResponse(datasourceId);
     if (!scopesResponse.getStatusCode().is2xxSuccessful()) {
       log.error("Can't get asset list for datasourceId={} and scope={}", datasourceId, scope);
       throw new ResponseStatusException(scopesResponse.getStatusCode());
     }
     String assetListJsonString = scopesResponse.getBody().toString();
     return ScopeAssetsDTO.builder()
+        .accessStatus(findBusinessDataService.getAccessStatus(datasourceId, scope))
         .datasourceId(datasourceId)
         .scopeName(scope)
         .assets(filterByScope(assetListJsonString, scope).collect(toList()))
@@ -121,15 +143,14 @@ public class ScopeAssetsService {
         .map(accessToken -> AccessTokenResponse.builder().accessToken(accessToken).build());
   }
 
-  ResponseEntity<JsonNode> getAssetListResponse(String datasourceId,
-      AccessTokenResponse accessToken) {
+  ResponseEntity<JsonNode> getAssetListResponse(String datasourceId) {
     var gatewayResource = GatewayResourceDTO.builder()
         .datasourceId(datasourceId)
         .scope(SCOPE_ASSET_LIST)
         .build();
     return gatewayUrlService.fetch(
         gatewayResource,
-        Optional.of(accessToken)
+        Optional.empty()
     );
   }
 
