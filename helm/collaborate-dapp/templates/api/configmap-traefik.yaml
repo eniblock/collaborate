@@ -13,7 +13,7 @@ data:
       dashboard: true
     providers:
       file:
-        directory: "{{ .Values.api.traefik.volumes.provider }}"
+        directory: "{{ .Values.api.traefik.providers.persistence.path }}"
         watch: true
     entryPoints:
       web:
@@ -32,7 +32,7 @@ data:
       filePath: /var/log/traefik/traefik.log
       level: DEBUG
   # See: https://www.malcontentboffin.com/2018/01/Remove-Private-Key-Password-From-PFX-PKCS12-File.html
-  pfx-un-protector.sh : |
+  pfx-un-protector.sh: |
     #!/bin/bash
     # Required parameters:
     # - $1: encrypted pfx file

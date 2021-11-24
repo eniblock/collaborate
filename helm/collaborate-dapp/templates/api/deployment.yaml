@@ -77,10 +77,10 @@ spec:
               subPath: traefik.yml
               readOnly: true
             - name: traefik-providers
-              mountPath: "{{ .Values.api.traefik.volumes.provider }}"
+              mountPath: "{{ .Values.api.traefik.providers.persistence.path }}"
               readOnly: false
             - name: traefik-certs
-              mountPath: "{{ .Values.api.traefik.volumes.cert }}"
+              mountPath: "{{ .Values.api.traefik.certificates.persistence.path }}"
               readOnly: true
         - name: {{ .Chart.Name }}
           securityContext:
@@ -101,13 +101,13 @@ spec:
               value: "https://{{ .Values.ingress.host}}"
             # Api-gateway
             - name: TRAEFIK_CERTIFICATES_PATH
-              value: {{ .Values.api.traefik.volumes.cert | quote }}
+              value: {{ .Values.api.traefik.certificates.persistence.path | quote }}
             - name: TRAEFIK_PROVIDERS_PATH
-              value: {{ .Values.api.traefik.volumes.provider | quote }}
+              value: {{ .Values.api.traefik.providers.persistence.path | quote }}
             - name: TRAEFIK_URL
               value: https://localhost:{{ .Values.api.traefik.ports.websecure }}/
             - name: TRAEFIK_PFX_UN_PROTECTOR_SCRIPT_PATH
-              value: {{ .Values.api.traefik.volumes.cert }}pfx-un-protector.sh
+              value: {{ .Values.api.traefik.certificates.persistence.path }}pfx-un-protector.sh
             - name: IPFS_URL
               value: http://{{ include "collaborate-dapp.fullname" . }}-ipfs-api:5001
 
@@ -248,14 +248,14 @@ spec:
           {{- toYaml .Values.api.resources | nindent 12 }}
           volumeMounts:
             - name: traefik-config
-              mountPath: {{ .Values.api.traefik.volumes.cert }}pfx-un-protector.sh
+              mountPath: {{ .Values.api.traefik.certificates.persistence.path }}pfx-un-protector.sh
               subPath: pfx-un-protector.sh
               readOnly: false
             - name: traefik-certs
-              mountPath: "{{ .Values.api.traefik.volumes.cert }}"
+              mountPath: "{{ .Values.api.traefik.certificates.persistence.path }}"
               readOnly: false
             - name: traefik-providers
-              mountPath: "{{ .Values.api.traefik.volumes.provider }}"
+              mountPath: "{{ .Values.api.traefik.providers.persistence.path }}"
               readOnly: false
       {{- with .Values.api.nodeSelector }}
       nodeSelector:
@@ -275,4 +275,8 @@ spec:
             name: '{{ include "collaborate-dapp.fullname" . }}-traefik-configuration'
             defaultMode: 0555
         - name: traefik-certs
+          persistentVolumeClaim:
+            claimName: {{ .Values.api.traefik.certificates.persistence.existingClaim | default (printf "data-%s-traefik-certificates" (include "collaborate-dapp.fullname" . )) }}
         - name: traefik-providers
+          persistentVolumeClaim:
+            claimName: {{ .Values.api.traefik.providers.persistence.existingClaim | default (printf "data-%s-traefik-providers" (include "collaborate-dapp.fullname" . )) }}

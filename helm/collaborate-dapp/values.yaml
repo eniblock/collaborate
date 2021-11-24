@@ -1,30 +1,8 @@
 # Default values for collaborate-dapp.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-
 nameOverride: ""
 fullnameOverride: ""
-
-mail:
-  dev: false
-  host: ""
-  port: ""
-  username: ""
-  password: ""
-
-ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/tls-acme: "true"
-    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
-    nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"
-    nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
-  host: ""
-  from:
-    - podSelector: {}
-      namespaceSelector:
-        matchLabels:
-          name: ingress
 
 api:
   enabled: true
@@ -101,13 +79,28 @@ api:
       web: 80
       websecure: 8443
       api: 8081
-    volumes:
-      cert: /etc/ssl/certs/xdev/collaborate/
-      provider: /etc/traefik/xdev/collaborate/providers/
     pilot:
       token: ""
     log:
       level: ""
+    certificates:
+      persistence:
+        path: /etc/ssl/certs/xdev/collaborate/
+        enabled: true
+        existingClaim: ""
+        storageClass: ""
+        accessModes:
+          - ReadWriteOnce
+        size: 1Gi
+    providers:
+      persistence:
+        path: /etc/traefik/xdev/collaborate/providers/
+        enabled: true
+        existingClaim: ""
+        storageClass: ""
+        accessModes:
+          - ReadWriteOnce
+        size: 1Gi
 
   metrics:
     enabled: false # Add metrics server first
@@ -147,55 +140,19 @@ db:
     enabled: true
     allowExternal: false
 
-ipfs:
-  image:
-    repository: ipfs/go-ipfs
-    pullPolicy: IfNotPresent
-    tag: v0.10.0
-  log:
-    level: INFO
-  persistence:
-    enabled: true
-    existingClaim: ""
-    storageClass: ""
-    accessModes:
-      - ReadWriteOnce
-    size: 1Gi
-  service:
-    swarm:
-      type: ClusterIP
-      port: 4001
-      ipAddress: null
-    api:
-      type: ClusterIP
-      port: 5001
-      ipAddress: null
-    gtw:
-      type: ClusterIP
-      port: 8080
-      ipAddress: null
-  resources:
-    requests:
-      memory: 50Mi
-      cpu: 400m
-
-serviceAccount:
-  # Specifies whether a service account should be created
-  create: true
-  # Annotations to add to the service account
-  annotations: { }
-  # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
-  name: ""
-
-tezos-api-gateway:
-  nameOverride: tag
-  rabbitmq:
-    nameOverride: tag-rabbitmq
-  db:
-    nameOverride: tag-db
-  vault:
-    nameOverride: tag-vault
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "1800"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
+  host: ""
+  from:
+    - podSelector: {}
+      namespaceSelector:
+        matchLabels:
+          name: ingress
 
 keycloak:
   nameOverride: keycloak
@@ -236,6 +193,9 @@ keycloak:
   postgresql:
     nameOverride: keycloak-db
     existingSecret: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
+    persistence:
+      enabled: true
+      size: 1Gi
     resources:
       requests:
         memory: 50Mi
@@ -258,3 +218,61 @@ keycloak:
     networkPolicy:
       enabled: true
       allowExternal: false
+
+
+ipfs:
+  image:
+    repository: ipfs/go-ipfs
+    pullPolicy: IfNotPresent
+    tag: v0.10.0
+  log:
+    level: INFO
+  persistence:
+    enabled: true
+    existingClaim: ""
+    storageClass: ""
+    accessModes:
+      - ReadWriteOnce
+    size: 1Gi
+  service:
+    swarm:
+      type: ClusterIP
+      port: 4001
+      ipAddress: null
+    api:
+      type: ClusterIP
+      port: 5001
+      ipAddress: null
+    gtw:
+      type: ClusterIP
+      port: 8080
+      ipAddress: null
+  resources:
+    requests:
+      memory: 50Mi
+      cpu: 400m
+
+mail:
+  dev: false
+  host: ""
+  port: ""
+  username: ""
+  password: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: { }
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+tezos-api-gateway:
+  nameOverride: tag
+  rabbitmq:
+    nameOverride: tag-rabbitmq
+  db:
+    nameOverride: tag-db
+  vault:
+    nameOverride: tag-vault
