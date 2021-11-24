@@ -61,6 +61,7 @@ class FindBusinessDataServiceTest {
                 .datasources(List.of(DatasourceDTO.builder()
                     .id("3636ff0b-2295-4750-a6b2-677c680e0bbb")
                     .assetIdForDatasource("assetId")
+                    .ownerAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
                     .build()
                 ))
                 .build()

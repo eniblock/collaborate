@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import collaborate.api.businessdata.access.AccessRequestService;
+import collaborate.api.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.businessdata.document.ScopeAssetsService;
 import collaborate.api.businessdata.find.FindBusinessDataService;
 import collaborate.api.config.ControllerExceptionHandler;
@@ -103,7 +104,7 @@ class BusinessDataControllerIT {
   void grantAccess_shouldResultInOk_withValidListElement() throws Exception {
     // GIVEN
     var assetDetails = List.of(
-        readContent("/businessdata/asset-details.json", AssetDetailsDTO.class)
+        readContent("/businessdata/access/request/access-request-dto.json", AccessRequestDTO.class)
     );
     when(accessRequestService.requestAccess(assetDetails)).thenReturn(null);
     // WHEN

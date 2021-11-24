@@ -1,6 +1,6 @@
 package collaborate.api.businessdata.access;
 
-import collaborate.api.nft.model.AssetDetailsDTO;
+import collaborate.api.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.tag.model.job.Job;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +14,7 @@ public class AccessRequestService {
 
   private final AccessRequestDAO accessRequestDAO;
 
-  public Job requestAccess(List<AssetDetailsDTO> assetDetailsDTOS) {
-    return accessRequestDAO.accessRequest(assetDetailsDTOS);
+  public Job requestAccess(List<AccessRequestDTO> accessRequestDTOs) {
+    return accessRequestDAO.accessRequest(accessRequestDTOs);
   }
 }
