@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.AccessTokenProvider;
+import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.user.metadata.UserMetadataService;
@@ -21,6 +22,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class GatewayUrlService {
 
   private final GatewayUrlDAO gatewayURLDAO;
+  private final TraefikProviderService traefikProviderService;
   private final TraefikProperties traefikProperties;
   private final UserMetadataService userMetadataService;
   private final AccessTokenProvider accessTokenProvider;

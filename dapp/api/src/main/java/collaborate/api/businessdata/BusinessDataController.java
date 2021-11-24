@@ -74,7 +74,8 @@ public class BusinessDataController {
       description = "See all the Business-data assets (documents) of the specified token scope"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_GRANT_ACCESS_REQUEST)
-  public ScopeAssetsDTO listAssetDocuments(@PathVariable Integer tokenId) {
+  public ScopeAssetsDTO listAssetDocuments(@PathVariable Integer tokenId)
+      throws InterruptedException {
     var assets = scopeAssetsService.listScopeAssets(tokenId);
     if (assets.isEmpty()) {
       log.debug("No assets documents for token={}", tokenId);
@@ -89,7 +90,7 @@ public class BusinessDataController {
       description = "Download a set of assets"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public void listAssetDocuments(
+  public void download(
       @RequestBody ScopeAssetsDTO scopeAssets, HttpServletResponse response) throws IOException {
     response.setHeader("Content-Disposition", "attachment; filename=download.zip");
     response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
