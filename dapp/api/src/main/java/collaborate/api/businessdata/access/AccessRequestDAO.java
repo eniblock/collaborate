@@ -3,17 +3,15 @@ package collaborate.api.businessdata.access;
 import static collaborate.api.tag.TezosApiGatewayJobClient.ORGANIZATION_SECURE_KEY_NAME;
 import static java.util.stream.Collectors.toList;
 
+import collaborate.api.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.businessdata.access.model.AccessRequestParams;
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.nft.model.AssetDetailsDTO;
-import collaborate.api.passport.model.DatasourceDTO;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.job.Transaction;
 import collaborate.api.tag.model.job.TransactionBatch;
 import java.util.List;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
@@ -26,9 +24,10 @@ class AccessRequestDAO {
   private final TezosApiGatewayJobClient tezosApiGatewayClient;
   private final UUIDGenerator uuidGenerator;
 
-  public Job accessRequest(List<AssetDetailsDTO> assetDetailsDTOs) {
-    var transactions = assetDetailsDTOs.stream()
-        .flatMap(this::toTransactionsStream)
+  public Job accessRequest(List<AccessRequestDTO> accessRequestDTOs) {
+    var transactions = accessRequestDTOs.stream()
+        .map(this::toAccessRequestParam)
+        .map(this::toTransaction)
         .collect(toList());
 
     return tezosApiGatewayClient.sendTransactionBatch(
@@ -37,16 +36,17 @@ class AccessRequestDAO {
     );
   }
 
-  Stream<Transaction<AccessRequestParams>> toTransactionsStream(AssetDetailsDTO assetDetailsDTO) {
-    return assetDetailsDTO.getAssetDataCatalog().getDatasources().stream()
-        .map(d -> toAccessRequestParam(
-                assetDetailsDTO.getTokenId(),
-                d,
-                // FIXME provider Address should be valued from the datasource owner field
-                assetDetailsDTO.getAssetOwner().getAddress()
+
+  AccessRequestParams toAccessRequestParam(AccessRequestDTO accessRequestDTO) {
+    return AccessRequestParams.builder()
+        .accessRequestsUuid(uuidGenerator.randomUUID())
+        .nftId(accessRequestDTO.getTokenId())
+        .scopes(List.of(
+                buildScopeName(accessRequestDTO.getDatasourceId(),
+                    accessRequestDTO.getAssetIdForDatasource())
             )
-        )
-        .map(this::toTransaction);
+        ).providerAddress(accessRequestDTO.getProviderAddress())
+        .build();
   }
 
   public Transaction<AccessRequestParams> toTransaction(AccessRequestParams accessRequestParams) {
@@ -57,13 +57,8 @@ class AccessRequestDAO {
         .build();
   }
 
-  AccessRequestParams toAccessRequestParam(Integer tokenId, DatasourceDTO datasourceDTO,
-      String providerAddress) {
-    return AccessRequestParams.builder()
-        .accessRequestsUuid(uuidGenerator.randomUUID())
-        .nftId(tokenId)
-        .scopes(List.of(datasourceDTO.getId() + ":" + datasourceDTO.getAssetIdForDatasource()))
-        .providerAddress(providerAddress)
-        .build();
+  private String buildScopeName(String datasourceId, String assetIdForDatasource) {
+    return datasourceId + ":" + assetIdForDatasource;
   }
+
 }

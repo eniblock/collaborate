@@ -19,6 +19,8 @@ import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasou
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
 import collaborate.api.datasource.security.SaveAuthenticationVisitor;
+import collaborate.api.organization.OrganizationService;
+import collaborate.api.organization.model.OrganizationDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.time.Clock;
@@ -43,13 +45,15 @@ class CreateDatasourceServiceTest {
   @Mock
   AuthenticationMetadataVisitor authenticationMetadataVisitor;
   @Mock
-  MintBusinessDataService mintBusinessDataService;
-  @Mock
   DatasourceDAO datasourceDAO;
   @Mock
   DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
   @Mock
   DatasourceEnricherVisitor datasourceEnricherVisitor;
+  @Mock
+  OrganizationService organizationService;
+  @Mock
+  MintBusinessDataService mintBusinessDataService;
   @Mock
   SaveAuthenticationVisitor saveAuthenticationVisitor;
   @Mock
@@ -69,6 +73,7 @@ class CreateDatasourceServiceTest {
             datasourceDTOMetadataVisitor,
             datasourceEnricherVisitor,
             objectMapper,
+            organizationService,
             mintBusinessDataService,
             saveAuthenticationVisitor,
             testConnectionVisitor,
@@ -94,9 +99,13 @@ class CreateDatasourceServiceTest {
             TraefikProviderConfiguration.class);
     assertThat(traefikConfiguration.getHttp().getMiddlewares().get(datasourceId + "-auth-headers"))
         .isNotNull();
-
+    when(organizationService.getCurrentOrganization())
+        .thenReturn(
+            OrganizationDTO.builder()
+                .address("dsOwnerAddress")
+                .build()
+        );
     // WHEN
-
     var datasourceResult =
         createDatasourceService.buildDatasource(
             new DatasourceEnrichment<>(datasourceDTO, emptySet()),

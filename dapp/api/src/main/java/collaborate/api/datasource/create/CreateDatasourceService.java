@@ -19,6 +19,7 @@ import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
 import collaborate.api.datasource.security.SaveAuthenticationVisitor;
 import collaborate.api.datasource.traefik.routing.AuthHeaderKeySupplier;
 import collaborate.api.datasource.traefik.routing.DatasourceKeySupplier;
+import collaborate.api.organization.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.time.Clock;
@@ -41,6 +42,7 @@ public class CreateDatasourceService {
   private final DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
   private final DatasourceEnricherVisitor datasourceEnricherVisitor;
   private final ObjectMapper objectMapper;
+  private final OrganizationService organizationService;
   private final MintBusinessDataService mintBusinessDataService;
   private final SaveAuthenticationVisitor saveAuthenticationVisitor;
   private final TestConnectionVisitor testConnectionVisitor;
@@ -79,6 +81,7 @@ public class CreateDatasourceService {
         .id(datasourceDTO.getId().toString())
         .name(datasourceDTO.getName())
         .creationDatetime(ZonedDateTime.now(clock))
+        .owner(organizationService.getCurrentOrganization().getAddress())
         .providerConfiguration(
             objectMapper.convertValue(providerConfiguration, LinkedHashMap.class)
         ).provider(TraefikProviderConfiguration.class.getName())

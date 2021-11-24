@@ -80,7 +80,7 @@ public class ScopeAssetsService {
         .map(AssetDataCatalogDTO::getDatasources)
         .stream()
         .flatMap(Collection::stream)
-        .map(d -> listScopeAssets(d.getId(), d.getAssetIdForDatasource()))
+        .map(d -> listScopeAssets(d))
         .findFirst();
   }
 
@@ -103,16 +103,21 @@ public class ScopeAssetsService {
     }
   }
 
-  public ScopeAssetsDTO listScopeAssets(String datasourceId, String scope) {
+  public ScopeAssetsDTO listScopeAssets(DatasourceDTO datasourceDTO) {
+    var datasourceId = datasourceDTO.getId();
+    var scope = datasourceDTO.getAssetIdForDatasource();
     var scopesResponse = getAssetListResponse(datasourceId);
     if (!scopesResponse.getStatusCode().is2xxSuccessful()) {
       log.error("Can't get asset list for datasourceId={} and scope={}", datasourceId, scope);
       throw new ResponseStatusException(scopesResponse.getStatusCode());
     }
+
     String assetListJsonString = scopesResponse.getBody().toString();
+
     return ScopeAssetsDTO.builder()
         .accessStatus(findBusinessDataService.getAccessStatus(datasourceId, scope))
         .datasourceId(datasourceId)
+        .providerAddress(datasourceDTO.getOwnerAddress())
         .scopeName(scope)
         .assets(filterByScope(assetListJsonString, scope).collect(toList()))
         .build();

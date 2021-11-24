@@ -8,11 +8,11 @@ import collaborate.api.nft.create.DatasourceLink;
 import collaborate.api.nft.model.metadata.AssetDataCatalog;
 import collaborate.api.nft.model.metadata.TokenMetadata;
 import collaborate.api.nft.model.storage.Multisig;
+import collaborate.api.organization.OrganizationService;
 import collaborate.api.passport.model.AssetDataCatalogDTO;
 import collaborate.api.passport.model.DatasourceDTO;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -26,8 +26,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class TokenMetadataService {
 
-  private final DatasourceService datasourceService;
   private final IpfsService ipfsService;
+  private final DatasourceService datasourceService;
+  private final OrganizationService organizationService;
   private final TokenMedataDAO tokenMedataDAO;
 
   public Optional<AssetDataCatalogDTO> findByTokenId(Integer tokenId, String smartContract) {
@@ -73,30 +74,38 @@ public class TokenMetadataService {
       return tokenMetadata.getAssetDataCatalogUri()
           .map(catalogUri -> ipfsService.cat(catalogUri, AssetDataCatalog.class))
           .map(AssetDataCatalog::getDatasources)
-          .map(this::buildDatasourceDTO)
-          .map(AssetDataCatalogDTO::new);
+          .map(
+              links -> links.stream()
+                  .map(this::buildDatasourceDTO)
+                  .collect(Collectors.toList())
+          ).map(AssetDataCatalogDTO::new);
     } catch (Exception e) {
       log.error("While getting dataCatalog from metadataIpfsLink={}\n{}", metadataIpfsLink, e);
       return Optional.empty();
     }
   }
 
-  public List<DatasourceDTO> buildDatasourceDTO(List<DatasourceLink> datasourceLinks) {
-    return datasourceLinks.stream().map(d ->
-        DatasourceDTO.builder()
-            .id(d.getId())
-            .assetIdForDatasource(d.getAssetIdForDatasource())
-            .baseUri(datasourceService.findById(d.getId())
-                .map(ContentWithCid::getContent)
-                .map(datasourceService::buildDatasourceBaseUri)
-                .orElse("")
-            ).scopes(datasourceService.getScopesByDataSourceId(d.getId())
+  public DatasourceDTO buildDatasourceDTO(DatasourceLink datasourceLink) {
+    var datasource = datasourceService.findById(datasourceLink.getId())
+        .map(ContentWithCid::getContent);
+
+    return DatasourceDTO.builder()
+        .id(datasourceLink.getId())
+        .assetIdForDatasource(datasourceLink.getAssetIdForDatasource())
+        .baseUri(
+            datasource.map(datasourceService::buildDatasourceBaseUri)
+                .orElse(""))
+        .ownerAddress(
+            datasource.map(Datasource::getOwner)
+                .orElse(null)
+        )
+        .scopes(
+            datasourceService.getScopesByDataSourceId(datasourceLink.getId())
                 .orElseGet(() -> {
-                  log.warn("No scopes found for datasource={}", d.getId());
+                  log.warn("No scopes found for datasource={}", datasourceLink.getId());
                   return Collections.emptySet();
                 })
-            ).build()
-    ).collect(Collectors.toList());
+        ).build();
   }
 
 }

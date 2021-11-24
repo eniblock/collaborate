@@ -18,6 +18,7 @@ public class DatasourceDTO {
   @NotNull
   private String assetIdForDatasource;
   private String baseUri;
+  private String ownerAddress;
   private Set<String> scopes;
 
 }
