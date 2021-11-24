@@ -1,6 +1,7 @@
 package collaborate.api.businessdata;
 
 import collaborate.api.businessdata.access.AccessRequestService;
+import collaborate.api.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.businessdata.document.ScopeAssetsService;
 import collaborate.api.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.businessdata.find.FindBusinessDataService;
@@ -64,8 +65,9 @@ public class BusinessDataController {
       description = "Make a grant access request for the given tokens"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_GRANT_ACCESS_REQUEST)
-  public Job grantAccessRequest(@RequestBody @NotEmpty List<@Valid AssetDetailsDTO> assetDetails) {
-    return accessRequestService.requestAccess(assetDetails);
+  public Job grantAccessRequest(
+      @RequestBody @NotEmpty List<@Valid AccessRequestDTO> accessRequestDTOs) {
+    return accessRequestService.requestAccess(accessRequestDTOs);
   }
 
   @GetMapping("asset/{tokenId}")

@@ -17,6 +17,7 @@ public class ScopeAssetsDTO {
   @Schema(description = "The status of the the asset", example = "GRANTED")
   private AccessStatus accessStatus;
   private String datasourceId;
+  private String providerAddress;
   private String scopeName;
   private Collection<ScopeAssetDTO> assets;
 }

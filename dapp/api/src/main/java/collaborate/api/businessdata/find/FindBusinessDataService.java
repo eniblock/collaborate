@@ -38,7 +38,6 @@ public class FindBusinessDataService {
   AssetDetailsDTO toAssetDetails(TokenIndex t) {
     var datasourceId = StringUtils.substringBefore(t.getAssetId(), ":");
     var assetIdForDatasource = StringUtils.substringAfter(t.getAssetId(), ":");
-
     return AssetDetailsDTO.builder()
         .accessStatus(getAccessStatus(datasourceId, assetIdForDatasource))
         .assetDataCatalog(
@@ -46,6 +45,7 @@ public class FindBusinessDataService {
                 .datasources(List.of(DatasourceDTO.builder()
                     .id(datasourceId)
                     .assetIdForDatasource(assetIdForDatasource)
+                    .ownerAddress(t.getTokenOwnerAddress())
                     .build()
                 ))
                 .build()
