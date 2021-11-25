@@ -3,11 +3,15 @@ package collaborate.api.datasource.create;
 import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toSet;
 
-import collaborate.api.businessdata.create.MintBusinessDataService;
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceDAO;
 import collaborate.api.datasource.TestConnectionVisitor;
-import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
+import collaborate.api.datasource.businessdata.create.MintBusinessDataService;
+import collaborate.api.datasource.gateway.SaveAuthenticationVisitor;
+import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
+import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
+import collaborate.api.datasource.gateway.traefik.routing.AuthHeaderKeySupplier;
+import collaborate.api.datasource.gateway.traefik.routing.DatasourceKeySupplier;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
@@ -15,10 +19,6 @@ import collaborate.api.datasource.model.dto.DatasourceEnrichment;
 import collaborate.api.datasource.model.dto.DatasourcePurpose;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
-import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
-import collaborate.api.datasource.security.SaveAuthenticationVisitor;
-import collaborate.api.datasource.traefik.routing.AuthHeaderKeySupplier;
-import collaborate.api.datasource.traefik.routing.DatasourceKeySupplier;
 import collaborate.api.organization.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -117,4 +117,5 @@ public class CreateDatasourceService {
     }
     return datasource;
   }
+
 }

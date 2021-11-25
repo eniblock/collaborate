@@ -1,6 +1,6 @@
 package collaborate.api.datasource.model.dto.web;
 
-import static collaborate.api.datasource.traefik.routing.RoutingKeyFromKeywordSupplier.ROUTING_KEY_PREFIXES;
+import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.ROUTING_KEY_PREFIXES;
 
 import java.util.Collection;
 import javax.validation.ConstraintValidator;

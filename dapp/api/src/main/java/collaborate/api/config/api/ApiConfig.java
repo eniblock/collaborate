@@ -2,7 +2,7 @@ package collaborate.api.config.api;
 
 import collaborate.api.datasource.DatasourceProperties;
 import collaborate.api.ipfs.domain.dto.IpnsFoldersDTO;
-import collaborate.api.nft.TokenMetadataProperties;
+import collaborate.api.datasource.nft.TokenMetadataProperties;
 import collaborate.api.transaction.TransactionProperties;
 import com.fasterxml.jackson.databind.Module;
 import com.fasterxml.jackson.databind.ObjectMapper;

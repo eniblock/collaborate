@@ -25,7 +25,7 @@ class DatasourceEnricherVisitorTest {
         .resources(emptyList())
         .build();
     // WHEN
-    var enrichmentsResult = new DatasourceEnricherVisitor(null, null)
+    var enrichmentsResult = new DatasourceEnricherVisitor(null)
         .enrich(datasourceDTO, assetListJson);
     // THEN
     assertThat(enrichmentsResult.getDatasource())

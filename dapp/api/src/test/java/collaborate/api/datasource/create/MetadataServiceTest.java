@@ -4,7 +4,7 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import collaborate.api.datasource.metadata.MetadataService;
+import collaborate.api.datasource.MetadataService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.test.TestResources;
 import org.junit.jupiter.api.Test;
@@ -14,7 +14,7 @@ class MetadataServiceTest {
   MetadataService metadataService = new MetadataService(TestResources.objectMapper);
 
   Datasource datasource = TestResources.readContent(
-      "/datasource/domain/web/datasource.json",
+      "/datasource/model/web/datasource.json",
       Datasource.class
   );
   Datasource emptyDatasource = Datasource.builder()

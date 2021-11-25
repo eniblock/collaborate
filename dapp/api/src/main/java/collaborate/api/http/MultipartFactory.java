@@ -45,16 +45,10 @@ public class MultipartFactory {
 
     try {
       var multipart = create(tmpFile, formFieldName);
-      if (!tmpFile.delete()) {
-        log.error("Can't delete temp file ={}, would be deleted automatically on exit",
-            tmpFile.getAbsolutePath());
-      }
+      Files.delete(tmpFile.toPath());
       return multipart;
     } catch (IOException e) {
-      if (!tmpFile.delete()) {
-        log.error("Can't delete temp file ={}, would be deleted automatically on exit",
-            tmpFile.getAbsolutePath());
-      }
+      Files.delete(tmpFile.toPath());
       throw e;
     }
   }

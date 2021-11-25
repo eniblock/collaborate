@@ -6,19 +6,19 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.businessdata.create.MintBusinessDataService;
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceDAO;
 import collaborate.api.datasource.TestConnectionVisitor;
-import collaborate.api.datasource.create.provider.traefik.TraefikProviderService;
+import collaborate.api.datasource.businessdata.create.MintBusinessDataService;
+import collaborate.api.datasource.gateway.SaveAuthenticationVisitor;
+import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
+import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceEnrichment;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
-import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
-import collaborate.api.datasource.security.SaveAuthenticationVisitor;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -94,7 +94,7 @@ class CreateDatasourceServiceTest {
             IOUtils.toString(
                 Objects.requireNonNull(
                     CreateDatasourceServiceTest.class.getResourceAsStream(
-                        "/datasource/domain/traefik/entrypoint.yml")),
+                        "/datasource/gateway/traefik/entrypoint.yml")),
                 UTF_8.name()),
             TraefikProviderConfiguration.class);
     assertThat(traefikConfiguration.getHttp().getMiddlewares().get(datasourceId + "-auth-headers"))
