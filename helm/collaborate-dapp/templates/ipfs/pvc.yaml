@@ -4,7 +4,7 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
     {{- include "vault.labels" . | nindent 4 }}
-  name: {{ include "collaborate-dapp.fullname" . }}-ipfs
+  name: data-{{ include "collaborate-dapp.fullname" . }}-ipfs
 spec:
   accessModes:
     {{- .Values.ipfs.persistence.accessModes | toYaml | nindent 4 }}
