@@ -43,7 +43,7 @@ public class OrganizationFeature {
             .withHeaders(
                 new Header("Content-Type", "application/json; charset=utf-8")
             )
-            .withBody(readContent("/organization/organization-sc-storage.json"))
+            .withBody(readContent("/organizations/organization-sc-storage.json"))
     );
   }
 }

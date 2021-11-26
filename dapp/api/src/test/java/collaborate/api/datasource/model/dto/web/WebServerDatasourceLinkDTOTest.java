@@ -22,7 +22,7 @@ class WebServerDatasourceLinkDTOTest {
   @BeforeEach
   void setup() {
     webServerDatasource = readContent(
-        "/datasource/domain/web/certificateBasedBasicAuthDatasource.json",
+        "/datasource/model/web/certificateBasedBasicAuthDatasource.json",
         WebServerDatasourceDTO.class);
   }
 

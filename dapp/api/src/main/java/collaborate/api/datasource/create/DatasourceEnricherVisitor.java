@@ -1,12 +1,10 @@
 package collaborate.api.datasource.create;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
 import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
-import static org.springframework.http.HttpStatus.OK;
 
+import collaborate.api.datasource.AssetListService;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;
@@ -16,8 +14,6 @@ import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -25,7 +21,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-import org.springframework.web.server.ResponseStatusException;
 
 @Component
 @RequiredArgsConstructor
@@ -34,8 +29,7 @@ public class DatasourceEnricherVisitor implements
     DatasourceDTOVisitor<DatasourceEnrichment<? extends DatasourceDTO>> {
 
   public static final String KEY_PATH = "$.id";
-  private final RequestEntitySupplierFactory requestEntitySupplierFactory;
-  private final ObjectMapper objectMapper;
+  private final AssetListService assetListService;
 
   @Override
   public DatasourceEnrichment<? extends DatasourceDTO> visitWebServerDatasource(
@@ -49,34 +43,10 @@ public class DatasourceEnricherVisitor implements
 
   private DatasourceEnrichment<WebServerDatasourceDTO> enrichBusinessData(
       WebServerDatasourceDTO webServerDatasourceDTO) {
-    var response = getAssetListResponse(webServerDatasourceDTO);
+    var response = assetListService.getAssetListResponse(webServerDatasourceDTO);
     return enrich(webServerDatasourceDTO, response);
   }
 
-  private String getAssetListResponse(WebServerDatasourceDTO webServerDatasourceDTO) {
-    var assetListResponseSupplier = requestEntitySupplierFactory.create(
-        webServerDatasourceDTO,
-        SCOPE_ASSET_LIST
-    );
-
-    log.debug("fetching assetList for datasource={}", webServerDatasourceDTO.getId());
-    var response = assetListResponseSupplier.get();
-    if (response.getStatusCode() != OK) {
-      throw new ResponseStatusException(
-          BAD_REQUEST,
-          "Getting business data documents failed with responseCode=" + response.getStatusCode()
-      );
-    }
-    try {
-      return objectMapper.writeValueAsString(response.getBody());
-    } catch (JsonProcessingException e) {
-      throw new ResponseStatusException(
-          BAD_REQUEST,
-          "Getting business data documents failed reading response",
-          e
-      );
-    }
-  }
 
   DatasourceEnrichment<WebServerDatasourceDTO> enrich(WebServerDatasourceDTO datasource,
       String jsonResponse) {

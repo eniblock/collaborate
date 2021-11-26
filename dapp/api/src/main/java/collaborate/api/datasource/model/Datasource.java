@@ -29,7 +29,7 @@ public class Datasource {
   @NotNull
   private String owner;
 
-  @Schema(description = "The provider class used to configure the datasource access", example = "collaborate.api.datasource.provider.TraefikConfiguration", required = true)
+  @Schema(description = "The provider class used to configure the datasource access", example = "collaborate.api.datasource.gateway.datasource.provider.TraefikConfiguration", required = true)
   private String provider;
 
   @Schema(description = "Additional data about the datasource usage and configuration", required = true)

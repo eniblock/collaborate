@@ -7,13 +7,13 @@ import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Reg
 import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.VALUE_GROUP_INDEX;
 import static lombok.AccessLevel.PRIVATE;
 
+import collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
-import collaborate.api.datasource.traefik.routing.RoutingKeyFromKeywordSupplier;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;

@@ -17,7 +17,7 @@ class OrganizationDTOTest {
     // GIVEN
 
     // WHEN
-    var organization = readContent("/organization/organization.json", OrganizationDTO.class);
+    var organization = readContent("/organizations/organization.json", OrganizationDTO.class);
 
     // THEN
     assertThat(organization)

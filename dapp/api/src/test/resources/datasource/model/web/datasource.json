@@ -1,0 +1,138 @@
+{
+  "id": "898df5a9-0970-4908-8226-ecdfd7161060",
+  "creationDatetime": "2021-10-25T13:42:01.343Z",
+  "name": "DSPConsortium1 Digital Passport",
+  "provider": "collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration",
+  "providerMetadata": [
+    {
+      "name": "scope:metric:odometer:value.jsonPath",
+      "value": "$._embedded.odometer.value",
+      "type": "Integer"
+    },
+    {
+      "name": "datasource:type",
+      "value": "WebServerDatasourceDTO",
+      "type": "string"
+    },
+    {
+      "name": "datasource:authentication",
+      "value": "BasicAuth",
+      "type": "string"
+    },
+    {
+      "name": "datasource:purpose",
+      "value": "[\"digital-passport\"]",
+      "type": "string"
+    },
+    {
+      "name": "datasource:caEmail",
+      "value": "caEmail",
+      "type": "string"
+    }
+  ],
+  "providerConfiguration": {
+    "http": {
+      "routers": {
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:metric:odometer-router": {
+          "entryPoints": [
+            "websecure"
+          ],
+          "rule": "PathPrefix(`/datasource/898df5a9-0970-4908-8226-ecdfd7161060/scope/metric/odometer`)",
+          "service": "898df5a9-0970-4908-8226-ecdfd7161060",
+          "middlewares": [
+            "898df5a9-0970-4908-8226-ecdfd7161060-auth-headers",
+            "898df5a9-0970-4908-8226-ecdfd7161060-scope:metric:odometer-query-params",
+            "898df5a9-0970-4908-8226-ecdfd7161060-scope:metric:odometer-replace-path-regex",
+            "898df5a9-0970-4908-8226-ecdfd7161060-scope:metric:odometer-strip-prefix"
+          ],
+          "tls": true
+        },
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-router": {
+          "entryPoints": [
+            "websecure"
+          ],
+          "rule": "PathPrefix(`/datasource/898df5a9-0970-4908-8226-ecdfd7161060/purpose/test-connection`)",
+          "service": "898df5a9-0970-4908-8226-ecdfd7161060",
+          "middlewares": [
+            "898df5a9-0970-4908-8226-ecdfd7161060-auth-headers",
+            "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-query-params",
+            "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-replace-path-regex",
+            "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-strip-prefix"
+          ],
+          "tls": true
+        }
+      },
+      "services": {
+        "898df5a9-0970-4908-8226-ecdfd7161060": {
+          "loadBalancer": {
+            "servers": [
+              {
+                "url": "https://api-cert-preprod.dspconsortium1.com"
+              }
+            ],
+            "passHostHeader": false,
+            "serversTransport": "898df5a9-0970-4908-8226-ecdfd7161060-serversTransport"
+          }
+        }
+      },
+      "middlewares": {
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-query-params": {
+          "redirectRegex": {
+            "regex": "/([^\\?\\s]*)(\\??)(.*)",
+            "replacement": "/${1}?client_id=c8fc43d5-f43f-44e5-acc2-b8aebaee90e2"
+          }
+        },
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:metric:odometer-replace-path-regex": {
+          "replacePathRegex": {
+            "regex": "/datasource/898df5a9-0970-4908-8226-ecdfd7161060/scope/metric/odometer/(.*)",
+            "replacement": "/datasource/898df5a9-0970-4908-8226-ecdfd7161060/scope/metric/odometer/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status"
+          }
+        },
+        "898df5a9-0970-4908-8226-ecdfd7161060-auth-headers": {
+          "headers": {
+            "customRequestHeaders": {
+              "Authorization": "Basic TVdQRFJWMDE6QkJybEtRMGk="
+            }
+          }
+        },
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:metric:odometer-query-params": {
+          "redirectRegex": {
+            "regex": "/([^\\?\\s]*)(\\??)(.*)",
+            "replacement": "/${1}?client_id=c8fc43d5-f43f-44e5-acc2-b8aebaee90e2&profile=fleet&extension=odometer"
+          }
+        },
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-strip-prefix": {
+          "stripPrefix": {
+            "prefixes": [
+              "/datasource/898df5a9-0970-4908-8226-ecdfd7161060/purpose/test-connection"
+            ]
+          }
+        },
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:list-asset-replace-path-regex": {
+          "replacePathRegex": {
+            "regex": "/datasource/898df5a9-0970-4908-8226-ecdfd7161060/purpose/test-connection",
+            "replacement": "/datasource/898df5a9-0970-4908-8226-ecdfd7161060/purpose/test-connection/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
+          }
+        },
+        "898df5a9-0970-4908-8226-ecdfd7161060-scope:metric:odometer-strip-prefix": {
+          "stripPrefix": {
+            "prefixes": [
+              "/datasource/898df5a9-0970-4908-8226-ecdfd7161060/scope/metric/odometer"
+            ]
+          }
+        }
+      },
+      "serversTransports": {
+        "898df5a9-0970-4908-8226-ecdfd7161060-serversTransport": {
+          "certificates": [
+            {
+              "certFile": "/etc/ssl/certs/xdev/collaborate/898df5a9-0970-4908-8226-ecdfd7161060.crt",
+              "keyFile": "/etc/ssl/certs/xdev/collaborate/898df5a9-0970-4908-8226-ecdfd7161060.key"
+            }
+          ],
+          "insecureSkipVerify": false
+        }
+      }
+    }
+  }
+}
