@@ -1,6 +1,6 @@
 package collaborate.api.test.config;
 
-import collaborate.api.businessdata.TAGBusinessDataClient;
+import collaborate.api.datasource.businessdata.TAGBusinessDataClient;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import feign.codec.Decoder;
 import feign.codec.Encoder;

@@ -1,14 +1,13 @@
 package collaborate.api.datasource;
 
 import static java.util.Collections.emptySet;
-import static java.util.function.Function.identity;
 
-import collaborate.api.datasource.metadata.MetadataService;
+import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
+import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
-import collaborate.api.datasource.model.traefik.TraefikProviderConfiguration;
 import collaborate.api.ipfs.domain.dto.ContentWithCid;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collections;
@@ -30,6 +29,7 @@ public class DatasourceService {
   private final ObjectMapper objectMapper;
   private final DatasourceDAO datasourceDAO;
   private final MetadataService metadataService;
+  private final TraefikProviderService traefikProviderService;
 
   public Page<ListDatasourceDTO> findAll(Pageable pageable, String query) {
     log.warn("query={} and sort not implemented", query);
@@ -53,7 +53,7 @@ public class DatasourceService {
         .listOfScopes(
             getScopesByDataSourceId(datasource.getId())
                 .orElse(emptySet())
-        ).baseURI(buildDatasourceBaseUri(datasource))
+        ).baseURI(traefikProviderService.buildDatasourceBaseUri(datasource))
         .authenticationType(metadataService.getAuthentication(datasource))
         .certificateEmail(metadataService.getCertificate(datasource))
         .accessMethod(metadataService.getAuthentication(datasource))
@@ -61,32 +61,9 @@ public class DatasourceService {
         .build();
   }
 
-  public String buildDatasourceBaseUri(Datasource datasource) {
-    return toTraefikProviderConfiguration(datasource)
-        .map(conf -> conf.getHttp().findFirstServiceLoadBalancerUri())
-        .flatMap(identity())
-        .orElse("");
-  }
 
-  public Optional<TraefikProviderConfiguration> toTraefikProviderConfiguration(
-      Datasource datasource) {
-    var isTraefikProviderConfiguration = TraefikProviderConfiguration.class
-        .getName()
-        .equals(datasource.getProvider());
-    if (!isTraefikProviderConfiguration) {
-      return Optional.empty();
-    } else {
-      return Optional.of(
-          objectMapper.convertValue(
-              datasource.getProviderConfiguration(),
-              TraefikProviderConfiguration.class
-          )
-      );
-    }
-  }
-
-  public Optional<Set<String>> getScopesByDataSourceId(String id) {
-    return datasourceDAO.findById(id)
+  public Optional<Set<String>> getScopesByDataSourceId(String datasourceId) {
+    return datasourceDAO.findById(datasourceId)
         .map(ContentWithCid::getContent)
         .filter(ds -> TraefikProviderConfiguration.class.getName().equals(ds.getProvider()))
         .map(Datasource::getProviderConfiguration)
@@ -96,7 +73,7 @@ public class DatasourceService {
         .map(
             scopeSet ->
                 scopeSet.stream()
-                    .map(s -> StringUtils.removeStart(s, id + "-"))
+                    .map(s -> StringUtils.removeStart(s, datasourceId + "-"))
                     .map(s -> StringUtils.removeEnd(s, "-router"))
                     .filter(s -> StringUtils.startsWith(s, "scope:"))
                     .collect(Collectors.toSet())
@@ -109,4 +86,5 @@ public class DatasourceService {
         .map(Datasource::getProviderMetadata)
         .orElse(Collections.emptySet());
   }
+
 }

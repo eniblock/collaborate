@@ -1,7 +1,7 @@
 package collaborate.api.http;
 
-import collaborate.api.datasource.AccessTokenProvider;
 import collaborate.api.datasource.RequestEntityVisitor;
+import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.http.security.SSLContextFactory;
 import java.net.URI;
 import lombok.RequiredArgsConstructor;

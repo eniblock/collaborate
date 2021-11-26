@@ -1,7 +1,6 @@
 package collaborate.api.datasource.model.dto;
 
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
-import collaborate.api.datasource.security.BasicAuthCredentials;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

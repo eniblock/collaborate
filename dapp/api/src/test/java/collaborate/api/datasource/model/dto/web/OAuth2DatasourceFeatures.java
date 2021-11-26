@@ -33,7 +33,7 @@ public class OAuth2DatasourceFeatures {
           ))).build();
 
   public static final String datasourceJson = TestResources.readContent(
-      "/datasource/domain/web/oAuth2Datasource.json");
+      "/datasource/model/web/oAuth2Datasource.json");
 
   private OAuth2DatasourceFeatures() {
   }

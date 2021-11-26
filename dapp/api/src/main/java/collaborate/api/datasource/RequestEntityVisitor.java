@@ -2,6 +2,7 @@ package collaborate.api.datasource;
 
 import static java.util.Objects.requireNonNull;
 
+import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.model.dto.web.authentication.AuthenticationVisitor;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;

@@ -1,6 +1,5 @@
 package collaborate.api.datasource;
 
-import collaborate.api.datasource.metadata.MetadataService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
 import collaborate.api.datasource.model.dto.enumeration.DatasourceStatus;
