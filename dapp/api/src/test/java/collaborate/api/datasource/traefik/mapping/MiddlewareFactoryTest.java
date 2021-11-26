@@ -1,5 +1,6 @@
 package collaborate.api.datasource.traefik.mapping;
 
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import collaborate.api.datasource.gateway.traefik.MiddlewareFactory;
@@ -8,7 +9,6 @@ import collaborate.api.datasource.gateway.traefik.model.middleware.RedirectRegex
 import collaborate.api.datasource.model.dto.web.QueryParam;
 import java.util.List;
 import java.util.Optional;
-import org.assertj.core.util.Lists;
 import org.junit.jupiter.api.Test;
 
 class MiddlewareFactoryTest {
@@ -28,8 +28,8 @@ class MiddlewareFactoryTest {
   @Test
   void createQueryParam_shouldReturnEmpty_withEmptyParameters() {
     // GIVEN
-    List<QueryParam> first = Lists.emptyList();
-    List<QueryParam> second = Lists.emptyList();
+    List<QueryParam> first = emptyList();
+    List<QueryParam> second = emptyList();
     // WHEN
     var actualQueryParamsOpt = middlewareFactory.createQueryParamOption(first, second);
     // THEN

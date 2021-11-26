@@ -28,11 +28,11 @@ class URIFactoryTest {
   @MethodSource("create_withSlashesParameters")
   void create_withSlashes(String baseUrl, String resourceUrlSuffix) {
     // GIVEN
-    var resource = WebServerResource.builder()
-        .url(baseUrl)
-        .build();
     var datasource = WebServerDatasourceDTO.builder()
-        .baseUrl(resourceUrlSuffix)
+        .baseUrl(baseUrl)
+        .build();
+    var resource = WebServerResource.builder()
+        .url(resourceUrlSuffix)
         .build();
     // WHEN
     URI actualURI = uriFactory.create(datasource, resource);

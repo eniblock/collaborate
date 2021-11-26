@@ -101,13 +101,13 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-context-support</artifactId>
-      <version>5.3.2</version>
+      <version>5.3.13</version>
     </dependency>
 
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-openfeign</artifactId>
-      <version>2.2.10.RELEASE</version>
+      <version>3.0.5</version>
     </dependency>
 
     <dependency>
@@ -126,7 +126,6 @@
     <dependency>
       <groupId>org.thymeleaf</groupId>
       <artifactId>thymeleaf-spring5</artifactId>
-      <version>3.0.11.RELEASE</version>
     </dependency>
 
     <!-- Spring doc dependencies-->
@@ -145,7 +144,7 @@
     <dependency>
       <groupId>org.springframework.data</groupId>
       <artifactId>spring-data-commons</artifactId>
-      <version>2.5.5</version>
+      <version>2.6.0</version>
     </dependency>
 
     <dependency>
@@ -158,34 +157,34 @@
     <dependency>
       <groupId>org.postgresql</groupId>
       <artifactId>postgresql</artifactId>
-      <version>42.2.16</version>
+      <version>42.3.1</version>
     </dependency>
 
     <!-- Test dependencies-->
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>postgresql</artifactId>
-      <version>1.12.4</version>
+      <version>1.16.2</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>1.14.3</version>
+      <version>1.16.2</version>
       <scope>test</scope>
     </dependency>
 
     <dependency>
       <groupId>org.mock-server</groupId>
       <artifactId>mockserver-netty</artifactId>
-      <version>3.10.8</version>
+      <version>${mock-server.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mock-server</groupId>
       <artifactId>mockserver-client-java</artifactId>
-      <version>3.10.8</version>
+      <version>${mock-server.version}</version>
       <scope>test</scope>
     </dependency>
 
@@ -205,6 +204,11 @@
       <artifactId>spring-boot-starter-amqp</artifactId>
     </dependency>
 
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson.version}</version>
+    </dependency>
     <dependency>
       <groupId>com.fasterxml.jackson.core</groupId>
       <artifactId>jackson-databind</artifactId>
@@ -235,7 +239,7 @@
     <dependency>
       <groupId>org.modelmapper</groupId>
       <artifactId>modelmapper</artifactId>
-      <version>2.3.5</version>
+      <version>2.4.4</version>
     </dependency>
 
     <!-- LOG -->
@@ -263,13 +267,12 @@
     <dependency>
       <groupId>io.micrometer</groupId>
       <artifactId>micrometer-registry-prometheus</artifactId>
-      <version>1.6.4</version>
+      <version>1.8.0</version>
     </dependency>
 
     <dependency>
       <artifactId>lombok</artifactId>
       <groupId>org.projectlombok</groupId>
-      <version>${lombok.version}</version>
     </dependency>
 
     <dependency>
@@ -344,14 +347,15 @@
   </build>
 
   <properties>
-    <assertj.version>3.20.2</assertj.version>
-    <jackson.version>2.11.2</jackson.version>
+    <assertj.version>3.21.0</assertj.version>
+    <jackson.version>2.13.0</jackson.version>
     <java.version>11</java.version>
     <keycloak-adapter-bom.version>11.0.3</keycloak-adapter-bom.version>
     <log4j.version>2.14.1</log4j.version>
     <lombok.version>1.18.20</lombok.version>
+    <mock-server.version>3.10.8</mock-server.version>
     <spring-cloud.version>2020.0.4</spring-cloud.version>
-    <springdoc-openapi-ui.version>1.5.9</springdoc-openapi-ui.version>
+    <springdoc-openapi-ui.version>1.5.12</springdoc-openapi-ui.version>
     <sonar.organization>xdev-tech</sonar.organization>
     <sonar.projectKey>xdev-tech_collaborate</sonar.projectKey>
     <sonarcube.version>3.7.0.1746</sonarcube.version>
