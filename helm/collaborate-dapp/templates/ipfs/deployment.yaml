@@ -69,7 +69,7 @@ spec:
       volumes:
         - name: data
           persistentVolumeClaim:
-            claimName: {{ .Values.ipfs.persistence.existingClaim | default (printf "%s-ipfs" (include "collaborate-dapp.fullname" . )) }}
+            claimName: {{ .Values.ipfs.persistence.existingClaim | default (printf "data-%s-ipfs" (include "collaborate-dapp.fullname" . )) }}
         - name: start-ipfs
           configMap:
             name: {{ include "collaborate-dapp.fullname" . }}-ipfs
