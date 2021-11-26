@@ -21,12 +21,23 @@ local_resource('helm dependencies',
                clk_k8s + 'helm-dependency-update helm/collaborate-dapp -ft Tiltfile',
                trigger_mode=TRIGGER_MODE_MANUAL, auto_init=False)
 
+overridedValues = [
+  'api.traefik.pilot.token=' + os.getenv('TRAEFIK_PILOT_TOKEN', '')
+]
+if os.getenv('BUSINESS_DATA_SC', '') != '':
+  overridedValues \
+    .append('api.businessDataContractAddress=' + os.getenv('BUSINESS_DATA_SC'))
+if os.getenv('DIGITAL_PASSPORT_SC', '') != '':
+  overridedValues \
+    .append(
+    'api.digitalPassportContractAddress=' + os.getenv('DIGITAL_PASSPORT_SC'))
+
 k8s_yaml(
     helm(
         'helm/collaborate-dapp',
         values=['./helm/collaborate-dapp/values-dev.yaml'],
         name='col',
-        set=['api.traefik.pilot.token=' + os.getenv('TRAEFIK_PILOT_TOKEN', '')]
+        set=overridedValues
     )
 )
 
