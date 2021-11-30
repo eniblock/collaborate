@@ -3,29 +3,47 @@
     "createdAt": "2021-10-25T00:00:00.000Z",
     "kpiKey": "digital-passport",
     "organizationWallet": "orgA",
-    "parameters": {
-      "role": 1
+    "values": {
+      "first": 1
     }
   },
   {
     "createdAt": "2021-10-25T00:00:01.000Z",
     "kpiKey": "digital-passport",
-    "organizationWallet": "orgA"
+    "organizationWallet": "orgA",
+    "values": {
+      "first": {
+        "secondInt": 2
+      }
+    }
   },
   {
     "createdAt": "2021-12-31T00:00:02.000Z",
     "kpiKey": "digital-passport",
-    "organizationWallet": "orgB"
+    "organizationWallet": "orgB",
+    "values": {
+      "first": {
+        "secondString": "This is a 2nd level value"
+      }
+    }
   },
   {
     "createdAt": "2021-01-01T00:00:02.000Z",
     "kpiKey": "digital-passport",
-    "organizationWallet": "orgB"
+    "organizationWallet": "orgB",
+    "values": {
+      "requester": "orgA",
+      "scope": "scopeA"
+    }
   },
   {
     "createdAt": "2021-02-01T00:00:02.000Z",
     "kpiKey": "digital-passport",
-    "organizationWallet": "orgB"
+    "organizationWallet": "orgB",
+    "values": {
+      "requester": "orgA",
+      "scope": "scopeB"
+    }
   },
   {
     "createdAt": "2021-10-25T00:00:03.000Z",

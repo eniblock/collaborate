@@ -44,14 +44,14 @@ public class Kpi {
 
   private String organizationWallet;
 
-  
+
   @Type(type = "jsonb")
   @Column(columnDefinition = "jsonb")
-  private JsonNode parameters;
+  private JsonNode values;
 
   public Optional<Object> findParameter(String key) {
-    if (parameters != null) {
-      return Optional.ofNullable(parameters.get(key));
+    if (values != null) {
+      return Optional.ofNullable(values.get(key));
     }
     return Optional.empty();
   }

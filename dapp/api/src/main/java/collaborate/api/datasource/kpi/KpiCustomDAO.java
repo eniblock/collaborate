@@ -53,8 +53,8 @@ public class KpiCustomDAO {
         builder.literal(dateFormat));
   }
 
-  private Predicate buildPredicate(Collection<SearchCriteria> search,
-      CriteriaBuilder builder, Root<Kpi> kpiRoot) {
+  private Predicate buildPredicate(Collection<SearchCriteria> search, CriteriaBuilder builder,
+      Root<Kpi> kpiRoot) {
     Predicate predicate = builder.conjunction();
     SearchQueryCriteriaConsumer searchConsumer = new SearchQueryCriteriaConsumer(
         predicate,

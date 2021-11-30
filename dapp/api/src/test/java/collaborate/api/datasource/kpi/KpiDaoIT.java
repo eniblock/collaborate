@@ -51,7 +51,7 @@ class KpiDaoIT {
     var parameters = TestResources.objectMapper.convertValue(Map.of("p", "v"), JsonNode.class);
     var kpi = Kpi.builder()
         .kpiKey("passport")
-        .parameters(parameters)
+        .values(parameters)
         .build();
 
     var k = kpiDAO.save(kpi);
@@ -67,7 +67,7 @@ class KpiDaoIT {
 
     var kpiResult = kpiDAO.save(kpi);
     assertThat(kpiDAO.count()).isPositive();
-    assertThat(kpiResult.getParameters()).isNull();
+    assertThat(kpiResult.getValues()).isNull();
   }
 
   @Test
