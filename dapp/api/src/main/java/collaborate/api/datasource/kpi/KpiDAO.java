@@ -33,7 +33,7 @@ interface KpiDAO extends JpaRepository<Kpi, Long> {
       + " k.organization_wallet AS organizationWallet, "
       + " COUNT(k.*) AS total "
       + "FROM kpi AS k "
-      + "WHERE k.key =?1 "
+      + "WHERE k.kpi_key =?1 "
       + "GROUP BY k.organization_wallet ", nativeQuery = true)
   List<KpiAggregation> countByOrganization(String key);
 

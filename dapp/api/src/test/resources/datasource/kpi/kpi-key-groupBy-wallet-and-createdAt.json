@@ -1,0 +1,12 @@
+{
+  "datetimeFormat": "YYYY-MM",
+  "labelGroup": "createdAt",
+  "dataSetsGroup": "organizationWallet",
+  "search": [
+    {
+      "key": "kpiKey",
+      "operation": "=",
+      "value": "digital-passport"
+    }
+  ]
+}

@@ -1,12 +1,17 @@
 package collaborate.api.datasource.kpi.model;
 
 
-public interface KpiAggregation {
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-  String getOrganizationWallet();
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class KpiAggregation {
 
-  String getLabel();
-
-  Long getTotal();
+  private String dataSetsGroup;
+  private String label;
+  private Long total;
 
 }

@@ -83,9 +83,9 @@ class KpiDaoIT {
     // WHEN
     var countResult = kpiDAO.countByKeyAndDatetime("digital-passport", "YYYY-MM");
     assertThat(countResult).hasSize(8);
-    assertThat(countResult.stream().filter(a -> a.getOrganizationWallet().equals("orgA")))
+    assertThat(countResult.stream().filter(a -> a.getDataSetsGroup().equals("orgA")))
         .hasSize(4);
-    assertThat(countResult.stream().filter(a -> a.getOrganizationWallet().equals("orgB")))
+    assertThat(countResult.stream().filter(a -> a.getDataSetsGroup().equals("orgB")))
         .hasSize(4);
   }
 

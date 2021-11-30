@@ -1,11 +1,12 @@
 package collaborate.api.datasource.kpi;
 
 import collaborate.api.config.OpenApiConfig;
+import collaborate.api.datasource.kpi.model.KpiAggregation;
 import collaborate.api.datasource.kpi.model.KpiQuery;
-import collaborate.api.datasource.kpi.model.KpiResult;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.Collection;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +25,7 @@ public class KpiController {
   @GetMapping
   @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
-  public KpiResult list(KpiQuery kpiQuery) {
+  public Collection<KpiAggregation> list(KpiQuery kpiQuery) {
     return kpiService.find(kpiQuery);
   }
 
