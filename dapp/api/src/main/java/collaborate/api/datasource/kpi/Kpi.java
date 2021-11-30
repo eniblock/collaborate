@@ -1,4 +1,4 @@
-package collaborate.api.datasource.kpi.model;
+package collaborate.api.datasource.kpi;
 
 import collaborate.api.config.ISO8601JsonStringFormat;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -43,7 +43,6 @@ public class Kpi {
   private String kpiKey;
 
   private String organizationWallet;
-
 
   @Type(type = "jsonb")
   @Column(columnDefinition = "jsonb")

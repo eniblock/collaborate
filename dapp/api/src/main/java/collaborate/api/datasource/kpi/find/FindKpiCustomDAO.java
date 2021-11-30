@@ -1,9 +1,6 @@
-package collaborate.api.datasource.kpi;
+package collaborate.api.datasource.kpi.find;
 
-import collaborate.api.datasource.kpi.model.Kpi;
-import collaborate.api.datasource.kpi.model.KpiAggregation;
-import collaborate.api.datasource.kpi.model.KpiQuery;
-import collaborate.api.datasource.kpi.model.SearchCriteria;
+import collaborate.api.datasource.kpi.Kpi;
 import java.util.Collection;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -16,19 +13,19 @@ import javax.persistence.criteria.Root;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class KpiCustomDAO {
+public class FindKpiCustomDAO {
 
   @PersistenceContext
   private EntityManager entityManager;
 
-  public List<KpiAggregation> search(KpiQuery params) {
+  public List<KpiAggregation> find(KpiQuery params) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<KpiAggregation> query = builder.createQuery(KpiAggregation.class);
     Root<Kpi> kpiRoot = query.from(Kpi.class);
 
     Expression<String> extractDate = buildExtractDateExpression(
         params.getLabelGroup(),
-        params.getDatetimeFormat(),
+        params.getLabelFormat(),
         kpiRoot);
 
     query = query
@@ -56,7 +53,7 @@ public class KpiCustomDAO {
   private Predicate buildPredicate(Collection<SearchCriteria> search, CriteriaBuilder builder,
       Root<Kpi> kpiRoot) {
     Predicate predicate = builder.conjunction();
-    SearchQueryCriteriaConsumer searchConsumer = new SearchQueryCriteriaConsumer(
+    SearchCriteriaConsumer searchConsumer = new SearchCriteriaConsumer(
         predicate,
         builder,
         kpiRoot);

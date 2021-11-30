@@ -1,8 +1,9 @@
 package collaborate.api.datasource.kpi;
 
 import collaborate.api.config.OpenApiConfig;
-import collaborate.api.datasource.kpi.model.KpiAggregation;
-import collaborate.api.datasource.kpi.model.KpiQuery;
+import collaborate.api.datasource.kpi.find.FindKpiService;
+import collaborate.api.datasource.kpi.find.KpiAggregation;
+import collaborate.api.datasource.kpi.find.KpiQuery;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -20,13 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class KpiController {
 
-  private final KpiService kpiService;
+  private final FindKpiService findKpiService;
 
   @GetMapping
-  @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @Operation(description = "Compute an aggregation on the defined KpiQuery", security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
-  public Collection<KpiAggregation> list(KpiQuery kpiQuery) {
-    return kpiService.find(kpiQuery);
+  public Collection<KpiAggregation> find(KpiQuery kpiQuery) {
+    return findKpiService.find(kpiQuery);
   }
 
 }

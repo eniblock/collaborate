@@ -1,4 +1,4 @@
-package collaborate.api.datasource.kpi.model;
+package collaborate.api.datasource.kpi.find;
 
 
 import lombok.AllArgsConstructor;

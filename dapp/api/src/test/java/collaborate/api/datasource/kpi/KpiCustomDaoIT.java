@@ -3,10 +3,10 @@ package collaborate.api.datasource.kpi;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import collaborate.api.ApiApplication;
-import collaborate.api.datasource.kpi.model.Kpi;
-import collaborate.api.datasource.kpi.model.KpiAggregation;
-import collaborate.api.datasource.kpi.model.KpiQuery;
-import collaborate.api.datasource.kpi.model.SearchCriteria;
+import collaborate.api.datasource.kpi.find.FindKpiCustomDAO;
+import collaborate.api.datasource.kpi.find.KpiAggregation;
+import collaborate.api.datasource.kpi.find.KpiQuery;
+import collaborate.api.datasource.kpi.find.SearchCriteria;
 import collaborate.api.test.SharedDatabaseTest;
 import collaborate.api.test.TestResources;
 import collaborate.api.test.database.PostgresqlSharedTestContainer;
@@ -27,7 +27,7 @@ import org.testcontainers.junit.jupiter.Container;
     classes = {
         PostgresqlSharedTestContainer.Config.class,
         ApiApplication.class,
-        KpiCustomDAO.class
+        FindKpiCustomDAO.class
     }
 )
 class KpiCustomDaoIT {
@@ -38,7 +38,7 @@ class KpiCustomDaoIT {
   @Autowired
   KpiDAO kpiDAO;
   @Autowired
-  KpiCustomDAO kpiCustomDAO;
+  FindKpiCustomDAO findKpiCustomDAO;
 
   @ParameterizedTest
   @MethodSource("getSearchParameters")
@@ -54,7 +54,7 @@ class KpiCustomDaoIT {
     var kpiQuery = buildQuery();
     kpiQuery.getSearch().addAll(search);
     // WHEN
-    var aggregationResult = kpiCustomDAO.search(kpiQuery);
+    var aggregationResult = findKpiCustomDAO.find(kpiQuery);
 
     // THEN
     assertThat(aggregationResult).as(testMessage)
@@ -64,7 +64,14 @@ class KpiCustomDaoIT {
   private static Stream<Arguments> getSearchParameters() {
     return Stream.of(
         Arguments.of(
-            "search_withFilterOnKpiKey",
+            "search_withContainFilterOnKpiKey",
+            List.of(new SearchCriteria("organizationWallet", ":", "A")),
+            List.of(
+                new KpiAggregation("orgA", "2021-10", 2L)
+            )
+        ),
+        Arguments.of(
+            "search_withEqualFilterOnKpiKey",
             List.of(new SearchCriteria("kpiKey", "=", "digital-passport")),
             List.of(
                 new KpiAggregation("orgA", "2021-10", 2L),
@@ -74,7 +81,7 @@ class KpiCustomDaoIT {
             )
         ),
         Arguments.of(
-            "search_withFilterOnOrganizationWallet",
+            "search_withEqualFilterOnOrganizationWallet",
             List.of(new SearchCriteria("values.first.secondInt", "=", "2")),
             List.of(new KpiAggregation("orgA", "2021-10", 1L))
         ),
@@ -87,7 +94,13 @@ class KpiCustomDaoIT {
             "search_withEqualFilterOnValuesJsonSecondLevelField",
             List.of(new SearchCriteria("values.first.secondInt", "=", "2")),
             List.of(new KpiAggregation("orgA", "2021-10", 1L))
-        ), Arguments.of(
+        ),
+        Arguments.of(
+            "search_withEqualFilterOnCreatedAt",
+            List.of(new SearchCriteria("createdAt", "=", "2021-12-31T00:00:02.000Z")),
+            List.of(new KpiAggregation("orgB", "2021-12", 1L))
+        ),
+        Arguments.of(
             "search_withContainFilterOnValuesJsonSecondLevelField",
             List.of(new SearchCriteria("values.first.secondString", ":", "2nd level")),
             List.of(new KpiAggregation("orgB", "2021-12", 1L))
@@ -116,7 +129,7 @@ class KpiCustomDaoIT {
 
   public KpiQuery buildQuery() {
     return KpiQuery.builder()
-        .datetimeFormat("YYYY-MM")
+        .labelFormat("YYYY-MM")
         .labelGroup("createdAt")
         .dataSetsGroup("organizationWallet")
         .search(new HashSet<>())

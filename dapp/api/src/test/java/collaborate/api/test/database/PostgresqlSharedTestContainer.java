@@ -21,12 +21,6 @@ public class PostgresqlSharedTestContainer extends
   public static PostgresqlSharedTestContainer getInstance() {
     if (container == null) {
       container = new PostgresqlSharedTestContainer();
-//          .withExposedPorts(POSTGRESQL_PORT)
-//          .withCreateContainerCmdModifier(cmd -> cmd.withHostConfig(
-//              new HostConfig().withPortBindings(
-//                  new PortBinding(Ports.Binding.bindPort(14165), new ExposedPort(POSTGRESQL_PORT)))
-//          ));
-      ;
     }
     return container;
   }
