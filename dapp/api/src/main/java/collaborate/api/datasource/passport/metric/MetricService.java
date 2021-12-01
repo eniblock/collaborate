@@ -146,7 +146,6 @@ public class MetricService {
       result = "";
       if (jsonPath.contains(jsonResponse)) {
         result = jsonPath.eval(jsonResponse).toString();
-
       }
     }
     return objectMapper.valueToTree(result);

@@ -30,6 +30,10 @@ public class TestResources {
     }
   }
 
+  public static <T> T readContent(String testResourcePath, TypeReference<T> type) {
+    return readValue(readContent(testResourcePath), type);
+  }
+
   public static <T> T readContent(String testResourcePath, Class<T> clazz) {
     return readValue(readContent(testResourcePath), clazz);
   }

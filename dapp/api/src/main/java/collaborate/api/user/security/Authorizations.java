@@ -89,6 +89,10 @@ public final class Authorizations {
     public static final String BUSINESS_DATA_GRANT_ACCESS_REQUEST =
         HasRoles.BSP + " OR " + HasRoles.DSP;
 
+    public static final String KPI_READ =
+        HasRoles.DSP_ADMIN
+            + " OR " + HasRoles.BSP_OPERATOR;
+
     public static final String DATASOURCE_READ =
         HasRoles.DSP_ADMIN
             + " OR " + HasRoles.BSP_OPERATOR;
