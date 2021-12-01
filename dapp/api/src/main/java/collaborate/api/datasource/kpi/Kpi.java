@@ -3,6 +3,7 @@ package collaborate.api.datasource.kpi;
 import collaborate.api.config.ISO8601JsonStringFormat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import java.io.Serializable;
 import java.time.ZonedDateTime;
 import java.util.Optional;
 import javax.persistence.Column;
@@ -31,7 +32,7 @@ import org.hibernate.annotations.TypeDef;
 @Entity
 @Table(indexes = @Index(columnList = "kpiKey"))
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
-public class Kpi {
+public class Kpi implements Serializable {
 
   @Id
   @GeneratedValue

@@ -23,9 +23,9 @@ import org.springframework.stereotype.Service;
 public class MintBusinessDataService {
 
   private final AssetListService assetListService;
+  private final BusinessDataTokenMetadataSupplier tokenMetadataSupplier;
   private final CreateBusinessDataNftDAO createBusinessDataNftDAO;
   private final Tzip21MetadataService tzip21MetadataService;
-  private final BusinessDataTokenMetadataSupplier tokenMetadataSupplier;
 
   public void mint(DatasourceDTO datasourceDTO) {
     if (isOAuth2WebServer(datasourceDTO)) {
@@ -77,4 +77,5 @@ public class MintBusinessDataService {
     return datasourceDTO instanceof WebServerDatasourceDTO
         && datasourceDTO.getAuthMethod() instanceof OAuth2;
   }
+
 }

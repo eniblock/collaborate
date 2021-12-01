@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class AccessRequestWatcher implements TransactionHandler {
+public class AccessRequestTransactionHandler implements TransactionHandler {
 
   private final AccessGrantService accessGrantService;
   private final OrganizationService organizationService;

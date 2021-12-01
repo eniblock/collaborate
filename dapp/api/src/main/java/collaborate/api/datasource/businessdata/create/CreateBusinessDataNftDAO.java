@@ -21,14 +21,14 @@ import org.springframework.web.server.ResponseStatusException;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-class CreateBusinessDataNftDAO {
+public class CreateBusinessDataNftDAO {
 
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
   private final ApiProperties apiProperties;
   private final UserService userService;
 
-  private static final String DATA_CATALOG_CREATION_ENTRYPOINT = "create_business_datasource";
+  public static final String DATA_CATALOG_CREATION_ENTRYPOINT = "create_business_datasource";
 
   public Job mintBusinessDataNFT(List<AssetIdAndUri> assetIdAndUris) {
     var transactions = assetIdAndUris.stream()
