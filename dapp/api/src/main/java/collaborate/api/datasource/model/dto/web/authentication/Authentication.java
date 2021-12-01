@@ -4,6 +4,7 @@ import static com.fasterxml.jackson.annotation.JsonTypeInfo.As.PROPERTY;
 import static com.fasterxml.jackson.annotation.JsonTypeInfo.Id.NAME;
 
 import collaborate.api.datasource.model.dto.DatasourceDTO;
+import collaborate.api.datasource.model.dto.web.authentication.transfer.PartnerTransferMethod;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -26,6 +27,8 @@ public abstract class Authentication implements Serializable {
 
   @JsonIgnore
   private DatasourceDTO datasource;
+
+  private PartnerTransferMethod partnerTransferMethod;
 
   public abstract <T> T accept(AuthenticationVisitor<T> visitor);
 }
