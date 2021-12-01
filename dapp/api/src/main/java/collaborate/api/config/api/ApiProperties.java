@@ -31,7 +31,4 @@ public class ApiProperties {
   @NotEmpty
   private String privateKey;
 
-  @Schema(description = "The uri of this api, ex: https://collaborate.localhost")
-  @NotEmpty
-  private String uri;
 }

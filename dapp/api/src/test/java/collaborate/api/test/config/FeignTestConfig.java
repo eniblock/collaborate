@@ -7,18 +7,18 @@ import feign.codec.Encoder;
 import org.springframework.beans.factory.ObjectFactory;
 import org.springframework.boot.autoconfigure.ImportAutoConfiguration;
 import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.cloud.netflix.ribbon.RibbonAutoConfiguration;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.cloud.openfeign.FeignAutoConfiguration;
 import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.cloud.openfeign.support.SpringEncoder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
-@Profile("it-context")
-@Configuration
+@Profile("test")
+@TestConfiguration
 @ImportAutoConfiguration({RibbonAutoConfiguration.class, FeignAutoConfiguration.class})
 @EnableFeignClients(clients = {
     TAGBusinessDataClient.class,

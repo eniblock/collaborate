@@ -12,7 +12,7 @@ public interface TezosApiGatewayTransactionClient {
   @GetMapping("contract/{contractAddress}/calls")
   List<Transaction> getSmartContractTransactionList(
       @PathVariable String contractAddress,
-      @RequestParam(required = false, defaultValue = "0") int offset,
+      @RequestParam(required = false, defaultValue = "0") long offset,
       @RequestParam(required = false, defaultValue = "20") int limit);
 
 }
