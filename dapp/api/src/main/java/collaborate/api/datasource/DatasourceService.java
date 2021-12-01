@@ -55,9 +55,8 @@ public class DatasourceService {
                 .orElse(emptySet())
         ).baseURI(traefikProviderService.buildDatasourceBaseUri(datasource))
         .authenticationType(metadataService.getAuthentication(datasource))
-        .certificateEmail(metadataService.getCertificate(datasource))
-        .accessMethod(metadataService.getAuthentication(datasource))
         .datasourceType(metadataService.getType(datasource))
+        .partnerTransferMethod(metadataService.getPartnerTransferMethod(datasource))
         .build();
   }
 

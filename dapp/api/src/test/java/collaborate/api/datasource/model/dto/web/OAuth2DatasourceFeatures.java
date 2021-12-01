@@ -21,7 +21,6 @@ public class OAuth2DatasourceFeatures {
           .clientSecret("secret")
           .issuerIdentifierUri(URI.create("http://dspconsortium1.localhost"))
           .wellKnownURIPathSuffix(URI.create("/.well-known"))
-          .transferMethod("OAUTH2_CLIENT_CREDENTIALS_GRANT")
           .build()
       ).resources(
           new ArrayList<>(List.of(WebServerResource.builder()

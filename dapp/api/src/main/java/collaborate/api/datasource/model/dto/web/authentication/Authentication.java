@@ -11,8 +11,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.io.Serializable;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 @JsonTypeInfo(use = NAME, include = PROPERTY, property = "type")
 @JsonSubTypes({
@@ -22,13 +24,15 @@ import lombok.EqualsAndHashCode;
 })
 @JsonInclude(Include.NON_NULL)
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode()
 public abstract class Authentication implements Serializable {
 
   @JsonIgnore
   private DatasourceDTO datasource;
 
-  private PartnerTransferMethod partnerTransferMethod;
+  protected PartnerTransferMethod partnerTransferMethod;
 
   public abstract <T> T accept(AuthenticationVisitor<T> visitor);
 }

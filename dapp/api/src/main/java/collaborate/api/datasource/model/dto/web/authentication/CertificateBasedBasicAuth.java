@@ -1,6 +1,7 @@
 package collaborate.api.datasource.model.dto.web.authentication;
 
 import collaborate.api.datasource.model.dto.web.QueryParam;
+import collaborate.api.datasource.model.dto.web.authentication.transfer.PartnerTransferMethod;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
@@ -31,10 +32,12 @@ public class CertificateBasedBasicAuth extends BasicAuth {
   private byte[] pfxFileContent;
 
   @Builder(toBuilder = true)
-  public CertificateBasedBasicAuth(String user, String password,
+  public CertificateBasedBasicAuth(
+      PartnerTransferMethod partnerTransferMethod,
+      String user, String password,
       List<QueryParam> queryParams, String passphrase,
       String caEmail) {
-    super(user, password, queryParams);
+    super(partnerTransferMethod, user, password, queryParams);
     this.passphrase = passphrase;
     this.caEmail = caEmail;
   }

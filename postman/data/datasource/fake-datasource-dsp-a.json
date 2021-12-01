@@ -8,7 +8,10 @@
     "issuerIdentifierUri": "http://fake-datasource-iam:8080/auth/realms/datasource/",
     "wellKnownURIPathSuffix": ".well-known/openid-configuration",
     "clientId": "collaborate",
-    "clientSecret": "57936b16-2f90-434a-9eb4-843668a3a521"
+    "clientSecret": "57936b16-2f90-434a-9eb4-843668a3a521",
+    "partnerTransferMethod": {
+      "type": "OAuth2RefreshToken"
+    }
   },
   "keywords": [
     "business-data"
