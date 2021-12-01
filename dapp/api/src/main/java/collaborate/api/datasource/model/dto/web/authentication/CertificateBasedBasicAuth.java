@@ -22,9 +22,6 @@ public class CertificateBasedBasicAuth extends BasicAuth {
   @Schema(description = "The passphrase to use for the certificate.<br><i>Local storage only</i>", example = "+FN7m^=GU64$vRdg")
   private String passphrase;
 
-  @Schema(description = "The email address used for a new consumer asking it owns certificate.", example = "certificate-authority@domain.com")
-  private String caEmail;
-
   @Transient
   @JsonIgnore
   @ToString.Exclude
@@ -35,11 +32,9 @@ public class CertificateBasedBasicAuth extends BasicAuth {
   public CertificateBasedBasicAuth(
       PartnerTransferMethod partnerTransferMethod,
       String user, String password,
-      List<QueryParam> queryParams, String passphrase,
-      String caEmail) {
+      List<QueryParam> queryParams, String passphrase) {
     super(partnerTransferMethod, user, password, queryParams);
     this.passphrase = passphrase;
-    this.caEmail = caEmail;
   }
 
   @Override

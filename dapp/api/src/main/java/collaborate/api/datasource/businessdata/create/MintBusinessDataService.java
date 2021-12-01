@@ -5,7 +5,7 @@ import static collaborate.api.datasource.businessdata.document.ScopeAssetsServic
 import collaborate.api.datasource.AssetListService;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.datasource.nft.catalog.create.Tzip21MetadataService;
 import com.alibaba.fastjson.JSONArray;
@@ -75,7 +75,7 @@ public class MintBusinessDataService {
 
   private boolean isOAuth2WebServer(DatasourceDTO datasourceDTO) {
     return datasourceDTO instanceof WebServerDatasourceDTO
-        && datasourceDTO.getAuthMethod() instanceof OAuth2;
+        && datasourceDTO.getAuthMethod() instanceof OAuth2ClientCredentialsGrant;
   }
 
 }

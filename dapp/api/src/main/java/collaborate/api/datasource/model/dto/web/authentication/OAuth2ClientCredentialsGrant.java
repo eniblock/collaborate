@@ -11,7 +11,7 @@ import lombok.ToString;
 @Data
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-public class OAuth2 extends Authentication {
+public class OAuth2ClientCredentialsGrant extends Authentication {
 
   private String grantType;
   private URI issuerIdentifierUri;
@@ -21,7 +21,7 @@ public class OAuth2 extends Authentication {
   private String clientSecret;
 
   @Builder(toBuilder = true)
-  public OAuth2(
+  public OAuth2ClientCredentialsGrant(
       PartnerTransferMethod partnerTransferMethod,
       String grantType,
       URI issuerIdentifierUri,

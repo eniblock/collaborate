@@ -13,7 +13,10 @@
       }
     ],
     "passphrase": "secret",
-    "caEmail": "certificate@authority.email"
+    "partnerTransferMethod": {
+      "type": "CertificateBasedAuthorityEmail",
+      "email": "certificate@authority.email"
+    }
   },
   "keywords": [
     "vehicles",

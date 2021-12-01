@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = BasicAuth.class, name = "BasicAuth"),
     @JsonSubTypes.Type(value = CertificateBasedBasicAuth.class, name = "CertificateBasedBasicAuth"),
-    @JsonSubTypes.Type(value = OAuth2.class, name = "OAuth2")
+    @JsonSubTypes.Type(value = OAuth2ClientCredentialsGrant.class, name = "OAuth2ClientCredentialsGrant")
 })
 @JsonInclude(Include.NON_NULL)
 @Data

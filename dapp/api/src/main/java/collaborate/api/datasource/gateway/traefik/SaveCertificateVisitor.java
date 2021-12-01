@@ -3,7 +3,7 @@ package collaborate.api.datasource.gateway.traefik;
 import collaborate.api.datasource.model.dto.web.authentication.AuthenticationVisitor;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.security.PfxUnProtector;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -34,7 +34,7 @@ public class SaveCertificateVisitor implements AuthenticationVisitor<Void> {
   }
 
   @Override
-  public Void visitOAuth2(OAuth2 oAuth2) {
+  public Void visitOAuth2(OAuth2ClientCredentialsGrant oAuth2) {
     // No-ops
     return null;
   }

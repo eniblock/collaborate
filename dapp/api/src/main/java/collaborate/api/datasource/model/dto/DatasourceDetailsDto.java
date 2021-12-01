@@ -26,11 +26,11 @@ public class DatasourceDetailsDto {
       required = true)
   String authenticationType;
 
-  @Schema(description = "The datasource type.", example = "web", required = true)
-  String datasourceType;
-
   @Schema(description = "The URI of the datasource.", example = "URI", required = true)
   String baseURI;
+
+  @Schema(description = "The datasource type.", example = "web", required = true)
+  String datasourceType;
 
   @Schema(description = "List of scopes.", example = "address email", required = true)
   Set<String> listOfScopes;

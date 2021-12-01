@@ -2,16 +2,16 @@
   "type": "WebServerDatasource",
   "id": "525003f6-f85f-11eb-9a03-0242ac130003",
   "name": "DSPConsortium1 Digital Passport",
-  "status": "CREATED",
   "baseUrl": "http://dspconsortium1.localhost",
   "authMethod": {
-    "type": "OAuth2",
-    "accessMethod": "OAUTH2_CLIENT_CREDENTIALS_GRANT",
+    "type": "OAuth2ClientCredentialsGrant",
     "clientId": "collaborate",
     "clientSecret": "secret",
     "issuerIdentifierUri": "http://dspconsortium1.localhost",
     "wellKnownURIPathSuffix": "/.well-known",
-    "transferMethod": "OAUTH2_CLIENT_CREDENTIALS_GRANT"
+    "partnerTransferMethod": {
+      "type": "OAuth2"
+    }
   },
   "keywords": [
     "vehicles",

@@ -8,6 +8,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class OAuth2RefreshToken implements PartnerTransferMethod {
+public class OAuth2 implements PartnerTransferMethod {
 
 }
