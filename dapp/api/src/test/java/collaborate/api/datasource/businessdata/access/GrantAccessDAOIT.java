@@ -6,8 +6,8 @@ import static org.mockserver.integration.ClientAndServer.startClientAndServer;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
-import collaborate.api.datasource.businessdata.access.model.AccessRequest;
 import collaborate.api.config.api.ApiProperties;
+import collaborate.api.datasource.businessdata.access.model.AccessRequest;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.test.config.FeignTestConfig;
 import collaborate.api.test.config.KeycloakTestConfig;
@@ -29,7 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @SpringBootTest
-@ActiveProfiles({"default", "test", "it-context"})
+@ActiveProfiles({"default", "test"})
 @EnableConfigurationProperties
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(

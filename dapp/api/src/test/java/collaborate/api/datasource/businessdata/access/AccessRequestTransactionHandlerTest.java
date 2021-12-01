@@ -18,13 +18,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class AccessRequestWatcherTest {
+class AccessRequestTransactionHandlerTest {
 
   public static final String PROVIDER_ADDRESS = "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV";
   @Mock
   OrganizationService organizationService;
   @InjectMocks
-  AccessRequestWatcher accessRequestWatcher;
+  AccessRequestTransactionHandler accessRequestTransactionHandler;
 
   @ParameterizedTest
   @MethodSource("isRequestAccessForCurrentOrganisationParams")
@@ -37,14 +37,15 @@ class AccessRequestWatcherTest {
                 .address(PROVIDER_ADDRESS)
                 .build()
         );
-    accessRequestWatcher.init();
+    accessRequestTransactionHandler.init();
     var transaction = Transaction.builder()
         .entrypoint(entryPoint)
         .parameters(objectMapper.createObjectNode()
             .put("provider_address", provider))
         .build();
     // WHEN
-    var currentResult = accessRequestWatcher.isRequestAccessForCurrentOrganisation(transaction);
+    var currentResult = accessRequestTransactionHandler.isRequestAccessForCurrentOrganisation(
+        transaction);
     // THEN
     assertThat(currentResult).isEqualTo(expectedResult);
   }
