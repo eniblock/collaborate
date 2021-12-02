@@ -5,7 +5,7 @@ import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AuthenticationVisitor;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.user.UserService;
 import collaborate.api.user.metadata.UserMetadataService;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +45,7 @@ public class SaveAuthenticationVisitor implements AuthenticationVisitor<Void> {
   }
 
   @Override
-  public Void visitOAuth2(OAuth2 oAuth2) {
+  public Void visitOAuth2(OAuth2ClientCredentialsGrant oAuth2) {
     VaultMetadata vaultMetadata = VaultMetadata.builder()
         .oAuth2(oAuth2)
         .build();

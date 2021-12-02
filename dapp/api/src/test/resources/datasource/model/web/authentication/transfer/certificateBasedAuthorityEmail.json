@@ -1,0 +1,4 @@
+{
+  "type": "CertificateBasedAuthorityEmail",
+  "email": "mail@test.com"
+}

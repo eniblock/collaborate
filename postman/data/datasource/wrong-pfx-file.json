@@ -4,7 +4,6 @@
   "name": "Test - Google",
   "authMethod": {
     "passphrase": "password",
-    "caEmail": "certificate@authority.email",
     "type": "CertificateBasedBasicAuth",
     "user": "myUser",
     "password": "password",

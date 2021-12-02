@@ -10,7 +10,7 @@ import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.gateway.GatewayUrlService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.test.TestResources;
@@ -71,7 +71,8 @@ class ScopeAssetsServiceTest {
 
   @ParameterizedTest
   @MethodSource("getOAuth2_byDatasourceIdParameters")
-  void getOAuth2_byDatasourceId(VaultMetadata vaultMetadata, OAuth2 expectedOAuth2) {
+  void getOAuth2_byDatasourceId(VaultMetadata vaultMetadata,
+      OAuth2ClientCredentialsGrant expectedOAuth2) {
     // GIVEN
     String datasourceId = "dsId";
     when(userMetadataService.find(datasourceId, VaultMetadata.class))
@@ -87,9 +88,9 @@ class ScopeAssetsServiceTest {
     return Stream.of(
         Arguments.of(
             VaultMetadata.builder()
-                .oAuth2(OAuth2.builder().build())
+                .oAuth2(OAuth2ClientCredentialsGrant.builder().build())
                 .build(),
-            OAuth2.builder().build()
+            OAuth2ClientCredentialsGrant.builder().build()
         ),
         Arguments.of(
             VaultMetadata.builder().build(),
@@ -130,7 +131,7 @@ class ScopeAssetsServiceTest {
     return Stream.of(
         Arguments.of(
             VaultMetadata.builder()
-                .oAuth2(OAuth2.builder().build())
+                .oAuth2(OAuth2ClientCredentialsGrant.builder().build())
                 .build(),
             null,
             AccessTokenResponse.builder().accessToken("jwt").build()

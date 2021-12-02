@@ -4,7 +4,6 @@
   "name": "DSPConsortium1 Digital Passport",
   "authMethod": {
     "passphrase": "wrong",
-    "caEmail": "certificate@authority.email",
     "type": "CertificateBasedBasicAuth",
     "user": "myUser",
     "password": "password",
