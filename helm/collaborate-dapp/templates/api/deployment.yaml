@@ -16,6 +16,8 @@ spec:
     matchLabels:
       {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: api
+  strategy:
+    type: Recreate
   template:
     metadata:
       {{- with .Values.api.podAnnotations }}
