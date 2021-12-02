@@ -91,8 +91,8 @@ template_type = sp.TRecord(
 
 update_groups_type = sp.TList(
     sp.TVariant(
-            add = sp.TMap(sp.TString, sp.TRecord(address = sp.TAddress, name = sp.TString)),
-            remove = sp.TMap(sp.TString, sp.TRecord(address = sp.TAddress, name = sp.TString))
+            add = sp.TMap(sp.TString, sp.TAddress),
+            remove = sp.TMap(sp.TString, sp.TAddress)
     )
 )
 update_templates_type = sp.TList(
@@ -118,10 +118,7 @@ class ProxyTokenController(sp.Contract):
             groups = sp.map(
                 l = groups, 
                 tkey = sp.TString, 
-                tvalue = sp.TSet(sp.TRecord(
-                    address = sp.TAddress,
-                    name = sp.TString
-                ))
+                tvalue = sp.TSet(sp.TAddress)
             ),
             multisig_templates = sp.map(
                 l = multisig_templates, 
@@ -187,8 +184,8 @@ class ProxyTokenController(sp.Contract):
             authorized = sp.local('authorized', False)
             sp.for group in authorized_builders.elements():
                 sp.verify(self.data.groups.contains(group), "UnknownGroup")
-                sp.for elem in self.data.groups[group].elements():
-                    sp.if sender == elem.address:
+                sp.for adr in self.data.groups[group].elements():
+                    sp.if sender == adr:
                         authorized.value = True
             sp.verify(authorized.value, "NotAuthorizedBuilder")
                 
@@ -213,7 +210,7 @@ class ProxyTokenController(sp.Contract):
                     participants.value.push(sp.record(hasVoted = False, id = signer))
             sp.else:  
                 sp.for signer in self.data.groups[group.key].elements():
-                    participants.value.push(sp.record(hasVoted = False, id = signer.address))                
+                    participants.value.push(sp.record(hasVoted = False, id = signer))                
             groups.value.push(sp.record(
                 participants = participants.value,
                 votes = 0,
@@ -344,43 +341,11 @@ def test():
     target = sp.address("KT1aDD7H3WgbFgd7YeMn8UbqQeMXJ96kxvD5")
 
     groups = {
-        "super_fa2_admins": sp.set([
-        sp.record(
-            address = super_fa2_admin1,
-            name = "Super FA2 Minter 1"
-        ),
-        sp.record(
-            address = super_fa2_admin2,
-            name = "Super FA2 Minter 2"
-        )]),
-        "super_minters": sp.set([
-        sp.record(
-            address = super_minter1,
-            name = "Super Minter 1"
-        ),
-        sp.record(
-            address = super_minter2,
-            name = "Super Minter 2"
-        )]),
-        "minters": sp.set([
-        sp.record(
-            address = minter1,
-            name = "Minter 1"
-        ),
-        sp.record(
-            address = minter2,
-            name = "Minter 2"
-        )]),
-        "batch_minters": sp.set([
-        sp.record(
-            address = batch_minter,
-            name = "Batch Minter"
-        )]),
-        "multisig_builders": sp.set([
-        sp.record(
-            address = multisig_builder,
-            name = "Multisig Builder"
-        )])
+        "super_fa2_admins": sp.set([super_fa2_admin1, super_fa2_admin2]),
+        "super_minters": sp.set([super_minter1, super_minter2]),
+        "minters": sp.set([minter1, minter2]),
+        "batch_minters": sp.set([batch_minter]),
+        "multisig_builders": sp.set([multisig_builder])
         }
 
     multisig_templates = {
@@ -568,12 +533,12 @@ def test():
 
     # Test groups update
 
-    scenario += c0.update_groups([sp.variant("add", {"minters": sp.record(address=alice, name="Alice"), "test": sp.record(address=alice, name="Alice")})]).run(sender = proxy_admin)
-    scenario.verify(c0.data.groups["minters"].contains(sp.record(address=alice, name="Alice")))    
-    scenario.verify(c0.data.groups["test"].contains(sp.record(address=alice, name="Alice")))
+    scenario += c0.update_groups([sp.variant("add", {"minters": alice, "test": alice})]).run(sender = proxy_admin)
+    scenario.verify(c0.data.groups["minters"].contains(alice))    
+    scenario.verify(c0.data.groups["test"].contains(alice))
 
-    scenario += c0.update_groups([sp.variant("remove", {"minters": sp.record(address=alice, name="Alice"), "test": sp.record(address=alice, name="Alice")})]).run(sender = proxy_admin)
-    scenario.verify(~ c0.data.groups["minters"].contains(sp.record(address=alice, name="Alice")))    
+    scenario += c0.update_groups([sp.variant("remove", {"minters": alice, "test": alice})]).run(sender = proxy_admin)
+    scenario.verify(~ c0.data.groups["minters"].contains(alice))    
     scenario.verify(~ c0.data.groups.contains("test"))
 
     # Test templates update
@@ -611,4 +576,3 @@ def test():
     scenario.verify(c0.data.rules["test"].template_id == 1)  
     scenario += c0.update_rules([sp.variant("remove", ["test"])]).run(sender = proxy_admin)
     scenario.verify(~ c0.data.rules.contains("test")) 
-
