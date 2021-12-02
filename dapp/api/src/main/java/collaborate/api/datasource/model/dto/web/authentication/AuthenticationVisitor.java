@@ -6,5 +6,5 @@ public interface AuthenticationVisitor<T> {
 
   T visitCertificateBasedBasicAuth(CertificateBasedBasicAuth basicAuth);
 
-  T visitOAuth2(OAuth2 oAuth2);
+  T visitOAuth2(OAuth2ClientCredentialsGrant oAuth2);
 }

@@ -70,7 +70,7 @@ class URIFactoryTest {
     var datasource = WebServerDatasourceDTO.builder()
         .baseUrl("https://www.test.com/")
         .build();
-    datasource.setAuthMethod(new BasicAuth("", "", queryParams));
+    datasource.setAuthMethod(new BasicAuth(null, "", "", queryParams));
     var resource = WebServerResource.builder()
         .url("/path")
         .build();
@@ -86,7 +86,7 @@ class URIFactoryTest {
     var datasource = WebServerDatasourceDTO.builder()
         .baseUrl("https://www.test.com/")
         .build();
-    datasource.setAuthMethod(new BasicAuth("", "", queryParams));
+    datasource.setAuthMethod(new BasicAuth(null, "", "", queryParams));
     var resource = WebServerResource.builder()
         .url("/path")
         .queryParams(queryParams)

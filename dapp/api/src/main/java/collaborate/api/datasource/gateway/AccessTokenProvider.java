@@ -3,7 +3,7 @@ package collaborate.api.datasource.gateway;
 import static java.util.Objects.requireNonNull;
 
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.model.dto.web.authentication.OpenIdConfiguration;
 import collaborate.api.http.HttpClientFactory;
 import java.util.Optional;
@@ -25,7 +25,7 @@ public class AccessTokenProvider {
 
   private final HttpClientFactory httpClientFactory;
 
-  public AccessTokenResponse get(OAuth2 oAuth2, Optional<String> scope) {
+  public AccessTokenResponse get(OAuth2ClientCredentialsGrant oAuth2, Optional<String> scope) {
     var openIdConfigurationUrl = UriComponentsBuilder
         .fromUriString(
             oAuth2.getIssuerIdentifierUri() + "/" + oAuth2.getWellKnownURIPathSuffix()

@@ -1,6 +1,7 @@
 package collaborate.api.datasource.model.dto.web.authentication;
 
 import collaborate.api.datasource.model.dto.web.QueryParam;
+import collaborate.api.datasource.model.dto.web.authentication.transfer.PartnerTransferMethod;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
@@ -30,8 +31,9 @@ public class BasicAuth extends Authentication {
   @OneToMany(cascade = CascadeType.ALL)
   protected List<QueryParam> queryParams;
 
-  public BasicAuth(String user, String password,
+  public BasicAuth(PartnerTransferMethod partnerTransferMethod, String user, String password,
       List<QueryParam> queryParams) {
+    super(null, partnerTransferMethod);
     this.user = user;
     this.password = password;
     this.queryParams = queryParams;

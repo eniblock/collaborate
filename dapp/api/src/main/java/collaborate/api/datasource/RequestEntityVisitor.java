@@ -6,7 +6,7 @@ import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.model.dto.web.authentication.AuthenticationVisitor;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.http.RequestEntityBuilder;
 import collaborate.api.http.security.SSLContextFactory;
@@ -68,7 +68,7 @@ public class RequestEntityVisitor implements
   }
 
   @Override
-  public Supplier<ResponseEntity<JsonNode>> visitOAuth2(OAuth2 oAuth2) {
+  public Supplier<ResponseEntity<JsonNode>> visitOAuth2(OAuth2ClientCredentialsGrant oAuth2) {
     requestEntityBuilder.jwt(requireNonNull(accessTokenProvider.get(oAuth2, Optional.empty())));
     var restTemplate = new RestTemplate();
     restTemplate.setRequestFactory(

@@ -1,6 +1,7 @@
 package collaborate.api.datasource.model.dto.web;
 
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
+import collaborate.api.datasource.model.dto.web.authentication.transfer.CertificateBasedAuthorityEmail;
 import collaborate.api.test.TestResources;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -21,7 +22,7 @@ public class CertificateBasedBasicAuthDatasourceFeatures {
               new QueryParam("client_id", "c8fc43d5-f43f-44e5-acc2-b8aebaee90e2")
           )))
           .passphrase("secret")
-          .caEmail("certificate@authority.email")
+          .partnerTransferMethod(new CertificateBasedAuthorityEmail("certificate@authority.email"))
           .build()
       )
       .baseUrl("https://api-cert-preprod.dspconsortium1.com")

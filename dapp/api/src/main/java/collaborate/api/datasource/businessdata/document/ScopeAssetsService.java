@@ -13,7 +13,7 @@ import collaborate.api.datasource.gateway.GatewayResourceDTO;
 import collaborate.api.datasource.gateway.GatewayUrlService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.passport.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.passport.model.DatasourceDTO;
@@ -111,13 +111,14 @@ public class ScopeAssetsService {
         .or(() -> getRequesterAccessToken(datasourceId, oAuthScope));
   }
 
-  Optional<OAuth2> getOAuth2(String datasourceId) {
+  Optional<OAuth2ClientCredentialsGrant> getOAuth2(String datasourceId) {
     return userMetadataService.find(datasourceId, VaultMetadata.class)
         .filter(VaultMetadata::hasOAuth2)
         .map(VaultMetadata::getOAuth2);
   }
 
-  private AccessTokenResponse getOwnerAccessToken(OAuth2 auth2, String scope) {
+  private AccessTokenResponse getOwnerAccessToken(OAuth2ClientCredentialsGrant auth2,
+      String scope) {
     return accessTokenProvider.get(auth2, Optional.of(scope));
   }
 
