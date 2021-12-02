@@ -11,7 +11,7 @@ import collaborate.api.datasource.model.dto.web.QueryParam;
 import collaborate.api.datasource.model.dto.web.authentication.AuthenticationVisitor;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.http.BasicAuthHeader;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -66,7 +66,7 @@ public class HttpAuthenticationVisitor implements AuthenticationVisitor<Void> {
   }
 
   @Override
-  public Void visitOAuth2(OAuth2 oAuth2) {
+  public Void visitOAuth2(OAuth2ClientCredentialsGrant oAuth2) {
     if (middlewares == null) {
       middlewares = new HashMap<>();
     }

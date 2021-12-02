@@ -13,7 +13,7 @@ import collaborate.api.datasource.create.CreateDatasourceService;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -75,7 +75,7 @@ class DatasourceControllerTest {
     DatasourceDTO datasource =
         WebServerDatasourceDTO.builder()
             .id(UUID.fromString("1fc84579-69fa-40bd-a4bd-b4b79139e53b"))
-            .authMethod(new OAuth2())
+            .authMethod(new OAuth2ClientCredentialsGrant())
             .build();
     when(createDatasourceService.create(datasource, Optional.empty())).thenReturn(null);
     when(createDatasourceService.testConnection(datasource, Optional.empty())).thenReturn(true);

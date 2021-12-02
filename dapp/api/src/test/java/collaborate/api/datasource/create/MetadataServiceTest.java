@@ -59,23 +59,23 @@ class MetadataServiceTest {
     });
   }
 
-  @Test
-  void getCertificate_shouldReturnExpected_withExistingMetadata() {
-    // GIVEN
-    // WHEN
-    var certificateResult = metadataService.getCertificate(datasource);
-    // THEN
-    assertThat(certificateResult).isEqualTo("caEmail");
-  }
-
-  @Test
-  void getCertificate_shouldReturnEmpty_withMissingMetadata() {
-    // GIVEN
-    // WHEN
-    var certificateResult = metadataService.getCertificate(emptyDatasource);
-    // THEN
-    assertThat(certificateResult).isEmpty();
-  }
+//  @Test
+//  void getCertificate_shouldReturnExpected_withExistingMetadata() {
+//    // GIVEN
+//    // WHEN
+//    var certificateResult = metadataService.getCertificate(datasource);
+//    // THEN
+//    assertThat(certificateResult).isEqualTo("caEmail");
+//  }
+//
+//  @Test
+//  void getCertificate_shouldReturnEmpty_withMissingMetadata() {
+//    // GIVEN
+//    // WHEN
+//    var certificateResult = metadataService.getCertificate(emptyDatasource);
+//    // THEN
+//    assertThat(certificateResult).isEmpty();
+//  }
 
   @Test
   void getPurpose_shouldReturnExpected_withExistingMetadata() {

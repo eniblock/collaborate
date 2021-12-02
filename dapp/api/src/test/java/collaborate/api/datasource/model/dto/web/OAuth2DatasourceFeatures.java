@@ -1,6 +1,6 @@
 package collaborate.api.datasource.model.dto.web;
 
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.test.TestResources;
 import java.net.URI;
 import java.util.ArrayList;
@@ -15,13 +15,12 @@ public class OAuth2DatasourceFeatures {
       .name("DSPConsortium1 Digital Passport")
       .keywords(new LinkedHashSet<>(List.of("vehicles", "digital-passport")))
       .baseUrl("http://DSPConsortium1.datasource")
-      .authMethod(OAuth2.builder()
+      .authMethod(OAuth2ClientCredentialsGrant.builder()
           .grantType("OAUTH2_CLIENT_CREDENTIALS_GRANT")
           .clientId("collaborate")
           .clientSecret("secret")
           .issuerIdentifierUri(URI.create("http://dspconsortium1.localhost"))
           .wellKnownURIPathSuffix(URI.create("/.well-known"))
-          .transferMethod("OAUTH2_CLIENT_CREDENTIALS_GRANT")
           .build()
       ).resources(
           new ArrayList<>(List.of(WebServerResource.builder()

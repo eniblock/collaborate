@@ -93,12 +93,11 @@ spec:
               value: {{ .Values.api.platform | quote }}
             - name: API_DIGITAL_PASSPORT_CONTRACT_ADDRESS
               value: {{ .Values.api.digitalPassportContractAddress | quote }}
-            - name: API_BUSINESS_DATA_CONTRACT_ADDRESS
-              value: {{ .Values.api.businessDataContractAddress | quote }}
             - name: API_PRIVATE_KEY
               value: {{ .Values.api.privateKey | quote }}
-            - name: API_URI
-              value: "https://{{ .Values.ingress.host}}"
+            - name: API_BUSINESS_DATA_CONTRACT_ADDRESS
+              value: {{ .Values.api.businessDataContractAddress | quote }}
+
             # Api-gateway
             - name: TRAEFIK_CERTIFICATES_PATH
               value: {{ .Values.api.traefik.certificates.persistence.path | quote }}
