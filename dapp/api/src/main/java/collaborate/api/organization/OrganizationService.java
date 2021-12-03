@@ -13,7 +13,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -28,17 +27,8 @@ public class OrganizationService {
   private final UserService userService;
 
   public Collection<OrganizationDTO> getAllOrganizations() {
-    var organizationsFromPassportSC = organizationDAO.getAllOrganizations(
-        apiProperties.getDigitalPassportContractAddress());
-    var organizationsFromBusinessDataSC = organizationDAO.getAllOrganizations(
-        apiProperties.getBusinessDataContractAddress());
-
-    return Stream
-        .concat(
-            organizationsFromPassportSC.stream(),
-            organizationsFromBusinessDataSC.stream()
-        ).filter(distinctByKeyPredicate(OrganizationDTO::getAddress))
-        .collect(Collectors.toList());
+    return organizationDAO.getAllOrganizations(
+        apiProperties.getOrganizationWalletContractAddress());
   }
 
   private <T> Predicate<T> distinctByKeyPredicate(Function<? super T, Object> keyExtractor) {
@@ -54,7 +44,7 @@ public class OrganizationService {
   public OrganizationDTO getByWalletAddress(String walletAddress) {
     return findOrganizationByPublicKeyHash(
         walletAddress,
-        apiProperties.getDigitalPassportContractAddress()
+        apiProperties.getOrganizationWalletContractAddress()
     ).orElseGet(() -> {
       log.warn("No organization found for account={}", walletAddress);
       return OrganizationDTO.builder().address(walletAddress).build();
