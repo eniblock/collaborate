@@ -45,7 +45,7 @@ class DatasourceControllerTest {
 
     when(datasourceService.findAll(pageable, query)).thenReturn(null);
     // WHEN
-    datasourceController.list(pageable, query);
+    datasourceController.listDatasources(pageable, query);
     // THEN
     verify(datasourceService, times(1)).findAll(any(Pageable.class), anyString());
   }
@@ -64,7 +64,7 @@ class DatasourceControllerTest {
         );
     // WHEN
     var actual = datasourceController
-        .getById(datasourceUUID);
+        .getDatasourceById(datasourceUUID);
     // THEN
     assertThat(actual.getBody()).isEqualTo(expectedDatasource);
   }
@@ -80,7 +80,7 @@ class DatasourceControllerTest {
     when(createDatasourceService.create(datasource, Optional.empty())).thenReturn(null);
     when(createDatasourceService.testConnection(datasource, Optional.empty())).thenReturn(true);
     // WHEN
-    datasourceController.create(datasource, Optional.empty()).call();
+    datasourceController.createDatasource(datasource, Optional.empty()).call();
     // THEN
     verify(createDatasourceService, times(1)).create(datasource, Optional.empty());
     verify(createDatasourceService, times(1)).testConnection(datasource, Optional.empty());

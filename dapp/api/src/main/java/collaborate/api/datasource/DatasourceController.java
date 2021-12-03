@@ -12,6 +12,7 @@ import collaborate.api.datasource.model.dto.ListDatasourceDTO;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
@@ -41,6 +42,9 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @Slf4j
+@Tag(name = "datasources", description =
+    "The Datasource API. Data source is the core concept used by the data-gateway, "
+        + "used to connect the application to external services (ex: REST API)")
 @RequestMapping("/api/v1/datasources")
 @RequiredArgsConstructor
 public class DatasourceController {
@@ -49,13 +53,15 @@ public class DatasourceController {
   private final CreateDatasourceService createDatasourceService;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @Operation(
+      description = "Generate a data source configuration and publish it on IPFS.",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DSP_ADMIN)
-  public Callable<ResponseEntity<Datasource>> create(
+  public Callable<ResponseEntity<Datasource>> createDatasource(
       @Valid @RequestPart("datasource") DatasourceDTO datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
       throws IOException, DatasourceVisitorException {
-    testConnection(datasource, pfxFile);
+    testDatasourceConnection(datasource, pfxFile);
     return () -> {
       var datasourceResult = createDatasourceService.create(datasource, pfxFile);
       return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
@@ -63,18 +69,23 @@ public class DatasourceController {
   }
 
   @GetMapping("/{id}")
-  @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @Operation(
+      description = "Get data source details",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
-  public ResponseEntity<DatasourceDetailsDto> getById(@PathVariable(value = "id") UUID id) {
+  public ResponseEntity<DatasourceDetailsDto> getDatasourceById(
+      @PathVariable(value = "id") UUID id) {
     return datasourceService.findDetailsById(id.toString())
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
   @GetMapping
-  @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @Operation(
+      description = "Get the list of created data sources",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
-  public HttpEntity<Page<ListDatasourceDTO>> list(
+  public HttpEntity<Page<ListDatasourceDTO>> listDatasources(
       @SortDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
       @RequestParam(required = false, defaultValue = "") String query) {
     Page<ListDatasourceDTO> datasourcePage = datasourceService.findAll(pageable, query);
@@ -82,7 +93,9 @@ public class DatasourceController {
   }
 
   @GetMapping("/{id}/scopes")
-  @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @Operation(
+      description = "Get scopes associated to a data source",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
   public ResponseEntity<Set<String>> listScopesByDatasourceId(
       @PathVariable(value = "id") String id) {
@@ -91,9 +104,11 @@ public class DatasourceController {
   }
 
   @PostMapping(value = "test-connection", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @Operation(security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @Operation(
+      description = "Try to communicate to the underlying data source asset-list entry-point",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DSP_ADMIN)
-  public ResponseEntity<Void> testConnection(
+  public ResponseEntity<Void> testDatasourceConnection(
       @RequestPart("datasource") DatasourceDTO datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
       throws IOException, DatasourceVisitorException {

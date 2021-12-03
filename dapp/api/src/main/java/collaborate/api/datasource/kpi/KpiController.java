@@ -28,10 +28,12 @@ public class KpiController {
   private final FindKpiService findKpiService;
 
   @PostMapping
-  @Operation(description = "Compute an aggregation on the defined KpiQuery", security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @Operation(
+      description = "Compute an aggregation on the defined KpiQuery",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.KPI_READ)
 
-  public Collection<KpiAggregation> find(@Valid @RequestBody KpiQuery kpiQuery) {
+  public Collection<KpiAggregation> findKpiByQuery(@Valid @RequestBody KpiQuery kpiQuery) {
     return findKpiService.find(kpiQuery);
   }
 

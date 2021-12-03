@@ -55,7 +55,7 @@ public class BusinessDataController {
       description = "Get the business data catalog (list of scopes)"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public Collection<AssetDetailsDTO> list() {
+  public Collection<AssetDetailsDTO> listAssetDetails() {
     var result = findBusinessDataService.getAll();
     if (CollectionUtils.isEmpty(result)) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
@@ -102,7 +102,7 @@ public class BusinessDataController {
       description = "Download a set of assets"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public void download(
+  public void downloadAsset(
       @RequestBody ScopeAssetsDTO scopeAssets, HttpServletResponse response) throws IOException {
     response.setHeader("Content-Disposition", "attachment; filename=download.zip");
     response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
