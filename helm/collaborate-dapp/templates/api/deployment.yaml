@@ -97,6 +97,8 @@ spec:
               value: {{ .Values.api.privateKey | quote }}
             - name: API_BUSINESS_DATA_CONTRACT_ADDRESS
               value: {{ .Values.api.businessDataContractAddress | quote }}
+            - name: API_ORGANIZATION_WALLET_CONTRACT_ADDRESS
+              value: {{ .Values.api.organizationWalletContractAddress | quote }}
 
             # Api-gateway
             - name: TRAEFIK_CERTIFICATES_PATH
