@@ -2,7 +2,6 @@ package collaborate.api.datasource.gateway;
 
 import collaborate.api.user.security.Authorizations.HasRoles;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Optional;
 import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +44,6 @@ public class GatewayController {
         .scope(scope)
         .assetIdForDatasource(assetId)
         .build();
-    return gatewayService.fetch(resourceDTO, Optional.empty());
+    return gatewayService.fetch(resourceDTO);
   }
 }

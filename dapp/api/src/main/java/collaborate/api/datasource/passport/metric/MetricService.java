@@ -28,6 +28,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -51,7 +53,9 @@ public class MetricService {
 
   public Optional<Page<Metric>> findAll(Integer tokenId, Pageable pageable, String query) {
     // TODO handle query parameter
-    log.warn("query={} is not implemented", query);
+    if (StringUtils.isNotBlank(query)) {
+      throw new NotImplementedException();
+    }
     var passportDtoOpt = findPassportService.findPassportDetailsByTokenId(tokenId);
     if (passportDtoOpt.isEmpty()) {
       log.info("No passport found for tokenId={}", tokenId);
@@ -118,7 +122,7 @@ public class MetricService {
             gtwResource -> CompletableFuture.supplyAsync(() -> {
                   String jsonResponse = requireNonNull(
                       gatewayUrlService
-                          .fetch(gtwResource, Optional.empty())
+                          .fetch(gtwResource)
                           .getBody()
                   ).toString();
                   return Metric.builder()

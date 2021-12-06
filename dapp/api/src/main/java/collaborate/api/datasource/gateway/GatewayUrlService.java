@@ -3,7 +3,6 @@ package collaborate.api.datasource.gateway;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import collaborate.api.config.api.TraefikProperties;
-import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.user.metadata.UserMetadataService;
@@ -21,13 +20,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 public class GatewayUrlService {
 
   private final GatewayUrlDAO gatewayURLDAO;
-  private final TraefikProviderService traefikProviderService;
   private final TraefikProperties traefikProperties;
   private final UserMetadataService userMetadataService;
   private final AccessTokenProvider accessTokenProvider;
 
-  public ResponseEntity<JsonNode> fetch(GatewayResourceDTO resourceDTO,
-      Optional<AccessTokenResponse> accessTokenOpt) {
+  public ResponseEntity<JsonNode> fetch(GatewayResourceDTO resourceDTO) {
     var uriBuilder = UriComponentsBuilder.fromUriString(traefikProperties.getUrl())
         .path("/datasource")
         .path("/" + resourceDTO.getDatasourceId())
@@ -36,9 +33,8 @@ public class GatewayUrlService {
     if (isNotBlank(resourceDTO.getAssetIdForDatasource())) {
       uriBuilder.path("/" + resourceDTO.getAssetIdForDatasource());
     }
-    if (accessTokenOpt.isEmpty()) {
-      accessTokenOpt = findOAuth2Jwt(resourceDTO.getDatasourceId());
-    }
+
+    var accessTokenOpt = findOAuth2Jwt(resourceDTO.getDatasourceId());
     var uri = uriBuilder.build().toUriString();
     return gatewayURLDAO.fetch(uri, accessTokenOpt);
   }
@@ -56,6 +52,5 @@ public class GatewayUrlService {
     }
     return Optional.empty();
   }
-
 
 }

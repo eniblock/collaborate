@@ -1,7 +1,7 @@
 {
   "type": "WebServerDatasource",
-  "baseUrl": "http://fake-datasource-api-dsp-a:3000",
-  "name": "DSP A referentials",
+  "baseUrl": "http://fake-datasource-api-dsp-b:3000",
+  "name": "DSP B referentials",
   "authMethod": {
     "type": "OAuth2ClientCredentialsGrant",
     "grantType": "client_credentials",
@@ -20,9 +20,10 @@
     {
       "description": "Documents list",
       "keywords": [
-        "scope:list-asset"
+        "scope:list-asset",
+        "list-asset-scope:vehicle"
       ],
-      "url": "/documents"
+      "url": "/vehicle"
     }
   ]
 }

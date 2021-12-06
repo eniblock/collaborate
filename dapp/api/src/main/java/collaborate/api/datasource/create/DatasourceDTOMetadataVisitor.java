@@ -86,7 +86,7 @@ public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream
           objectMapper.writeValueAsString(keywords),
           "string[]");
     } catch (JsonProcessingException e) {
-      log.error("While generation metadata for datasource keywords={}", keywords);
+      log.error("While generating metadata for datasource keywords={}", keywords);
       throw new DatasourceVisitorException(e);
     }
   }

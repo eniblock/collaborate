@@ -2,7 +2,7 @@ package collaborate.api.datasource.businessdata.create;
 
 import static collaborate.api.datasource.businessdata.document.ScopeAssetsService.ASSET_ID_SEPARATOR;
 
-import collaborate.api.datasource.AssetListService;
+import collaborate.api.datasource.businessdata.AssetListService;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;

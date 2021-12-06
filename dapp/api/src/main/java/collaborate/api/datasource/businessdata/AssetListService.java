@@ -1,4 +1,4 @@
-package collaborate.api.datasource;
+package collaborate.api.datasource.businessdata;
 
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -20,7 +20,7 @@ public class AssetListService {
 
   private final RequestEntitySupplierFactory requestEntitySupplierFactory;
   private final ObjectMapper objectMapper;
-  
+
   public String getAssetListResponse(WebServerDatasourceDTO webServerDatasourceDTO) {
     var assetListResponseSupplier = requestEntitySupplierFactory.create(
         webServerDatasourceDTO,

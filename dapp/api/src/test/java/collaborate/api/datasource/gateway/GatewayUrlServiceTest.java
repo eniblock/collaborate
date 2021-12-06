@@ -42,7 +42,7 @@ class GatewayUrlServiceTest {
         .scope("kilometer")
         .datasourceId(datasourceUUID)
         .build();
-    gatewayService.fetch(gatewayResource, Optional.empty());
+    gatewayService.fetch(gatewayResource);
 
     // THEN
     verify(gatewayUrlDAO, times(1)).fetch(

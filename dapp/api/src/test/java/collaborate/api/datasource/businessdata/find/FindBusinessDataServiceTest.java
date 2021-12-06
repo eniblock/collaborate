@@ -3,7 +3,6 @@ package collaborate.api.datasource.businessdata.find;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
@@ -42,16 +41,17 @@ class FindBusinessDataServiceTest {
         .legalName("legalName")
         .address("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
         .build();
+
     when(organizationService.getByWalletAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"))
         .thenReturn(organization);
+    when(userMetadataService.getOwnerOAuth2("3636ff0b-2295-4750-a6b2-677c680e0bbb"))
+        .thenReturn(Optional.of(new OAuth2ClientCredentialsGrant()));
+
     TokenIndex tokenIndex = TokenIndex.builder()
         .tokenId(11)
         .tokenOwnerAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
         .assetId("3636ff0b-2295-4750-a6b2-677c680e0bbb:assetId")
         .build();
-    when(userMetadataService.find("3636ff0b-2295-4750-a6b2-677c680e0bbb", VaultMetadata.class))
-        .thenReturn(Optional.of(
-            VaultMetadata.builder().oAuth2(new OAuth2ClientCredentialsGrant()).build()));
     // WHEN
     var assetDetailsResult = findBusinessDataService.toAssetDetails(tokenIndex);
 

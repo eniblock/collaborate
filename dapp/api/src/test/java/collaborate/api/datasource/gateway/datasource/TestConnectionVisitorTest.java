@@ -15,6 +15,7 @@ import collaborate.api.http.RequestEntityVisitorFactory;
 import collaborate.api.http.ResponseCodeOkPredicate;
 import java.net.URI;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,7 +62,9 @@ class TestConnectionVisitorTest {
         .build();
     when(uriFactory.create(datasource, expectedResource)).thenCallRealMethod();
     when(requestEntityVisitorFactory.create(
-        URI.create(baseUrl + "/myExpectedResourceUrl"))).thenCallRealMethod();
+        URI.create(baseUrl + "/myExpectedResourceUrl"),
+        Optional.empty())
+    ).thenCallRealMethod();
     // WHEN
     datasource.accept(testConnectionVisitor);
     // THEN

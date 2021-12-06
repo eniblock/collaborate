@@ -4,7 +4,7 @@ import static java.util.Collections.emptySet;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-import collaborate.api.datasource.AssetListService;
+import collaborate.api.datasource.businessdata.AssetListService;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;

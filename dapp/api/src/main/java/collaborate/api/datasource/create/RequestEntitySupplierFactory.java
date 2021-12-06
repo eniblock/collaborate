@@ -1,11 +1,15 @@
 package collaborate.api.datasource.create;
 
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
+
 import collaborate.api.datasource.URIFactory;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.http.RequestEntityVisitorFactory;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +17,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class RequestEntitySupplierFactory {
 
+  public static final String LIST_ASSET_SCOPE = "list-asset-scope:";
   private final RequestEntityVisitorFactory requestEntityVisitorFactory;
   private final URIFactory uriFactory;
 
@@ -21,7 +26,14 @@ public class RequestEntitySupplierFactory {
     var resource = serverDatasourceDTO.getResourceByKeywordOrThrow(resourceKeyword);
     var uri = uriFactory.create(serverDatasourceDTO, resource);
 
-    var requestEntityVisitor = requestEntityVisitorFactory.create(uri);
+    Optional<String> scope = Optional.empty();
+    if (SCOPE_ASSET_LIST.equals(resourceKeyword)) {
+      scope = resource.getKeywords().stream()
+          .filter(keyword -> StringUtils.startsWith(keyword, LIST_ASSET_SCOPE))
+          .map(keyword -> StringUtils.removeStart(keyword, LIST_ASSET_SCOPE))
+          .findFirst();
+    }
+    var requestEntityVisitor = requestEntityVisitorFactory.create(uri, scope);
     return serverDatasourceDTO.getAuthMethod().accept(requestEntityVisitor);
   }
 

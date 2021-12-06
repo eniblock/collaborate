@@ -136,8 +136,7 @@ public class ScopeAssetsService {
         .scope(SCOPE_ASSET_LIST)
         .build();
     return gatewayUrlService.fetch(
-        gatewayResource,
-        Optional.empty()
+        gatewayResource
     );
   }
 
