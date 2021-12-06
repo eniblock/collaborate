@@ -113,9 +113,8 @@ multisig_build_params_type = sp.TRecord(
 
 
 class ProxyTokenController(sp.Contract):
-    def __init__(self, proxy_admins, groups, multisig_templates, rules):
+    def __init__(self, groups, multisig_templates, rules):
         self.init(
-            proxy_admins = sp.set(proxy_admins),
             multisigs = sp.big_map(),
             #nb_multisigs = @TODO consecutive?!?
             groups = sp.map(
@@ -428,7 +427,6 @@ def test():
     #PCC
     ## put the real initiator parameters, the contract will be initially deployed with the following parameters
     c0 = ProxyTokenController(
-        [proxy_admin],
         groups,
         multisig_templates,
         rules
