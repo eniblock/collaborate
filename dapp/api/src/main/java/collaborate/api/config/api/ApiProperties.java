@@ -19,6 +19,10 @@ public class ApiProperties {
   @NotEmpty
   private String digitalPassportContractAddress;
 
+  @Schema(description = "The digital passport Proxy Token Controller smart-contract address")
+  @NotEmpty
+  private String digitalPassportProxyTokenControllerContractAddress;
+
   @Schema(description = "The organization wallet smart-contract address")
   @NotEmpty
   private String organizationWalletContractAddress;
