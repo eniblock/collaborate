@@ -13,8 +13,11 @@ organizations_type = sp.TMap(
 )
 
 class OrganizationWalletManagement(sp.Contract):
-    def __init__(self, _org: organizations_type):
-        self.init(organizations = _org)
+    def __init__(self, _org: organizations_type, metadata):
+        self.init(
+            organizations = _org,
+            metadata = metadata
+        )
 
 if "templates" not in __name__:
     @sp.add_test(name = "OrganizationWalletManagement")
@@ -40,6 +43,8 @@ if "templates" not in __name__:
             }
         )
 
-        c1 = OrganizationWalletManagement(organizations)
+        scMetadata = sp.utils.metadata_of_url("https://example.com")
+
+        c1 = OrganizationWalletManagement(organizations, scMetadata)
 
         scenario += c1
