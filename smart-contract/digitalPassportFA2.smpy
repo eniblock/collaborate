@@ -713,7 +713,7 @@ def add_test(config, is_default = True):
         scenario.h1("FA2 Contract Name: " + config.name)
         scenario.table_of_contents()
 
-        adminAddress = sp.address("tz1LzyfRfEhcWsP3x7dkAKeggpDgHgs7Xv8Q")
+        adminAddress = sp.address("KT1BPT5AHps6iT5CKeCGtyksDJC5CfPwbDie") ###digitalPassportProxyTokenController
         scMetadata = sp.utils.metadata_of_url("https://example.com")
 
         scenario.h2("Accounts")
