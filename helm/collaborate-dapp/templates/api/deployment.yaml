@@ -93,6 +93,8 @@ spec:
               value: {{ .Values.api.platform | quote }}
             - name: API_DIGITAL_PASSPORT_CONTRACT_ADDRESS
               value: {{ .Values.api.digitalPassportContractAddress | quote }}
+            - name: API_DIGITAL_PASSPORT_PROXY_TOKEN_CONTROLLER_CONTRACT_ADDRESS
+              value: {{ .Values.api.digitalPassportProxyTokenControllerContractAddress | quote }}
             - name: API_PRIVATE_KEY
               value: {{ .Values.api.privateKey | quote }}
             - name: API_BUSINESS_DATA_CONTRACT_ADDRESS
