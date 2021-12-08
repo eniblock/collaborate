@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @RequiredArgsConstructor
 public class MetadataService {
+
+  public static final String LIST_ASSET_SCOPE = "list-asset-scope";
 
   private final ObjectMapper objectMapper;
   private final TypeReference<List<String>> listOfString = new TypeReference<>() {
@@ -77,5 +80,12 @@ public class MetadataService {
         .orElseThrow(() -> new IllegalStateException(
             "No transferMethod found for datasource=" + datasource.getId())
         );
+  }
+
+  public Optional<String> getAssetListScope(Datasource datasource) {
+    return datasource.getProviderMetadata().stream()
+        .filter(a -> a.getName().equals(LIST_ASSET_SCOPE))
+        .map(Metadata::getValue)
+        .findFirst();
   }
 }

@@ -61,13 +61,13 @@ class MetricServiceTest {
     // THEN
     assertThat(metricUrl.collect(toList())).containsExactlyInAnyOrder(
         GatewayResourceDTO.builder()
-            .scope("A")
+            .scope("scope:metric:A")
             .datasourceId("dsId")
             .assetIdForDatasource("assetId")
             .metadata(emptySet())
             .build(),
         GatewayResourceDTO.builder()
-            .scope("B")
+            .scope("scope:metric:B")
             .datasourceId("dsId")
             .assetIdForDatasource("assetId")
             .metadata(emptySet())
@@ -92,7 +92,7 @@ class MetricServiceTest {
     assertThat(metricUrl.collect(toList())).containsExactlyInAnyOrder(
         GatewayResourceDTO.builder()
             .datasourceId("dsId")
-            .scope("A")
+            .scope("scope:metric:A")
             .assetIdForDatasource("assetId")
             .metadata(emptySet())
             .build()
@@ -130,19 +130,19 @@ class MetricServiceTest {
     // THEN
     assertThat(metricUrls.collect(toList())).containsExactlyInAnyOrder(
         GatewayResourceDTO.builder()
-            .scope("A")
+            .scope("scope:metric:A")
             .datasourceId("dsA")
             .assetIdForDatasource("assetIdA")
             .metadata(emptySet())
             .build(),
         GatewayResourceDTO.builder()
-            .scope("A")
+            .scope("scope:metric:A")
             .datasourceId("dsB")
             .assetIdForDatasource("assetIdB")
             .metadata(emptySet())
             .build(),
         GatewayResourceDTO.builder()
-            .scope("B")
+            .scope("scope:metric:B")
             .datasourceId("dsB")
             .assetIdForDatasource("assetIdB")
             .metadata(emptySet())
@@ -201,7 +201,8 @@ class MetricServiceTest {
             .value(path)
             .build()
     );
-    var jsonResponse = TestResources.readContent("/datasource/passport/metric/metric.response.json");
+    var jsonResponse = TestResources.readContent(
+        "/datasource/passport/metric/metric.response.json");
     // WHEN
     var jsonNodeResult = metricService.extractValuePath(jsonResponse, metadata);
     // THEN
