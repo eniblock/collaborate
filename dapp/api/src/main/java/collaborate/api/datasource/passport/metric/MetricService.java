@@ -103,7 +103,7 @@ public class MetricService {
         .map(scope -> GatewayResourceDTO.builder()
             .datasourceId(datasourceDTO.getId())
             .assetIdForDatasource(datasourceDTO.getAssetIdForDatasource())
-            .scope(removeStart(scope, SCOPE_METRIC_PREFIX))
+            .scope(scope)
             .metadata(getScopeMetadata(scope, metadata))
             .build()
         );
