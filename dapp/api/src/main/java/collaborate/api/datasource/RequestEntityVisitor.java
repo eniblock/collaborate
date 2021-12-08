@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
-import org.springframework.lang.NonNull;
 import org.springframework.lang.Nullable;
 import org.springframework.web.client.RestTemplate;
 
@@ -27,7 +26,6 @@ public class RequestEntityVisitor implements
 
   @Nullable
   private final String authenticationScope;
-  @NonNull
   private final AccessTokenProvider accessTokenProvider;
   private final HttpClientFactory httpClientFactory;
   private final RequestEntityBuilder<?> requestEntityBuilder;
