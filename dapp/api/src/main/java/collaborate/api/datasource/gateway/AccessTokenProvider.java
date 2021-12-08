@@ -55,7 +55,7 @@ public class AccessTokenProvider {
           AccessTokenResponse.class
       ).getBody();
     } catch (RestClientException e) {
-      log.error("Can't get JWT for oAuth2={}", oAuth2);
+      log.error("Can't get JWT for oAuth2={}, exception={}", oAuth2, e);
       throw new ResponseStatusException(HttpStatus.BAD_GATEWAY, "HTTP error while getting JWT", e);
     }
   }

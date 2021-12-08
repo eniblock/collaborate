@@ -14,16 +14,48 @@
     }
   },
   "keywords": [
-    "business-data"
+    "digital-passport"
   ],
   "resources": [
     {
-      "description": "Documents list",
+      "description": "Vehicles list",
       "keywords": [
         "scope:list-asset",
         "list-asset-scope:vehicle"
       ],
       "url": "/vehicle"
+    },
+    {
+      "description": "Battery level",
+      "keywords": [
+        "scope:metric:battery",
+        "metadata:value.jsonPath:$.load"
+      ],
+      "url": "/battery/$1"
+    },
+    {
+      "description": "Brake",
+      "keywords": [
+        "scope:metric:brake",
+        "metadata:value.jsonPath:$.value"
+      ],
+      "url": "/brake/$1"
+    },
+    {
+      "description": "Engine",
+      "keywords": [
+        "scope:metric:engine",
+        "metadata:value.jsonPath:$.value"
+      ],
+      "url": "/engine/$1"
+    },
+    {
+      "description": "Odometer",
+      "keywords": [
+        "scope:metric:odometer",
+        "metadata:value.jsonPath:$.value"
+      ],
+      "url": "/odometer/$1"
     }
   ]
 }
