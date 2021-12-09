@@ -18,7 +18,7 @@ class FA2_config:
     def __init__(self,
                  debug_mode                         = False,
                  single_asset                       = False,
-                 non_fungible                       = False,
+                 non_fungible                       = True,
                  add_mutez_transfer                 = False,
                  readable                           = True,
                  force_layouts                      = True,
@@ -27,7 +27,7 @@ class FA2_config:
                  store_total_supply                 = True,
                  lazy_entry_points                  = False,
                  allow_self_transfer                = False,
-                 use_token_metadata_offchain_view   = False
+                 use_token_metadata_offchain_view   = True
                  ):
 
         if debug_mode:
@@ -299,22 +299,22 @@ class Token_id_set:
             return sp.nat(0)
         else:
             return sp.set(t = token_id_type)
-    def add(self, totalTokens, tokenID):
+    def add(self, metaset, v):
         if self.config.assume_consecutive_token_ids:
-            sp.verify(totalTokens == tokenID, message = "Token-IDs should be consecutive")
-            totalTokens.set(tokenID + 1)
+            sp.verify(metaset == v, message = "Token-IDs should be consecutive")
+            metaset.set(sp.max(metaset, v + 1))
         else:
-            totalTokens.add(tokenID)
-    def contains(self, totalTokens, tokenID):
+            metaset.add(v)
+    def contains(self, metaset, v):
         if self.config.assume_consecutive_token_ids:
-            return (tokenID < totalTokens)
+            return (v < metaset)
         else:
-            return totalTokens.contains(tokenID)
-    def cardinal(self, totalTokens):
+            return metaset.contains(v)
+    def cardinal(self, metaset):
         if self.config.assume_consecutive_token_ids:
-            return totalTokens
+            return metaset
         else:
-            return sp.len(totalTokens)
+            return sp.len(metaset)
 
 ##
 ## ## Implementation of the Contract
@@ -359,6 +359,7 @@ class FA2_core(sp.Contract):
         self.exception_optimization_level = "default-line"
         self.init(
             ledger = self.config.my_map(tvalue = Ledger_value.get_type()),
+            reverse_ledger = sp.big_map(tkey = sp.TAddress, tvalue = sp.TSet(sp.TNat)),
             token_metadata = self.config.my_map(tkey = sp.TNat, tvalue = self.token_meta_data.get_type()),
             operators = self.operator_set.make(),
             all_tokens = self.token_id_set.empty(),
@@ -406,10 +407,15 @@ class FA2_core(sp.Contract):
                     to_user = self.ledger_key.make(tx.to_, tx.token_id)
                     self.data.ledger[from_user].balance = sp.as_nat(
                         self.data.ledger[from_user].balance - tx.amount)
+                    self.data.reverse_ledger[current_from].remove(tx.token_id)
                     sp.if self.data.ledger.contains(to_user):
                         self.data.ledger[to_user].balance += tx.amount
                     sp.else:
-                         self.data.ledger[to_user] = Ledger_value.make(tx.amount)
+                        self.data.ledger[to_user] = Ledger_value.make(tx.amount)
+                    sp.if self.data.reverse_ledger.contains(tx.to_):
+                        self.data.reverse_ledger[tx.to_].add(tx.token_id)
+                    sp.else:
+                        self.data.reverse_ledger[tx.to_] = sp.set([tx.token_id])
                 sp.else:
                     pass
 
@@ -531,18 +537,25 @@ class FA2_mint(FA2_core):
                 message = "NFT-asset: cannot mint twice same token"
             )
         user = self.ledger_key.make(params.address, params.token_id)
+        self.token_id_set.add(self.data.all_tokens, params.token_id)
         sp.if self.data.ledger.contains(user):
             self.data.ledger[user].balance += params.amount
         sp.else:
             self.data.ledger[user] = Ledger_value.make(params.amount)
-        sp.if ~ self.token_id_set.contains(self.data.all_tokens, params.token_id):
-            self.token_id_set.add(self.data.all_tokens, params.token_id)
+        sp.if self.data.reverse_ledger.contains(params.address):
+            self.data.reverse_ledger[params.address].add(params.token_id)
+        sp.else:
+            self.data.reverse_ledger[params.address] = sp.set([params.token_id])
+        sp.if self.data.token_metadata.contains(params.token_id):
+            if self.config.store_total_supply:
+                self.data.total_supply[params.token_id] = params.amount
+        sp.else:
             self.data.token_metadata[params.token_id] = sp.record(
                 token_id    = params.token_id,
                 token_info  = params.metadata
             )
-        if self.config.store_total_supply:
-            self.data.total_supply[params.token_id] = params.amount + self.data.total_supply.get(params.token_id, default_value = 0)
+            if self.config.store_total_supply:
+                self.data.total_supply[params.token_id] = params.amount
 
 class FA2_token_metadata(FA2_core):
     def set_token_metadata_view(self):
@@ -674,32 +687,44 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
         self.init_metadata("metadata_base", metadata_base)
         FA2_core.__init__(self, config, metadata, paused = False, administrator = admin)
 
-## ## Tests
-##
-## ### Auxiliary Consumer Contract
-##
-## This contract is used by the tests to be on the receiver side of
-## callback-based entry-points.
-## It stores facts about the results in order to use `scenario.verify(...)`
-## (cf.
-##  [documentation](https://smartpy.io/docs/scenarios/testing)).
-class View_consumer(sp.Contract):
-    def __init__(self, contract):
-        self.contract = contract
-        self.init(last_sum = 0,
-                  operator_support =  not contract.config.support_operator)
+class Batch_NFT(FA2):
+    def __init__(self, config, metadata, admin):
+        FA2.__init__(self, config, metadata, admin)
+
+    batch_mint_type = sp.TRecord(
+        metadata_links = sp.TList(sp.TBytes),
+        first_token_id = token_id_type,
+        address = sp.TAddress
+        )
 
     @sp.entry_point
-    def reinit(self):
-        self.data.last_sum = 0
-        # It's also nice to make this contract have more than one entry point.
+    def batch_mint(self, params):
+        sp.verify(
+            self.config.non_fungible & self.config.assume_consecutive_token_ids & ~ self.config.single_asset,
+            message = "Wrong Config: batch_mint requires 'non_fungible', 'consecutive_token_ids' and 'multiple_asset'"
+            )
+        sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
+        sp.verify(self.data.all_tokens == params.first_token_id,
+            message = "The first token_id has to respect the consecutiveness"
+        )
+        amount = 1
+        sp.for metadata in params.metadata_list:
+            token_id = self.data.all_tokens
+            user = self.ledger_key.make(params.address, token_id)
+            self.data.ledger[user] = Ledger_value.make(amount)
+            sp.if self.data.reverse_ledger.contains(params.address):
+                self.data.reverse_ledger[params.address].add(token_id)
+            sp.else:
+                self.data.reverse_ledger[params.address] = sp.set([token_id])
+            self.data.token_metadata[token_id] = sp.record(
+                token_id    = token_id,
+                token_info  = {"": metadata}
+            )
+            if self.config.store_total_supply:
+                self.data.total_supply[token_id] = amount
+            self.token_id_set.add(self.data.all_tokens, token_id)
 
-    @sp.entry_point
-    def receive_balances(self, params):
-        sp.set_type(params, Balance_of.response_type())
-        self.data.last_sum = 0
-        sp.for resp in params:
-            self.data.last_sum += resp.balance
+
 
 ## ### Generation of Test Scenarios
 ##
@@ -713,16 +738,53 @@ def add_test(config, is_default = True):
         scenario.h1("FA2 Contract Name: " + config.name)
         scenario.table_of_contents()
 
-        adminAddress = sp.address("KT1BPT5AHps6iT5CKeCGtyksDJC5CfPwbDie") ###digitalPassportProxyTokenController
-        scMetadata = sp.utils.metadata_of_url("https://example.com")
+        ## put the real proxy SC address and metadata_url here, the contract will be initially deployed with the following parameters
+        admin = sp.address("KT1XkDXfFffE26UaKXRVU28ENPANHVik16H7")
+        alice = sp.test_account("Alice")
+        metadata_url = "ipfs://QmYG2hWiukuc2aD3J9QQJLgTjTNarKiJgDYbkMtjB1gtnX"
 
-        scenario.h2("Accounts")
-        scenario.show({"adminAddress" : adminAddress})
-        c1 = FA2(config = config,
-                 metadata = scMetadata,
-                 admin = adminAddress)
+        c1 = Batch_NFT(config = config,
+                 metadata = sp.utils.metadata_of_url(metadata_url),
+                 admin = admin)
         scenario += c1
-        scenario.table_of_contents()
+        scenario.p("Admin mints 4 NFTs")
+        scenario += c1.batch_mint(sp.record(
+            address = admin,
+            first_token_id = 0,
+            metadata_list = [
+                sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                sp.bytes("0x050300000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                sp.bytes("0x050400000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
+                ]
+        )).run(sender = admin)
+
+        scenario.p("The mint fails when the first_token_id already exists")
+        scenario += c1.batch_mint(sp.record(address = admin, first_token_id = 3, metadata_list = [sp.bytes("0x0501")])).run(sender = admin, valid = False)
+        scenario.p("The mint fails when the first_token_id consecutiveness is not respected")
+        scenario += c1.batch_mint(sp.record(address = admin, first_token_id = 5, metadata_list = [sp.bytes("0x0501")])).run(sender = admin, valid = False)
+        scenario.p("The mint is successfull when the first_token_id consecutiveness is respected")
+        scenario += c1.batch_mint(sp.record(
+            address = admin,
+            first_token_id = 4,
+            metadata_list = [
+                sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
+                ]
+        )).run(sender = admin)
+        scenario += c1.transfer([
+            sp.record(
+                from_ = admin,
+                txs = [
+                    sp.record(
+                        to_ = alice.address,
+                        token_id = 2,
+                        amount = 1
+                        )
+                    ]
+                )
+            ]
+        ).run(sender = admin)
+
 
 ##
 ## ## Global Environment Parameters
@@ -752,7 +814,7 @@ def environment_config():
         support_operator = global_parameter("support_operator", True),
         assume_consecutive_token_ids =
             global_parameter("assume_consecutive_token_ids", True),
-        store_total_supply = global_parameter("store_total_supply", False),
+        store_total_supply = global_parameter("store_total_supply", True),
         lazy_entry_points = global_parameter("lazy_entry_points", False),
         allow_self_transfer = global_parameter("allow_self_transfer", False),
         use_token_metadata_offchain_view = global_parameter("use_token_metadata_offchain_view", True),
@@ -766,23 +828,3 @@ if "templates" not in __name__:
     add_test(environment_config())
     if not global_parameter("only_environment_test", False):
         add_test(FA2_config(debug_mode = True), is_default = not sp.in_browser)
-        add_test(FA2_config(single_asset = True), is_default = not sp.in_browser)
-        add_test(FA2_config(non_fungible = True, add_mutez_transfer = True),
-                 is_default = not sp.in_browser)
-        add_test(FA2_config(readable = False), is_default = not sp.in_browser)
-        add_test(FA2_config(force_layouts = False),
-                 is_default = not sp.in_browser)
-        add_test(FA2_config(debug_mode = True, support_operator = False),
-                 is_default = not sp.in_browser)
-        add_test(FA2_config(assume_consecutive_token_ids = False)
-                 , is_default = not sp.in_browser)
-        add_test(FA2_config(store_total_supply = True)
-                 , is_default = not sp.in_browser)
-        add_test(FA2_config(add_mutez_transfer = True)
-                 , is_default = not sp.in_browser)
-        add_test(FA2_config(lazy_entry_points = True)
-                 , is_default = not sp.in_browser)
-
-    sp.add_compilation_target("FA2_comp", FA2(config = environment_config(),
-                              metadata = sp.utils.metadata_of_url("https://example.com"),
-                              admin = sp.address("tz1M9CMEtsXm3QxA7FmMU2Qh7xzsuGXVbcDr")))
