@@ -340,8 +340,7 @@ def test():
 
     groups = {
         "consortium": consortium,
-        "minters": minters,
-        "proxy_admins": consortium
+        "minters": minters
         }
 
     multisig_templates = {
@@ -356,12 +355,6 @@ def test():
                 groups = {
                     "minters": sp.record(group_threshold = 1, group_weight = 1),
                     "": sp.record(group_threshold = 1, group_weight = 1)
-                }
-            ),
-        2: sp.record(
-                contract_threshold = 1,
-                groups = {
-                    "proxy_admins": sp.record(group_threshold = sp.len(consortium), group_weight = 1)
                 }
             )
     }
@@ -396,15 +389,15 @@ def test():
             authorized_builders = sp.set(["consortium"])
         ),
         "update_groups": sp.record(
-            template_id = 2,
+            template_id = 0,
             authorized_builders = sp.set(["consortium"])
         ),
         "update_templates": sp.record(
-            template_id = 2,
+            template_id = 0,
             authorized_builders = sp.set(["consortium"])
         ),
         "update_rules": sp.record(
-            template_id = 2,
+            template_id = 0,
             authorized_builders = sp.set(["consortium"])
         )
     }
