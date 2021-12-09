@@ -339,9 +339,8 @@ def test():
     scenario.show({"consortium" : consortium})
 
     groups = {
-        "super_fa2_admins": consortium,
+        "consortium": consortium,
         "minters": minters,
-        "multisig_builders": consortium,
         "proxy_admins": consortium
         }
 
@@ -349,7 +348,7 @@ def test():
         0: sp.record(
                 contract_threshold = 1,
                 groups = {
-                    "super_fa2_admins": sp.record(group_threshold = sp.len(consortium), group_weight = 1)
+                    "consortium": sp.record(group_threshold = sp.len(consortium), group_weight = 1)
                 }
             ),
         1: sp.record(
@@ -370,43 +369,43 @@ def test():
     rules = {
         "mint": sp.record(
             template_id = 1,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         ),
         "batch_mint": sp.record(
             template_id = 1,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         ),
         "set_administrator": sp.record(
             template_id = 0,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         ),
         "update_operators": sp.record(
             template_id = 0,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         ),
         "transfer": sp.record(
             template_id = 0,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         ),
         "set_pause": sp.record(
             template_id = 0,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         ),
         "set_metadata": sp.record(
             template_id = 0,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         ),
         "update_groups": sp.record(
             template_id = 2,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         ),
         "update_templates": sp.record(
             template_id = 2,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         ),
         "update_rules": sp.record(
             template_id = 2,
-            authorized_builders = sp.set(["multisig_builders"])
+            authorized_builders = sp.set(["consortium"])
         )
     }
 
