@@ -44,6 +44,9 @@ public class DigitalPassportController {
   private final FindPassportService findPassportService;
   private final MetricService metricService;
 
+  /*
+    TODO !!!!!!!!!!!!!!!
+   */
   @PostMapping("/multisig/{contract-id}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -53,6 +56,9 @@ public class DigitalPassportController {
     return consentService.consent(contractId);
   }
 
+  /*
+  TODO !!!!!!!!!!!!!!!
+ */
   @GetMapping("/multisig/{contract-id}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -65,6 +71,9 @@ public class DigitalPassportController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  /*
+  TODO !!!!!!!!!!!!!!!
+ */
   @PostMapping
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -79,6 +88,9 @@ public class DigitalPassportController {
     return createPassportService.createMultisig(createMultisigPassportDTO);
   }
 
+  /*
+  TODO !!!!!!!!!!!!!!!
+ */
   @GetMapping
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -89,6 +101,9 @@ public class DigitalPassportController {
     return findPassportService.getByConnectedUser();
   }
 
+  /*
+  TODO !!!!!!!!!!!!!!!
+ */
   @GetMapping("/{tokenId}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -100,6 +115,9 @@ public class DigitalPassportController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  /*
+  TODO !!!!!!!!!!!!!!!
+ */
   @GetMapping("/{tokenId}/metrics")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -113,6 +131,9 @@ public class DigitalPassportController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
+  /*
+  TODO !!!!!!!!!!!!!!!
+ */
   @GetMapping("/count")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
