@@ -212,8 +212,18 @@ public class UserService {
         });
   }
 
+  public void createActiveUser(String userId) {
+    tagUserDAO.createActiveUser(userId).orElseThrow(
+        () -> {
+          log.error("Can't create userId={} wallet", userId);
+          throw new ResponseStatusException(
+              BAD_GATEWAY, "Can't create userId=" + userId);
+        }
+    );
+  }
+
   public UserWalletDTO createUser(String userId) {
-    return tagUserDAO.create(userId).orElseThrow(
+    return tagUserDAO.createUser(userId).orElseThrow(
         () -> {
           log.error("Can't create userId={} wallet", userId);
           throw new ResponseStatusException(

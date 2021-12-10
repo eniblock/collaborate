@@ -2,6 +2,7 @@ package collaborate.api.user;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import collaborate.api.tag.model.user.TagUserListDTO;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.tag.model.user.UsersDTO;
 import java.util.List;
@@ -16,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 interface TagUserClient {
 
   /**
+   * @deprecated
+   *
    * <ul>
    *   <li>Create vault keys for the given {@link UsersDTO#getUserIdList()} list</li>
    *   <li>Activate the accounts on the blockchain network</li>
@@ -23,8 +26,19 @@ interface TagUserClient {
    *
    * @return the users tezos address (publicKeys) for each userId
    */
+  @Deprecated(since = "TAG 0.7.0", forRemoval = true)
   @PostMapping(value = "create", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-  ResponseEntity<List<UserWalletDTO>> create(@RequestBody UsersDTO createUsersDTO);
+  ResponseEntity<List<UserWalletDTO>> createActiveUser(@RequestBody UsersDTO createUsersDTO);
+
+  /**
+   * <ul>
+   *   <li>Create vault keys for the given {@link UsersDTO#getUserIdList()} list</li>
+   * </ul>
+   *
+   * @return the users tezos address (publicKeys) for each userId
+   */
+  @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+  ResponseEntity<List<UserWalletDTO>> createUser(@RequestBody TagUserListDTO createUsersDTO);
 
   /**
    * @param publicKeyHash the publicKeyHash for the searched vault user id
