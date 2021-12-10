@@ -90,7 +90,7 @@ update_rules_type = sp.TList(
 )
 
 multisig_build_params_type = sp.TRecord(
-    multisig_id = sp.TString,
+    multisig_id = sp.TNat,
     signers = sp.TList(sp.TAddress),
     build_and_sign = sp.TBool,
     call_params = sp.TRecord(
@@ -116,7 +116,7 @@ class ProxyTokenController(sp.Contract):
     def __init__(self, groups, multisig_templates, rules):
         self.init(
             multisigs = sp.big_map(),
-            #nb_multisigs = @TODO consecutive?!?
+            multisig_nb = 0,
             groups = sp.map(
                 l = groups,
                 tkey = sp.TString,
@@ -138,8 +138,8 @@ class ProxyTokenController(sp.Contract):
     @sp.entry_point
     def build(self, params):
         sp.set_type(params, multisig_build_params_type)
-        sp.verify(~self.data.multisigs.contains(params.multisig_id), "InvalidMultisigId")
-
+        sp.verify(self.data.multisig_nb == params.multisig_id, "InvalidMultisigId")
+        self.data.multisig_nb += 1
         sp.verify(self.data.rules.contains(params.call_params.entry_point), "NoRuleForThisEntrypoint")
         rule = self.data.rules[params.call_params.entry_point]
         self._is_builder(sp.sender, rule.authorized_builders)
@@ -436,7 +436,7 @@ def test():
     # DigitalPassport
     scenario += c0.build(
         build_and_sign = False,
-        multisig_id = "0000",
+        multisig_id = 0,
         signers = [alice], # Owner
         call_params = sp.record(
             target_address = target,
@@ -452,12 +452,12 @@ def test():
             ))
         )
     ).run(sender = multisig_builder)
-    scenario += c0.sign("0000").run(sender = alice)
-    scenario += c0.sign("0000").run(sender = super_minter1)
+    scenario += c0.sign(0).run(sender = alice)
+    scenario += c0.sign(0).run(sender = super_minter1)
 
     # DATA Catalog
     scenario += c0.build(
-        multisig_id = "1111",
+        multisig_id = 1,
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
@@ -479,7 +479,7 @@ def test():
 
     # CREATE
     scenario += c0.build(
-        multisig_id = "2222",
+        multisig_id = 2,
         build_and_sign = False,
         signers = [],
         call_params = sp.record(
@@ -501,7 +501,7 @@ def test():
 
     # Non authorized builder
     scenario += c0.build(
-        multisig_id = "3333",
+        multisig_id = 3,
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
@@ -519,7 +519,7 @@ def test():
     ).run(sender = alice, valid = False)
 
     scenario += c0.build(
-        multisig_id = "3333",
+        multisig_id = 3,
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
@@ -539,7 +539,7 @@ def test():
     # anyone can build when the list is empty
 
     scenario += c0.build(
-        multisig_id = "4444",
+        multisig_id = 4,
         build_and_sign = False,
         signers = [],
         call_params = sp.record(
@@ -554,7 +554,7 @@ def test():
 
    # Test groups update
     scenario += c0.build(
-        multisig_id = "5555",
+        multisig_id = 5,
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
@@ -567,7 +567,7 @@ def test():
     #scenario.verify(c0.data.groups["test"].contains(alice))
 
     scenario += c0.build(
-        multisig_id = "6666",
+        multisig_id = 6,
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
@@ -582,7 +582,7 @@ def test():
     # Test templates update
 
     scenario += c0.build(
-        multisig_id = "7777",
+        multisig_id = 7,
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
@@ -598,7 +598,7 @@ def test():
     #scenario.verify(c0.data.multisig_templates.contains(999))
     #scenario.verify(c0.data.multisig_templates[999].contract_threshold == 1)
     scenario += c0.build(
-        multisig_id = "8888",
+        multisig_id = 8,
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
@@ -617,7 +617,7 @@ def test():
 
     # Test rules update
     scenario += c0.build(
-        multisig_id = "9999",
+        multisig_id = 9,
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
@@ -633,7 +633,7 @@ def test():
     #scenario.verify(c0.data.rules.contains("test"))
     #scenario.verify(c0.data.rules["test"].template_id == 0)
     scenario += c0.build(
-        multisig_id = "1010",
+        multisig_id = 10,
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
