@@ -3,9 +3,12 @@ package collaborate.api.datasource.passport.create;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
-import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.job.Job;
+import collaborate.api.tag.model.proxytokencontroller.MultisigBuildCallParamMint;
+import collaborate.api.tag.model.proxytokencontroller.MultisigBuildParam;
+import collaborate.api.tag.model.storage.DataFieldsRequest;
 import feign.FeignException;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,15 +24,25 @@ class CreatePassportDAO {
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
   private final ApiProperties apiProperties;
+  private final TezosApiGatewayPassportCreationClient tezosApiGatewayPassportCreationClient;
 
-  private static final String CREATION_ENTRY_POINT = "init_passport_creation";
+  private static final String CREATION_ENTRY_POINT = "build";
 
-  public Job create(String metadataUri, String vehicleOwnerAddress, String assetId) {
+  public Job create(String metadataUri, String vehicleOwnerAddress) {
+    var multisigId = tezosApiGatewayPassportCreationClient.getMultisigNb(
+        apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+        new DataFieldsRequest<>(List.of("multisig_nb"))
+    );
+
+    if (2 == 1 + 1) {
+      return null;
+    }
+
     var transactions = transactionBatchFactory.createEntryPointJob(
         CREATION_ENTRY_POINT,
-        buildCreateEntryPointParam(metadataUri, vehicleOwnerAddress, assetId),
+        buildCreateEntryPointParam(metadataUri, vehicleOwnerAddress),
         Optional.empty(),
-        apiProperties.getDigitalPassportContractAddress()
+        apiProperties.getDigitalPassportProxyTokenControllerContractAddress()
     );
 
     Job job;
@@ -46,14 +59,17 @@ class CreatePassportDAO {
     return job;
   }
 
-  private InitPassportCreationEntryPointParam buildCreateEntryPointParam(
-      String metadataUri, String vehicleOwnerAddress, String assetId) {
+  private MultisigBuildParam<MultisigBuildCallParamMint> buildCreateEntryPointParam(
+      String metadataUri, String vehicleOwnerAddress) {
 
-    return InitPassportCreationEntryPointParam.builder()
-        .metadataUri(new Bytes(metadataUri))
-        .nftOwnerAddress(vehicleOwnerAddress)
-        .assetId(assetId)
-        .build();
+    return null;
+
+    /*MultisigBuildParam.builder()
+        .buildAndSign(true)
+        .multisigId(-1)
+
+
+     */
   }
 
 }
