@@ -38,7 +38,7 @@ public class OrganizationController {
           description = "Organizations has been found",
           content = @Content(array = @ArraySchema(schema = @Schema(implementation = OrganizationDTO.class))))})
   @PreAuthorize(HasRoles.ORGANIZATION_READ)
-  public Collection<OrganizationDTO> findAll() {
+  public Collection<OrganizationDTO> getAllOrganizations() {
     return organizationService.getAllOrganizations();
   }
 
@@ -54,7 +54,7 @@ public class OrganizationController {
           description = "Organization has been found",
           content = @Content(schema = @Schema(implementation = OrganizationDTO.class)))})
   @PreAuthorize(HasRoles.ORGANIZATION_READ)
-  public OrganizationDTO getCurrent() {
+  public OrganizationDTO getCurrentOrganization() {
     return organizationService.getCurrentOrganization();
   }
 

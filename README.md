@@ -270,103 +270,216 @@ disposal.
 
 ![PCC_Gold Token usage scenarios](doc/images/use-of-tokens-4.png)
 
-## API
+## API usages
 
-Open API is visible at https://collaborate.api.bxdev.tech/
+The [Collaborate Open API](https://collaborate.api.bxdev.tech/) is updated after each merge on the
+develop branch of the project repository.
 
-## Development
+![Data gateway overview](doc/images/data-gateway.png)
 
-### Requirements
+### 1. Configuring data sources
 
-- [Docker](https://docs.docker.com/engine/install/#server)
-- [clk k8s](https://github.com/click-project/clk_recipe_k8s)
+**Data sources** is one of the core business concept the Collaborate project relies on. A Data
+source is an external partner application that contains asset relative data. When a data source
+owner wants to create NFT assets associated to a data source, he needs firstly to generate a http
+router configuration file (aka A **data source configuration**, or
+a [Traefik configuration](https://doc.traefik.io/traefik/)) by calling `POST /api/v1/datasource`.
 
-Install your local kubernetes cluster with:
+During the creation, the owner provide **credentials** about the **authentication process** used to
+access the data source. This information is cyphered and stored locally to be used when another
+partner would like to access to this data source.
 
-```shell script
-sudo apt-get install pip
-curl -sSL https://clk-project.org/install.sh | env CLK_EXTENSIONS=k8s bash
-clk k8s flow
+The data source configuration is stored in [IPFS](https://ipfs.io/) (a distributed file system), so
+it could be used later by other partners to access to the NFT asset data hold by the data source.
+
+[Scope](https://oauth.net/2/scope/) is another core business concept the data sources relies on.
+Scopes are used to make able a data source to limit the resources a user can acces.
+
+### 2. Creating NFT Token for assets
+
+During the creation process, when it contains personal data the owner can flag the data source. This
+flag is used to define the NTF minting workflow:
+
+```mermaid
+graph TD
+    A[Datasource creation]
+    A --> B{contains personal data ?}
+    B -->|Yes| C[Digital passport]
+    
+    C --> D[Create digital passport for an user asset <br/> ex: a vehicle]
+    D --> E{User consent}
+    E -->|Yes | F[Mint digital passport NFT] 
+    
+
+    B -->|No| G[Business dataset]
+    G --> H[Mint an NFT by scope]
 ```
 
-### Updates
+As you can see, the differences between digital passport for personal data and business dataset is:
 
-```shell
-clk extension update k8s
-clk k8s flow
+* With personal data:
+    * The data source owner needs to ask a user to consent to the **digital passport NFT** mint by
+      calling `POST api/v1/digital-passport`.
+    * The user can consent by calling `POST /api/v1/digital-passport/multisig/{contract-id}`. This
+      consent triggers the digital-passport NFT mint, representing a user asset.
+* With business dataset:
+    * No consent is required, the owner mint directly a **business dataset NFT** for each scope of
+      the created data source.
+
+When a NFT is minted, it will contain metadata containing information about the data source it is
+associated to: the **NFT Catalog**.
+
+```mermaid
+classDiagram
+    NFT *-- NFT Catalog
+    NFT Catalog --* Data source Configuration
 ```
 
-### Start the application
+### 3. Consuming NFT Token associated data
 
-```shell script
-tilt up
+Once again the workflow used to access NFT data contains in a data source depends on the kind of NFT
+we want to access to:
+
+* For digital passport: _Work In Progress_
+* For business dataset:
+    * The requester need to ask consent to the NFT data source owner. This can be done by
+      calling `POST /api/v1/business-data/access-request`:
+        * A transaction is made on an entry point of the smart contract.
+        * The requested data source owner Collaborate instance:
+            * is notified by watching the transaction made on the smart contract.
+            * use the previously stored authentication process to generate access information (ex: a
+              JWT on the required scope).
+            * make a transaction on an entry point of the smart contract containing the cyphered
+              access information.
+        * The requester:
+            * is notified by watching the transaction made on the smart contract.
+            * decipher the access information
+            * use the {data source configuration, access information} to access to the requested NFT
+              related data source
+
+#### Ciphering process:
+
+```mermaid
+graph TD
+    A[AES KEY] 
+    B[IV Param]
+    C[JWT]
+    D[AESKEY + IV Param]
+    E[RSA Public Key]
+    F[AesCiphered]
+    G[RSACiphered]
+    H[RSACiphered + AesCiphered]
+
+    A --> D
+    A --> F
+    C --> F
+    B --> D
+    D --> G
+    E --> G
+    G --> H
+    F --> H
 ```
 
-#### Using different smart-contracts locally
+#### Deciphering process:
 
-You can override the smart-contracts addresses by defining following environment variables before
-starting the application:
+```mermaid
+graph TD
+C[JWT]
+D[AESKEY + IV Param]
+E[RSA Private Key]
+F[AesCiphered]
+G[RSACiphered]
+H[RSACiphered + AesCiphered]
 
-* `BUSINESS_DATA_SC`
-* `DIGITAL_PASSPORT_SC`
-
-### Stop the application
-
-```shell script
-tilt down
+    H --> G 
+    H --> F
+    E --> D 
+    G --> D
+    D --> C
+    F --> C
 ```
 
-The option `--no-volumes` can be used to keep the volumes.
+## Run your environment
 
-Note: you need to stop and restart the application to work on the initialization of keycloak.
+- [Install Docker](https://docs.docker.com/engine/install/#server):
+    - [x] Ensure your docker service is available for your current user:`docker ps`.
 
-### Access the application
+      If the service is not available, please refer
+      to [Docker post installation steps](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user)
+      .
 
-The application is available on `https://col.localhost`.
+      (!) Once you have added your user in the `docker` group, restarting your computer will ensure
+      your user to access to the docker service.
 
-Maildev is available on ``http://localhost:1080`.
+- Install your local kubernetes cluster:
+    - [Install clk k8s](https://github.com/click-project/clk_recipe_k8s).
+    - Close and open a new terminal.
+    - Execute the `clk k8s flow` command to create your cluster. It can take some minutes before
+      ending with the following message:
+      ```
+      Ended executing the flow dependencies, back to the command 'flow'
+      Everything worked well. Now enjoy your new cluster ready to go!
+      ```
+    - [x] Check that tilt has been installed by using `tilt version`: you should get a response
+      like `v0.22.7, built 2021-09-03`.
+    - [ ] Optionnaly you can setup [Lens](https://k8slens.dev/) to get additional information about
+      your deployed K8S cluster
+      ![Lens preview](doc/images/lens.png)
 
-### Debugging
+- [Install git](https://git-scm.com/downloads).
 
-#### Java API
+- Clone the Collaborate project
+  repository: `git clone https://gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate.git`
 
-* In your IDE configure a _remote JVM debug_ configuration, for an example in IntelliJ:
-    * Edit Configurations... / Remote JVM Debug
-    * Specify the command
-      line: `-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5001`
-    * OK
-    * Then, select the created run configuration and click on the Debug button
+- On Dev environements, [Tilt](https://docs.tilt.dev/) is used to simplify the containers
+  orcherstration: go to the Collaborate project folder and run the application using the `tilt up`
+  command, then press `space` key on your keyboard to
+  open [Tilt in your browser](http://localhost:10350/r/(all)/overview).
+- [x] Wait until all the Tilt resources get a green state. Warns (yellow state) could occurs but
+  errors (red state) should not.
+  _It will take time the first time to download all the project dependencies. You can stop the
+  application by using the `tilt down` command_
+  ![Tilt preview](doc/images/tilt.png)
 
-### Testing
+## Accessing and testing the Collaborate application
 
-#### Postman
+The application is available on `https://col.localhost`. You can also access to
+the [OpenAPI of your local instance](https://col.localhost/api/swagger-ui/index.html?configUrl=/api/api-docs/swagger-config)
 
-Postman collections contains some file data, configure your workspace:
+A [Postman](https://www.postman.com/) collection can be imported to test the
+API: [Collaborate.postman_collection.json](postman/Collaborate.postman_collection.json) . The most
+relevant requests are defined under `dApp/Collaborate API` and `dApp/Keycloak API`.
+_Other collection sub-folders are used during development to make developers able to interact with
+underlying components._
 
-* Open Postman
-* File > Settings > General
-    * Working directory > Location: _select ths postman directory of this repository_
+Import also
+the [col.localhost.postman_environment.json](postman/col.localhost.postman_environment.json)
+environment
 
-#### Newman
+#### JWT
 
-##### Setup
+The API entry-points are restricted to specific roles (
+cf. [Roles and permissions](https://xdevtechnologies.atlassian.net/wiki/spaces/DA/pages/513605692/GDPR+compliance#Roles-and-Permissions))
+and so a [JWT](https://jwt.io/) has to be used as a _Bearer Token_. You can get a token by calling
+the Security API: use the predefined Postman
+request `Collaborate/Keycloak API/Get Token - Sam - DSP Admin`. Postman will automatically keep the
+JWT and reuse it in further predefined requests.
+![Postman preview](doc/images/postman.png)
 
-`sudo npm install -g newman`
+## Troubleshooting
 
-##### Run
+### CLK K8S: ModuleNotFoundError: No module named 'distutils.cmd'
 
-Following command will execute the `"COL-148 As a DSP, I want to create a BasicAuth Datasource"`
-requests folder using the `col.localhost.postman_environment.json`environment:
-`newman run Collaborate.postman_collection.json -e col.localhost.postman_environment.json --folder "COL-148 As a DSP, I want to create a BasicAuth Datasource" --insecure`
+If you get the following error message while installing clk K8S:
 
-### Credentials
+```
+ModuleNotFoundError: No module named 'distutils.cmd'
+installing pip... done
+Traceback (most recent call last):
+  File "<string>", line 3, in <module>
+ModuleNotFoundError: No module named 'pip'
+Error: we could not install a suitable pip version...
+```
 
-#### Vault
-
-use token `myroot`
-
-#### RabbitMQ
-
-Credentials for the administration webUI can be found from Lens in the `col-tag-rabbitmq-0`
-environement variables: `RABBITMQ_USERNAME` and `RABBITMQ_PASSWORD`. For the dev environment: user
-is `user` and password is `e231219990650321231f`
+Then, execute the `apt-get install python3-distutils` command and execute
+again `curl -sSL https://clk-project.org/install.sh | env CLK_EXTENSIONS=k8s bash`

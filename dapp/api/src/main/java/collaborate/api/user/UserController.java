@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import java.util.concurrent.Callable;
 import javax.validation.Valid;
@@ -35,6 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @Slf4j
+@Tag(name = "user", description = "The User API. Used to get detailed information about user, or update user roles")
 @RequestMapping("/api/v1/users")
 public class UserController {
 
@@ -81,7 +83,7 @@ public class UserController {
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
   )
   @PreAuthorize(HasRoles.IDENTITY_ADMIN)
-  public UserDTO modifyUser(
+  public UserDTO updateUserRoles(
       @Parameter(description = "The id of the user to update") @PathVariable(value = "id") String userId,
       @Valid @RequestBody RolesDTO user
   ) {

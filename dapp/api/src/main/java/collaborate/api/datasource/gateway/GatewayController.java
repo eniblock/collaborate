@@ -1,7 +1,11 @@
 package collaborate.api.datasource.gateway;
 
+import collaborate.api.config.OpenApiConfig;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import com.fasterxml.jackson.databind.JsonNode;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +17,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Tag(name = "gateway", description =
+    "The data Gateway API. Used as a Facade to communicate with external data sources")
 @RestController
 @Slf4j
 @RequestMapping(GatewayController.API_V_1_GATEWAY)
@@ -24,17 +30,23 @@ public class GatewayController {
   private final GatewayUrlService gatewayService;
 
   @PreAuthorize(HasRoles.API_GATEWAY_READ)
+  @Operation(
+      description = "Get the given scope data for the given data source",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @GetMapping(value = "datasource/{datasourceId}/{scope}")
-  public ResponseEntity<JsonNode> consumeDatasource(
+  public ResponseEntity<JsonNode> getScopeByDatasourceId(
       @PathVariable @NotEmpty String datasourceId,
       @PathVariable @NotEmpty String scope
   ) {
-    return consumeDatasource(datasourceId, scope, null);
+    return getScopeByAssetIdAndDatasourceId(datasourceId, scope, null);
   }
 
   @PreAuthorize(HasRoles.API_GATEWAY_READ)
+  @Operation(
+      description = "Get the given scope data for the given assetId of the given data source",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @GetMapping(value = "datasource/{datasourceId}/{scope}/{assetId}")
-  public ResponseEntity<JsonNode> consumeDatasource(
+  public ResponseEntity<JsonNode> getScopeByAssetIdAndDatasourceId(
       @PathVariable @NotEmpty String datasourceId,
       @PathVariable @NotEmpty String scope,
       @PathVariable @NotEmpty String assetId
