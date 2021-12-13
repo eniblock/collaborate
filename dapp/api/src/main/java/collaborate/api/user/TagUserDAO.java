@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
+import collaborate.api.tag.model.user.TagUserListDTO;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.tag.model.user.UsersDTO;
 import feign.FeignException.FeignClientException;
@@ -38,14 +39,33 @@ class TagUserDAO {
   private String secureKeyName;
 
   @CachePut(value = USER)
-  public Optional<UserWalletDTO> create(String userEmail) {
+  public Optional<UserWalletDTO> createActiveUser(String userEmail) {
     UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)
         .userIdList(Set.of(cleanUserService.cleanUserId(userEmail)))
         .build();
     log.debug("[TAG] create({})", createUsersDTO);
     try {
-      ResponseEntity<List<UserWalletDTO>> createdUsers = tagUserClient.create(createUsersDTO);
+      ResponseEntity<List<UserWalletDTO>> createdUsers = tagUserClient.createActiveUser(createUsersDTO);
+      expectResponseStatusCode(createdUsers, CREATED);
+      return Optional.ofNullable(createdUsers.getBody())
+          .flatMap(body -> body.stream().findFirst());
+    } catch (FeignClientException exception) {
+      log.error("[TAG] create", exception);
+      throw new ResponseStatusException(
+          HttpStatus.BAD_GATEWAY,
+          format("Can't create TAG users, errors:{%s}", exception.getMessage()));
+    }
+  }
+
+  @CachePut(value = USER)
+  public Optional<UserWalletDTO> createUser(String userEmail) {
+    TagUserListDTO createUsersDTO = TagUserListDTO.builder()
+        .userIdList(Set.of(cleanUserService.cleanUserId(userEmail)))
+        .build();
+    log.debug("[TAG] create({})", createUsersDTO);
+    try {
+      ResponseEntity<List<UserWalletDTO>> createdUsers = tagUserClient.createUser(createUsersDTO);
       expectResponseStatusCode(createdUsers, CREATED);
       return Optional.ofNullable(createdUsers.getBody())
           .flatMap(body -> body.stream().findFirst());

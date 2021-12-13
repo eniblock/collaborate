@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.tag.model.user.TagUserListDTO;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.tag.model.user.UsersDTO;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -30,7 +31,7 @@ class TagUserDAOTest {
 
 
   @Test
-  void create_shouldDeserialize_withTagJsonResponse() throws JsonProcessingException {
+  void createActiveUser_shouldDeserialize_withTagJsonResponse() throws JsonProcessingException {
     // GIVEN
     var type = objectMapper.getTypeFactory()
         .constructCollectionType(List.class, UserWalletDTO.class);
@@ -38,12 +39,32 @@ class TagUserDAOTest {
     // WHEN
     List<UserWalletDTO> createResult = objectMapper
         .readValue(UserWalletFeature.tagUserJsonResponse, type);
-    when(tagUserClient.create(any())).thenReturn(
+    when(tagUserClient.createActiveUser(any())).thenReturn(
         new ResponseEntity<>(createResult, HttpStatus.CREATED));
-    var actualResult = tagUserDAO.create(userId);
+    var actualResult = tagUserDAO.createActiveUser(userId);
     // THEN
     // create should return expected type
-    tagUserClient.create(new UsersDTO());
+    tagUserClient.createActiveUser(new UsersDTO());
+    assertThat(actualResult)
+        .isPresent()
+        .contains(UserWalletFeature.userWallet);
+  }
+
+  @Test
+  void createUser_shouldDeserialize_withTagJsonResponse() throws JsonProcessingException {
+    // GIVEN
+    var type = objectMapper.getTypeFactory()
+        .constructCollectionType(List.class, UserWalletDTO.class);
+    String userId = "userId";
+    // WHEN
+    List<UserWalletDTO> createResult = objectMapper
+        .readValue(UserWalletFeature.tagUserJsonResponse, type);
+    when(tagUserClient.createUser(any())).thenReturn(
+        new ResponseEntity<>(createResult, HttpStatus.CREATED));
+    var actualResult = tagUserDAO.createUser(userId);
+    // THEN
+    // create should return expected type
+    tagUserClient.createUser(new TagUserListDTO());
     assertThat(actualResult)
         .isPresent()
         .contains(UserWalletFeature.userWallet);

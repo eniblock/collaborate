@@ -34,7 +34,6 @@ public class SaveAuthenticationVisitor implements AuthenticationVisitor<Void> {
   }
 
   private void upsertMetadata(String datasourceId, VaultMetadata vaultMetadata) {
-    userService.createUser(datasourceId);
     userMetadataService.upsertMetadata(datasourceId, vaultMetadata);
   }
 
