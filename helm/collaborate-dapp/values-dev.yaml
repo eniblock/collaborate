@@ -25,6 +25,10 @@ api:
 keycloak:
   assetOwnerIdentityProviderConfigClientSecret: "860faf20430956489e72b101ad8ca95ba62dff46"
   extraEnvVars:
+    - name: KEYCLOAK_LOGLEVEL
+      value: "DEBUG"
+      - name: WILDFLY_LOGLEVEL
+      value: "DEBUG"
     - name: REALM
       value: "collaborate-dapp"
     - name: ROLE_ATTRIBUTE_KEY

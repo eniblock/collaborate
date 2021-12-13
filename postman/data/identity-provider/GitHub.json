@@ -1,0 +1,13 @@
+[
+  {
+    "alias": "githubXXXss",
+    "displayName": "Lssogin with GitHub WX",
+    "enabled": true,
+    "config": {
+      "syncMode": "IMPORT",
+      "clientSecret": "66b2321d14e19a21888f4e823839ed3245af54df",
+      "clientId": "36a3c7aea0033bb8a539",
+      "useJwksUrl": "true"
+    }
+  }
+]
