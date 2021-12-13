@@ -35,6 +35,11 @@ transfer_params_type = sp.TList(transfer_type)
 
 batch_mint_params_type = sp.TRecord(
     metadata_links = sp.TList(sp.TBytes),
+    address = sp.TAddress
+    )
+
+fa2_batch_mint_params_type = sp.TRecord(
+    metadata_links = sp.TList(sp.TBytes),
     first_token_id = sp.TNat,
     address = sp.TAddress
     )
@@ -42,6 +47,12 @@ batch_mint_params_type = sp.TRecord(
 token_metadata_type = sp.TMap(sp.TString, sp.TBytes)
 
 mint_params_type = sp.TRecord(
+    amount = sp.TNat,
+    address = sp.TAddress,
+    metadata = token_metadata_type
+    )
+
+fa2_mint_params_type = sp.TRecord(
     token_id = sp.TNat,
     amount = sp.TNat,
     address = sp.TAddress,
@@ -49,13 +60,13 @@ mint_params_type = sp.TRecord(
     )
 
 fa2_params_types = {
-    "mint": mint_params_type,
+    "mint": fa2_mint_params_type,
     "update_operators": update_operators_params_type,
     "transfer": transfer_params_type,
     "set_pause": sp.TBool,
     "set_metadata": contract_metadata_type,
     "set_administrator": sp.TAddress,
-    "batch_mint": batch_mint_params_type
+    "batch_mint": fa2_batch_mint_params_type
     }
 
 ################## Proxy types ##################
@@ -113,8 +124,9 @@ multisig_build_params_type = sp.TRecord(
 
 
 class ProxyTokenController(sp.Contract):
-    def __init__(self, groups, multisig_templates, rules):
+    def __init__(self, groups, multisig_templates, rules, token_id):
         self.init(
+            token_id = token_id,
             multisigs = sp.big_map(),
             multisig_nb = 0,
             groups = sp.map(
@@ -204,17 +216,24 @@ class ProxyTokenController(sp.Contract):
         with params.parameters.match_cases() as arg:
             with arg.match("mint") as parameters:
                 sp.verify(params.entry_point == "mint", err_msg)
-                self._execute_call("mint", parameters.mint_params, params.target_address)
+                mint_params = sp.record(
+                    token_id = self.data.token_id,
+                    amount = parameters.mint_params.amount,
+                    metadata = parameters.mint_params.metadata,
+                    address = parameters.mint_params.address
+                )
+                self._execute_call("mint", mint_params, params.target_address)
                 sp.if parameters.operator.is_some():
                     # add operator along with the mint
                     add_op_parameters = [
                         sp.variant("add_operator", sp.record(
                             owner = parameters.mint_params.address,
                             operator = parameters.operator.open_some("OperatorParamNotFound"),
-                            token_id = parameters.mint_params.token_id
+                            token_id = self.data.token_id
                         ))
                     ]
                     self._execute_call("update_operators", add_op_parameters, params.target_address)
+                self.data.token_id += 1
             with arg.match("transfer") as parameters:
                 sp.verify(params.entry_point == "transfer", err_msg)
                 self._execute_call("transfer", parameters, params.target_address)
@@ -232,19 +251,24 @@ class ProxyTokenController(sp.Contract):
                 self._execute_call("set_administrator", parameters, params.target_address)
             with arg.match("batch_mint") as parameters:
                 sp.verify(params.entry_point == "batch_mint", err_msg)
-                self._execute_call("batch_mint", parameters.batch_mint_params, params.target_address)
+                batch_mint_params = sp.record(
+                    first_token_id = self.data.token_id,
+                    metadata_links = parameters.batch_mint_params.metadata_links,
+                    address = parameters.batch_mint_params.address
+                )
+                self._execute_call("batch_mint", batch_mint_params, params.target_address)
+                batch_length = sp.len(parameters.batch_mint_params.metadata_links)
                 # add operator along with the batch_mint
                 sp.if parameters.operator.is_some():
                     add_op_parameters = sp.local('add_op_parameters', sp.list([]))
-                    batch_length = sp.len(parameters.batch_mint_params.metadata_links)
-                    token_id_0 = parameters.batch_mint_params.first_token_id
-                    sp.for token_id in sp.range(token_id_0, token_id_0 + batch_length, step = 1):
+                    sp.for token_id in sp.range(self.data.token_id, self.data.token_id + batch_length, step = 1):
                         add_op_parameters.value.push(sp.variant("add_operator", sp.record(
                             owner = parameters.batch_mint_params.address,
                             operator = parameters.operator.open_some("OperatorParamNotFound"),
                             token_id = token_id
                         )))
                     self._execute_call("update_operators", add_op_parameters.value, params.target_address)
+                self.data.token_id += batch_length
             with arg.match("update_groups") as parameters:
                 sp.verify(params.entry_point == "update_groups", err_msg)
                 self.update_groups(parameters)
@@ -324,22 +348,22 @@ def test():
 
     scenario = sp.test_scenario()
 
-    super_fa2_admin1 = sp.address("tz1LzyfRfEhcWsP3x7dkAKeggpDgHgs7Xv8Q")
-    super_fa2_admin2 = sp.address("tz1Qgh4hXNgDUght6bC7qu5Q197j67UPt5He")
+    super_fa2_admin1 = sp.address("tz1W5ubDUJwpd9Gb94V2YKnZBHggAMMxtbBd")
+    super_fa2_admin2 = sp.address("tz1ZYKdGfkTHvcqyH5v9W9Sqjm25bdJ4A8yx")
 
-    super_minter1 = sp.address("tz1SwD4gbWatr6ijuH2gckXYLUd3EV8eYyjg")
-    super_minter2 = sp.address("tz1XjzjLQzUwzgf6nG7SSqQ9kM7QHzpUaiMj")
+    super_minter1 = sp.address("tz1hb8qHAQfYhDtpr8NH5GPqMbRBwd3C4Fef")
+    super_minter2 = sp.address("tz1ZRraEmkupRpEhwaJwb58nysXTScXcvGYe")
 
-    minter1 = sp.address("tz1V3vb6JJcpwTHyXeVsQaPLXNnuRvtgDYRy")
-    minter2 = sp.address("tz1YUPYrChSxZYxyJJX1r5aX3gKSjAz1Uo2U")
+    minter1 = sp.address("tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ")
+    minter2 = sp.address("tz1eUi8B7G37jQAZgUMf39cECMKmn2e9zDxb")
 
-    alice = sp.address("tz1YnohXtPBuGi63szJn5ERKdaWY6xeZx3R4")
+    alice = sp.address("tz1TjFwiHUo13xxcrAW1a2pG8iXk2Goj5HRC")
 
-    batch_minter = sp.address("tz1Z5CDrdmRYC8XBAiHAKwVSenV7XbeSk2bo")
+    batch_minter = sp.address("tz1YWy3UMApD4D9YkjjHFrMn9ufatUf3kb89")
 
-    proxy_admin = sp.address("tz1XxrCBL7RyKFKMMvMG5CHmbc1ubVr7ehHm")
+    proxy_admin = sp.address("tz1g7KBruSWP7JERBRhKgJzezPqs4ZBDkR5B")
 
-    multisig_builder = sp.address("tz1ZAwL17erX4q7uQy1FVWgkZH9A7AdehYpd")
+    multisig_builder = sp.address("tz1dAbb66qRJndGMD4KKDxzBebQursit5pfT")
 
     target = sp.address("KT1aDD7H3WgbFgd7YeMn8UbqQeMXJ96kxvD5")
 
@@ -429,7 +453,8 @@ def test():
     c0 = ProxyTokenController(
         groups,
         multisig_templates,
-        rules
+        rules,
+        0
         )
     scenario += c0
 
@@ -443,7 +468,6 @@ def test():
             entry_point = "mint",
             parameters = sp.variant("mint", sp.record(
                 mint_params = sp.record(
-                    token_id = 0,
                     amount = 1,
                     metadata = {"": sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")},
                     address = alice
@@ -465,7 +489,6 @@ def test():
             entry_point = "batch_mint",
             parameters = sp.variant("batch_mint", sp.record(
                 batch_mint_params = sp.record(
-                    first_token_id = 1,
                     metadata_links = [
                         sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
                         sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
@@ -487,7 +510,6 @@ def test():
             entry_point = "batch_mint",
             parameters = sp.variant("batch_mint", sp.record(
                 batch_mint_params = sp.record(
-                    first_token_id = 1,
                     metadata_links = [
                         sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
                         sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
