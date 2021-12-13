@@ -16,7 +16,6 @@ import lombok.NoArgsConstructor;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class MultisigBuildCallParamMintDetailsMintParams {
 
-  private long tokenId;
   private long amount;
   private String address;
   private List<MultisigMetadata> metadata;

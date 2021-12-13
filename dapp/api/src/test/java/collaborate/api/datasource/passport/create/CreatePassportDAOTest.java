@@ -10,6 +10,7 @@ import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.user.UserWalletDTO;
+import collaborate.api.user.UserService;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -26,6 +27,10 @@ class CreatePassportDAOTest {
   private TransactionBatchFactory transactionBatchFactory;
   @Mock
   private ApiProperties apiProperties;
+  @Mock
+  private TezosApiGatewayPassportCreationClient tezosApiGatewayPassportCreationClient;
+  @Mock
+  private UserService userService;
 
   @InjectMocks
   CreatePassportDAO createPassportDAO;
@@ -38,13 +43,18 @@ class CreatePassportDAOTest {
     when(apiProperties.getDigitalPassportContractAddress())
         .thenReturn("KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t");
     when(tezosApiGatewayJobClient.sendTransactionBatch(any(), eq(false))).thenReturn(mockedJob);
+    when(tezosApiGatewayPassportCreationClient.getMultisigNb(any(), any())).thenReturn(
+        MultisigNbResponseDTO.builder().multisigNb(1).build()
+    );
+    when(userService.getAdminUser()).thenReturn(
+        UserWalletDTO.builder().address("tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv").build()
+    );
     CreateMultisigPassportDTO passportFromFrontend = initPassport();
     UserWalletDTO userWalletDTO = initWallet();
     //WHEN
     Job actual = createPassportDAO.create(
         "ipfs://my_uri",
-        userWalletDTO.getAddress(),
-        passportFromFrontend.getAssetId());
+        userWalletDTO.getAddress());
     //THEN
     assertThat(actual.getId()).isEqualTo(mockedJob.getId());
     assertThat(actual.getStatus()).isEqualTo(mockedJob.getStatus());

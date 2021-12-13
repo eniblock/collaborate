@@ -33,13 +33,16 @@ public class Job {
   @Schema(description = "The execution status of this job", example = "created")
   private Status status;
   // TODO: openapi description
-  @JsonProperty("raw_transaction")
-  private String rawTransaction;
+  @JsonProperty("forged_operation")
+  private String forgedOperation;
   // TODO: openapi description
   @JsonProperty("operation_hash")
   private String operationHash;
   // TODO: openapi description
   @JsonProperty("error_message")
   private String errorMessage;
+  // TODO: openapi description
+  @JsonProperty("operation_kind")
+  private String operationKind;
 
 }
