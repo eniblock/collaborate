@@ -35,6 +35,11 @@ transfer_params_type = sp.TList(transfer_type)
 
 batch_mint_params_type = sp.TRecord(
     metadata_links = sp.TList(sp.TBytes),
+    address = sp.TAddress
+    )
+
+fa2_batch_mint_params_type = sp.TRecord(
+    metadata_links = sp.TList(sp.TBytes),
     first_token_id = sp.TNat,
     address = sp.TAddress
     )
@@ -42,6 +47,12 @@ batch_mint_params_type = sp.TRecord(
 token_metadata_type = sp.TMap(sp.TString, sp.TBytes)
 
 mint_params_type = sp.TRecord(
+    amount = sp.TNat,
+    address = sp.TAddress,
+    metadata = token_metadata_type
+    )
+
+fa2_mint_params_type = sp.TRecord(
     token_id = sp.TNat,
     amount = sp.TNat,
     address = sp.TAddress,
@@ -49,13 +60,13 @@ mint_params_type = sp.TRecord(
     )
 
 fa2_params_types = {
-    "mint": mint_params_type,
+    "mint": fa2_mint_params_type,
     "update_operators": update_operators_params_type,
     "transfer": transfer_params_type,
     "set_pause": sp.TBool,
     "set_metadata": contract_metadata_type,
     "set_administrator": sp.TAddress,
-    "batch_mint": batch_mint_params_type
+    "batch_mint": fa2_batch_mint_params_type
     }
 
 ################## Proxy types ##################
@@ -113,8 +124,9 @@ multisig_build_params_type = sp.TRecord(
 
 
 class ProxyTokenController(sp.Contract):
-    def __init__(self, groups, multisig_templates, rules):
+    def __init__(self, groups, multisig_templates, rules, token_id):
         self.init(
+            token_id = token_id,
             multisigs = sp.big_map(),
             multisig_nb = 0,
             groups = sp.map(
@@ -204,17 +216,24 @@ class ProxyTokenController(sp.Contract):
         with params.parameters.match_cases() as arg:
             with arg.match("mint") as parameters:
                 sp.verify(params.entry_point == "mint", err_msg)
-                self._execute_call("mint", parameters.mint_params, params.target_address)
+                mint_params = sp.record(
+                    token_id = self.data.token_id,
+                    amount = parameters.mint_params.amount,
+                    metadata = parameters.mint_params.metadata,
+                    address = parameters.mint_params.address
+                )
+                self._execute_call("mint", mint_params, params.target_address)
                 sp.if parameters.operator.is_some():
                     # add operator along with the mint
                     add_op_parameters = [
                         sp.variant("add_operator", sp.record(
                             owner = parameters.mint_params.address,
                             operator = parameters.operator.open_some("OperatorParamNotFound"),
-                            token_id = parameters.mint_params.token_id
+                            token_id = self.data.token_id
                         ))
                     ]
                     self._execute_call("update_operators", add_op_parameters, params.target_address)
+                self.data.token_id += 1
             with arg.match("transfer") as parameters:
                 sp.verify(params.entry_point == "transfer", err_msg)
                 self._execute_call("transfer", parameters, params.target_address)
@@ -232,19 +251,24 @@ class ProxyTokenController(sp.Contract):
                 self._execute_call("set_administrator", parameters, params.target_address)
             with arg.match("batch_mint") as parameters:
                 sp.verify(params.entry_point == "batch_mint", err_msg)
-                self._execute_call("batch_mint", parameters.batch_mint_params, params.target_address)
+                batch_mint_params = sp.record(
+                    first_token_id = self.data.token_id,
+                    metadata_links = parameters.batch_mint_params.metadata_links,
+                    address = parameters.batch_mint_params.address
+                )
+                self._execute_call("batch_mint", batch_mint_params, params.target_address)
+                batch_length = sp.len(parameters.batch_mint_params.metadata_links)
                 # add operator along with the batch_mint
                 sp.if parameters.operator.is_some():
                     add_op_parameters = sp.local('add_op_parameters', sp.list([]))
-                    batch_length = sp.len(parameters.batch_mint_params.metadata_links)
-                    token_id_0 = parameters.batch_mint_params.first_token_id
-                    sp.for token_id in sp.range(token_id_0, token_id_0 + batch_length, step = 1):
+                    sp.for token_id in sp.range(self.data.token_id, self.data.token_id + batch_length, step = 1):
                         add_op_parameters.value.push(sp.variant("add_operator", sp.record(
                             owner = parameters.batch_mint_params.address,
                             operator = parameters.operator.open_some("OperatorParamNotFound"),
                             token_id = token_id
                         )))
                     self._execute_call("update_operators", add_op_parameters.value, params.target_address)
+                self.data.token_id += batch_length
             with arg.match("update_groups") as parameters:
                 sp.verify(params.entry_point == "update_groups", err_msg)
                 self.update_groups(parameters)
@@ -325,14 +349,12 @@ def test():
     scenario = sp.test_scenario()
 
     minters = sp.set([
-        sp.address('tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV'),
-        sp.address('tz1MPQBaR1r4hKveeCnNYPExnme5KBpbkWUP')
+        sp.address('tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv')
     ])
 
     consortium = sp.set([
-        sp.address('tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV'),
-        sp.address('tz1MPQBaR1r4hKveeCnNYPExnme5KBpbkWUP'),
-        sp.address('tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG')
+        sp.address('tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv'),
+        sp.address('tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2')
     ])
 
     scenario.show({"minters" : minters})
@@ -407,6 +429,7 @@ def test():
     c0 = ProxyTokenController(
         groups,
         multisig_templates,
-        rules
+        rules,
+        0
         )
     scenario += c0

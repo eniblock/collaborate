@@ -3,10 +3,16 @@ package collaborate.api.datasource.passport.create;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
+import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.proxytokencontroller.MultisigBuildCallParamMint;
 import collaborate.api.tag.model.proxytokencontroller.MultisigBuildParam;
+import collaborate.api.tag.model.proxytokencontroller.MultisigMetadata;
+import collaborate.api.tag.model.proxytokencontroller.dto.MultisigBuildCallParamMintDetails;
+import collaborate.api.tag.model.proxytokencontroller.dto.MultisigBuildCallParamMintDetailsMint;
+import collaborate.api.tag.model.proxytokencontroller.dto.MultisigBuildCallParamMintDetailsMintParams;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
+import collaborate.api.user.UserService;
 import feign.FeignException;
 import java.util.List;
 import java.util.Optional;
@@ -25,6 +31,7 @@ class CreatePassportDAO {
   private final TransactionBatchFactory transactionBatchFactory;
   private final ApiProperties apiProperties;
   private final TezosApiGatewayPassportCreationClient tezosApiGatewayPassportCreationClient;
+  private final UserService userService;
 
   private static final String CREATION_ENTRY_POINT = "build";
 
@@ -34,13 +41,9 @@ class CreatePassportDAO {
         new DataFieldsRequest<>(List.of("multisig_nb"))
     );
 
-    if (2 == 1 + 1) {
-      return null;
-    }
-
     var transactions = transactionBatchFactory.createEntryPointJob(
         CREATION_ENTRY_POINT,
-        buildCreateEntryPointParam(metadataUri, vehicleOwnerAddress),
+        buildCreateEntryPointParam(metadataUri, vehicleOwnerAddress, multisigId.getMultisigNb()),
         Optional.empty(),
         apiProperties.getDigitalPassportProxyTokenControllerContractAddress()
     );
@@ -59,17 +62,38 @@ class CreatePassportDAO {
     return job;
   }
 
-  private MultisigBuildParam<MultisigBuildCallParamMint> buildCreateEntryPointParam(
-      String metadataUri, String vehicleOwnerAddress) {
+  private MultisigBuildParam buildCreateEntryPointParam(
+      String metadataUri, String vehicleOwnerAddress, long multisigId) {
 
-    return null;
-
-    /*MultisigBuildParam.builder()
-        .buildAndSign(true)
-        .multisigId(-1)
-
-
-     */
+    return MultisigBuildParam.builder()
+        .buildAndSign("True")
+        .multisigId(multisigId)
+        .signers(List.of(vehicleOwnerAddress))
+        .callParams(
+            MultisigBuildCallParamMint.builder()
+                .targetAddress(apiProperties.getDigitalPassportContractAddress())
+                .parameters(
+                    MultisigBuildCallParamMintDetails.builder()
+                        .mint(
+                            MultisigBuildCallParamMintDetailsMint.builder()
+                                .operator(userService.getAdminUser().getAddress())
+                                .mintParams(
+                                    MultisigBuildCallParamMintDetailsMintParams.builder()
+                                        .amount(1)
+                                        .address(vehicleOwnerAddress)
+                                        .metadata(List.of(MultisigMetadata.builder()
+                                            .key("")
+                                            .value(new Bytes(metadataUri))
+                                            .build()))
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+        )
+        .build();
   }
 
 }

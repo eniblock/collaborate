@@ -1,5 +1,6 @@
 package collaborate.api.tag.model.proxytokencontroller;
 
+import collaborate.api.tag.model.Bytes;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,6 @@ public class MultisigMetadata {
 
   private String key;
 
-  private String value;
+  private Bytes value;
 
 }
