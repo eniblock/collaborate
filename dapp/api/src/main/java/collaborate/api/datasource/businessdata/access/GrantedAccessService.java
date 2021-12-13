@@ -51,9 +51,7 @@ public class GrantedAccessService {
   private void storeJWT(AccessRequest accessRequest, String decipheredJWT) {
     var scope = accessRequest.getScopes().stream().findFirst()
         .orElseThrow(() -> new IllegalStateException("No scope in accessRequest" + accessRequest));
-    var user = userService.createUser(scope);
-
-    userMetadataService.upsertMetadata(user.getUserId(),
+    userMetadataService.upsertMetadata(scope,
         VaultMetadata.builder().jwt(decipheredJWT).build());
   }
 
