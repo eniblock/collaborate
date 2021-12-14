@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class MultisigBuildParam <E extends MultisigBuildCallParam> {
 
-  private String buildAndSign;
+  private boolean buildAndSign;
 
   private E callParams;
 

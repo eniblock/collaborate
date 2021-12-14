@@ -66,7 +66,7 @@ class CreatePassportDAO {
       String metadataUri, String vehicleOwnerAddress, long multisigId) {
 
     return MultisigBuildParam.builder()
-        .buildAndSign("True")
+        .buildAndSign(true)
         .multisigId(multisigId)
         .signers(List.of(vehicleOwnerAddress))
         .callParams(
