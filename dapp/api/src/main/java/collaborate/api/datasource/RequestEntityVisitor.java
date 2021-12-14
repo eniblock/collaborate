@@ -27,7 +27,6 @@ public class RequestEntityVisitor implements
 
   @Nullable
   private final String authenticationScope;
-  @NonNull
   private final AccessTokenProvider accessTokenProvider;
   private final HttpClientFactory httpClientFactory;
   private final RequestEntityBuilder<?> requestEntityBuilder;

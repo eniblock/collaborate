@@ -20,7 +20,7 @@ public class CreateFeatures {
 
   public static final MultisigBuildParam initPassportCreationEntryPointParam =
       MultisigBuildParam.builder()
-          .buildAndSign("True")
+          .buildAndSign(true)
           .multisigId(30)
           .signers(List.of("tz1U5jsPDiRPDM1wWqrWXQW3zkaGrbpskJVc"))
           .callParams(

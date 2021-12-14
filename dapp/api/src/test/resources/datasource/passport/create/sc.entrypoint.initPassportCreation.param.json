@@ -1,5 +1,5 @@
 {
-  "build_and_sign":"True",
+  "build_and_sign":true,
   "call_params": {
     "target_address":"KT1Wss6SAnRzcKPmx1Ffq3YJNcjvt8f1Wi2s",
     "parameters": {
