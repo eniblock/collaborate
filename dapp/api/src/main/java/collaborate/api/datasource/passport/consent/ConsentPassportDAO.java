@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 class ConsentPassportDAO {
 
-  private static final String CONSENT_ENTRY_POINT = "passport_consent";
+  private static final String CONSENT_ENTRY_POINT = "sign";
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
   private final ApiProperties apiProperties;
@@ -24,7 +24,7 @@ class ConsentPassportDAO {
         CONSENT_ENTRY_POINT,
         consentPassportDTO.getContractId(),
         Optional.of(consentPassportDTO.getVehicleOwnerUserWallet().getUserId()),
-        apiProperties.getDigitalPassportContractAddress()
+        apiProperties.getDigitalPassportProxyTokenControllerContractAddress()
     );
     return tezosApiGatewayJobClient.sendTransactionBatch(transactions, false);
   }
