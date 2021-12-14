@@ -2,7 +2,7 @@
   "transactions": [
     {
       "contractAddress": "KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t",
-      "entryPoint": "passport_consent",
+      "entryPoint": "sign",
       "entryPointParams": 21
     }
   ],
