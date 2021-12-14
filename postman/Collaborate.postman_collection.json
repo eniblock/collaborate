@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b37b1852-1c7e-4bc3-9189-5f08bca962c6",
+		"_postman_id": "3defa13d-5386-44cd-b09d-f0a07e2e2285",
 		"name": "Collaborate",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -203,6 +203,222 @@
 												"protocol",
 												"openid-connect",
 												"token"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "identity Provider Creation",
+							"item": [
+								{
+									"name": "Get Token - Eric - IDP Admin",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.environment.set(\"dAppToken\", response.access_token);",
+													"pm.environment.set(\"refreshToken\", response.refresh_token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "grant_type",
+													"value": "password",
+													"type": "text"
+												},
+												{
+													"key": "username",
+													"value": "{{dapp-identity-admin-user}}",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "{{dapp-identity-admin-password}}",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "{{dAppKeycloakFrontendClientId}}",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add identity Provider",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"alias\": \"github\",\n    \"displayName\": \"Login with GitHub\",\n    \"providerId\": \"github\",\n    \"enabled\": true,\n    \"updateProfileFirstLoginMode\": \"on\",\n    \"trustEmail\": true,\n    \"storeToken\": false,\n    \"addReadTokenRoleOnCreate\": false,\n    \"authenticateByDefault\": false,\n    \"linkOnly\": false,\n    \"firstBrokerLoginFlowAlias\": \"first broker login\",\n    \"config\": {\n        \"syncMode\": \"IMPORT\",\n        \"clientSecret\": \"66b2321d14e19a21888f4e823839ed3245af54df\",\n        \"clientId\": \"36a3c7aea0033bb8a539\",\n        \"guiOrder\": \"0\",\n        \"useJwksUrl\": \"true\"\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/identity-provider/instances",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"identity-provider",
+												"instances"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add identity Provider Mapper - pendingAssetOwner Role",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{dAppToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"name\": \"pending_asset_owner hardcoded role\",\n    \"identityProviderAlias\": \"github\",\n    \"identityProviderMapper\": \"oidc-hardcoded-role-idp-mapper\",\n    \"config\": {\n        \"syncMode\": \"IMPORT\",\n        \"role\": \"pending_asset_owner\"\n    }\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/identity-provider/instances/github/mappers",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"identity-provider",
+												"instances",
+												"github",
+												"mappers"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get IDP List",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{dAppToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/identity-provider/instances/",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"identity-provider",
+												"instances",
+												""
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Identity Provider Mappers",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{dAppToken}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/identity-provider/instances/github/mappers",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"identity-provider",
+												"instances",
+												"github",
+												"mappers"
 											]
 										}
 									},
