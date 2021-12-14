@@ -44,9 +44,6 @@ public class DigitalPassportController {
   private final FindPassportService findPassportService;
   private final MetricService metricService;
 
-  /*
-    TODO !!!!!!!!!!!!!!!
-   */
   @PostMapping("/multisig/{contract-id}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
