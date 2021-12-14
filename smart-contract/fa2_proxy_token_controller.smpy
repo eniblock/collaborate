@@ -105,7 +105,7 @@ multisig_build_params_type = sp.TRecord(
     signers = sp.TList(sp.TAddress),
     build_and_sign = sp.TBool,
     call_params = sp.TRecord(
-        target_address = sp.TAddress,
+        target_address = sp.TOption(sp.TAddress),
         entry_point = sp.TString,
         parameters = sp.TVariant(
             mint = sp.TRecord(mint_params = mint_params_type, operator = sp.TOption(sp.TAddress)),
@@ -150,13 +150,13 @@ class ProxyTokenController(sp.Contract):
     @sp.entry_point
     def build(self, params):
         sp.set_type(params, multisig_build_params_type)
-        sp.verify(self.data.multisig_nb == params.multisig_id, "InvalidMultisigId")
+        sp.verify(self.data.multisig_nb == params.multisig_id, "INVALID_MULTISIG_ID")
         self.data.multisig_nb += 1
-        sp.verify(self.data.rules.contains(params.call_params.entry_point), "NoRuleForThisEntrypoint")
+        sp.verify(self.data.rules.contains(params.call_params.entry_point), "NO_RULE_FOR_THIS_ENTRYPOINT")
         rule = self.data.rules[params.call_params.entry_point]
         self._is_builder(sp.sender, rule.authorized_builders)
 
-        sp.verify(self.data.multisig_templates.contains(rule.template_id), "UnknownTemplate")
+        sp.verify(self.data.multisig_templates.contains(rule.template_id), "UNKNOWN_TEMPLATE")
         rule_template = self.data.multisig_templates[rule.template_id]
 
         participants = sp.local('participants', sp.list([]))
@@ -201,7 +201,7 @@ class ProxyTokenController(sp.Contract):
         sp.for group in contract.groups:
             sp.for participant in group.participants:
                 sp.if participant.id == id:
-                    sp.verify(~ participant.hasVoted, "ParticipantAlreadyVoted")
+                    sp.verify(~participant.hasVoted, "PARTICIPANT_ALREADY_VOTED")
                     participant.hasVoted = True
                     group.votes += 1
                     sp.if ~group.ok & (group.group_threshold <= group.votes):
@@ -212,51 +212,52 @@ class ProxyTokenController(sp.Contract):
                             self.onOK(contract.call_params)
 
     def onOK(self, params):
-        err_msg = "ParametersAndEntrypointAreNotCompatible"
+        entrypoint_error = "PARAMETERS_AND_ENTRYPOINT_ARE_NOT_COMPATIBLE"
+        target_address_error = "TARGET_ADDRESS_CANNOT_BE_NONE"
         with params.parameters.match_cases() as arg:
             with arg.match("mint") as parameters:
-                sp.verify(params.entry_point == "mint", err_msg)
+                sp.verify(params.entry_point == "mint", entrypoint_error)
                 mint_params = sp.record(
                     token_id = self.data.token_id,
                     amount = parameters.mint_params.amount,
                     metadata = parameters.mint_params.metadata,
                     address = parameters.mint_params.address
                 )
-                self._execute_call("mint", mint_params, params.target_address)
+                self._execute_call("mint", mint_params, params.target_address.open_some(target_address_error))
                 sp.if parameters.operator.is_some():
                     # add operator along with the mint
                     add_op_parameters = [
                         sp.variant("add_operator", sp.record(
                             owner = parameters.mint_params.address,
-                            operator = parameters.operator.open_some("OperatorParamNotFound"),
+                            operator = parameters.operator.open_some("OPERATOR_PARAM_NOT_FOUND"),
                             token_id = self.data.token_id
                         ))
                     ]
-                    self._execute_call("update_operators", add_op_parameters, params.target_address)
+                    self._execute_call("update_operators", add_op_parameters, params.target_address.open_some(target_address_error))
                 self.data.token_id += 1
             with arg.match("transfer") as parameters:
-                sp.verify(params.entry_point == "transfer", err_msg)
-                self._execute_call("transfer", parameters, params.target_address)
+                sp.verify(params.entry_point == "transfer", entrypoint_error)
+                self._execute_call("transfer", parameters, params.target_address.open_some(target_address_error))
             with arg.match("update_operators") as parameters:
-                sp.verify(params.entry_point == "update_operators", err_msg)
-                self._execute_call("update_operators", parameters, params.target_address)
+                sp.verify(params.entry_point == "update_operators", entrypoint_error)
+                self._execute_call("update_operators", parameters, params.target_address.open_some(target_address_error))
             with arg.match("set_pause") as parameters:
-                sp.verify(params.entry_point == "set_pause", err_msg)
-                self._execute_call("set_pause", parameters, params.target_address)
+                sp.verify(params.entry_point == "set_pause", entrypoint_error)
+                self._execute_call("set_pause", parameters, params.target_address.open_some(target_address_error))
             with arg.match("set_metadata") as parameters:
-                sp.verify(params.entry_point == "set_metadata", err_msg)
-                self._execute_call("set_metadata", parameters, params.target_address)
+                sp.verify(params.entry_point == "set_metadata", entrypoint_error)
+                self._execute_call("set_metadata", parameters, params.target_address.open_some(target_address_error))
             with arg.match("set_administrator") as parameters:
-                sp.verify(params.entry_point == "set_administrator", err_msg)
-                self._execute_call("set_administrator", parameters, params.target_address)
+                sp.verify(params.entry_point == "set_administrator", entrypoint_error)
+                self._execute_call("set_administrator", parameters, params.target_address.open_some(target_address_error))
             with arg.match("batch_mint") as parameters:
-                sp.verify(params.entry_point == "batch_mint", err_msg)
+                sp.verify(params.entry_point == "batch_mint", entrypoint_error)
                 batch_mint_params = sp.record(
                     first_token_id = self.data.token_id,
                     metadata_links = parameters.batch_mint_params.metadata_links,
                     address = parameters.batch_mint_params.address
                 )
-                self._execute_call("batch_mint", batch_mint_params, params.target_address)
+                self._execute_call("batch_mint", batch_mint_params, params.target_address.open_some(target_address_error))
                 batch_length = sp.len(parameters.batch_mint_params.metadata_links)
                 # add operator along with the batch_mint
                 sp.if parameters.operator.is_some():
@@ -264,19 +265,19 @@ class ProxyTokenController(sp.Contract):
                     sp.for token_id in sp.range(self.data.token_id, self.data.token_id + batch_length, step = 1):
                         add_op_parameters.value.push(sp.variant("add_operator", sp.record(
                             owner = parameters.batch_mint_params.address,
-                            operator = parameters.operator.open_some("OperatorParamNotFound"),
+                            operator = parameters.operator.open_some("OPERATOR_PARAM_NOT_FOUND"),
                             token_id = token_id
                         )))
-                    self._execute_call("update_operators", add_op_parameters.value, params.target_address)
+                    self._execute_call("update_operators", add_op_parameters.value, params.target_address.open_some(target_address_error))
                 self.data.token_id += batch_length
             with arg.match("update_groups") as parameters:
-                sp.verify(params.entry_point == "update_groups", err_msg)
+                sp.verify(params.entry_point == "update_groups", entrypoint_error)
                 self.update_groups(parameters)
             with arg.match("update_templates") as parameters:
-                sp.verify(params.entry_point == "update_templates", err_msg)
+                sp.verify(params.entry_point == "update_templates", entrypoint_error)
                 self.update_templates(parameters)
             with arg.match("update_rules") as parameters:
-                sp.verify(params.entry_point == "update_rules", err_msg)
+                sp.verify(params.entry_point == "update_rules", entrypoint_error)
                 self.update_rules(parameters)
 
     def _execute_call(self, entrypoint, parameters, target_address):
@@ -335,11 +336,11 @@ class ProxyTokenController(sp.Contract):
         sp.if sp.len(authorized_builders) != 0:
             authorized = sp.local('authorized', False)
             sp.for group in authorized_builders.elements():
-                sp.verify(self.data.groups.contains(group), "UnknownGroup")
+                sp.verify(self.data.groups.contains(group), "UNKNOWN_GROUP")
                 sp.for adr in self.data.groups[group].elements():
                     sp.if sender == adr:
                         authorized.value = True
-            sp.verify(authorized.value, "NotAuthorizedBuilder")
+            sp.verify(authorized.value, "NOT_AUTHORIZED_BUILDER")
 
 
 # Tests
@@ -464,7 +465,7 @@ def test():
         multisig_id = 0,
         signers = [alice], # Owner
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.some(target),
             entry_point = "mint",
             parameters = sp.variant("mint", sp.record(
                 mint_params = sp.record(
@@ -485,7 +486,7 @@ def test():
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.some(target),
             entry_point = "batch_mint",
             parameters = sp.variant("batch_mint", sp.record(
                 batch_mint_params = sp.record(
@@ -506,7 +507,7 @@ def test():
         build_and_sign = False,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.some(target),
             entry_point = "batch_mint",
             parameters = sp.variant("batch_mint", sp.record(
                 batch_mint_params = sp.record(
@@ -527,7 +528,7 @@ def test():
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.some(target),
             entry_point = "transfer",
             parameters = sp.variant("transfer", [sp.record(
                 from_ = alice,
@@ -545,7 +546,7 @@ def test():
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.some(target),
             entry_point = "transfer",
             parameters = sp.variant("transfer", [sp.record(
                 from_ = alice,
@@ -565,7 +566,7 @@ def test():
         build_and_sign = False,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.some(target),
             entry_point = "set_metadata",
             parameters = sp.variant("set_metadata" , sp.record(
                 k = "",
@@ -580,7 +581,7 @@ def test():
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.none,
             entry_point = "update_groups",
             parameters = sp.variant("update_groups" , [sp.variant("add", {"minters": alice, "test": alice})])
         )
@@ -593,7 +594,7 @@ def test():
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.none,
             entry_point = "update_groups",
             parameters = sp.variant("update_groups" , [sp.variant("remove", {"minters": alice, "test": alice})])
         )
@@ -608,7 +609,7 @@ def test():
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.none,
             entry_point = "update_templates",
             parameters = sp.variant("update_templates" , [sp.variant("update", {999: sp.record(
                     contract_threshold = 1,
@@ -624,7 +625,7 @@ def test():
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.none,
             entry_point = "update_templates",
             parameters = sp.variant("update_templates" , [sp.variant("update", {999: sp.record(
                     contract_threshold = 2,
@@ -643,7 +644,7 @@ def test():
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.none,
             entry_point = "update_rules",
             parameters = sp.variant("update_rules" , [sp.variant("update", {"test": sp.record(
                     template_id = 0,
@@ -659,7 +660,7 @@ def test():
         build_and_sign = True,
         signers = [],
         call_params = sp.record(
-            target_address = target,
+            target_address = sp.none,
             entry_point = "update_rules",
             parameters = sp.variant("update_rules" , [sp.variant("update", {"test": sp.record(
                     template_id = 1,
