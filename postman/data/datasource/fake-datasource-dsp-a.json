@@ -1,11 +1,11 @@
 {
   "type": "WebServerDatasource",
-  "baseUrl": "http://fake-datasource-api-dsp-a:3000",
+  "baseUrl": "https://dsp-a.fds.pcc.eniblock.fr/",
   "name": "DSP A referentials",
   "authMethod": {
     "type": "OAuth2ClientCredentialsGrant",
     "grantType": "client_credentials",
-    "issuerIdentifierUri": "http://fake-datasource-iam:8080/auth/realms/datasource/",
+    "issuerIdentifierUri": "https://iam.fds.pcc.eniblock.fr/auth/realms/datasource/",
     "wellKnownURIPathSuffix": ".well-known/openid-configuration",
     "clientId": "collaborate",
     "clientSecret": "57936b16-2f90-434a-9eb4-843668a3a521",
