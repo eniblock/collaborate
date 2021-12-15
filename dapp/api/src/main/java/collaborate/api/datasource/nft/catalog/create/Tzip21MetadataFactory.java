@@ -22,11 +22,18 @@ public class Tzip21MetadataFactory {
   public TZip21Metadata create(
       Supplier<TZip21Metadata> tokenMetadataSupplier,
       AssetDTO assetDTO, String assetDataCatalogRelativePath) {
-    var attribute = Attribute.builder()
+    var catalogAttribute = Attribute.builder()
         .name("assetDataCatalog")
         .value(IpfsService.IPNS_PROTOCOL_PREFIX
             + buildAssetDataCatalogIpnsPath(assetDataCatalogRelativePath)
-        ).type("URI")
+        )
+        .type("URI")
+        .build();
+
+    var assetIdAttribute = Attribute.builder()
+        .name("assetId")
+        .value(assetDTO.getAssetId())
+        .type("String")
         .build();
 
     return tokenMetadataSupplier.get().toBuilder()
@@ -34,7 +41,7 @@ public class Tzip21MetadataFactory {
             "The metadata for the " + assetDTO.getAssetType() + " asset having '"
                 + assetDTO.getAssetId()
                 + "' assetId")
-        .attributes(List.of(attribute))
+        .attributes(List.of(catalogAttribute, assetIdAttribute))
         .build();
   }
 

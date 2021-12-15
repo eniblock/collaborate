@@ -31,21 +31,31 @@ public class FindPassportService {
   private final UserService userService;
 
   public Optional<DigitalPassportDetailsDTO> findPassportDetailsFromMultisig(Integer contractId) {
+    // 1) récupérer dans les du multisig dans Proxy :  l'adresse ipfs, @alice, @dsp
+    // 2) récupérer les info ipfs
+    // 3) nourir le DTO
+
+
     return findPassportDAO.findMultisigById(contractId)
         .map(multisig ->
             digitalPassportDetailsDTOFactory.createFromMultisigContractid(contractId, multisig)
         );
   }
 
+  public List<DigitalPassportDetailsDTO> findPassportDetailsByTokenIdList(
+      Collection<Long> tokenIdList) {
+    // 1) récuperer l'adresse ipfs des tokens
+    // 2) récuperer les metadatas dans ipfs
+    // 3) récupérer les @alice dans les indexers (map, avec clef tokenId)
+    // 4) récupérer les @dsp dans les indexers (map, avec clef tokenId)
+
+    return List.of();
+  }
+
   public Optional<DigitalPassportDetailsDTO> findPassportDetailsByTokenId(Integer tokenId) {
     return findDspAndPassportIndexerTokenByTokenId(tokenId)
         .map(t -> digitalPassportDetailsDTOFactory
             .createFromPassportIndexer(t.getKey(), t.getValue()));
-  }
-
-  public List<DigitalPassportDetailsDTO> findPassportDetailsByTokenIdList(
-      Collection<Long> tokenIdList) {
-    return List.of();
   }
 
   /**
