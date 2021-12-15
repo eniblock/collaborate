@@ -7,10 +7,7 @@ see: [User identity federation](https://xdevtechnologies.atlassian.net/wiki/spac
 users able to work with identity providers from which he can authenticate using his organization
 credentials.
 
-> _An **Identity Broker** is an intermediary service that connects multiple service providers with
-different identity providers. As an intermediary service, the identity broker is responsible for
-creating a trust relationship with an external identity provider in order to use its identities to
-access internal services exposed by service providers._
+> _An **Identity Broker** is an intermediary service that connects multiple service providers with different identity providers. As an intermediary service, the identity broker is responsible for creating a trust relationship with an external identity provider in order to use its identities to access internal services exposed by service providers._
 
 ### Configuring Keycloak
 
@@ -26,29 +23,33 @@ can be used for configuration and test purposes using Keycloak Admin credentials
     * **user**: `KEYCLOAK_ADMIN_USER`
     * **password**: `KEYCLOAK_ADMIN_PASSWORD`
 
-### Configure a Keycloak Identity Provider
+### Connect Identity Provider
 
 As Keycloak is an Identity Broker it is possible to define multiple Identity Providers (e.g. Google,
-GitHub...) in its configuration. There is multiple ways to add an Identity provider into your 
+GitHub...) in its configuration. There is multiple ways to add an Identity provider into your
 Keycloak instance :
 
-* Use the [Keycloak Administration console user interface](https://col.localhost/auth/admin/master/console/#/realms/collaborate-dapp):
-  * According to [Keycloak Official Documentation](https://www.keycloak.org/docs/latest/server_admin/#_identity_broker) 
-    you can follow step described to integrate the Identity Provider of your choice.
-* Pre-configure your [Keycloak realm configuration file](../dapp/iam/realm-config/realm.json):
-  * You can provide a list of identity provider following the [Keycloak Identity Provider Representation](https://www.keycloak.org/docs-api/15.0/rest-api/index.html#_identityproviderrepresentation)
+* Use
+  the [Keycloak Administration console user interface](https://col.localhost/auth/admin/master/console/#/realms/collaborate-dapp):
+    * According
+      to [Keycloak Official Documentation](https://www.keycloak.org/docs/latest/server_admin/#_identity_broker)
+      you can follow step described to integrate the Identity Provider of your choice.
+* Pre-configure the [Keycloak realm configuration file](../dapp/iam/realm-config/realm.json):
+    * You can provide a list of identity provider following
+      the [Keycloak Identity Provider Representation](https://www.keycloak.org/docs-api/15.0/rest-api/index.html#_identityproviderrepresentation)
 * Use The Keycloak Rest-API:
-  * By Following the [Keycloak Rest-API Documentation](https://www.keycloak.org/docs-api/15.0/rest-api/index.html)
-  an endpoint is accessible to add an identity provider to your Keycloak Instance.
-  * You need to retrieve first a JWT with `service_identity_provider_administrator` role. (cf. [Get a JWT](#get-a-jwt))
-  * then you can make a request like:
-````
+    * By using
+      the [Keycloak Rest-API](https://www.keycloak.org/docs-api/15.0/rest-api/index.html#_identity_providers_resource)
+      . You will first need to retrieve a JWT for the keycloak admin user (
+      cf. [Get a JWT](#get-a-jwt)). Following example illustrate how to add a GitHub provider.
+
+```
 curl --location --request POST 'http://psa.localhost/auth/admin/realms/collaborate-dapp/identity-provider/instances' \
 --header 'Authorization: Bearer {{YOUR_JWT_ACCESS_TOKEN_GOES_HERE}}' \
 --header 'Content-Type: application/json' \
 --data-raw '{
-    "alias": "github",
-    "displayName": "Login with GitHub",
+    "alias": "xdev-github",
+    "displayName": "Login with XDev GitHub",
     "providerId": "github",
     "enabled": true,
     "updateProfileFirstLoginMode": "on",
@@ -60,13 +61,13 @@ curl --location --request POST 'http://psa.localhost/auth/admin/realms/collabora
     "firstBrokerLoginFlowAlias": "first broker login",
     "config": {
         "syncMode": "IMPORT",
-        "clientSecret": "66b2321d14e19a21888f4e823839ed3245af54df",
-        "clientId": "36a3c7aea0033bb8a539",
+        "clientSecret": "<<CLIENT_SECRET>>",
+        "clientId": "<<CLIENT_ID>>",
         "guiOrder": "0",
         "useJwksUrl": "true"
     }
 }'
-````
+```
 
 ### Get a JWT
 
