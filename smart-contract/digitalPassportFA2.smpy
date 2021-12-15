@@ -359,11 +359,14 @@ class FA2_core(sp.Contract):
         self.exception_optimization_level = "default-line"
         self.init(
             ledger = self.config.my_map(tvalue = Ledger_value.get_type()),
-            reverse_ledger = sp.big_map(tkey = sp.TAddress, tvalue = sp.TSet(sp.TNat)),
             token_metadata = self.config.my_map(tkey = sp.TNat, tvalue = self.token_meta_data.get_type()),
             operators = self.operator_set.make(),
             all_tokens = self.token_id_set.empty(),
             metadata = metadata,
+            # reverse indexers
+            tokens_by_owner = sp.big_map(tkey = sp.TAddress, tvalue = sp.TSet(sp.TNat)),
+            owner_by_token_id = sp.big_map(tkey = sp.TNat, tvalue = sp.TAddress),
+            operators_by_token = sp.big_map(tkey = sp.TPair(sp.TAddress, sp.TNat), tvalue = sp.TSet(sp.TAddress)),
             **extra_storage
         )
 
@@ -407,15 +410,17 @@ class FA2_core(sp.Contract):
                     to_user = self.ledger_key.make(tx.to_, tx.token_id)
                     self.data.ledger[from_user].balance = sp.as_nat(
                         self.data.ledger[from_user].balance - tx.amount)
-                    self.data.reverse_ledger[current_from].remove(tx.token_id)
                     sp.if self.data.ledger.contains(to_user):
                         self.data.ledger[to_user].balance += tx.amount
                     sp.else:
                         self.data.ledger[to_user] = Ledger_value.make(tx.amount)
-                    sp.if self.data.reverse_ledger.contains(tx.to_):
-                        self.data.reverse_ledger[tx.to_].add(tx.token_id)
+                    # update reverse indexers
+                    self.data.owner_by_token_id[tx.token_id] = tx.to_
+                    self.data.tokens_by_owner[current_from].remove(tx.token_id)
+                    sp.if self.data.tokens_by_owner.contains(tx.to_):
+                        self.data.tokens_by_owner[tx.to_].add(tx.token_id)
                     sp.else:
-                        self.data.reverse_ledger[tx.to_] = sp.set([tx.token_id])
+                        self.data.tokens_by_owner[tx.to_] = sp.set([tx.token_id])
                 sp.else:
                     pass
 
@@ -479,6 +484,11 @@ class FA2_core(sp.Contract):
                                               upd.owner,
                                               upd.operator,
                                               upd.token_id)
+                        # update reverse indexer
+                        sp.if self.data.operators_by_token.contains(sp.pair(upd.owner, upd.token_id)):
+                            self.data.operators_by_token[sp.pair(upd.owner, upd.token_id)].add(upd.operator)
+                        sp.else:
+                            self.data.operators_by_token[sp.pair(upd.owner, upd.token_id)] = sp.set([upd.operator])
                     with arg.match("remove_operator") as upd:
                         sp.verify(
                             (upd.owner == sp.sender) | self.is_administrator(sp.sender),
@@ -488,6 +498,8 @@ class FA2_core(sp.Contract):
                                                  upd.owner,
                                                  upd.operator,
                                                  upd.token_id)
+                        # update reverse indexer
+                        self.data.operators_by_token[sp.pair(upd.owner, upd.token_id)].remove(upd.operator)
         else:
             sp.failwith(self.error_message.operators_unsupported())
 
@@ -542,10 +554,6 @@ class FA2_mint(FA2_core):
             self.data.ledger[user].balance += params.amount
         sp.else:
             self.data.ledger[user] = Ledger_value.make(params.amount)
-        sp.if self.data.reverse_ledger.contains(params.address):
-            self.data.reverse_ledger[params.address].add(params.token_id)
-        sp.else:
-            self.data.reverse_ledger[params.address] = sp.set([params.token_id])
         sp.if self.data.token_metadata.contains(params.token_id):
             if self.config.store_total_supply:
                 self.data.total_supply[params.token_id] = params.amount
@@ -556,6 +564,13 @@ class FA2_mint(FA2_core):
             )
             if self.config.store_total_supply:
                 self.data.total_supply[params.token_id] = params.amount
+        # update reverse indexers
+        self.data.owner_by_token_id[params.token_id] = params.address
+        sp.if self.data.tokens_by_owner.contains(params.address):
+            self.data.tokens_by_owner[params.address].add(params.token_id)
+        sp.else:
+            self.data.tokens_by_owner[params.address] = sp.set([params.token_id])
+
 
 class FA2_token_metadata(FA2_core):
     def set_token_metadata_view(self):
@@ -712,10 +727,6 @@ class Batch_NFT(FA2):
             token_id = self.data.all_tokens
             user = self.ledger_key.make(params.address, token_id)
             self.data.ledger[user] = Ledger_value.make(amount)
-            sp.if self.data.reverse_ledger.contains(params.address):
-                self.data.reverse_ledger[params.address].add(token_id)
-            sp.else:
-                self.data.reverse_ledger[params.address] = sp.set([token_id])
             self.data.token_metadata[token_id] = sp.record(
                 token_id    = token_id,
                 token_info  = {"": metadata}
@@ -723,6 +734,12 @@ class Batch_NFT(FA2):
             if self.config.store_total_supply:
                 self.data.total_supply[token_id] = amount
             self.token_id_set.add(self.data.all_tokens, token_id)
+            # update reverse indexers
+            self.data.owner_by_token_id[token_id] = params.address
+            sp.if self.data.tokens_by_owner.contains(params.address):
+                self.data.tokens_by_owner[params.address].add(token_id)
+            sp.else:
+                self.data.tokens_by_owner[params.address] = sp.set([token_id])
 
 
 
