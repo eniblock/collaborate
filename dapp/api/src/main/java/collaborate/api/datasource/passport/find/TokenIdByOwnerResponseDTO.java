@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class TokenIdByOwnerResponseDTO {
 
-  @JsonProperty("reverse_ledger")
+  @JsonProperty("tokens_by_owner")
   private List<TagEntry<String, HashMap<String, Long>>> tokensByOwner;
 
 }
