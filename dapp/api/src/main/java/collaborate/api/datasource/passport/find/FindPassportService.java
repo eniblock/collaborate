@@ -1,12 +1,8 @@
 package collaborate.api.datasource.passport.find;
 
 import static collaborate.api.user.security.Authorizations.Roles.ASSET_OWNER;
-import static java.util.function.UnaryOperator.identity;
-import static java.util.stream.Collectors.toMap;
 
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
-import collaborate.api.organization.OrganizationService;
-import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.datasource.passport.model.storage.PassportsIndexer;
 import collaborate.api.organization.OrganizationService;
@@ -15,15 +11,11 @@ import collaborate.api.user.UserService;
 import collaborate.api.user.connected.ConnectedUserService;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -52,7 +44,7 @@ public class FindPassportService {
   }
 
   public List<DigitalPassportDetailsDTO> findPassportDetailsByTokenIdList(
-      List<Integer> tokenIdList) {
+      Collection<Long> tokenIdList) {
     return List.of();
   }
 
@@ -90,11 +82,11 @@ public class FindPassportService {
     if (roles.contains(ASSET_OWNER)) {
       var connectedUserEmail = connectedUserService.getEmailOrThrow();
       var connectedUserWallet = userService.findWalletAddressByEmailOrThrow(connectedUserEmail);
-      var tokenids = findPassportDAO.getOwnerTokenIds(connectedUserWallet);
-      digitalPassports = null;// getAllPassportsByAssetOwner(connectedUserService.getEmailOrThrow());
+      var tokenIds = findPassportDAO.getOwnerTokenIds(connectedUserWallet);
+      digitalPassports = findPassportDetailsByTokenIdList(tokenIds);
     } else {
       var tokenIds = findAllTokenIds();
-      digitalPassports = null;//getAllPassports(Optional.empty());
+      digitalPassports = findPassportDetailsByTokenIdList(tokenIds);
     }
 
     return digitalPassports;

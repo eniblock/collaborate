@@ -101,7 +101,7 @@ public class DigitalPassportController {
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "Get digital passport details from it token id")
   @PreAuthorize(HasRoles.DIGITAL_PASSPORT_READ)
-  public ResponseEntity<DigitalPassportDetailsDTO> getByTokenId(@PathVariable Integer tokenId) {
+  public ResponseEntity<DigitalPassportDetailsDTO> getByTokenId(@PathVariable Long tokenId) {
     return findPassportService.findPassportDetailsByTokenIdList(List.of(tokenId))
         .stream().findFirst()
         .map(ResponseEntity::ok)
