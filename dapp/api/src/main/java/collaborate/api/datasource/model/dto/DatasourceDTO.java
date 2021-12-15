@@ -27,6 +27,7 @@ import lombok.NoArgsConstructor;
 @JsonInclude(Include.NON_NULL)
 @Data
 @NoArgsConstructor
+@Schema
 public abstract class DatasourceDTO implements Keywords<String>, Serializable {
 
   protected UUID id;

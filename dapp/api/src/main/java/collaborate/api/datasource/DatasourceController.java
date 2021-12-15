@@ -54,7 +54,8 @@ public class DatasourceController {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(
-      description = "Generate a data source configuration and publish it on IPFS.",
+      description = "Generate a data source configuration and publish it on IPFS."
+          + "When the data source is for business data, the associated scope are also minted as NFT business data token",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DSP_ADMIN)
   public Callable<ResponseEntity<Datasource>> createDatasource(
