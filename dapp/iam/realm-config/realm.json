@@ -47,15 +47,7 @@
         "id": "53148955-f9d9-40bb-a532-52a392882d65",
         "name": "service_identity_provider_administrator",
         "description": "The administrator who can give roles to other users",
-        "composite": true,
-        "composites": {
-          "client": {
-            "realm-management": [
-              "view-identity-providers",
-              "manage-identity-providers"
-            ]
-          }
-        },
+        "composite": false,
         "clientRole": false,
         "containerId": "{{.Env.REALM}}",
         "attributes": {

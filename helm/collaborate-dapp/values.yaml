@@ -156,6 +156,17 @@ ingress:
 
 keycloak:
   nameOverride: keycloak
+  extraEnvVars:
+  - name: KEYCLOAK_LOGLEVEL
+    value: "DEBUG"
+  - name: WILDFLY_LOGLEVEL
+    value: "DEBUG"
+  - name: REALM
+    value: "collaborate-dapp"
+  - name: ROLE_ATTRIBUTE_KEY
+    value: "type"
+  - name: ROLE_ATTRIBUTE_VALUE
+    value: "collaborate-dapp"
   service:
     type: ClusterIP
   commonAnnotations:

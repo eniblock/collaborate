@@ -17,7 +17,7 @@ import org.springframework.util.CollectionUtils;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class KeycloakService {
+public class KeycloakUserService {
 
   private final KeycloakUsersClient keycloakClient;
 

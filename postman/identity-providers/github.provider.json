@@ -1,7 +1,6 @@
 {
-  "alias": "github",
-  "internalId": "58981db9-2856-4e07-ad20-36e718fc8501",
-  "displayName": "Login with GitHub",
+  "alias": "github-test",
+  "displayName": "Login with GitHub test",
   "providerId": "github",
   "enabled": true,
   "updateProfileFirstLoginMode": "on",
