@@ -92,4 +92,15 @@ class FindPassportDAO {
         .findFirst()
         .map(TagEntry::getValue);
   }
+
+  public Collection<Long> getOwnerTokenIds(String ownerAddress) {
+    var request = new DataFieldsRequest<>(List.of(
+        new MapQuery<>(StorageFields.TOKENS_BY_OWNER, List.of(ownerAddress))
+    ));
+    var tokenIdsByOwner = tezosApiGatewayPassportClient.getTokenIdsByOwner(
+        apiProperties.getDigitalPassportContractAddress(), request);
+    return tokenIdsByOwner
+        .getTokensByOwner().get(0).getValue()
+        .values();
+  }
 }
