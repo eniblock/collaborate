@@ -84,9 +84,6 @@ public class DigitalPassportController {
     return createPassportService.createMultisig(createMultisigPassportDTO);
   }
 
-  /*
-  TODO !!!!!!!!!!!!!!!
- */
   @GetMapping
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -128,9 +125,6 @@ public class DigitalPassportController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  /*
-  TODO !!!!!!!!!!!!!!!
- */
   @GetMapping("/count")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),

@@ -35,4 +35,8 @@ interface TezosApiGatewayPassportClient {
   @PostMapping("/tezos_node/storage/{contractAddress}")
   TokenMetadata getTokenMetadataByTokenId(@PathVariable String contractAddress,
       @RequestBody DataFieldsRequest<MapQuery<String>> request);
+
+  @PostMapping("/tezos_node/storage/{contractAddress}")
+  TokenIdByOwnerResponseDTO getTokenIdsByOwner(@PathVariable String contractAddress,
+      @RequestBody DataFieldsRequest<MapQuery<String>> request);
 }
