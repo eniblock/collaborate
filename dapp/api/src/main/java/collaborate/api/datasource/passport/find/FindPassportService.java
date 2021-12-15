@@ -16,6 +16,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -47,6 +48,11 @@ public class FindPassportService {
     return findDspAndPassportIndexerTokenByTokenId(tokenId)
         .map(t -> digitalPassportDetailsDTOFactory
             .createFromPassportIndexer(t.getKey(), t.getValue()));
+  }
+
+  public List<DigitalPassportDetailsDTO> findPassportDetailsByTokenIdList(
+      List<Integer> tokenIdList) {
+    return List.of();
   }
 
   /**

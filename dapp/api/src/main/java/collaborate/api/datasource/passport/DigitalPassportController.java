@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -104,7 +105,8 @@ public class DigitalPassportController {
       description = "Get digital passport details from it token id")
   @PreAuthorize(HasRoles.DIGITAL_PASSPORT_READ)
   public ResponseEntity<DigitalPassportDetailsDTO> getByTokenId(@PathVariable Integer tokenId) {
-    return findPassportService.findPassportDetailsByTokenId(tokenId)
+    return findPassportService.findPassportDetailsByTokenIdList(List.of(tokenId))
+        .stream().findFirst()
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
