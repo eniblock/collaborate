@@ -21,18 +21,6 @@ class FindPassportDAO {
   private final ApiProperties apiProperties;
   private final TezosApiGatewayPassportClient tezosApiGatewayPassportClient;
 
-  public PassportsIndexerTagResponseDTO findPassportsIndexersByDsps(
-      Collection<String> dspAddresses) {
-    var requestPassportsIndexer = new DataFieldsRequest<>(List.of(
-        new MapQuery<>(StorageFields.NFT_INDEXER, dspAddresses)
-    ));
-    return tezosApiGatewayPassportClient
-        .getPassportsIndexer(
-            apiProperties.getDigitalPassportContractAddress(),
-            requestPassportsIndexer
-        );
-  }
-
   public MultisigTagResponseDTO findMultisigByIds(Collection<Integer> multisigIds) {
     var requestMultisigs = new DataFieldsRequest<>(List.of(
         new MapQuery<>(StorageFields.MULTISIGS, multisigIds)
@@ -93,7 +81,7 @@ class FindPassportDAO {
         .map(TagEntry::getValue);
   }
 
-  public Collection<Long> getOwnerTokenIds(String ownerAddress) {
+  public Collection<Integer> getTokenIdsByOwner(String ownerAddress) {
     var request = new DataFieldsRequest<>(List.of(
         new MapQuery<>(StorageFields.TOKENS_BY_OWNER, List.of(ownerAddress))
     ));

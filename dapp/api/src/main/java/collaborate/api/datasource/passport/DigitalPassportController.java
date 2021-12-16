@@ -64,7 +64,7 @@ public class DigitalPassportController {
   @PreAuthorize(HasRoles.PASSPORT_MULTISIG_READ)
   public ResponseEntity<DigitalPassportDetailsDTO> getByMultisigId(
       @PathVariable(value = "contract-id") Integer contractId) {
-    return findPassportService.findPassportDetailsFromMultisig(contractId)
+    return findPassportService.findPassportDetailsFromMultisigId(contractId)
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
@@ -101,7 +101,7 @@ public class DigitalPassportController {
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "Get digital passport details from it token id")
   @PreAuthorize(HasRoles.DIGITAL_PASSPORT_READ)
-  public ResponseEntity<DigitalPassportDetailsDTO> getByTokenId(@PathVariable Long tokenId) {
+  public ResponseEntity<DigitalPassportDetailsDTO> getByTokenId(@PathVariable Integer tokenId) {
     return findPassportService.findPassportDetailsByTokenIdList(List.of(tokenId))
         .stream().findFirst()
         .map(ResponseEntity::ok)

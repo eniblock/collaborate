@@ -63,6 +63,8 @@ public class IpfsDAO {
     } catch (JsonProcessingException e) {
       log.error("can't deserialize IPFS cid={} to class={}", hash, clazz.getName());
       throw new IllegalStateException(e);
+    } catch (Exception ex) {
+      return null;
     }
   }
 
