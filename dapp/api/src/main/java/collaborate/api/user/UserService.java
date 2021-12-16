@@ -8,7 +8,7 @@ import collaborate.api.mail.MailService;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.model.RolesDTO;
 import collaborate.api.user.model.UserDTO;
-import collaborate.api.user.security.KeycloakService;
+import collaborate.api.user.security.KeycloakUserService;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
@@ -50,7 +50,7 @@ public class UserService {
   );
 
   private final ApiProperties apiProperties;
-  private final KeycloakService keycloakService;
+  private final KeycloakUserService keycloakUserService;
   private final MailProperties mailProperties;
   private final MailService mailService;
   private final RealmResource realmResource;
@@ -61,7 +61,7 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public Page<UserDTO> listUsers(Pageable pageable) {
-    return keycloakService.findAll(pageable);
+    return keycloakUserService.findAll(pageable);
   }
 
   @Retryable(
@@ -76,7 +76,7 @@ public class UserService {
 
   @Transactional(readOnly = true)
   public UserDTO findOneByUserId(UUID userId) {
-    return keycloakService.findOneByIdOrElseThrow(userId);
+    return keycloakUserService.findOneByIdOrElseThrow(userId);
   }
 
   /**
@@ -90,7 +90,7 @@ public class UserService {
     UserResource userResource = realmResource.users().get(userId);
     updateUserRoles(userResource.roles().realmLevel(), rolesDTO.getRolesNames(),
         userResource.toRepresentation());
-    return keycloakService.findOneByIdOrElseThrow(UUID.fromString(userId));
+    return keycloakUserService.findOneByIdOrElseThrow(UUID.fromString(userId));
   }
 
   /**

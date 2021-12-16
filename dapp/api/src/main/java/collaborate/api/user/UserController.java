@@ -40,8 +40,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-  private final UserService userService;
   private final ConnectedUserService connectedUserService;
+  private final UserService userService;
 
   @GetMapping()
   @Operation(
@@ -109,4 +109,5 @@ public class UserController {
   public Callable<ResponseEntity<UserDTO>> updateAsAssetOwner() {
     return () -> ResponseEntity.ok(connectedUserService.updateWithAssetOwnerRole());
   }
+
 }
