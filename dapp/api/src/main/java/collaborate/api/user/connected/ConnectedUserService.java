@@ -54,8 +54,9 @@ public class ConnectedUserService {
   }
 
   public UserDTO updateWithAssetOwnerRole() {
-    var token = connectedUserDAO.getAuthToken();
-    userService.createActiveUser(token.getEmail());
-    return userService.modifyUser(token.getSubject(), new RolesDTO(Set.of(Roles.ASSET_OWNER)));
+    var accessToken = connectedUserDAO.getAuthToken();
+    userService.createActiveUser(accessToken.getEmail());
+    return userService.modifyUser(accessToken.getSubject(),
+        new RolesDTO(Set.of(Roles.ASSET_OWNER)));
   }
 }

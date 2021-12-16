@@ -6,7 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.user.model.UserDTO;
-import collaborate.api.user.security.KeycloakService;
+import collaborate.api.user.security.KeycloakUserService;
 import collaborate.api.user.security.KeycloakUsersClient;
 import collaborate.api.user.security.UserSearchCriteria;
 import collaborate.api.user.security.UserSearchResponseDTO;
@@ -15,7 +15,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 
-public class KeycloakServiceTest {
+public class KeycloakUserServiceTest {
 
   private KeycloakUsersClient keycloakController;
   private UserSearchResponseDTO userSearchResponseDTO;
@@ -32,9 +32,9 @@ public class KeycloakServiceTest {
     when(keycloakController.findByCriteria(any(UserSearchCriteria.class)))
         .thenReturn(userSearchResponseDTO);
 
-    KeycloakService keycloakService = new KeycloakService(keycloakController);
+    KeycloakUserService keycloakUserService = new KeycloakUserService(keycloakController);
 
-    List<UserDTO> result = keycloakService.findAll();
+    List<UserDTO> result = keycloakUserService.findAll();
 
     assertEquals(0, result.size());
   }
@@ -49,9 +49,9 @@ public class KeycloakServiceTest {
     when(keycloakController.findByCriteria(any(UserSearchCriteria.class)))
         .thenReturn(userSearchResponseDTO);
 
-    KeycloakService keycloakService = new KeycloakService(keycloakController);
+    KeycloakUserService keycloakUserService = new KeycloakUserService(keycloakController);
 
-    List<UserDTO> result = keycloakService.findAll();
+    List<UserDTO> result = keycloakUserService.findAll();
 
     assertEquals(result, response);
     assertEquals(result.get(0), user);

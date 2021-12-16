@@ -19,7 +19,7 @@ import static org.mockito.Mockito.when;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.mail.MailDTO;
 import collaborate.api.mail.MailService;
-import collaborate.api.user.security.KeycloakService;
+import collaborate.api.user.security.KeycloakUserService;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -60,7 +60,7 @@ public class UserServiceTest {
   RealmResource mockRealmResource;
 
   @Mock
-  KeycloakService mockKeycloakService;
+  KeycloakUserService mockKeycloakUserService;
 
   @Mock
   MailService mockMailService;
@@ -87,7 +87,7 @@ public class UserServiceTest {
   public void afterEach() {
     reset(mockRolesResource);
     reset(mockRealmResource);
-    reset(mockKeycloakService);
+    reset(mockKeycloakUserService);
   }
 
   @Test
