@@ -13,10 +13,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 interface TezosApiGatewayPassportClient {
 
   @PostMapping("/tezos_node/storage/{contractAddress}")
-  PassportsIndexerTagResponseDTO getPassportsIndexer(@PathVariable String contractAddress,
-      @RequestBody DataFieldsRequest<MapQuery<String>> request);
-
-  @PostMapping("/tezos_node/storage/{contractAddress}")
   MultisigTagResponseDTO getMultisigs(@PathVariable String contractAddress,
       @RequestBody DataFieldsRequest<MapQuery<Integer>> request);
 

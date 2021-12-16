@@ -16,6 +16,6 @@ import lombok.NoArgsConstructor;
 public class TokenIdByOwnerResponseDTO {
 
   @JsonProperty("tokens_by_owner")
-  private List<TagEntry<String, HashMap<String, Long>>> tokensByOwner;
+  private List<TagEntry<String, HashMap<String, Integer>>> tokensByOwner;
 
 }
