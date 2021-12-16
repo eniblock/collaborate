@@ -9,6 +9,8 @@ credentials.
 
 > _An **Identity Broker** is an intermediary service that connects multiple service providers with different identity providers. As an intermediary service, the identity broker is responsible for creating a trust relationship with an external identity provider in order to use its identities to access internal services exposed by service providers._
 
+![Identity broker flow](images/identity-broker-flow.png)
+
 ### Configuring Keycloak
 
 The running keycloak instance is the
