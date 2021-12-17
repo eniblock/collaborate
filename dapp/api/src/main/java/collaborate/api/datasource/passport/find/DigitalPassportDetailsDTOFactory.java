@@ -3,7 +3,6 @@ package collaborate.api.datasource.passport.find;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
-import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
 import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.datasource.passport.model.TokenStatus;
@@ -35,52 +34,27 @@ public class DigitalPassportDetailsDTOFactory {
   private final NftDatasourceService nftDatasourceService;
   private final ApiProperties apiProperties;
   private final TezosApiGatewayPassportClient tezosApiGatewayPassportClient;
+  private final FindPassportDAO findPassportDAO;
 
   public List<DigitalPassportDetailsDTO> makeFromFA2(Collection<Integer> tokenIdList) {
-    // Get metadata from tokenIdList
-    Map<Integer, TZip21Metadata> tokenMetadata = new HashMap<>();
-    tokenIdList.stream()
-        .forEach(tokenId -> tokenMetadata.put(
-            tokenId,
-            nftDatasourceService.getTZip21MetadataByTokenId(tokenId,
-                apiProperties.getDigitalPassportContractAddress()).orElse(null))
-        );
+    // Get metadata
+    var tokenMetadata = nftDatasourceService.getTZip21MetadataByTokenIds(
+        tokenIdList,
+        apiProperties.getDigitalPassportContractAddress());
 
     // Get Owner addresses
-    Map<Integer, String> tokenOwner = new HashMap<>();
-    var requestOwner = new DataFieldsRequest<>(List.of(
-        new MapQuery<>(StorageFields.OWNER_BY_TOKEN_ID, tokenIdList)
-    ));
-    tezosApiGatewayPassportClient.getOwnersByTokenIds(
-            apiProperties.getDigitalPassportContractAddress(), requestOwner)
-        .getOwnerBuTokenId().stream()
-        .forEach(tagEntry -> tokenOwner.put(
-            tagEntry.getKey(),
-            tagEntry.getValue())
-        );
+    var tokenOwners = findPassportDAO.getOwnersByTokenIds(tokenIdList,
+        apiProperties.getDigitalPassportContractAddress());
 
     // Get Operator addresses
-    Map<Integer, String> tokenOperator = new HashMap<>();
-    var requestOperator = new DataFieldsRequest<>(List.of(
-        new MapQuery<>(StorageFields.OPERATORS_BY_TOKEN,
-            tokenIdList.stream()
-                .map(tokenId -> new TagPair<String, Integer>(tokenOwner.get(tokenId), tokenId))
-                .collect(Collectors.toList())
-        )
-    ));
-    tezosApiGatewayPassportClient.getOperatorsByTokenIdsAndOwners(
-            apiProperties.getDigitalPassportContractAddress(), requestOperator)
-        .getOperatorsByToken().stream()
-        .forEach(tagEntry -> tokenOperator.put(
-            tagEntry.getKey().getY(),
-            tagEntry.getValue().get(0))
-        );
+    var tokenOperators = findPassportDAO.getOperatorsByTokenIdsAndOwners(tokenIdList, tokenOwners,
+        apiProperties.getDigitalPassportContractAddress());
 
     return tokenIdList.stream()
         .map(tokenId -> {
               var metadata = tokenMetadata.get(tokenId);
-              var owner = tokenOwner.get(tokenId);
-              var operator = tokenOperator.get(tokenId);
+              var owner = tokenOwners.get(tokenId);
+              var operator = tokenOperators.get(tokenId);
               return DigitalPassportDetailsDTO.builder()
                   .assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata)
                       .orElse(null))
