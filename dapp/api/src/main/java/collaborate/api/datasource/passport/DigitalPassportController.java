@@ -96,9 +96,6 @@ public class DigitalPassportController {
     return findPassportService.getByConnectedUser();
   }
 
-  /*
-  TODO !!!!!!!!!!!!!!!
- */
   @GetMapping("/{tokenId}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
