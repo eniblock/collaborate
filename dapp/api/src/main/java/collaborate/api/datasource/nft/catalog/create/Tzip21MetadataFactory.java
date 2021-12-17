@@ -3,6 +3,7 @@ package collaborate.api.datasource.nft.catalog.create;
 import collaborate.api.datasource.nft.TokenMetadataProperties;
 import collaborate.api.datasource.nft.model.metadata.Attribute;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
+import collaborate.api.datasource.nft.model.metadata.TZip21Metadata.AttributeKeys;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.ipfs.IpnsService;
 import java.nio.file.Path;
@@ -23,7 +24,7 @@ public class Tzip21MetadataFactory {
       Supplier<TZip21Metadata> tokenMetadataSupplier,
       AssetDTO assetDTO, String assetDataCatalogRelativePath) {
     var catalogAttribute = Attribute.builder()
-        .name("assetDataCatalog")
+        .name(AttributeKeys.ASSET_DATA_CATALOG)
         .value(IpfsService.IPNS_PROTOCOL_PREFIX
             + buildAssetDataCatalogIpnsPath(assetDataCatalogRelativePath)
         )
@@ -31,7 +32,7 @@ public class Tzip21MetadataFactory {
         .build();
 
     var assetIdAttribute = Attribute.builder()
-        .name("assetId")
+        .name(AttributeKeys.ASSET_ID)
         .value(assetDTO.getAssetId())
         .type("String")
         .build();
