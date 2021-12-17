@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -25,25 +26,37 @@ public class FindPassportService {
   private final UserService userService;
 
   public List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisig(
-      String ownerAddress) {
+      @Nullable String ownerAddress) {
+    var multisigNb = findPassportDAO.countMultisigs();
+    var multisigIds = new LinkedList<Integer>();
+    for (int i = 0; i < multisigNb; i++) {
+      multisigIds.add(i);
+    }
+    return findPassportDetailsFromMultisigIdList(multisigIds, ownerAddress);
+  }
 
-    // !!! onwerAddress peut etre null => pas de filtre sur le owner dans ce cas
+  public Optional<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigId(Integer contractId) {
+    var l = findPassportDetailsFromMultisigIdList(List.of(contractId), null);
+    return (l == null || l.isEmpty())
+        ? Optional.empty()
+        : Optional.of(l.get(0));
+  }
+
+  private List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigIdList(
+      List<Integer> multisigIds, String ownerAddress) {
+
+    // TODO
+
     // 1) on charge tous les multisigs
     // 2) filtre sur entry_point="mint"
     // 3) filtre sur le owner
     // 4) filtre sur ok=false
 
-    // 1) récupérer dans les multisig du Proxy (filtrer : ok=false ET callParam="mint")
-    // 2) Récupérer  l'adresse ipfs, @alice, @dsp
-    // 3) récupérer les info ipfs
-    // 4) nourrir le DTO
+    // 5) Récupérer  l'adresse ipfs, @alice, @dsp
+    // 6) récupérer les info ipfs
+    // 7) nourrir le DTO
 
-    return new LinkedList<>();
-  }
-
-  public Optional<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigId(Integer contractId) {
-    // TODO
-    return Optional.empty();
+    return List.of();
   }
 
   public List<DigitalPassportDetailsDTO> findPassportDetailsByTokenIdList(
@@ -78,7 +91,7 @@ public class FindPassportService {
   }
 
   private Collection<Integer> findAllTokenIds() {
-    var allTokens = findPassportDAO.count();
+    var allTokens = findPassportDAO.countPassports();
     var tokenIds = new LinkedList<Integer>();
     for (int i = 0; i < allTokens; i++) {
       tokenIds.add(i);
@@ -86,9 +99,8 @@ public class FindPassportService {
     return tokenIds;
   }
 
-  public long count() {
-    return findPassportDAO.count();
+  public long countPassports() {
+    return findPassportDAO.countPassports();
   }
-
 
 }

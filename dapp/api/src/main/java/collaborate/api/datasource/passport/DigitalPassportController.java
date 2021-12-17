@@ -54,9 +54,6 @@ public class DigitalPassportController {
     return consentService.consent(contractId);
   }
 
-  /*
-  TODO !!!!!!!!!!!!!!!
- */
   @GetMapping("/multisig/{contract-id}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -128,7 +125,7 @@ public class DigitalPassportController {
   )
   @PreAuthorize(HasRoles.ORGANIZATION_READ)
   public long count() {
-    return findPassportService.count();
+    return findPassportService.countPassports();
   }
 
 }
