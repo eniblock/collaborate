@@ -35,5 +35,10 @@ interface TezosApiGatewayPassportClient {
   @PostMapping("/tezos_node/storage/{contractAddress}")
   OperatorsByTokenIdsAndOwnersResponseDTO getOperatorsByTokenIdsAndOwners(
       @PathVariable String contractAddress,
-      @RequestBody DataFieldsRequest<MapQuery<TagPair<String,Integer>>> request);
+      @RequestBody DataFieldsRequest<MapQuery<TagPair<String, Integer>>> request);
+
+  @PostMapping("/tezos_node/storage/{contractAddress}")
+  MultisigNbResponseDTO getMultisigCount(
+      @PathVariable String contractAddress,
+      @RequestBody DataFieldsRequest<String> request);
 }

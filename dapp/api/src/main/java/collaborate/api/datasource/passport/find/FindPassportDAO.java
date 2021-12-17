@@ -56,13 +56,26 @@ class FindPassportDAO {
         .findFirst();
   }
 
-  public long count() {
+  public long countPassports() {
     var requestPassportCount = new DataFieldsRequest<>(List.of("all_tokens"));
     return tezosApiGatewayPassportClient
         .getPassportCount(
             apiProperties.getDigitalPassportContractAddress(),
             requestPassportCount
         ).getAllTokens();
+  }
+
+  /**
+   * Be careful : a multisig can be a multisig for a mint, or a set_pause, or any FA2
+   * entry_point....
+   */
+  public long countMultisigs() {
+    var requestMultisigCount = new DataFieldsRequest<>(List.of("multisig_nb"));
+    return tezosApiGatewayPassportClient
+        .getMultisigCount(
+            apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+            requestMultisigCount
+        ).getMultisigNb();
   }
 
   public Optional<Multisig> findMultisigById(Integer contractId) {
