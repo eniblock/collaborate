@@ -61,19 +61,6 @@ class FindPassportDAO {
         ).getAllTokens();
   }
 
-  public Optional<Integer> findTokenIdByAssetId(String assetId) {
-    var requestTokenMetadata = new DataFieldsRequest<>(List.of(
-        new MapQuery<>(StorageFields.TOKEN_ID_BY_ASSET_ID, List.of(assetId))
-    ));
-    return tezosApiGatewayPassportClient
-        .getTokenIdByAssetIds(
-            apiProperties.getDigitalPassportContractAddress(),
-            requestTokenMetadata
-        ).getTokenIdByAssetId().stream()
-        .findFirst()
-        .map(TagEntry::getValue);
-  }
-
   public Optional<Multisig> findMultisigById(Integer contractId) {
     return findMultisigByIds(List.of(contractId))
         .getMultisigs().stream()

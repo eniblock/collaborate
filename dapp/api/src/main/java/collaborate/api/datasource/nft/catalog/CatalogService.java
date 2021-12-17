@@ -54,18 +54,22 @@ public class CatalogService {
   public Optional<AssetDataCatalogDTO> findByIpfsLink(String metadataIpfsLink) {
     try {
       var tokenMetadata = ipfsService.cat(metadataIpfsLink, TZip21Metadata.class);
-      return tokenMetadata.getAssetDataCatalogUri()
-          .map(catalogUri -> ipfsService.cat(catalogUri, AssetDataCatalog.class))
-          .map(AssetDataCatalog::getDatasources)
-          .map(
-              links -> links.stream()
-                  .map(this::buildDatasourceDTO)
-                  .collect(Collectors.toList())
-          ).map(AssetDataCatalogDTO::new);
+      return getAssetDataCatalogDTO(tokenMetadata);
     } catch (Exception e) {
       log.error("While getting dataCatalog from metadataIpfsLink={}\n{}", metadataIpfsLink, e);
       return Optional.empty();
     }
+  }
+
+  public Optional<AssetDataCatalogDTO> getAssetDataCatalogDTO(TZip21Metadata tokenMetadata) {
+    return tokenMetadata.getAssetDataCatalogUri()
+        .map(catalogUri -> ipfsService.cat(catalogUri, AssetDataCatalog.class))
+        .map(AssetDataCatalog::getDatasources)
+        .map(
+            links -> links.stream()
+                .map(this::buildDatasourceDTO)
+                .collect(Collectors.toList())
+        ).map(AssetDataCatalogDTO::new);
   }
 
   DatasourceDTO buildDatasourceDTO(DatasourceLink datasourceLink) {
@@ -83,4 +87,6 @@ public class CatalogService {
                 })
         ).build();
   }
+
+
 }
