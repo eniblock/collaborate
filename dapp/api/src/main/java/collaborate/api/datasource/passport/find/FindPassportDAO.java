@@ -7,9 +7,13 @@ import collaborate.api.datasource.passport.model.storage.StorageFields;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
+import collaborate.api.tag.model.storage.TagPair;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -77,5 +81,41 @@ class FindPassportDAO {
     return tokenIdsByOwner
         .getTokensByOwner().get(0).getValue()
         .values();
+  }
+
+  public HashMap<Integer, String> getOwnersByTokenIds(Collection<Integer> tokenIdList,
+      String digitalPassportContractAddress) {
+    var tokenOwners = new HashMap<Integer, String>();
+    var requestOwner = new DataFieldsRequest<>(List.of(
+        new MapQuery<>(StorageFields.OWNER_BY_TOKEN_ID, tokenIdList)
+    ));
+    tezosApiGatewayPassportClient.getOwnersByTokenIds(
+            apiProperties.getDigitalPassportContractAddress(), requestOwner)
+        .getOwnerBuTokenId().stream()
+        .forEach(tagEntry -> tokenOwners.put(
+            tagEntry.getKey(),
+            tagEntry.getValue())
+        );
+    return tokenOwners;
+  }
+
+  public Map<Integer, String> getOperatorsByTokenIdsAndOwners(Collection<Integer> tokenIdList,
+      HashMap<Integer, String> tokenOwners, String digitalPassportContractAddress) {
+    var tokenOperators = new HashMap<Integer, String>();
+    var requestOperators = new DataFieldsRequest<>(List.of(
+        new MapQuery<>(StorageFields.OPERATORS_BY_TOKEN,
+            tokenIdList.stream()
+                .map(tokenId -> new TagPair<String, Integer>(tokenOwners.get(tokenId), tokenId))
+                .collect(Collectors.toList())
+        )
+    ));
+    tezosApiGatewayPassportClient.getOperatorsByTokenIdsAndOwners(
+            apiProperties.getDigitalPassportContractAddress(), requestOperators)
+        .getOperatorsByToken().stream()
+        .forEach(tagEntry -> tokenOperators.put(
+            tagEntry.getKey().getY(),
+            tagEntry.getValue().get(0))
+        );
+    return tokenOperators;
   }
 }
