@@ -12,12 +12,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class Multisig {
+public class CallParams {
 
-  private CallParams callParams;
-  private int contractThreshold;
-  private Object groups;
-  private boolean ok;
-  private int weight;
+  private String entryPoint;
+
+  private Object parameters; // Object because there are many kind of parameters (for "mint", "set_pause", "transfer" ...)
+
+  private String targetAddress;
 
 }

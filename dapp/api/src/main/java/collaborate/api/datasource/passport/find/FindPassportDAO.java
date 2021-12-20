@@ -31,7 +31,7 @@ class FindPassportDAO {
     ));
     return tezosApiGatewayPassportClient
         .getMultisigs(
-            apiProperties.getDigitalPassportContractAddress(),
+            apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
             requestMultisigs
         );
   }
@@ -76,13 +76,6 @@ class FindPassportDAO {
             apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
             requestMultisigCount
         ).getMultisigNb();
-  }
-
-  public Optional<Multisig> findMultisigById(Integer contractId) {
-    return findMultisigByIds(List.of(contractId))
-        .getMultisigs().stream()
-        .findFirst()
-        .map(TagEntry::getValue);
   }
 
   public Collection<Integer> getTokenIdsByOwner(String ownerAddress) {
