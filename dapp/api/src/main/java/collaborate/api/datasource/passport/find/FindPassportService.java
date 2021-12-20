@@ -44,19 +44,7 @@ public class FindPassportService {
 
   private List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigIdList(
       List<Integer> multisigIds, String ownerAddress) {
-
-    // TODO
-
-    // 1) on charge tous les multisigs
-    // 2) filtre sur entry_point="mint"
-    // 3) filtre sur le owner
-    // 4) filtre sur ok=false
-
-    // 5) Récupérer  l'adresse ipfs, @alice, @dsp
-    // 6) récupérer les info ipfs
-    // 7) nourrir le DTO
-
-    return List.of();
+    return digitalPassportDetailsDTOFactory.makeFromMultisig(multisigIds, ownerAddress);
   }
 
   public List<DigitalPassportDetailsDTO> findPassportDetailsByTokenIdList(
