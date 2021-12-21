@@ -702,18 +702,20 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
         self.init_metadata("metadata_base", metadata_base)
         FA2_core.__init__(self, config, metadata, paused = False, administrator = admin)
 
-class Batch_NFT(FA2):
-    def __init__(self, config, metadata, admin):
-        FA2.__init__(self, config, metadata, admin)
 
-    batch_mint_type = sp.TRecord(
+batch_mint_type = sp.TRecord(
         metadata_links = sp.TList(sp.TBytes),
         first_token_id = token_id_type,
         address = sp.TAddress
         )
 
+class Batch_NFT(FA2):
+    def __init__(self, config, metadata, admin):
+        FA2.__init__(self, config, metadata, admin)
+
     @sp.entry_point
     def batch_mint(self, params):
+        sp.set_type(params, batch_mint_type)
         sp.verify(
             self.config.non_fungible & self.config.assume_consecutive_token_ids & ~ self.config.single_asset,
             message = "Wrong Config: batch_mint requires 'non_fungible', 'consecutive_token_ids' and 'multiple_asset'"
@@ -723,7 +725,7 @@ class Batch_NFT(FA2):
             message = "The first token_id has to respect the consecutiveness"
         )
         amount = 1
-        sp.for metadata in params.metadata_list:
+        sp.for metadata in params.metadata_links:
             token_id = self.data.all_tokens
             user = self.ledger_key.make(params.address, token_id)
             self.data.ledger[user] = Ledger_value.make(amount)
@@ -768,7 +770,7 @@ def add_test(config, is_default = True):
         scenario += c1.batch_mint(sp.record(
             address = admin,
             first_token_id = 0,
-            metadata_list = [
+            metadata_links = [
                 sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
                 sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
                 sp.bytes("0x050300000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
@@ -777,14 +779,14 @@ def add_test(config, is_default = True):
         )).run(sender = admin)
 
         scenario.p("The mint fails when the first_token_id already exists")
-        scenario += c1.batch_mint(sp.record(address = admin, first_token_id = 3, metadata_list = [sp.bytes("0x0501")])).run(sender = admin, valid = False)
+        scenario += c1.batch_mint(sp.record(address = admin, first_token_id = 3, metadata_links = [sp.bytes("0x0501")])).run(sender = admin, valid = False)
         scenario.p("The mint fails when the first_token_id consecutiveness is not respected")
-        scenario += c1.batch_mint(sp.record(address = admin, first_token_id = 5, metadata_list = [sp.bytes("0x0501")])).run(sender = admin, valid = False)
+        scenario += c1.batch_mint(sp.record(address = admin, first_token_id = 5, metadata_links = [sp.bytes("0x0501")])).run(sender = admin, valid = False)
         scenario.p("The mint is successfull when the first_token_id consecutiveness is respected")
         scenario += c1.batch_mint(sp.record(
             address = admin,
             first_token_id = 4,
-            metadata_list = [
+            metadata_links = [
                 sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
                 ]
         )).run(sender = admin)
