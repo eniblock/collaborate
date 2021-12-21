@@ -105,9 +105,6 @@ public class DigitalPassportController {
         .orElseGet(() -> ResponseEntity.notFound().build());
   }
 
-  /*
-  TODO !!!!!!!!!!!!!!!
- */
   @GetMapping("/{tokenId}/metrics")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
