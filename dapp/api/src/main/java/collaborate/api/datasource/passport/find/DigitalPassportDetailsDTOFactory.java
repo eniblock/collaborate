@@ -69,7 +69,7 @@ public class DigitalPassportDetailsDTOFactory {
         .collect(Collectors.toList());
   }
 
-  private AccessStatus makeAccessStatus(String nftOwnerAddress, String operatorAddress) {
+  AccessStatus makeAccessStatus(String nftOwnerAddress, String operatorAddress) {
     var connectedUserWalletAddress = connectedUserService.getWalletAddress();
     if (connectedUserWalletAddress.equals(nftOwnerAddress) || connectedUserWalletAddress.equals(
         operatorAddress)) {
