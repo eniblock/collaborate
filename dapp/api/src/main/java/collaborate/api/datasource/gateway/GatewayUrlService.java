@@ -2,8 +2,8 @@ package collaborate.api.datasource.gateway;
 
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
 import static collaborate.api.datasource.passport.metric.MetricService.SCOPE_METRIC_PREFIX;
+import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
-import static org.apache.commons.lang3.StringUtils.removeStart;
 
 import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.DatasourceService;
