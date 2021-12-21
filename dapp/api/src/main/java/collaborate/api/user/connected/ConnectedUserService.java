@@ -9,6 +9,7 @@ import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.Authorizations.Roles;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import org.keycloak.admin.client.resource.RealmResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -18,6 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class ConnectedUserService {
 
   private final ConnectedUserDAO connectedUserDAO;
+  private final RealmResource realm;
   private final UserService userService;
 
   public Set<String> getRealmRoles() {
@@ -56,7 +58,7 @@ public class ConnectedUserService {
   public UserDTO updateWithAssetOwnerRole() {
     var accessToken = connectedUserDAO.getAuthToken();
     userService.createActiveUser(accessToken.getEmail());
-    return userService.modifyUser(accessToken.getSubject(),
+    return userService.updateRoles(accessToken.getSubject(),
         new RolesDTO(Set.of(Roles.ASSET_OWNER)));
   }
 }

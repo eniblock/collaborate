@@ -86,7 +86,7 @@ public class UserService {
    * @param rolesDTO - all of the details that need to be updated
    * @return {UserDTO} the updated user
    */
-  public UserDTO modifyUser(String userId, RolesDTO rolesDTO) {
+  public UserDTO updateRoles(String userId, RolesDTO rolesDTO) {
     UserResource userResource = realmResource.users().get(userId);
     updateUserRoles(userResource.roles().realmLevel(), rolesDTO.getRolesNames(),
         userResource.toRepresentation());
@@ -250,5 +250,12 @@ public class UserService {
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, (
             "No admin user"
         )));
+  }
+
+  public void enable(String userId, boolean enabled) {
+    var userRepresentation = new UserRepresentation();
+    userRepresentation.setEnabled(enabled);
+    realmResource.users().get(userId)
+        .update(userRepresentation);
   }
 }
