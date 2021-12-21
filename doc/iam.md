@@ -71,6 +71,27 @@ curl --location --request POST 'http://psa.localhost/auth/admin/realms/collabora
 }'
 ```
 
+#### Role mapping: Define a default user role for user authenticated from identity provider
+
+You can define a default role to users that come from an external identity provider by defining a
+role mapper:
+
+```
+curl --location --request POST 'http://psa.localhost/auth/admin/realms/collaborate-dapp/identity-provider/instances/github/mappers' \
+--header 'Authorization: Bearer {{YOUR_JWT_ACCESS_TOKEN_GOES_HERE}}' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+  "name": "default pending_asset_owner for github",
+  "identityProviderAlias": "xdev-github",
+  "identityProviderMapper": "oidc-hardcoded-role-idp-mapper",
+  "config": {
+    "syncMode": "IMPORT",
+    "role": "pending_asset_owner"
+  }
+}
+'
+```
+
 ### Get a JWT
 
 The initial user configuration is made by customizing

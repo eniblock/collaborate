@@ -1,5 +1,6 @@
-package collaborate.api.config.security;
+package collaborate.api.user;
 
+import collaborate.api.config.security.OAuth2FeignRequestInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.registration.ClientRegistrationRepository;
