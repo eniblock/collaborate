@@ -11,7 +11,7 @@ operator_param_type = sp.TRecord(
     owner = sp.TAddress,
     operator = sp.TAddress,
     token_id = sp.TNat
-    )
+    ).layout(("owner", ("operator", "token_id")))
 
 update_operators_params_type = sp.TList(
     sp.TVariant(
@@ -228,8 +228,8 @@ class ProxyTokenController(sp.Contract):
                     # add operator along with the mint
                     add_op_parameters = [
                         sp.variant("add_operator", sp.record(
-                            operator = parameters.mint_params.address,
-                            owner = parameters.operator.open_some("OPERATOR_PARAM_NOT_FOUND"),
+                            owner = parameters.mint_params.address,
+                            operator = parameters.operator.open_some("OPERATOR_PARAM_NOT_FOUND"),
                             token_id = self.data.token_id
                         ))
                     ]
@@ -240,22 +240,7 @@ class ProxyTokenController(sp.Contract):
                 self._execute_call("transfer", parameters, params.target_address.open_some(target_address_error))
             with arg.match("update_operators") as parameters:
                 sp.verify(params.entry_point == "update_operators", entrypoint_error)
-                add_op_parameters = sp.local("add_op_parameters", [])
-                sp.for update in parameters:
-                    with update.match_cases() as arg:
-                        with arg.match("add_operator") as upd:
-                            add_op_parameters.value.push(sp.variant("add_operator", sp.record(
-                                operator = upd.owner,
-                                owner = upd.operator,
-                                token_id = upd.token_id
-                            )))
-                        with arg.match("remove_operator") as upd:
-                            add_op_parameters.value.push(sp.variant("remove_operator", sp.record(
-                                operator = upd.owner,
-                                owner = upd.operator,
-                                token_id = upd.token_id
-                            )))
-                self._execute_call("update_operators", add_op_parameters.value, params.target_address.open_some(target_address_error))
+                self._execute_call("update_operators", parameters, params.target_address.open_some(target_address_error))
             with arg.match("set_pause") as parameters:
                 sp.verify(params.entry_point == "set_pause", entrypoint_error)
                 self._execute_call("set_pause", parameters, params.target_address.open_some(target_address_error))
@@ -279,8 +264,8 @@ class ProxyTokenController(sp.Contract):
                     add_op_parameters = sp.local('add_op_parameters', sp.list([]))
                     sp.for token_id in sp.range(self.data.token_id, self.data.token_id + batch_length, step = 1):
                         add_op_parameters.value.push(sp.variant("add_operator", sp.record(
-                            operator = parameters.batch_mint_params.address,
-                            owner = parameters.operator.open_some("OPERATOR_PARAM_NOT_FOUND"),
+                            owner = parameters.batch_mint_params.address,
+                            operator = parameters.operator.open_some("OPERATOR_PARAM_NOT_FOUND"),
                             token_id = token_id
                         )))
                     self._execute_call("update_operators", add_op_parameters.value, params.target_address.open_some(target_address_error))
