@@ -69,7 +69,7 @@ curl --location --request POST 'http://psa.localhost/auth/admin/realms/collabora
 }'
 ```
 
-#### Define a default user role for user authenticated from identity provider for the first time
+#### Role mapping: Define a default user role for user authenticated from identity provider
 
 You can define a default role to users that come from an external identity provider by defining a
 role mapper:
