@@ -124,9 +124,8 @@ multisig_build_params_type = sp.TRecord(
 
 
 class ProxyTokenController(sp.Contract):
-    def __init__(self, groups, multisig_templates, rules, token_id):
+    def __init__(self, groups, multisig_templates, rules):
         self.init(
-            token_id = token_id,
             multisigs = sp.big_map(),
             multisig_nb = 0,
             groups = sp.map(
@@ -214,62 +213,63 @@ class ProxyTokenController(sp.Contract):
     def onOK(self, params):
         entrypoint_error = "PARAMETERS_AND_ENTRYPOINT_ARE_NOT_COMPATIBLE"
         target_address_error = "TARGET_ADDRESS_CANNOT_BE_NONE"
+        target_address = params.target_address.open_some(target_address_error)
         with params.parameters.match_cases() as arg:
             with arg.match("mint") as parameters:
                 sp.verify(params.entry_point == "mint", entrypoint_error)
+                token_id = sp.view("all_tokens", target_address, sp.unit, t = sp.TNat).open_some("Invalid all_tokens view")
                 mint_params = sp.record(
-                    token_id = self.data.token_id,
+                    token_id = token_id,
                     amount = parameters.mint_params.amount,
                     metadata = parameters.mint_params.metadata,
                     address = parameters.mint_params.address
                 )
-                self._execute_call("mint", mint_params, params.target_address.open_some(target_address_error))
+                self._execute_call("mint", mint_params, target_address)
                 sp.if parameters.operator.is_some():
                     # add operator along with the mint
                     add_op_parameters = [
                         sp.variant("add_operator", sp.record(
                             owner = parameters.mint_params.address,
                             operator = parameters.operator.open_some("OPERATOR_PARAM_NOT_FOUND"),
-                            token_id = self.data.token_id
+                            token_id = token_id
                         ))
                     ]
-                    self._execute_call("update_operators", add_op_parameters, params.target_address.open_some(target_address_error))
-                self.data.token_id += 1
+                    self._execute_call("update_operators", add_op_parameters, target_address)
             with arg.match("transfer") as parameters:
                 sp.verify(params.entry_point == "transfer", entrypoint_error)
-                self._execute_call("transfer", parameters, params.target_address.open_some(target_address_error))
+                self._execute_call("transfer", parameters, target_address)
             with arg.match("update_operators") as parameters:
                 sp.verify(params.entry_point == "update_operators", entrypoint_error)
-                self._execute_call("update_operators", parameters, params.target_address.open_some(target_address_error))
+                self._execute_call("update_operators", parameters, target_address)
             with arg.match("set_pause") as parameters:
                 sp.verify(params.entry_point == "set_pause", entrypoint_error)
-                self._execute_call("set_pause", parameters, params.target_address.open_some(target_address_error))
+                self._execute_call("set_pause", parameters, target_address)
             with arg.match("set_metadata") as parameters:
                 sp.verify(params.entry_point == "set_metadata", entrypoint_error)
-                self._execute_call("set_metadata", parameters, params.target_address.open_some(target_address_error))
+                self._execute_call("set_metadata", parameters, target_address)
             with arg.match("set_administrator") as parameters:
                 sp.verify(params.entry_point == "set_administrator", entrypoint_error)
-                self._execute_call("set_administrator", parameters, params.target_address.open_some(target_address_error))
+                self._execute_call("set_administrator", parameters, target_address)
             with arg.match("batch_mint") as parameters:
                 sp.verify(params.entry_point == "batch_mint", entrypoint_error)
+                first_token_id = sp.view("all_tokens", target_address, sp.unit, t = sp.TNat).open_some("Invalid all_tokens view")
                 batch_mint_params = sp.record(
-                    first_token_id = self.data.token_id,
+                    first_token_id = first_token_id,
                     metadata_links = parameters.batch_mint_params.metadata_links,
                     address = parameters.batch_mint_params.address
                 )
-                self._execute_call("batch_mint", batch_mint_params, params.target_address.open_some(target_address_error))
+                self._execute_call("batch_mint", batch_mint_params, target_address)
                 batch_length = sp.len(parameters.batch_mint_params.metadata_links)
                 # add operator along with the batch_mint
                 sp.if parameters.operator.is_some():
                     add_op_parameters = sp.local('add_op_parameters', sp.list([]))
-                    sp.for token_id in sp.range(self.data.token_id, self.data.token_id + batch_length, step = 1):
+                    sp.for token_id in sp.range(first_token_id, first_token_id + batch_length, step = 1):
                         add_op_parameters.value.push(sp.variant("add_operator", sp.record(
                             owner = parameters.batch_mint_params.address,
                             operator = parameters.operator.open_some("OPERATOR_PARAM_NOT_FOUND"),
                             token_id = token_id
                         )))
-                    self._execute_call("update_operators", add_op_parameters.value, params.target_address.open_some(target_address_error))
-                self.data.token_id += batch_length
+                    self._execute_call("update_operators", add_op_parameters.value, target_address)
             with arg.match("update_groups") as parameters:
                 sp.verify(params.entry_point == "update_groups", entrypoint_error)
                 self.update_groups(parameters)
@@ -429,7 +429,6 @@ def test():
     c0 = ProxyTokenController(
         groups,
         multisig_templates,
-        rules,
-        0
+        rules
         )
     scenario += c0
