@@ -86,12 +86,12 @@ public class DigitalPassportDetailsDTOFactory {
         .filter(tagEntry -> ownerAddressFilter == null || ownerAddressFilter.equals(
             getOwnerAddressFromMultisig(tagEntry.getValue().getCallParams())))
         .map(tagEntry -> {
-          var metadata = new Bytes("TODO");
+          var metadataIpfsUri = getMetadataFromMultisig(tagEntry.getValue().getCallParams());
           var ownerAddress = getOwnerAddressFromMultisig(tagEntry.getValue().getCallParams());
           var operatorAddress = getOperatorAddressFromMultisig(tagEntry.getValue().getCallParams());
           return DigitalPassportDetailsDTO.builder()
-              .assetDataCatalog(null) // TODO
-              .assetId(null) // TODO
+              .assetDataCatalog(null) // TODO get catalog from metadataIpfsUri
+              .assetId(null) // TODO get catalog from metadataIpfsUri
               .assetOwner(userService.getByWalletAddress(ownerAddress))
               .accessStatus(AccessStatus.PENDING)
               .creationDatetime(null)
@@ -125,7 +125,7 @@ public class DigitalPassportDetailsDTOFactory {
     var mint_params = (Map) ((mint).get("mint_params"));
     var address = (Map) ((mint_params).get("metadata"));
     var metadataIpfs = (address).get("");
-    return (Bytes) metadataIpfs; ///////// BytesDeserializer
+    return (Bytes) metadataIpfs; ///////// TODO : this will not work => use BytesDeserializer to get the Bytes object !!!
   }
 
 }
