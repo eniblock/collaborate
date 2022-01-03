@@ -743,6 +743,11 @@ class Batch_NFT(FA2):
             sp.else:
                 self.data.tokens_by_owner[params.address] = sp.set([token_id])
 
+    @sp.onchain_view(name = "all_tokens")
+    def all_tokens(self):
+        sp.result(self.token_id_set.cardinal(self.data.all_tokens))
+
+
 
 
 ## ### Generation of Test Scenarios
