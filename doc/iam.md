@@ -23,6 +23,23 @@ can be used for configuration and test purposes using Keycloak Admin credentials
     * **user**: `KEYCLOAK_ADMIN_USER`
     * **password**: `KEYCLOAK_ADMIN_PASSWORD`
 
+### Identity administrator onboarding
+
+While deploying your application instance for the first time, you will need to define a first _
+identity admin user_  to configure how others users will connect to your application.
+
+* Use predefined _identity admin_ (aka
+  Eric) [available user](https://gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/-/blob/develop/doc/iam.md#identity-federation)
+  .
+* Configure an identity provider
+* Ask one of your organization user (aka. Fabian) to make a first login using the configured
+  identity provider.
+* Use the _Eric_ account to update _Fabian_ roles with the _Service identity provider administrator_
+  role.
+* Disable all the predefined users, and so only _Fabian_ account can access your application until
+  new users make a first login and _Fabian_ give them a role (or they already have a default role if
+  a role mapper has been configured with the organization identity provider).
+
 ### Connect Identity Provider
 
 As Keycloak is an Identity Broker it is possible to define multiple Identity Providers (e.g. Google,
