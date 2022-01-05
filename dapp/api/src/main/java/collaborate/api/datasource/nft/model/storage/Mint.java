@@ -12,12 +12,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class CallParams {
+public class Mint {
 
-  private String entryPoint;
+  private MintParams mintParams;
 
-  private Parameters parameters; // Object because there are many kind of parameters (for "mint", "set_pause", "transfer" ...)
-
-  private String targetAddress;
+  private String operator;
 
 }

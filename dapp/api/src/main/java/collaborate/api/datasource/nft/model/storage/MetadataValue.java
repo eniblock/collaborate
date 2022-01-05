@@ -1,5 +1,6 @@
 package collaborate.api.datasource.nft.model.storage;
 
+import collaborate.api.tag.model.Bytes;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
@@ -12,12 +13,10 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class CallParams {
+public class MetadataValue {
 
-  private String entryPoint;
+  private String key;
 
-  private Parameters parameters; // Object because there are many kind of parameters (for "mint", "set_pause", "transfer" ...)
-
-  private String targetAddress;
+  private Bytes value;
 
 }

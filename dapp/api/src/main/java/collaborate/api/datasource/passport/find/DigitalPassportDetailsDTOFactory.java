@@ -3,11 +3,16 @@ package collaborate.api.datasource.passport.find;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
+import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
 import collaborate.api.datasource.nft.model.storage.CallParams;
+import collaborate.api.datasource.nft.model.storage.MintParams;
+import collaborate.api.datasource.nft.model.storage.Parameters;
 import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.datasource.passport.model.TokenStatus;
+import collaborate.api.ipfs.IpfsService;
 import collaborate.api.organization.OrganizationService;
+import collaborate.api.tag.BytesDeserializer;
 import collaborate.api.tag.model.Bytes;
 import collaborate.api.user.UserService;
 import collaborate.api.user.connected.ConnectedUserService;
@@ -24,14 +29,15 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DigitalPassportDetailsDTOFactory {
 
-  private final ConnectedUserService connectedUserService;
-  private final OrganizationService organizationService;
-  private final UserService userService;
-  private final CatalogService catalogService;
-  private final NftDatasourceService nftDatasourceService;
   private final ApiProperties apiProperties;
-  private final TezosApiGatewayPassportClient tezosApiGatewayPassportClient;
+  private final CatalogService catalogService;
+  private final ConnectedUserService connectedUserService;
   private final FindPassportDAO findPassportDAO;
+  private final IpfsService ipfsService;
+  private final NftDatasourceService nftDatasourceService;
+  private final OrganizationService organizationService;
+  private final TezosApiGatewayPassportClient tezosApiGatewayPassportClient;
+  private final UserService userService;
 
   public List<DigitalPassportDetailsDTO> makeFromFA2(Collection<Integer> tokenIdList) {
     // Get metadata
@@ -40,12 +46,10 @@ public class DigitalPassportDetailsDTOFactory {
         apiProperties.getDigitalPassportContractAddress());
 
     // Get Owner addresses
-    var tokenOwners = findPassportDAO.getOwnersByTokenIds(tokenIdList,
-        apiProperties.getDigitalPassportContractAddress());
+    var tokenOwners = findPassportDAO.getOwnersByTokenIds(tokenIdList);
 
     // Get Operator addresses
-    var tokenOperators = findPassportDAO.getOperatorsByTokenIdsAndOwners(tokenIdList, tokenOwners,
-        apiProperties.getDigitalPassportContractAddress());
+    var tokenOperators = findPassportDAO.getOperatorsByTokenIdsAndOwners(tokenIdList, tokenOwners);
 
     return tokenIdList.stream()
         .map(tokenId -> {
@@ -84,14 +88,20 @@ public class DigitalPassportDetailsDTOFactory {
         .filter(tagEntry -> tagEntry.getValue().getCallParams().getEntryPoint().equals("mint"))
         .filter(tagEntry -> !tagEntry.getValue().isOk())
         .filter(tagEntry -> ownerAddressFilter == null || ownerAddressFilter.equals(
-            getOwnerAddressFromMultisig(tagEntry.getValue().getCallParams())))
+            findPassportDAO.getOwnerAddressFromMultisig(tagEntry.getValue().getCallParams())))
         .map(tagEntry -> {
-          var metadataIpfsUri = getMetadataFromMultisig(tagEntry.getValue().getCallParams());
-          var ownerAddress = getOwnerAddressFromMultisig(tagEntry.getValue().getCallParams());
-          var operatorAddress = getOperatorAddressFromMultisig(tagEntry.getValue().getCallParams());
+          var metadataIpfsUri = findPassportDAO.getMetadataFromMultisig(
+              tagEntry.getValue().getCallParams());
+          var metadata = ipfsService.cat(
+              metadataIpfsUri.toString(), TZip21Metadata.class);
+          var ownerAddress = findPassportDAO.getOwnerAddressFromMultisig(
+              tagEntry.getValue().getCallParams());
+          var operatorAddress = findPassportDAO.getOperatorAddressFromMultisig(
+              tagEntry.getValue().getCallParams());
           return DigitalPassportDetailsDTO.builder()
-              .assetDataCatalog(null) // TODO get catalog from metadataIpfsUri
-              .assetId(null) // TODO get catalog from metadataIpfsUri
+              .assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata)
+                  .orElse(null))
+              .assetId(metadata == null ? null : metadata.getAssetId().orElse(null))
               .assetOwner(userService.getByWalletAddress(ownerAddress))
               .accessStatus(AccessStatus.PENDING)
               .creationDatetime(null)
@@ -102,30 +112,6 @@ public class DigitalPassportDetailsDTOFactory {
               .build();
         })
         .collect(Collectors.toList());
-  }
-
-  private String getOwnerAddressFromMultisig(CallParams callParams) {
-    var parameters = (Map) (callParams.getParameters());
-    var mint = (Map) ((parameters).get("mint"));
-    var mint_params = (Map) ((mint).get("mint_params"));
-    var address = (mint_params).get("address");
-    return (String) address;
-  }
-
-  private String getOperatorAddressFromMultisig(CallParams callParams) {
-    var parameters = (Map) (callParams.getParameters());
-    var mint = (Map) ((parameters).get("mint"));
-    var operator = (mint).get("operator");
-    return (String) operator;
-  }
-
-  private Bytes getMetadataFromMultisig(CallParams callParams) {
-    var parameters = (Map) (callParams.getParameters());
-    var mint = (Map) ((parameters).get("mint"));
-    var mint_params = (Map) ((mint).get("mint_params"));
-    var address = (Map) ((mint_params).get("metadata"));
-    var metadataIpfs = (address).get("");
-    return (Bytes) metadataIpfs; ///////// TODO : this will not work => use BytesDeserializer to get the Bytes object !!!
   }
 
 }
