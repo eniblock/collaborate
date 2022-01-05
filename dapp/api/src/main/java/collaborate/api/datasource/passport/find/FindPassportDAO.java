@@ -1,9 +1,11 @@
 package collaborate.api.datasource.passport.find;
 
 import collaborate.api.config.api.ApiProperties;
+import collaborate.api.datasource.nft.model.storage.CallParams;
 import collaborate.api.datasource.nft.model.storage.Multisig;
 import collaborate.api.datasource.nft.model.storage.TokenMetadata;
 import collaborate.api.datasource.passport.model.storage.StorageFields;
+import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
@@ -89,15 +91,14 @@ class FindPassportDAO {
         .values();
   }
 
-  public HashMap<Integer, String> getOwnersByTokenIds(Collection<Integer> tokenIdList,
-      String digitalPassportContractAddress) {
+  public Map<Integer, String> getOwnersByTokenIds(Collection<Integer> tokenIdList) {
     var tokenOwners = new HashMap<Integer, String>();
     var requestOwner = new DataFieldsRequest<>(List.of(
         new MapQuery<>(StorageFields.OWNER_BY_TOKEN_ID, tokenIdList)
     ));
     tezosApiGatewayPassportClient.getOwnersByTokenIds(
             apiProperties.getDigitalPassportContractAddress(), requestOwner)
-        .getOwnerBuTokenId().stream()
+        .getOwnerBuTokenId()
         .forEach(tagEntry -> tokenOwners.put(
             tagEntry.getKey(),
             tagEntry.getValue())
@@ -106,22 +107,45 @@ class FindPassportDAO {
   }
 
   public Map<Integer, String> getOperatorsByTokenIdsAndOwners(Collection<Integer> tokenIdList,
-      HashMap<Integer, String> tokenOwners, String digitalPassportContractAddress) {
+      Map<Integer, String> tokenOwners) {
     var tokenOperators = new HashMap<Integer, String>();
     var requestOperators = new DataFieldsRequest<>(List.of(
         new MapQuery<>(StorageFields.OPERATORS_BY_TOKEN,
             tokenIdList.stream()
-                .map(tokenId -> new TagPair<String, Integer>(tokenOwners.get(tokenId), tokenId))
+                .map(tokenId -> new TagPair<>(tokenOwners.get(tokenId), tokenId))
                 .collect(Collectors.toList())
         )
     ));
     tezosApiGatewayPassportClient.getOperatorsByTokenIdsAndOwners(
             apiProperties.getDigitalPassportContractAddress(), requestOperators)
-        .getOperatorsByToken().stream()
+        .getOperatorsByToken()
         .forEach(tagEntry -> tokenOperators.put(
             tagEntry.getKey().getY(),
             tagEntry.getValue().get(0))
         );
     return tokenOperators;
+  }
+
+  public String getOwnerAddressFromMultisig(CallParams callParams) {
+    var parameters =  (callParams.getParameters());
+    var mint = parameters.getMint();
+    var mintParams = mint.getMintParams();
+    return mintParams.getAddress();
+  }
+
+  public String getOperatorAddressFromMultisig(CallParams callParams) {
+    var parameters = callParams.getParameters();
+    var mint =  parameters.getMint();
+    return mint.getOperator();
+  }
+
+  public Bytes getMetadataFromMultisig(CallParams callParams) {
+    var parameters = callParams.getParameters();
+    var mint =  parameters.getMint();
+    var mintParams =  mint.getMintParams();
+    var metadata = mintParams.getMetadata();
+    var addressMaps = metadata.getValue();
+    var address = addressMaps.get(0);
+    return address.getValue();
   }
 }
