@@ -69,6 +69,7 @@ class OrganizationServiceTest {
   void getAllDspWallets_shouldIncludeDspRoleAndExcludeDspRole(
       List<OrganizationDTO> organizations, List<String> expectedWalletsResult) {
     // GIVEN
+    when(apiProperties.getBusinessDataContractAddress()).thenReturn(businessDataSCAddress);
     when(organizationDAO.getAllOrganizations(any()))
         .thenReturn(organizations);
     // WHEN
