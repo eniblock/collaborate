@@ -12,11 +12,9 @@ import org.springframework.validation.annotation.Validated;
 public class ApiProperties {
 
   @Schema(description = "The business data smart-contract address")
-  @NotEmpty
   private String businessDataContractAddress;
 
   @Schema(description = "The digital passport smart-contract address")
-  @NotEmpty
   private String digitalPassportContractAddress;
 
   @Schema(description = "The \"service identity provider administrator\" role")

@@ -1,11 +1,13 @@
 package collaborate.api.organization;
 
 import static collaborate.api.organization.model.OrganizationRole.DSP;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.user.UserService;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -28,10 +30,17 @@ public class OrganizationService {
   private final UserService userService;
 
   public Collection<OrganizationDTO> getAllOrganizations() {
-    var organizationsFromPassportSC = organizationDAO.getAllOrganizations(
-        apiProperties.getDigitalPassportContractAddress());
-    var organizationsFromBusinessDataSC = organizationDAO.getAllOrganizations(
-        apiProperties.getBusinessDataContractAddress());
+    Collection<OrganizationDTO> organizationsFromPassportSC = Collections.emptyList();
+    if (isNotBlank(apiProperties.getDigitalPassportContractAddress())) {
+      organizationsFromPassportSC = organizationDAO.getAllOrganizations(
+          apiProperties.getDigitalPassportContractAddress());
+    }
+
+    Collection<OrganizationDTO> organizationsFromBusinessDataSC = Collections.emptyList();
+    if (isNotBlank(apiProperties.getBusinessDataContractAddress())) {
+      organizationsFromBusinessDataSC = organizationDAO.getAllOrganizations(
+          apiProperties.getBusinessDataContractAddress());
+    }
 
     return Stream
         .concat(
@@ -54,7 +63,7 @@ public class OrganizationService {
   public OrganizationDTO getByWalletAddress(String walletAddress) {
     return findOrganizationByPublicKeyHash(
         walletAddress,
-        apiProperties.getDigitalPassportContractAddress()
+        apiProperties.getBusinessDataContractAddress()
     ).orElseGet(() -> {
       log.warn("No organization found for account={}", walletAddress);
       return OrganizationDTO.builder().address(walletAddress).build();
