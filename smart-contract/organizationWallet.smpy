@@ -7,22 +7,44 @@ organization_value_type = sp.TRecord(
     encryption_key = sp.TString, # TODO this can be off-chain
 )
 
-organizations_type = sp.TMap(
+organizations_type = sp.TBigMap(
     sp.TAddress,
     organization_value_type
 )
 
-class OrganizationWalletManagement(sp.Contract):
-    def __init__(self, _org: organizations_type, metadata):
+update_org_type = sp.TList(sp.TVariant(
+    update = organization_value_type,
+    remove = sp.TAddress
+))
+
+class OrganizationsYellowPages(sp.Contract):
+    def __init__(self, organizations: organizations_type, admin):
         self.init(
-            organizations = _org,
-            metadata = metadata
+            organizations = organizations,
+            admin = admin
         )
 
+    @sp.entry_point
+    def update_organizations(self, params):
+        sp.set_type(params, update_org_type)
+        sp.verify(sp.sender == self.data.admin, "INVALID_SENDER")
+        sp.for updates in params:
+            with updates.match_cases() as arg:
+                with arg.match("update") as upd:
+                    self.data.organizations[upd.address] = upd
+                with arg.match("remove") as upd:
+                    del self.data.organizations[upd]
+
+    @sp.onchain_view(name = "get_org")
+    def get_org(self, org_address):
+        sp.verify(self.data.organizations.contains(org_address), "UNKNOWN_ORGANIZATION")
+        sp.result(self.data.organizations[org_address])
+
 if "templates" not in __name__:
-    @sp.add_test(name = "OrganizationWalletManagement")
+    @sp.add_test(name = "OrganizationsYellowPages")
     def test():
         scenario = sp.test_scenario()
+        admin = sp.address("tz1W5ubDUJwpd9Gb94V2YKnZBHggAMMxtbBd")
 
         orga_DSPConsortium1 = sp.record(
             legal_name = 'DSPConsortium1',
@@ -36,15 +58,41 @@ if "templates" not in __name__:
             encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB',
             roles = {2}
         )
-        organizations = sp.map(
+        organizations = sp.big_map(
             {
                 orga_DSPConsortium1.address: orga_DSPConsortium1,
                 orga_BSPConsortium2.address: orga_BSPConsortium2
             }
         )
 
-        scMetadata = sp.utils.metadata_of_url("https://example.com")
-
-        c1 = OrganizationWalletManagement(organizations, scMetadata)
+        c1 = OrganizationsYellowPages(organizations, admin)
 
         scenario += c1
+
+        ## remove organization
+        scenario += c1.update_organizations([sp.variant("remove", orga_BSPConsortium2.address)]).run(sender = admin)
+        scenario.verify(~ c1.data.organizations.contains(orga_BSPConsortium2.address))
+
+        ## add org
+        scenario += c1.update_organizations([sp.variant("update", orga_BSPConsortium2)]).run(sender = admin)
+        scenario.verify(c1.data.organizations.contains(orga_BSPConsortium2.address))
+
+        ## update org
+        updated_orga_BSPConsortium2 = sp.record(
+            legal_name = 'UPDBSPConsortium2',
+            address = sp.address('tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2'),
+            encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB',
+            roles = {2, 1}
+        )
+        scenario += c1.update_organizations([sp.variant("update", updated_orga_BSPConsortium2)]).run(sender = admin)
+        scenario.verify(c1.data.organizations.contains(updated_orga_BSPConsortium2.address))
+        scenario.verify(c1.data.organizations[orga_BSPConsortium2.address].address == updated_orga_BSPConsortium2.address)
+        scenario.verify(c1.data.organizations[orga_BSPConsortium2.address].legal_name == "UPDBSPConsortium2")
+
+        ## test onchain view
+        view_org1 = sp.view("get_org", c1.address, orga_DSPConsortium1.address, t = organization_value_type).open_some("Invalid view")
+        scenario.verify(view_org1.address == orga_DSPConsortium1.address)
+        scenario.verify(view_org1.legal_name == orga_DSPConsortium1.legal_name)
+        scenario.verify(view_org1.legal_name == orga_DSPConsortium1.legal_name)
+        scenario.show(view_org1)
+
