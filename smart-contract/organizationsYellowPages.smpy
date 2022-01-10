@@ -21,7 +21,7 @@ update_org_type = sp.TList(sp.TVariant(
 class OrganizationsYellowPages(sp.Contract):
     def __init__(self, organizations: organizations_type, administrators):
         self.init_type(sp.TRecord(
-            organizations = sp.TBigMap(sp.TAddress, organization_value_type),
+            organizations = organizations_type,
             administrators = sp.TSet(sp.TAddress)
         ))
         self.init(
