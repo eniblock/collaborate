@@ -1,0 +1,9 @@
+{
+  "name": "pending_asset_owner hardcoded role",
+  "identityProviderAlias": "github-test",
+  "identityProviderMapper": "oidc-hardcoded-role-idp-mapper",
+  "config": {
+    "syncMode": "IMPORT",
+    "role": "pending_asset_owner"
+  }
+}

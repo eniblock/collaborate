@@ -82,8 +82,10 @@ public final class Authorizations {
     /*
      * Aggregated roles
      */
-    public static final String BSP = HasRoles.BSP_OPERATOR + " OR " + HasRoles.BSP_ADMIN;
-    public static final String DSP = HasRoles.DSP_OPERATOR + " OR " + HasRoles.DSP_ADMIN;
+    public static final String BSP =
+        HasRoles.BSP_OPERATOR + " OR " + HasRoles.BSP_ADMIN + " OR " + HasRoles.IDENTITY_ADMIN;
+    public static final String DSP =
+        HasRoles.DSP_OPERATOR + " OR " + HasRoles.DSP_ADMIN + " OR " + HasRoles.IDENTITY_ADMIN;
     public static final String ORGANIZATION_READ = HasRoles.BSP + " OR " + HasRoles.DSP;
     public static final String BUSINESS_DATA_READ = HasRoles.BSP + " OR " + HasRoles.DSP;
     public static final String BUSINESS_DATA_GRANT_ACCESS_REQUEST =

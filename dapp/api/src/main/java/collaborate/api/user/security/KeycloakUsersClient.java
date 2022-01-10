@@ -2,7 +2,7 @@ package collaborate.api.user.security;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-import collaborate.api.config.security.FeignKeycloakConfiguration;
+import collaborate.api.user.FeignKeycloakConfiguration;
 import collaborate.api.user.model.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.Optional;

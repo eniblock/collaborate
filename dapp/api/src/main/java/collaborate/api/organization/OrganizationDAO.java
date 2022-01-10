@@ -28,9 +28,9 @@ class OrganizationDAO {
   static final DataFieldsRequest<String> GET_ALL_ORGANIZATIONS_REQUEST = new DataFieldsRequest<>(
       List.of(ORGANIZATION_FIELD));
 
-  public Collection<OrganizationDTO> getAllOrganizations(String smartcontractAddress) {
+  public Collection<OrganizationDTO> getAllOrganizations(String smartContractAddress) {
     var organizations = tezosApiGatewayStorageClient.getOrganizations(
-        smartcontractAddress,
+        smartContractAddress,
         GET_ALL_ORGANIZATIONS_REQUEST
     );
 

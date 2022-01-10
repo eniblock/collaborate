@@ -1631,40 +1631,6 @@
   ],
   "adminEventsEnabled": false,
   "adminEventsDetailsEnabled": false,
-  "identityProviders": [
-    {
-      "alias": "github",
-      "internalId": "58981db9-2856-4e07-ad20-36e718fc8501",
-      "displayName": "{{.Env.ASSET_OWNER_IDENTITY_PROVIDER_DISPLAY_NAME}}",
-      "providerId": "github",
-      "enabled": "{{.Env.IDENTITY_BROKER_ENABLED}}",
-      "updateProfileFirstLoginMode": "on",
-      "trustEmail": true,
-      "storeToken": false,
-      "addReadTokenRoleOnCreate": false,
-      "authenticateByDefault": false,
-      "linkOnly": false,
-      "firstBrokerLoginFlowAlias": "first broker login",
-      "config": {
-        "syncMode": "IMPORT",
-        "clientSecret": "{{.Env.ASSET_OWNER_IDENTITY_PROVIDER_CONFIG_CLIENT_SECRET}}",
-        "clientId": "{{.Env.ASSET_OWNER_IDENTITY_PROVIDER_CONFIG_CLIENT_ID}}",
-        "useJwksUrl": "true"
-      }
-    }
-  ],
-  "identityProviderMappers": [
-    {
-      "id": "08f1f32a-b6a6-43f7-a027-23ba1634c54a",
-      "name": "pending_asset_owner hardcoded role",
-      "identityProviderAlias": "github",
-      "identityProviderMapper": "oidc-hardcoded-role-idp-mapper",
-      "config": {
-        "syncMode": "IMPORT",
-        "role": "pending_asset_owner"
-      }
-    }
-  ],
   "components": {
     "org.keycloak.services.clientregistration.policy.ClientRegistrationPolicy": [
       {
