@@ -9,7 +9,7 @@ import collaborate.api.test.config.KeycloakTestConfig;
 import collaborate.api.test.config.NoSecurityTestConfig;
 import collaborate.api.user.connected.ConnectedUserService;
 import collaborate.api.user.model.UserDTO;
-import collaborate.api.user.security.KeycloakService;
+import collaborate.api.user.security.KeycloakUserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +31,7 @@ import org.springframework.web.context.WebApplicationContext;
 class UserControllerIT {
 
   @MockBean
-  KeycloakService keycloakService;
+  KeycloakUserService keycloakUserService;
   @MockBean
   UserService userService;
   @MockBean

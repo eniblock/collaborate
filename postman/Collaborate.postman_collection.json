@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "b37b1852-1c7e-4bc3-9189-5f08bca962c6",
+		"_postman_id": "bdaf4e11-366b-4600-b869-40edfa3ac90e",
 		"name": "Collaborate",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -203,6 +203,229 @@
 												"protocol",
 												"openid-connect",
 												"token"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Identity provider",
+							"item": [
+								{
+									"name": "Create Identity provider",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"alias\": \"github\",\n  \"internalId\": \"58981db9-2856-4e07-ad20-36e718fc8501\",\n  \"displayName\": \"Use Xdev GitHub team account\",\n  \"providerId\": \"github\",\n  \"enabled\": true,\n  \"updateProfileFirstLoginMode\": \"on\",\n  \"trustEmail\": true,\n  \"storeToken\": false,\n  \"addReadTokenRoleOnCreate\": false,\n  \"authenticateByDefault\": false,\n  \"linkOnly\": false,\n  \"firstBrokerLoginFlowAlias\": \"first broker login\",\n  \"config\": {\n    \"syncMode\": \"IMPORT\",\n    \"clientSecret\": \"6d15deb5e106ed76d2ae3f95a26a4739d61db62d\",\n    \"clientId\": \"36a3c7aea0033bb8a539\",\n    \"useJwksUrl\": \"true\"\n  }\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/identity-provider/instances",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"identity-provider",
+												"instances"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get Identity providers",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/identity-provider/instances",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"identity-provider",
+												"instances"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add mapper",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"name\": \"pending_asset_owner hardcoded role\",\n  \"identityProviderAlias\": \"github\",\n  \"identityProviderMapper\": \"oidc-hardcoded-role-idp-mapper\",\n  \"config\": {\n    \"syncMode\": \"IMPORT\",\n    \"role\": \"pending_asset_owner\"\n  }\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/identity-provider/instances/github/mappers",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"identity-provider",
+												"instances",
+												"github",
+												"mappers"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get mappers",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/identity-provider/instances/github/mapper-types",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"identity-provider",
+												"instances",
+												"github",
+												"mapper-types"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Delete mapper",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "DELETE",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"id\": \"08f1f32a-b6a6-43f7-a027-23ba1634c54a\",\n  \"name\": \"pending_asset_owner hardcoded role\",\n  \"identityProviderAlias\": \"github\",\n  \"identityProviderMapper\": \"oidc-hardcoded-role-idp-mapper\",\n  \"config\": {\n    \"syncMode\": \"IMPORT\",\n    \"role\": \"pending_asset_owner\"\n  }\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/identity-provider/instances/github/mapper/08f1f32a-b6a6-43f7-a027-23ba1634c54a",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"identity-provider",
+												"instances",
+												"github",
+												"mapper",
+												"08f1f32a-b6a6-43f7-a027-23ba1634c54a"
 											]
 										}
 									},
@@ -542,90 +765,6 @@
 				{
 					"name": "Collaborate API",
 					"item": [
-						{
-							"name": "User",
-							"item": [
-								{
-									"name": "Create TAG user, as pending_asset_owner",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/users/tag/asset-owner",
-											"host": [
-												"{{dAppApiUrl}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"users",
-												"tag",
-												"asset-owner"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Get users",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/users?page=0&size=10",
-											"host": [
-												"{{dAppApiUrl}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"users"
-											],
-											"query": [
-												{
-													"key": "page",
-													"value": "0"
-												},
-												{
-													"key": "size",
-													"value": "10"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Get user by id",
-									"request": {
-										"method": "GET",
-										"header": [],
-										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/users?page=0&size=10",
-											"host": [
-												"{{dAppApiUrl}}"
-											],
-											"path": [
-												"api",
-												"v1",
-												"users"
-											],
-											"query": [
-												{
-													"key": "page",
-													"value": "0"
-												},
-												{
-													"key": "size",
-													"value": "10"
-												}
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
 						{
 							"name": "Business data",
 							"item": [
@@ -3763,6 +3902,263 @@
 											""
 										]
 									}
+								}
+							]
+						},
+						{
+							"name": "User",
+							"item": [
+								{
+									"name": "Identity-providers",
+									"item": [
+										{
+											"name": "Mapper",
+											"item": [
+												{
+													"name": "Create role mapper",
+													"request": {
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "formdata",
+															"formdata": [
+																{
+																	"key": "file",
+																	"type": "file",
+																	"src": "/home/sskorupski/xdev/collaborate/postman/identity-providers/roleMapper.github.json"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/users/identity-provider/mapper",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"users",
+																"identity-provider",
+																"mapper"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "Get role mappers by provider alias",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"pm.test(\"Status code is 200\", function () {",
+																	"    pm.response.to.have.status(200);",
+																	"});",
+																	"if(pm.response.json().length > 0){",
+																	"    pm.globals.set(\"test-provider-mapper-id\", pm.response.json()[0].id);",
+																	"}"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"method": "GET",
+														"header": [],
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/users/identity-provider/github-test/mapper",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"users",
+																"identity-provider",
+																"github-test",
+																"mapper"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "Delete role mapper by id and provider alias",
+													"request": {
+														"method": "DELETE",
+														"header": [],
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/users/identity-provider/github-test/mapper/{{test-provider-mapper-id}}",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"users",
+																"identity-provider",
+																"github-test",
+																"mapper",
+																"{{test-provider-mapper-id}}"
+															]
+														}
+													},
+													"response": []
+												}
+											]
+										},
+										{
+											"name": "Create identity provider",
+											"request": {
+												"method": "POST",
+												"header": [],
+												"body": {
+													"mode": "formdata",
+													"formdata": [
+														{
+															"key": "file",
+															"type": "file",
+															"src": "/home/sskorupski/xdev/collaborate/postman/identity-providers/github.provider.json"
+														}
+													]
+												},
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/users/identity-provider",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"users",
+														"identity-provider"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Get identity provider",
+											"request": {
+												"method": "GET",
+												"header": [],
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/users/identity-provider",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"users",
+														"identity-provider"
+													]
+												}
+											},
+											"response": []
+										},
+										{
+											"name": "Delete identity provider",
+											"request": {
+												"method": "DELETE",
+												"header": [],
+												"url": {
+													"raw": "{{dAppApiUrl}}/api/v1/users/identity-provider/github-test",
+													"host": [
+														"{{dAppApiUrl}}"
+													],
+													"path": [
+														"api",
+														"v1",
+														"users",
+														"identity-provider",
+														"github-test"
+													]
+												}
+											},
+											"response": []
+										}
+									]
+								},
+								{
+									"name": "Create TAG user, as pending_asset_owner",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/users/tag/asset-owner",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"tag",
+												"asset-owner"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get users",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/users?page=0&size=10",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "0"
+												},
+												{
+													"key": "size",
+													"value": "10"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get user by id",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/users?page=0&size=10",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "0"
+												},
+												{
+													"key": "size",
+													"value": "10"
+												}
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						}
