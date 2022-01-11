@@ -1,0 +1,445 @@
+{
+	"info": {
+		"_postman_id": "cdce1363-89ca-4798-af6e-5f0226cc3d90",
+		"name": "Proxy Token Controller Send",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "send sign",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"sign\",\n            \"entryPointParams\": 2\n        }\n    ],\n    \"secureKeyName\": \"master7\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build mint",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": false,\n                \"call_params\": {\n                    \"entry_point\": \"mint\",\n                    \"parameters\": {\n                        \"mint\": {\n                            \"mint_params\": {\n                                \"address\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                \"amount\": 1,\n                                \"metadata\": [\n                                    {\n                                        \"key\": \"\",\n                                        \"value\": \"050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762\"\n                                    }\n                                ]\n                            },\n                            \"operator\": \"tz1TjFwiHUo13xxcrAW1a2pG8iXk2Goj5HRC\"\n                        }\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 0,\n                \"signers\": [\"tz1TjFwiHUo13xxcrAW1a2pG8iXk2Goj5HRC\"]\n            }\n        }\n    ],\n    \"secureKeyName\": \"master9\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build batch_mint",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"batch_mint\",\n                    \"parameters\": {\n                        \"batch_mint\": {\n                            \"batch_mint_params\": {\n                                \"address\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                \"metadata_links\": [\n                                    \"050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762\",\n                                    \"050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762\"\n                                ]\n                            },\n                            \"operator\": null\n                        }\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 7,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master2\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build transfer",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"transfer\",\n                    \"parameters\": {\n                        \"transfer\": [\n                            {\n                                \"from_\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                \"txs\": [\n                                    {\n                                        \"to_\": \"tz1dAbb66qRJndGMD4KKDxzBebQursit5pfT\",\n                                        \"amount\": 1,\n                                        \"token_id\": 0\n                                    },\n                                    {\n                                        \"to_\": \"tz1dAbb66qRJndGMD4KKDxzBebQursit5pfT\",\n                                        \"amount\": 1,\n                                        \"token_id\": 1\n                                    }\n                                ]\n                            }\n                        ]\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 8,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build update_operators",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"update_operators\",\n                    \"parameters\": {\n                        \"update_operators\": [\n                            {\n                                \"remove_operator\": {\n                                    \"operator\": \"tz1TjFwiHUo13xxcrAW1a2pG8iXk2Goj5HRC\",\n                                    \"owner\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                    \"token_id\": 8\n                                }\n                            },\n                            {\n                                \"add_operator\": {\n                                    \"operator\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n                                    \"owner\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                    \"token_id\": 8\n                                }\n                            }\n                        ]\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 11,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build set_metadata",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"set_metadata\",\n                    \"parameters\": {\n                        \"set_metadata\": {\n                            \"k\": \"0055\",\n                            \"v\": \"050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762\"\n                        }\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 12,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build set_administrator",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"set_administrator\",\n                    \"parameters\": {\n                        \"set_administrator\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\"\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 13,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build set_pause",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"set_pause\",\n                    \"parameters\": {\n                        \"set_pause\": false\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 14,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build update_groups",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VwewqAK5uSB2fHLa9vTMG5ygpiof4VsCd\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"update_groups\",\n                    \"parameters\": {\n                        \"update_groups\": [\n                            {\n                                \"add\": [\n                                    {\n                                        \"key\": \"test\",\n                                        \"value\": \"tz1ernQcEU7qqR1t9R4mPFUCSkp9DLQqA7hW\"\n                                    }\n                                ]\n                            },\n                            {\n                                \"remove\": [\n                                    {\n                                        \"key\": \"test\",\n                                        \"value\": \"tz1ernQcEU7qqR1t9R4mPFUCSkp9DLQqA7hW\"\n                                    }\n                                ]\n                            }\n                        ]\n                    },\n                    \"target_address\": null\n                },\n                \"multisig_id\": 1,\n                \"signers\": []\n            }\n        }\n    ],\n    \"secureKeyName\": \"master7\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build update templates",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VwewqAK5uSB2fHLa9vTMG5ygpiof4VsCd\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"update_templates\",\n                    \"parameters\": {\n                        \"update_templates\": [\n                            {\n                                \"update\": [\n                                    {\n                                        \"key\": 4,\n                                        \"value\": {\n                                            \"contract_threshold\": 1,\n                                            \"groups\": [\n                                                {\n                                                    \"key\": \"minters\",\n                                                    \"value\": {\n                                                        \"group_threshold\": 1, \n                                                        \"group_weight\": 1\n                                                    }\n                                                }\n                                            ]\n                                        }\n                                    }\n                                ]\n                            },\n                            {\n                                \"remove\": [4]\n                            }\n                        ]\n                    },\n                    \"target_address\": null\n                },\n                \"multisig_id\": 3,\n                \"signers\": []\n            }\n        }\n    ],\n    \"secureKeyName\": \"master7\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "send build update rules",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VwewqAK5uSB2fHLa9vTMG5ygpiof4VsCd\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"update_rules\",\n                    \"parameters\": {\n                        \"update_rules\": [\n                            {\n                                \"update\": [\n                                    {\n                                        \"key\": \"mint\",\n                                        \"value\": {\n                                            \"template_id\": 0,\n                                            \"authorized_builders\": [\"minters\", \"batch_minters\"]\n                                        }\n                                    }\n                                ]\n                            },\n                            {\n                                \"remove\": [\"batch_mint\"]\n                            }\n                        ]\n                    },\n                    \"target_address\": null\n                },\n                \"multisig_id\": 4,\n                \"signers\": []\n            }\n        }\n    ],\n    \"secureKeyName\": \"master7\"\n}\n        ",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/send/jobs?cache=false",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"send",
+						"jobs"
+					],
+					"query": [
+						{
+							"key": "cache",
+							"value": "false"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get update entrypoint schema Copy",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": ""
+				},
+				"url": {
+					"raw": "http://localhost:3333/api/entrypoints/KT1PLfDC94ExEGwotGcuS2ciqVzedVZRddJv?=",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3333",
+					"path": [
+						"api",
+						"entrypoints",
+						"KT1PLfDC94ExEGwotGcuS2ciqVzedVZRddJv"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": ""
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
