@@ -1,0 +1,19 @@
+{
+  "alias": "github-test",
+  "displayName": "Login with GitHub test",
+  "providerId": "github",
+  "enabled": true,
+  "updateProfileFirstLoginMode": "on",
+  "trustEmail": true,
+  "storeToken": false,
+  "addReadTokenRoleOnCreate": false,
+  "authenticateByDefault": false,
+  "linkOnly": false,
+  "firstBrokerLoginFlowAlias": "first broker login",
+  "config": {
+    "syncMode": "IMPORT",
+    "clientSecret": "66b2321d14e19a21888f4e823839ed3245af54df",
+    "clientId": "36a3c7aea0033bb8a539",
+    "useJwksUrl": "true"
+  }
+}

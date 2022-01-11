@@ -61,3 +61,34 @@ H[RSACiphered + AesCiphered]
     D --> C
     F --> C
 ```
+
+
+### Create your _Access Token_ keys
+For making other organization able to request access to the data you provide, you will need to
+exchange secrets publicly. You will provide data like JWT access token, ciphered using RSA & AES
+algorithms (
+see: [Access NFT Token associated data](https://gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/-/blob/develop/doc/access-nft-dataset-catalog.md)
+as a more detailed overview)
+
+* Generate your RSA keys, using a terminal:
+
+```shell
+openssl genrsa -out keypair.pem 1024 && openssl rsa -in keypair.pem -pubout -out publickey.crt && openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out pkcs8.key
+```
+
+* Report your public key from the created `publickey.crt` as `encryption_key` value of your
+  organization (cf. Deploy a new smart contract)
+* Report your private key from the created `pkcs8.key` as `encryption_key` value of your
+  organization (cf. Deploy a new smart contract)
+
+**Deploy a new smart contract** : While working with Collaborate v0.4, you need to deploy a new
+smart-contract each time you want a new organization to be added. New smart-contract strategies are
+in development in next Collaborate version to avoid this annoying requirement.
+
+Before deploying you need to update the `#### INIT ORGANIZATIONS ###` section:
+
+* Create/update an organization by providing:
+    * `legal_name`: The organization legal name
+    * `address`: The organization wallet address (cf. Create a wallet)
+    * `encryption_key`: The organization access token public token (cf. Create your _Access Token_
+      keys)

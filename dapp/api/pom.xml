@@ -354,14 +354,14 @@
 
   <properties>
     <assertj.version>3.21.0</assertj.version>
-    <jackson.version>2.13.0</jackson.version>
+    <jackson.version>2.13.1</jackson.version>
     <java.version>11</java.version>
     <keycloak-adapter-bom.version>11.0.3</keycloak-adapter-bom.version>
     <log4j.version>2.17.1</log4j.version>
     <lombok.version>1.18.20</lombok.version>
     <mock-server.version>3.10.8</mock-server.version>
     <spring-cloud.version>2020.0.4</spring-cloud.version>
-    <springdoc-openapi-ui.version>1.5.12</springdoc-openapi-ui.version>
+    <springdoc-openapi-ui.version>1.6.0</springdoc-openapi-ui.version>
     <sonar.organization>xdev-tech</sonar.organization>
     <sonar.projectKey>xdev-tech_collaborate</sonar.projectKey>
     <sonarcube.version>3.7.0.1746</sonarcube.version>
