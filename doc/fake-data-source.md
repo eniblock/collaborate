@@ -16,6 +16,14 @@ your first data source creations.
 
 ## Fake data source API behavior
 
+```mermaid
+sequenceDiagram
+    client->>+FakeDS: Hello John, how are you?
+    Alice->>+John: John, can you hear me?
+    John-->>-Alice: Hi Alice, I can hear you!
+    John-->>-Alice: I feel great!
+```
+
 ### JSON resource description database
 
 The Fake data source APIs are HTTP servers based
@@ -25,7 +33,9 @@ json resource description database file available at the following links:
 * Fake datasource DSP A: https://dsp-a.fds.pcc.eniblock.fr/db-datasource-dsp-a.json
 * Fake datasource DSP B: https://dsp-a.fds.pcc.eniblock.fr/db-datasource-dsp-b.json
 
-### First level resources
+![Fake Data-sources scopes implementation](images/fake-data-source-scopes.jpg)
+
+### First level resources scopes
 
 For accessing a first level resource, a JWT[^1] access token with the corresponding scope must be
 provided. For an example:
@@ -42,7 +52,7 @@ of second level resources in the `$._embedded.assets` field.
 
 [^2]: [Hypertext Application Language](https://datasource-dsp-a.fake-datasource.localhost/referentials)
 
-### Second level resources
+### Second level resources scopes
 
 For accessing a second level resource, a JWT access token with the defined scope must be provided.
 For an example:
@@ -80,14 +90,37 @@ curl --location --request POST 'https://iam.fds.pcc.eniblock.fr/auth/realms/data
 --data-urlencode 'scope=battery' 
 ```
 
-Then use this `access_token` on `GET https://dsp-b.fds.pcc.eniblock.fr/battery` to get all batteries
-resources:
+It should return
+a [successful access token response](https://www.oauth.com/oauth2-servers/access-tokens/access-token-response/)
+
+The `access_token` field value can be used as _Authorization bearer header_ while requesting a fake
+data-source resource , for an example `GET https://dsp-b.fds.pcc.eniblock.fr/battery` to get all
+batteries resources:
 
 ```
 curl --location --request GET 'https://datasource-dsp-b.fake-datasource.localhost/battery/VF1VY0C06UC283811' \
---header 'Authorization: Bearer XXX_ACCESS_TOKEN_GOES_HERE_XXX' \
---header 'Content-Type: application/x-www-form-urlencoded' \
---data-urlencode 'grant_type=client_credentials' \
---data-urlencode 'client_id=collaborate' \
---data-urlencode 'client_secret=57936b16-2f90-434a-9eb4-843668a3a521'
+--header 'Authorization: Bearer XXX_ACCESS_TOKEN_GOES_HERE_XXX'
+```
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant I as IAM
+    participant F as Fake Data source
+    C ->>+ I: GET JWT for scope 'referentials'
+    Note left of C: POST /auth/realms/datasource/protocol/openid-connect/token HTTP/1.1 <br/>Host: iam.fds.pcc.eniblock.fr<br/>grant_type=client_credentials<br/>&client_id=collaborate<br/>&client_secret=57936b16-2f90-434a-9eb4-843668a3a521<br/>scope=referentials
+
+    I -->>- C: JWT
+    Note right of I: "access_token": "eyJh..."<br/>[...]<br/>"scope": "referentials"<br/>
+
+    C ->>+ F: GET /referentials with JWT
+    Note left of C: GET /referentials HTTP/1.1 <br/>Host: dsp-a.fds.pcc.eniblock.fr<br/>Authorization: Bearer eyJs...
+    
+    F ->>+ I: verify token
+    I -->>- F: user
+    alt user has scope 'referentials'
+      F-->>C: HTTP 200 OK  
+    else
+      F-->>-C: HTTP 403 Forbidden
+    end
 ```
