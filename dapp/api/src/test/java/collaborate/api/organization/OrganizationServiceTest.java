@@ -29,15 +29,14 @@ class OrganizationServiceTest {
   @InjectMocks
   OrganizationService organizationService;
 
-  final String businessDataSCAddress = "bdSCAddress";
-  final String digitalPassportDataSCAddress = "dpSCAddress";
+  final String organisationWalletSCAddress = "orgSCAddress";
 
   @ParameterizedTest
   @MethodSource("extractValuePathParameters")
   void getAllDspWallets_shouldIncludeDspRoleAndExcludeDspRole(
       List<OrganizationDTO> organizations, List<String> expectedWalletsResult) {
     // GIVEN
-    when(apiProperties.getBusinessDataContractAddress()).thenReturn(businessDataSCAddress);
+    when(apiProperties.getOrganizationWalletContractAddress()).thenReturn(organisationWalletSCAddress);
     when(organizationDAO.getAllOrganizations(any()))
         .thenReturn(organizations);
     // WHEN
