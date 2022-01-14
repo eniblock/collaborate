@@ -1,11 +1,8 @@
 package collaborate.api.datasource.passport.find;
 
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.datasource.nft.model.storage.CallParams;
-import collaborate.api.datasource.nft.model.storage.Multisig;
 import collaborate.api.datasource.nft.model.storage.TokenMetadata;
 import collaborate.api.datasource.passport.model.storage.StorageFields;
-import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
@@ -126,26 +123,4 @@ class FindPassportDAO {
     return tokenOperators;
   }
 
-  public String getOwnerAddressFromMultisig(CallParams callParams) {
-    var parameters =  (callParams.getParameters());
-    var mint = parameters.getMint();
-    var mintParams = mint.getMintParams();
-    return mintParams.getAddress();
-  }
-
-  public String getOperatorAddressFromMultisig(CallParams callParams) {
-    var parameters = callParams.getParameters();
-    var mint =  parameters.getMint();
-    return mint.getOperator();
-  }
-
-  public Bytes getMetadataFromMultisig(CallParams callParams) {
-    var parameters = callParams.getParameters();
-    var mint =  parameters.getMint();
-    var mintParams =  mint.getMintParams();
-    var metadata = mintParams.getMetadata();
-    var addressMaps = metadata.getValue();
-    var address = addressMaps.get(0);
-    return address.getValue();
-  }
 }

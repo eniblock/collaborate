@@ -4,21 +4,15 @@ import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
-import collaborate.api.datasource.nft.model.storage.CallParams;
-import collaborate.api.datasource.nft.model.storage.MintParams;
-import collaborate.api.datasource.nft.model.storage.Parameters;
 import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.organization.OrganizationService;
-import collaborate.api.tag.BytesDeserializer;
-import collaborate.api.tag.model.Bytes;
 import collaborate.api.user.UserService;
 import collaborate.api.user.connected.ConnectedUserService;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -88,16 +82,14 @@ public class DigitalPassportDetailsDTOFactory {
         .filter(tagEntry -> tagEntry.getValue().getCallParams().getEntryPoint().equals("mint"))
         .filter(tagEntry -> !tagEntry.getValue().isOk())
         .filter(tagEntry -> ownerAddressFilter == null || ownerAddressFilter.equals(
-            findPassportDAO.getOwnerAddressFromMultisig(tagEntry.getValue().getCallParams())))
+            tagEntry.getValue().getCallParams().getOwnerAddressFromMultisig()))
         .map(tagEntry -> {
-          var metadataIpfsUri = findPassportDAO.getMetadataFromMultisig(
-              tagEntry.getValue().getCallParams());
+          var metadataIpfsUri = tagEntry.getValue().getCallParams().getMetadataFromMultisig();
           var metadata = ipfsService.cat(
               metadataIpfsUri.toString(), TZip21Metadata.class);
-          var ownerAddress = findPassportDAO.getOwnerAddressFromMultisig(
-              tagEntry.getValue().getCallParams());
-          var operatorAddress = findPassportDAO.getOperatorAddressFromMultisig(
-              tagEntry.getValue().getCallParams());
+          var ownerAddress = tagEntry.getValue().getCallParams().getOwnerAddressFromMultisig();
+          var operatorAddress = tagEntry.getValue().getCallParams()
+              .getOperatorAddressFromMultisig();
           return DigitalPassportDetailsDTO.builder()
               .assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata)
                   .orElse(null))
