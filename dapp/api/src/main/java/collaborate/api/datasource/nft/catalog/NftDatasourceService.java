@@ -60,7 +60,7 @@ public class NftDatasourceService {
   public Map<Integer, TZip21Metadata> getTZip21MetadataByTokenIds(Collection<Integer> tokenIdList,
       String smartContract) {
     var tokenMetadata = new HashMap<Integer, TZip21Metadata>();
-    tokenIdList.stream()
+    tokenIdList
         .forEach(tokenId -> tokenMetadata.put(
             tokenId,
             getTZip21MetadataByTokenId(tokenId, smartContract).orElse(null))
