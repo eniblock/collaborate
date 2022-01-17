@@ -83,9 +83,9 @@ class FindPassportDAO {
     ));
     var tokenIdsByOwner = tezosApiGatewayPassportClient.getTokenIdsByOwner(
         apiProperties.getDigitalPassportContractAddress(), request);
-    return tokenIdsByOwner
-        .getTokensByOwner().get(0).getValue()
-        .values();
+    return (tokenIdsByOwner.getTokensByOwner().get(0).getError() == null)
+        ? tokenIdsByOwner.getTokensByOwner().get(0).getValue().values()
+        : List.of();
   }
 
   public Map<Integer, String> getOwnersByTokenIds(Collection<Integer> tokenIdList) {
