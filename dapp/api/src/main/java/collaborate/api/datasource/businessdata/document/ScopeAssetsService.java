@@ -1,6 +1,6 @@
 package collaborate.api.datasource.businessdata.document;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
 import static java.util.stream.Collectors.toList;
 
 import collaborate.api.config.api.ApiProperties;
@@ -133,7 +133,7 @@ public class ScopeAssetsService {
   ResponseEntity<JsonNode> getAssetListResponse(String datasourceId) {
     var gatewayResource = GatewayResourceDTO.builder()
         .datasourceId(datasourceId)
-        .scope(SCOPE_ASSET_LIST)
+        .scope(TEST_CONNECTION)
         .build();
     return gatewayUrlService.fetch(
         gatewayResource

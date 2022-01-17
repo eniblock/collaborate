@@ -4,12 +4,14 @@ import static lombok.AccessLevel.PRIVATE;
 
 import collaborate.api.datasource.model.dto.Keywords;
 import collaborate.api.datasource.model.dto.NoQueryStringConstraint;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.OneToMany;
@@ -18,6 +20,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @Builder
@@ -29,7 +32,7 @@ public class WebServerResource implements Keywords<String>, Serializable {
   @NoArgsConstructor(access = PRIVATE)
   public static class Keywords {
 
-    public static final String SCOPE_ASSET_LIST = "scope:list-asset";
+    public static final String TEST_CONNECTION = "list-asset";
   }
 
   @Schema(description = "A human readable description of this resource")
@@ -52,5 +55,13 @@ public class WebServerResource implements Keywords<String>, Serializable {
   @OneToMany(cascade = CascadeType.ALL)
   @ArraySchema(schema = @Schema(description = "Query parameter to add at the end of this resource URL. "))
   private ArrayList<QueryParam> queryParams;
+
+  @JsonIgnore
+  public Optional<String> findFirstKeywordRemovingPrefix(String prefix) {
+    return keywords.stream()
+        .filter(keyword -> keyword.startsWith(prefix))
+        .findFirst()
+        .map(keyword -> StringUtils.removeStart(keyword, prefix));
+  }
 
 }

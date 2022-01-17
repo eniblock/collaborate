@@ -16,7 +16,7 @@ class FromRouteRegexSupplierTest {
   @Test
   void get_shouldReturnExpectedPath_withoutQueryParams() throws JsonProcessingException {
     // GIVEN
-    String resourceKeyword = "scope:list-asset";
+    String resourceKeyword = "list-asset";
     var resource = objectMapper
         .readValue(objectMapper.writeValueAsString(
                 getResourceByKeyword(resourceKeyword)),
@@ -24,7 +24,7 @@ class FromRouteRegexSupplierTest {
     // WHEN
     var supplier = new FromRouteRegexSupplier(datasourceName, resource);
     // THEN
-    assertThat(supplier.get()).isEqualTo("/datasource/ds1/scope:list-asset");
+    assertThat(supplier.get()).isEqualTo("/datasource/ds1/list-asset");
   }
 
   @Test

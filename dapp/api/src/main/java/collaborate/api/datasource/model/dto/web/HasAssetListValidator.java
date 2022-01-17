@@ -1,6 +1,6 @@
 package collaborate.api.datasource.model.dto.web;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
 
 import java.util.List;
 import javax.validation.ConstraintValidator;
@@ -15,6 +15,6 @@ public class HasAssetListValidator implements
     return resources != null
         && resources.stream()
         .anyMatch(resource -> resource.getKeywords() != null && resource.getKeywords()
-            .contains(SCOPE_ASSET_LIST));
+            .contains(TEST_CONNECTION));
   }
 }

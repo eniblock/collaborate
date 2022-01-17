@@ -1,7 +1,6 @@
 package collaborate.api.datasource.create;
 
-import static collaborate.api.datasource.MetadataService.LIST_ASSET_SCOPE;
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
+import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.SCOPE_PREFIX;
 
 import collaborate.api.datasource.URIFactory;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
@@ -10,7 +9,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -26,13 +24,7 @@ public class RequestEntitySupplierFactory {
     var resource = serverDatasourceDTO.getResourceByKeywordOrThrow(resourceKeyword);
     var uri = uriFactory.create(serverDatasourceDTO, resource);
 
-    Optional<String> scope = Optional.empty();
-    if (SCOPE_ASSET_LIST.equals(resourceKeyword)) {
-      scope = resource.getKeywords().stream()
-          .filter(keyword -> StringUtils.startsWith(keyword, LIST_ASSET_SCOPE + ":"))
-          .map(keyword -> StringUtils.removeStart(keyword, LIST_ASSET_SCOPE + ":"))
-          .findFirst();
-    }
+    Optional<String> scope = resource.findFirstKeywordRemovingPrefix(SCOPE_PREFIX);
     var requestEntityVisitor = requestEntityVisitorFactory.create(uri, scope);
     return serverDatasourceDTO.getAuthMethod().accept(requestEntityVisitor);
   }

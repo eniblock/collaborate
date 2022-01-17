@@ -9,16 +9,19 @@ import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
+import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
+import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import javax.validation.Valid;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,6 +33,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,15 +62,30 @@ public class DatasourceController {
           + "When the data source is for business data, the associated scope are also minted as NFT business data token",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DSP_ADMIN)
-  public Callable<ResponseEntity<Datasource>> createDatasource(
-      @Valid @RequestPart("datasource") DatasourceDTO datasource,
+  public ResponseEntity<Datasource> createDatasource(
+      @RequestPart("datasource") DatasourceDTO datasource,
+      @RequestPart("resource-description") Optional<List<WebServerResource>> resources,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
       throws IOException, DatasourceVisitorException {
+    if (resources.isPresent()) {
+      if (!(datasource instanceof WebServerDatasourceDTO)) {
+        throw new ResponseStatusException(
+            BAD_REQUEST,
+            "Providing a resource description file is only "
+                + "allowed when working with WebServerDatasourceDTO datasource");
+      }
+      ((WebServerDatasourceDTO) datasource).setResources(resources.get());
+    }
+    var violations = Validation.buildDefaultValidatorFactory()
+        .getValidator()
+        .validate(datasource);
+    if (!CollectionUtils.isEmpty(violations)) {
+      throw new ResponseStatusException(BAD_REQUEST, "",
+          new ConstraintViolationException(violations));
+    }
     testDatasourceConnection(datasource, pfxFile);
-    return () -> {
-      var datasourceResult = createDatasourceService.create(datasource, pfxFile);
-      return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
-    };
+    var datasourceResult = createDatasourceService.create(datasource, pfxFile);
+    return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
   }
 
   @GetMapping("/{id}")

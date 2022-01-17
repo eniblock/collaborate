@@ -1,0 +1,33 @@
+{
+  "resources": [
+    {
+      "description": "Documents list",
+      "keywords": [
+        "scope:referentials",
+        "asset-list"
+      ],
+      "url": "/referentials"
+    },
+    {
+      "description": "Maintenance plans A",
+      "keywords": [
+        "scope:maintenance-plans-A"
+      ],
+      "url": "/referentials/$1"
+    },
+    {
+      "description": "Maintenance plans B",
+      "keywords": [
+        "scope:maintenance-plans-B"
+      ],
+      "url": "/referentials/$1"
+    },
+    {
+      "description": "Customers analytics",
+      "keywords": [
+        "scope:customers-analytics"
+      ],
+      "url": "/referentials/$1"
+    }
+  ]
+}

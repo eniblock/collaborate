@@ -12,8 +12,7 @@ import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.create.CreateDatasourceService;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
-import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
+import collaborate.api.datasource.model.dto.web.OAuth2DatasourceFeatures;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -72,15 +71,11 @@ class DatasourceControllerTest {
   @Test
   void create_shouldCallExpectedService_withOAuth2() throws Exception {
     // GIVEN
-    DatasourceDTO datasource =
-        WebServerDatasourceDTO.builder()
-            .id(UUID.fromString("1fc84579-69fa-40bd-a4bd-b4b79139e53b"))
-            .authMethod(new OAuth2ClientCredentialsGrant())
-            .build();
+    DatasourceDTO datasource = OAuth2DatasourceFeatures.datasource;
     when(createDatasourceService.create(datasource, Optional.empty())).thenReturn(null);
     when(createDatasourceService.testConnection(datasource, Optional.empty())).thenReturn(true);
     // WHEN
-    datasourceController.createDatasource(datasource, Optional.empty()).call();
+    datasourceController.createDatasource(datasource, Optional.empty(), Optional.empty());
     // THEN
     verify(createDatasourceService, times(1)).create(datasource, Optional.empty());
     verify(createDatasourceService, times(1)).testConnection(datasource, Optional.empty());

@@ -7,8 +7,7 @@
     "type": "OAuth2ClientCredentialsGrant",
     "clientId": "collaborate",
     "clientSecret": "secret",
-    "issuerIdentifierUri": "http://dspconsortium1.localhost",
-    "wellKnownURIPathSuffix": "/.well-known",
+    "authorizationServerUrl": "http://dspconsortium1.localhost/token_endpoint",
     "partnerTransferMethod": {
       "type": "OAuth2"
     }
@@ -29,7 +28,8 @@
     {
       "description": "Test connection",
       "keywords": [
-        "scope:list-asset"
+        "scope:test",
+        "list-asset"
       ],
       "url": "https://developer.dspconsortium1.io/webapi/b2b/api-reference-v3/specification/"
     }

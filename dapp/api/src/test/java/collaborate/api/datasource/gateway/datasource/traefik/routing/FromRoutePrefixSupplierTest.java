@@ -20,7 +20,7 @@ class FromRoutePrefixSupplierTest {
     return Stream.of(
         Arguments.of("scope:odometer", "/datasource/datasource-name/scope:odometer"),
         Arguments.of("scope:metric:odometer", "/datasource/datasource-name/scope:metric:odometer"),
-        Arguments.of("document:test", "/datasource/datasource-name/document:test")
+        Arguments.of("list-asset", "/datasource/datasource-name/list-asset")
     );
   }
 
