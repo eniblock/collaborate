@@ -1,9 +1,12 @@
-package collaborate.api.datasource.businessdata.create;
+package collaborate.api.datasource.create;
 
 import static collaborate.api.datasource.businessdata.document.ScopeAssetsService.ASSET_ID_SEPARATOR;
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_PREFIX;
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
 
+import collaborate.api.datasource.businessdata.create.AssetIdAndUri;
+import collaborate.api.datasource.businessdata.create.BusinessDataTokenMetadataSupplier;
+import collaborate.api.datasource.businessdata.create.CreateBusinessDataNftDAO;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
@@ -21,7 +24,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class MintBusinessDataService {
+public class MintBusinessDataServiceTest {
 
   private final BusinessDataTokenMetadataSupplier tokenMetadataSupplier;
   private final CreateBusinessDataNftDAO createBusinessDataNftDAO;

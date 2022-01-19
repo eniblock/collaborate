@@ -1,50 +1,7 @@
-{
-  "_links": {
-    "self": {
-      "href": "http://fake-datasource-api-dsp-a:3000/documents"
-    }
-  },
-  "_embedded": {
-    "metadatas": [
-      {
-        "_links": {
-          "self": {
-            "href": "http://fake-datasource-api-dsp-a:3000/documents/dspA1"
-          },
-          "download": {
-            "href": "http://fake-datasource-api-dsp-a:3000/documents/dspA1/download"
-          }
-        },
-        "id": "dspA1",
-        "title": "Centres ouverts",
-        "scope": "referentials"
-      },
-      {
-        "_links": {
-          "self": {
-            "href": "http://fake-datasource-api-dsp-a:3000/documents/dspA2"
-          },
-          "download": {
-            "href": "http://fake-datasource-api-dsp-a:3000/documents/dspA2/download"
-          }
-        },
-        "id": "dspA2",
-        "title": "Nombre de metrics saisis en atelier (par mois)",
-        "scope": "customers-analytics"
-      },
-      {
-        "_links": {
-          "self": {
-            "href": "http://fake-datasource-api-dsp-a:3000/documents/dspA6"
-          },
-          "download": {
-            "href": "http://fake-datasource-api-dsp-a:3000/documents/dspA6/download"
-          }
-        },
-        "id": "dspA6",
-        "title": "Contactabilité des clients (à date)",
-        "scope": "customers-analytics"
-      }
-    ]
+[
+  {
+    "id": "airports",
+    "title": "Airport, airline and route data",
+    "uri": "https://datasource-dsp-a.fake-datasource.localhost/referentials/airports/download"
   }
-}
+]

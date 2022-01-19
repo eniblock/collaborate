@@ -21,7 +21,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-class OrganizationDAO {
+public class OrganizationDAO {
 
   private final TezosApiGatewayStorageClient tezosApiGatewayStorageClient;
   private final ModelMapper modelMapper;

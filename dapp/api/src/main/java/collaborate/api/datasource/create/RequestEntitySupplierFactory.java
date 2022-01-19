@@ -1,6 +1,6 @@
 package collaborate.api.datasource.create;
 
-import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.SCOPE_PREFIX;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_PREFIX;
 
 import collaborate.api.datasource.URIFactory;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;

@@ -9,14 +9,11 @@ import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
-import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
-import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -64,18 +61,8 @@ public class DatasourceController {
   @PreAuthorize(HasRoles.DSP_ADMIN)
   public ResponseEntity<Datasource> createDatasource(
       @RequestPart("datasource") DatasourceDTO datasource,
-      @RequestPart("resource-description") Optional<List<WebServerResource>> resources,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
       throws IOException, DatasourceVisitorException {
-    if (resources.isPresent()) {
-      if (!(datasource instanceof WebServerDatasourceDTO)) {
-        throw new ResponseStatusException(
-            BAD_REQUEST,
-            "Providing a resource description file is only "
-                + "allowed when working with WebServerDatasourceDTO datasource");
-      }
-      ((WebServerDatasourceDTO) datasource).setResources(resources.get());
-    }
     var violations = Validation.buildDefaultValidatorFactory()
         .getValidator()
         .validate(datasource);

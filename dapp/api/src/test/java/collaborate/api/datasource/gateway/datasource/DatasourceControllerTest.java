@@ -75,7 +75,7 @@ class DatasourceControllerTest {
     when(createDatasourceService.create(datasource, Optional.empty())).thenReturn(null);
     when(createDatasourceService.testConnection(datasource, Optional.empty())).thenReturn(true);
     // WHEN
-    datasourceController.createDatasource(datasource, Optional.empty(), Optional.empty());
+    datasourceController.createDatasource(datasource, Optional.empty());
     // THEN
     verify(createDatasourceService, times(1)).create(datasource, Optional.empty());
     verify(createDatasourceService, times(1)).testConnection(datasource, Optional.empty());

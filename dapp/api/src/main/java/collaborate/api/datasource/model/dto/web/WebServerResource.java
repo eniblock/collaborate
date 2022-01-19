@@ -33,6 +33,7 @@ public class WebServerResource implements Keywords<String>, Serializable {
   public static class Keywords {
 
     public static final String TEST_CONNECTION = "list-asset";
+    public static final String SCOPE_PREFIX = "scope:";
   }
 
   @Schema(description = "A human readable description of this resource")
@@ -64,4 +65,8 @@ public class WebServerResource implements Keywords<String>, Serializable {
         .map(keyword -> StringUtils.removeStart(keyword, prefix));
   }
 
+  @JsonIgnore
+  public boolean keywordsContain(String keyword) {
+    return keywords.stream().anyMatch(k -> k.equals(keyword));
+  }
 }

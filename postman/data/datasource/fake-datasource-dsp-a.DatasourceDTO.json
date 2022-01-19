@@ -14,5 +14,16 @@
   },
   "keywords": [
     "business-data"
+  ],
+  "resources": [
+    {
+      "description": "Documents list",
+      "keywords": [
+        "scope:referentials",
+        "category:referentials",
+        "list-asset"
+      ],
+      "url": "/documents"
+    }
   ]
 }

@@ -19,7 +19,7 @@
     {
       "description": "Vehicles list",
       "keywords": [
-        "scope:list-asset",
+        "list-asset",
         "list-asset-scope:vehicle"
       ],
       "url": "/vehicle"
