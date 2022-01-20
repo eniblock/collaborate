@@ -1,5 +1,6 @@
 package collaborate.api.datasource.passport.metric;
 
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -43,7 +44,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class MetricService {
 
   public static final String VALUE_JSON_PATH = "value.jsonPath";
-  public static final String SCOPE_METRIC_PREFIX = "scope:metric:";
+  public static final String SCOPE_METRIC_PREFIX = "scope:";
   private final Clock clock;
   private final ConnectedUserService connectedUserService;
   private final DatasourceService datasourceService;
@@ -99,6 +100,7 @@ public class MetricService {
   Stream<GatewayResourceDTO> buildMetricUrls(DatasourceDTO datasourceDTO) {
     Set<Metadata> metadata = datasourceService.getMetadata(datasourceDTO.getId());
     return datasourceDTO.getScopes().stream()
+        .filter(s -> !SCOPE_ASSET_LIST.equals(s))
         .filter(s -> startsWith(s, SCOPE_METRIC_PREFIX))
         .map(scope -> GatewayResourceDTO.builder()
             .datasourceId(datasourceDTO.getId())
