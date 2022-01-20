@@ -2,8 +2,9 @@ package collaborate.api.datasource.passport.find;
 
 import static collaborate.api.user.security.Authorizations.Roles.ASSET_OWNER;
 
+import collaborate.api.config.api.ApiProperties;
+import collaborate.api.datasource.multisig.ProxyTokenControllerTransactionService;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
-import collaborate.api.organization.OrganizationService;
 import collaborate.api.user.UserService;
 import collaborate.api.user.connected.ConnectedUserService;
 import java.util.Collection;
@@ -12,39 +13,46 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class FindPassportService {
 
+  private final ApiProperties apiProperties;
   private final DigitalPassportDetailsDTOFactory digitalPassportDetailsDTOFactory;
   private final ConnectedUserService connectedUserService;
   private final FindPassportDAO findPassportDAO;
-  private final OrganizationService organizationService;
+  private final ProxyTokenControllerTransactionService proxyTokenControllerTransactionService;
   private final UserService userService;
 
-  public List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisig(
-      @Nullable String ownerAddress) {
-    var multisigNb = findPassportDAO.countMultisigs();
-    var multisigIds = new LinkedList<Integer>();
-    for (int i = 0; i < multisigNb; i++) {
-      multisigIds.add(i);
-    }
-    return findPassportDetailsFromMultisigIdList(multisigIds, ownerAddress);
+  public List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisig(String ownerAddress) {
+    var multiSigIdList = proxyTokenControllerTransactionService.findMultiSigIdListByOwner(
+        apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+        ownerAddress
+    );
+    return findPassportDetailsFromMultisigIdList(multiSigIdList);
+  }
+
+  public List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigByOperator(
+      String operatorAddress) {
+    var multiSigIdList = proxyTokenControllerTransactionService.findMultiSigIdListByOperator(
+        apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+        operatorAddress
+    );
+    return findPassportDetailsFromMultisigIdList(multiSigIdList);
   }
 
   public Optional<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigId(Integer contractId) {
-    var l = findPassportDetailsFromMultisigIdList(List.of(contractId), null);
+    var l = findPassportDetailsFromMultisigIdList(List.of(contractId));
     return (l == null || l.isEmpty())
         ? Optional.empty()
         : Optional.of(l.get(0));
   }
 
   private List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigIdList(
-      List<Integer> multisigIds, String ownerAddress) {
-    return digitalPassportDetailsDTOFactory.makeFromMultisig(multisigIds, ownerAddress);
+      List<Integer> multisigIds) {
+    return digitalPassportDetailsDTOFactory.makeFromMultiSig(multisigIds);
   }
 
   public List<DigitalPassportDetailsDTO> findPassportDetailsByTokenIdList(
@@ -70,14 +78,17 @@ public class FindPassportService {
       digitalPassports = findPassportDetailsByTokenIdList(tokenIds);
       digitalPassports.addAll(findPassportDetailsFromMultisig(connectedUserWallet));
     } else {
+      var connectedUserWallet = connectedUserService.getWallet();
       var tokenIds = findAllTokenIds();
       digitalPassports = findPassportDetailsByTokenIdList(tokenIds);
-      digitalPassports.addAll(findPassportDetailsFromMultisig(null));
+      digitalPassports.addAll(
+          findPassportDetailsFromMultisigByOperator(connectedUserWallet.getAddress()));
     }
 
     return digitalPassports;
   }
 
+  // FIXME remove for loop
   private Collection<Integer> findAllTokenIds() {
     var allTokens = findPassportDAO.countPassports();
     var tokenIds = new LinkedList<Integer>();

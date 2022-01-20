@@ -76,13 +76,10 @@ public class DigitalPassportDetailsDTOFactory {
     return AccessStatus.LOCKED;
   }
 
-  public List<DigitalPassportDetailsDTO> makeFromMultisig(List<Integer> multisigIds,
-      String ownerAddressFilter) {
-    return findPassportDAO.findMultisigByIds(multisigIds).getMultisigs().stream()
-        .filter(tagEntry -> tagEntry.getValue().getCallParams().getEntryPoint().equals("mint"))
-        .filter(tagEntry -> !tagEntry.getValue().isOk())
-        .filter(tagEntry -> ownerAddressFilter == null || ownerAddressFilter.equals(
-            tagEntry.getValue().getCallParams().getOwnerAddressFromMultisig()))
+  public List<DigitalPassportDetailsDTO> makeFromMultiSig(
+      List<Integer> multiSigIdList
+  ) {
+    return findPassportDAO.findMultisigByIds(multiSigIdList).getMultisigs().stream()
         .map(tagEntry -> {
           var metadataIpfsUri = tagEntry.getValue().getCallParams().getMetadataFromMultisig();
           var metadata = ipfsService.cat(

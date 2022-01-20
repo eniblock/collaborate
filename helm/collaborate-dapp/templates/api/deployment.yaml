@@ -231,6 +231,10 @@ spec:
               value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
             - name: TRANSACTION_WATCHERS_1_SMART_CONTRACT_ADDRESS
               value: {{ .Values.api.digitalPassportContractAddress | quote }}
+            - name: TRANSACTION_WATCHERS_2_FIXED_DELAY_IN_MS
+              value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
+            - name: TRANSACTION_WATCHERS_2_SMART_CONTRACT_ADDRESS
+              value: {{ .Values.api.digitalPassportProxyTokenControllerContractAddress | quote }}
           ports:
             - name: http
               containerPort: 7772
