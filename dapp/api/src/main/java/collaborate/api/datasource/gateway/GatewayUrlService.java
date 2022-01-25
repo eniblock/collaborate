@@ -44,7 +44,9 @@ public class GatewayUrlService {
       uriBuilder.path("/" + resourceDTO.getAssetIdForDatasource());
     }
 
-    var accessTokenOpt = findOAuth2Jwt(resourceDTO.getDatasourceId(), resourceDTO.getScope());
+    var accessTokenOpt = findOAuth2Jwt(
+        resourceDTO.getDatasourceId(),
+        resourceDTO.getScope());
     var uri = uriBuilder.build().toUriString();
     return gatewayURLDAO.fetch(uri, accessTokenOpt);
   }
