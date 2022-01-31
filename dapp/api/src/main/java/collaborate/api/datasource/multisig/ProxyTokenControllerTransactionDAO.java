@@ -6,11 +6,15 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ProxyTokenControllerTransactionDAO extends JpaRepository<ProxyTokenControllerTransaction, ProxyTokenControllerTransactionPK> {
+public interface ProxyTokenControllerTransactionDAO extends
+    JpaRepository<ProxyTokenControllerTransaction, ProxyTokenControllerTransactionPK> {
 
-  Optional<ProxyTokenControllerTransaction> findBySmartContractAndMultiSigId(String smartContract, Long multiSigId);
+  Optional<ProxyTokenControllerTransaction> findBySmartContractAndMultiSigId(String smartContract,
+      Long multiSigId);
 
-  List<ProxyTokenControllerTransaction> findAllBySmartContractAndEntrypointAndOwner(String smartContract, String entrypoint, String owner);
+  List<ProxyTokenControllerTransaction> findAllBySmartContractAndEntrypointAndIsSignedAndOwner(
+      String smartContract, String entrypoint, Boolean isSigned, String owner);
 
-  List<ProxyTokenControllerTransaction> findAllBySmartContractAndEntrypointAndOperator(String smartContract, String entrypoint, String operator);
+  List<ProxyTokenControllerTransaction> findAllBySmartContractAndEntrypointAndIsSignedAndOperator(
+      String smartContract, String entrypoint, Boolean isSigned, String operator);
 }
