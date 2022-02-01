@@ -1,8 +1,6 @@
 package collaborate.api.datasource.multisig;
+
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.datasource.businessdata.access.GrantAccessTransactionHandler;
-import collaborate.api.datasource.businessdata.kpi.CreatedDatasourceTransactionHandler;
-import collaborate.api.datasource.businessdata.kpi.CreatedScopeTransactionHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
 import collaborate.api.transaction.TransactionProperties;
@@ -35,7 +33,8 @@ public class ProxyTokenControllerTransactionWatcherConfig {
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
     for (var watcherProperty : transactionProperties.getWatchers()) {
-      if (watcherProperty.isSmartContract(apiProperties.getDigitalPassportProxyTokenControllerContractAddress())) {
+      if (watcherProperty.isSmartContract(
+          apiProperties.getDigitalPassportProxyTokenControllerContractAddress())) {
         transactionWatcherPoolTaskScheduler.schedule(
             buildWatcher(watcherProperty),
             buildPeriodicTrigger(watcherProperty)
@@ -47,7 +46,7 @@ public class ProxyTokenControllerTransactionWatcherConfig {
   private TransactionWatcher buildWatcher(TransactionWatcherProperty watcherProperty) {
     return new TransactionWatcher(
         watcherProperty.getSmartContractAddress(),
-        initBusinessDataEventManager(),
+        initEventManager(),
         tezosApiGatewayTransactionClient,
         transactionStateService
     );
@@ -61,7 +60,7 @@ public class ProxyTokenControllerTransactionWatcherConfig {
     );
   }
 
-  private TransactionEventManager initBusinessDataEventManager() {
+  private TransactionEventManager initEventManager() {
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(buildMultiSigHandler);
     return transactionEventManager;

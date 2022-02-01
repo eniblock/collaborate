@@ -1,6 +1,7 @@
 package collaborate.api.datasource.passport.create;
 
 import collaborate.api.tag.model.Bytes;
+import collaborate.api.tag.model.proxytokencontroller.MultisigBuildCallParam;
 import collaborate.api.tag.model.proxytokencontroller.MultisigBuildCallParamMint;
 import collaborate.api.tag.model.proxytokencontroller.MultisigBuildParam;
 import collaborate.api.tag.model.proxytokencontroller.MultisigMetadata;
@@ -18,7 +19,7 @@ public class CreateFeatures {
   public static final String initPassportCreationParamJson = TestResources
       .readContent("/datasource/passport/create/sc.entrypoint.initPassportCreation.param.json");
 
-  public static final MultisigBuildParam initPassportCreationEntryPointParam =
+  public static final MultisigBuildParam<MultisigBuildCallParam> initPassportCreationEntryPointParam =
       MultisigBuildParam.builder()
           .buildAndSign(true)
           .multisigId(30)
@@ -37,7 +38,8 @@ public class CreateFeatures {
                                           .address("tz1gW6ZzAodKGbUHH1jqtUtryuPmxnhobi3q")
                                           .metadata(List.of(MultisigMetadata.builder()
                                               .key("")
-                                              .value(new Bytes("ipfs://QmXtWB7WJE1NHQDsW7odJM6FmpJT1bawQd6gC6fJav94MP"))
+                                              .value(new Bytes(
+                                                  "ipfs://QmXtWB7WJE1NHQDsW7odJM6FmpJT1bawQd6gC6fJav94MP"))
                                               .build()))
                                           .build()
                                   )

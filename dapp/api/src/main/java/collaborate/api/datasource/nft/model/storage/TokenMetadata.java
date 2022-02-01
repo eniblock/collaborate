@@ -18,6 +18,8 @@ import lombok.NoArgsConstructor;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class TokenMetadata {
 
+  // "" empty string key is the TZip-16 key name for storing the metadata URI value
+  public static final String TOKEN_METADATA_FIELD = "";
   private Integer tokenId;
 
   private List<TagEntry<String, Bytes>> tokenInfo;
@@ -25,10 +27,11 @@ public class TokenMetadata {
   @JsonIgnore
   public String getIpfsUri() {
     return tokenInfo.stream()
+        .filter(tagEntry -> TOKEN_METADATA_FIELD.equals(tagEntry.getKey()))
         .findFirst()
         .orElseThrow(
-            () -> new IllegalStateException("Can't find metadata field for tokenId=" + tokenId))
-        .getValue()
+            () -> new IllegalStateException("Can't find metadata field for tokenId=" + tokenId)
+        ).getValue()
         .toString();
   }
 

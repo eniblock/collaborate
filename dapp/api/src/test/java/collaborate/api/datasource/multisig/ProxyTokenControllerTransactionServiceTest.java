@@ -34,7 +34,7 @@ class ProxyTokenControllerTransactionServiceTest {
         .thenReturn(Optional.of(expected));
     //WHEN
     var actual = proxyTokenControllerTransactionService
-        .findTransactionByTokenId("SMART_CONTRACT", 1L);
+        .getTransactionByTokenId("SMART_CONTRACT", 1L);
     //THEN
     assertThat(actual).isEqualTo(expected);
   }

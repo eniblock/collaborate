@@ -20,7 +20,7 @@ public class BuildMultiSigHandler implements TransactionHandler {
     }
 
     if (transaction.getEntrypoint().equals("sign")) {
-      proxyTokenControllerTransactionService.updateTransaction(transaction);
+      proxyTokenControllerTransactionService.flagAsSigned(transaction);
     }
 
   }

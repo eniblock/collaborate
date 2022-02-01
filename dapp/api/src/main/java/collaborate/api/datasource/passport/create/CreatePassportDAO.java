@@ -1,5 +1,7 @@
 package collaborate.api.datasource.passport.create;
 
+import static collaborate.api.datasource.nft.model.storage.TokenMetadata.TOKEN_METADATA_FIELD;
+
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
@@ -81,19 +83,16 @@ class CreatePassportDAO {
                                     MultisigBuildCallParamMintDetailsMintParams.builder()
                                         .amount(1)
                                         .address(vehicleOwnerAddress)
-                                        .metadata(List.of(MultisigMetadata.builder()
-                                            .key("")
-                                            .value(new Bytes(metadataUri))
-                                            .build()))
-                                        .build()
-                                )
-                                .build()
-                        )
-                        .build()
-                )
-                .build()
-        )
-        .build();
+                                        .metadata(List.of(
+                                            MultisigMetadata.builder()
+                                                .key(TOKEN_METADATA_FIELD)
+                                                .value(new Bytes(metadataUri))
+                                                .build()
+                                        )).build()
+                                ).build()
+                        ).build()
+                ).build()
+        ).build();
   }
 
 }

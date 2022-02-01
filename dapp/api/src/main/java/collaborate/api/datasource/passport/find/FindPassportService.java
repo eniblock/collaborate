@@ -27,7 +27,8 @@ public class FindPassportService {
   private final ProxyTokenControllerTransactionService proxyTokenControllerTransactionService;
   private final UserService userService;
 
-  public List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigByOwner(String ownerAddress) {
+  public List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigByOwner(
+      String ownerAddress) {
     var transactionList = proxyTokenControllerTransactionService
         .findMultiSigListTransactionByOwner(
             apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
@@ -46,17 +47,15 @@ public class FindPassportService {
   }
 
   public Optional<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigId(Integer contractId) {
-    var transaction = proxyTokenControllerTransactionService.findTransactionByTokenId(
+    var transaction = proxyTokenControllerTransactionService.getTransactionByTokenId(
         apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
         Long.valueOf(contractId)
     );
 
-    var l = findPassportDetailsFromMultisigTransaction(List.of(transaction));
-    return (l == null || l.isEmpty())
-        ? Optional.empty()
-        : Optional.of(l.get(0));
+    var digitalPassportsDetails = findPassportDetailsFromMultisigTransaction(List.of(transaction));
+    return Optional.ofNullable(digitalPassportsDetails)
+        .flatMap(l -> l.stream().findFirst());
   }
-
 
 
   private List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigTransaction(
@@ -71,10 +70,9 @@ public class FindPassportService {
   }
 
   public Optional<DigitalPassportDetailsDTO> findPassportDetailsByTokenId(Integer tokenId) {
-    var l = findPassportDetailsByTokenIdList(List.of(tokenId));
-    return (l == null || l.isEmpty())
-        ? Optional.empty()
-        : Optional.of(l.get(0));
+    var digitalPassportsDetails = findPassportDetailsByTokenIdList(List.of(tokenId));
+    return Optional.ofNullable(digitalPassportsDetails)
+        .flatMap(l -> l.stream().findFirst());
   }
 
   public Collection<DigitalPassportDetailsDTO> getByConnectedUser() {
@@ -109,6 +107,7 @@ public class FindPassportService {
   }
 
   public long countPassports() {
+    // FIXME: the passport count should done using the ProxyTokenControllerTransactionDAO to count the signed NFT on the Digital passport FA2 SmartContract
     return findPassportDAO.countPassports();
   }
 

@@ -34,22 +34,25 @@ public class DigitalPassportDetailsDTOFactory {
   private final UserService userService;
 
   public List<DigitalPassportDetailsDTO> makeFromFA2(Collection<Integer> tokenIdList) {
-    // Get metadata
-    var tokenMetadata = nftDatasourceService.getTZip21MetadataByTokenIds(
+    /**
+     * FIXME:
+     * - 3 SC requests are done to build the DTO however TAG enable to get these data with a single storage query
+     * - Another improvement could also be to get the information from the DB as a cached value
+     */
+    var tokenMetadataByTokenId = nftDatasourceService.getTZip21MetadataByTokenIds(
         tokenIdList,
         apiProperties.getDigitalPassportContractAddress());
 
-    // Get Owner addresses
-    var tokenOwners = findPassportDAO.getOwnersByTokenIds(tokenIdList);
+    var tokenOwnersByTokenId = findPassportDAO.getOwnersByTokenIds(tokenIdList);
 
-    // Get Operator addresses
-    var tokenOperators = findPassportDAO.getOperatorsByTokenIdsAndOwners(tokenIdList, tokenOwners);
+    var tokenOperatorsByTokenId = findPassportDAO.getOperatorsByTokenIdsAndOwners(tokenIdList,
+        tokenOwnersByTokenId);
 
     return tokenIdList.stream()
         .map(tokenId -> {
-              var metadata = tokenMetadata.get(tokenId);
-              var owner = tokenOwners.get(tokenId);
-              var operator = tokenOperators.get(tokenId);
+              var metadata = tokenMetadataByTokenId.get(tokenId);
+              var owner = tokenOwnersByTokenId.get(tokenId);
+              var operator = tokenOperatorsByTokenId.get(tokenId);
               return DigitalPassportDetailsDTO.builder()
                   .assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata)
                       .orElse(null))
