@@ -8,6 +8,7 @@ import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
 import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.datasource.passport.model.TokenStatus;
+import collaborate.api.datasource.passport.transaction.Fa2TransactionService;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.user.UserService;
@@ -31,6 +32,7 @@ public class DigitalPassportDetailsDTOFactory {
   private final IpfsService ipfsService;
   private final NftDatasourceService nftDatasourceService;
   private final OrganizationService organizationService;
+  private final Fa2TransactionService fa2TransactionService;
   private final UserService userService;
 
   public List<DigitalPassportDetailsDTO> makeFromFA2(Collection<Integer> tokenIdList) {
@@ -53,13 +55,16 @@ public class DigitalPassportDetailsDTOFactory {
               var metadata = tokenMetadataByTokenId.get(tokenId);
               var owner = tokenOwnersByTokenId.get(tokenId);
               var operator = tokenOperatorsByTokenId.get(tokenId);
+              var creationDatetime = fa2TransactionService
+                  .getTransactionDateByTokenId(
+                      apiProperties.getDigitalPassportContractAddress(), Long.valueOf(tokenId));
               return DigitalPassportDetailsDTO.builder()
                   .assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata)
                       .orElse(null))
                   .assetId(metadata == null ? null : metadata.getAssetId().orElse(null))
                   .assetOwner(userService.getByWalletAddress(owner))
                   .accessStatus(makeAccessStatus(owner, operator))
-                  .creationDatetime(null)
+                  .creationDatetime(creationDatetime)
                   .operator(organizationService.getByWalletAddress(operator))
                   .multisigContractId(null)
                   .tokenId(tokenId)
