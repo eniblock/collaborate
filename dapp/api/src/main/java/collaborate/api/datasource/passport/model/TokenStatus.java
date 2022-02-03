@@ -9,10 +9,4 @@ public enum TokenStatus {
   @JsonProperty("created")
   CREATED;
 
-  public static TokenStatus from(Multisig multisig) {
-    if (Boolean.TRUE.equals(multisig.getOk())) {
-      return CREATED;
-    }
-    return PENDING_CREATION;
-  }
 }

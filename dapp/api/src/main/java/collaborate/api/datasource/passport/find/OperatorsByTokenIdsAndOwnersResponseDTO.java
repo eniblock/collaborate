@@ -1,9 +1,9 @@
 package collaborate.api.datasource.passport.find;
 
-import collaborate.api.datasource.passport.model.storage.PassportsIndexer;
 import collaborate.api.tag.model.TagEntry;
+import collaborate.api.tag.model.storage.TagPair;
+import collaborate.api.tag.model.storage.TagSet;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,10 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PassportsIndexerTagResponseDTO {
+public class OperatorsByTokenIdsAndOwnersResponseDTO {
 
-  // Keys are dsp walletAddress
-  @JsonProperty("nft_indexer")
-  private List<TagEntry<String, PassportsIndexer>> passportsIndexerByDsp = new ArrayList<>();
+  @JsonProperty("operators_by_token")
+  private List<TagEntry<TagPair<String, Integer>, TagSet<String>>> operatorsByToken;
 
 }

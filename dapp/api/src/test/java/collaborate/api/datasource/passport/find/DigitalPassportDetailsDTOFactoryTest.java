@@ -17,7 +17,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class AssetDetailsDTOFactoryTest {
+class DigitalPassportDetailsDTOFactoryTest {
 
   @Mock
   UserService userService;
@@ -33,13 +33,10 @@ class AssetDetailsDTOFactoryTest {
     // GIVEN
     String connectedWalletAddress = "tzC";
     when(connectedUserService.getWalletAddress()).thenReturn(connectedWalletAddress);
-    var multisig = Multisig.builder()
-        .addr1("tzA")
-        .addr2("tzB")
-        .ok(true)
-        .build();
+    var nftOwner = "tzA";
+    var nftOperator = "tzB";
     // WHEN
-    AccessStatus currentResult = digitalPassportDetailsDTOFactory.getAccessStatus(multisig);
+    AccessStatus currentResult = digitalPassportDetailsDTOFactory.makeAccessStatus(nftOwner, nftOperator);
     // THEN
     assertThat(currentResult).isEqualTo(LOCKED);
   }
@@ -49,45 +46,25 @@ class AssetDetailsDTOFactoryTest {
     // GIVEN
     String connectedWalletAddress = "tzB";
     when(connectedUserService.getWalletAddress()).thenReturn(connectedWalletAddress);
-    var multisig = Multisig.builder()
-        .addr1("tzA")
-        .addr2("tzB")
-        .build();
+    var nftOwner = "tzA";
+    var nftOperator = "tzB";
     // WHEN
-    AccessStatus currentResult = digitalPassportDetailsDTOFactory.getAccessStatus(multisig);
+    AccessStatus currentResult = digitalPassportDetailsDTOFactory.makeAccessStatus(nftOwner, nftOperator);
     // THEN
     assertThat(currentResult).isEqualTo(GRANTED);
   }
 
   @Test
-  void getCreateStatus_shouldReturnGranted_withRequesterUserAndMultisigOk() {
+  void getCreateStatus_shouldReturnGranted_withRequesterUser() {
     // GIVEN
     String connectedWalletAddress = "tzA";
     when(connectedUserService.getWalletAddress()).thenReturn(connectedWalletAddress);
-    var multisig = Multisig.builder()
-        .addr1("tzA")
-        .addr2("tzB")
-        .ok(true)
-        .build();
+    var nftOwner = "tzA";
+    var nftOperator = "tzB";
     // WHEN
-    AccessStatus currentResult = digitalPassportDetailsDTOFactory.getAccessStatus(multisig);
+    AccessStatus currentResult = digitalPassportDetailsDTOFactory.makeAccessStatus(nftOwner, nftOperator);
     // THEN
     assertThat(currentResult).isEqualTo(GRANTED);
   }
 
-  @Test
-  void getCreateStatus_shouldReturnPending_withRequesterUserAndMultisigOkIsNull() {
-    // GIVEN
-    String connectedWalletAddress = "tzA";
-    when(connectedUserService.getWalletAddress()).thenReturn(connectedWalletAddress);
-    var multisig = Multisig.builder()
-        .addr1("tzA")
-        .addr2("tzB")
-        .ok(null)
-        .build();
-    // WHEN
-    AccessStatus currentResult = digitalPassportDetailsDTOFactory.getAccessStatus(multisig);
-    // THEN
-    assertThat(currentResult).isEqualTo(PENDING);
-  }
 }

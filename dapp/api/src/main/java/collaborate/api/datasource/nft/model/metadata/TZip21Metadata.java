@@ -1,6 +1,7 @@
 package collaborate.api.datasource.nft.model.metadata;
 
 import static collaborate.api.datasource.nft.model.metadata.TZip21Metadata.AttributeKeys.ASSET_DATA_CATALOG;
+import static collaborate.api.datasource.nft.model.metadata.TZip21Metadata.AttributeKeys.ASSET_ID;
 import static lombok.AccessLevel.PRIVATE;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,6 +24,7 @@ public class TZip21Metadata {
   public static class AttributeKeys {
 
     public static final String ASSET_DATA_CATALOG = "assetDataCatalog";
+    public static final String ASSET_ID = "assetId";
   }
 
   private String name;
@@ -51,4 +53,10 @@ public class TZip21Metadata {
   public Optional<String> getAssetDataCatalogUri() {
     return getAttributeByName(ASSET_DATA_CATALOG).map(Attribute::getValue);
   }
+
+  @JsonIgnore
+  public Optional<String> getAssetId() {
+    return getAttributeByName(ASSET_ID).map(Attribute::getValue);
+  }
+
 }

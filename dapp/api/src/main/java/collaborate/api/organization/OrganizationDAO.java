@@ -5,7 +5,9 @@ import static java.util.stream.Collectors.toList;
 
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.tag.TezosApiGatewayStorageClient;
+import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -37,8 +39,9 @@ class OrganizationDAO {
     if (organizations.get(ORGANIZATION_FIELD) == null) {
       return Collections.emptyList();
     } else {
-      return organizations.get(ORGANIZATION_FIELD).values().stream()
-          .map(o -> modelMapper.map(o, OrganizationDTO.class))
+      return Arrays.stream(organizations.get(ORGANIZATION_FIELD))
+          .map(TagEntry::getValue)
+          .map(organization -> modelMapper.map(organization, OrganizationDTO.class))
           .collect(toList());
     }
   }
