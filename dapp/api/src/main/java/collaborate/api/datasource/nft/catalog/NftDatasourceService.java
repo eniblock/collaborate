@@ -8,6 +8,9 @@ import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
 import collaborate.api.datasource.nft.model.storage.TokenMetadata;
 import collaborate.api.ipfs.IpfsService;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -44,5 +47,24 @@ public class NftDatasourceService {
         .flatMap(Collection::stream)
         .map(DatasourceLink::getUri)
         .map(dsUri -> ipfsService.cat(dsUri, Datasource.class));
+  }
+
+  public Optional<TZip21Metadata> getTZip21MetadataByTokenId(Integer tokenId,
+      String smartContract) {
+    var tokenMetadataOpt = tokenMetadataDAO.findById(tokenId, smartContract);
+    return tokenMetadataOpt
+        .map(TokenMetadata::getIpfsUri)
+        .map(uri -> ipfsService.cat(uri, TZip21Metadata.class));
+  }
+
+  public Map<Integer, TZip21Metadata> getTZip21MetadataByTokenIds(Collection<Integer> tokenIdList,
+      String smartContract) {
+    var tokenMetadata = new HashMap<Integer, TZip21Metadata>();
+    tokenIdList
+        .forEach(tokenId -> tokenMetadata.put(
+            tokenId,
+            getTZip21MetadataByTokenId(tokenId, smartContract).orElse(null))
+        );
+    return tokenMetadata;
   }
 }

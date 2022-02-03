@@ -1,4 +1,4 @@
-package collaborate.api.datasource.passport.create;
+package collaborate.api.tag.model.proxytokencontroller;
 
 import collaborate.api.tag.model.Bytes;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
@@ -13,13 +13,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class InitPassportCreationEntryPointParam {
+public class MultisigMetadataValue {
 
-  private Bytes metadataUri;
+  private String key;
 
-  private String nftOwnerAddress;
-
-  private String assetId;
-
+  private Bytes value;
 
 }

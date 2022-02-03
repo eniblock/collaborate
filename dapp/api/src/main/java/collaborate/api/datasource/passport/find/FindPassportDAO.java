@@ -1,15 +1,18 @@
 package collaborate.api.datasource.passport.find;
 
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.datasource.nft.model.storage.Multisig;
 import collaborate.api.datasource.nft.model.storage.TokenMetadata;
 import collaborate.api.datasource.passport.model.storage.StorageFields;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
+import collaborate.api.tag.model.storage.TagPair;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
@@ -21,25 +24,13 @@ class FindPassportDAO {
   private final ApiProperties apiProperties;
   private final TezosApiGatewayPassportClient tezosApiGatewayPassportClient;
 
-  public PassportsIndexerTagResponseDTO findPassportsIndexersByDsps(
-      Collection<String> dspAddresses) {
-    var requestPassportsIndexer = new DataFieldsRequest<>(List.of(
-        new MapQuery<>(StorageFields.NFT_INDEXER, dspAddresses)
-    ));
-    return tezosApiGatewayPassportClient
-        .getPassportsIndexer(
-            apiProperties.getDigitalPassportContractAddress(),
-            requestPassportsIndexer
-        );
-  }
-
   public MultisigTagResponseDTO findMultisigByIds(Collection<Integer> multisigIds) {
     var requestMultisigs = new DataFieldsRequest<>(List.of(
         new MapQuery<>(StorageFields.MULTISIGS, multisigIds)
     ));
     return tezosApiGatewayPassportClient
         .getMultisigs(
-            apiProperties.getDigitalPassportContractAddress(),
+            apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
             requestMultisigs
         );
   }
@@ -64,7 +55,7 @@ class FindPassportDAO {
         .findFirst();
   }
 
-  public long count() {
+  public long countPassports() {
     var requestPassportCount = new DataFieldsRequest<>(List.of("all_tokens"));
     return tezosApiGatewayPassportClient
         .getPassportCount(
@@ -73,23 +64,63 @@ class FindPassportDAO {
         ).getAllTokens();
   }
 
-  public Optional<Integer> findTokenIdByAssetId(String assetId) {
-    var requestTokenMetadata = new DataFieldsRequest<>(List.of(
-        new MapQuery<>(StorageFields.TOKEN_ID_BY_ASSET_ID, List.of(assetId))
-    ));
+  /**
+   * Be careful : a multisig can be a multisig for a mint, or a set_pause, or any FA2
+   * entry_point....
+   */
+  public long countMultisigs() {
+    var requestMultisigCount = new DataFieldsRequest<>(List.of("multisig_nb"));
     return tezosApiGatewayPassportClient
-        .getTokenIdByAssetIds(
-            apiProperties.getDigitalPassportContractAddress(),
-            requestTokenMetadata
-        ).getTokenIdByAssetId().stream()
-        .findFirst()
-        .map(TagEntry::getValue);
+        .getMultisigCount(
+            apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+            requestMultisigCount
+        ).getMultisigNb();
   }
 
-  public Optional<Multisig> findMultisigById(Integer contractId) {
-    return findMultisigByIds(List.of(contractId))
-        .getMultisigs().stream()
-        .findFirst()
-        .map(TagEntry::getValue);
+  public Collection<Integer> getTokenIdsByOwner(String ownerAddress) {
+    var request = new DataFieldsRequest<>(List.of(
+        new MapQuery<>(StorageFields.TOKENS_BY_OWNER, List.of(ownerAddress))
+    ));
+    var tokenIdsByOwner = tezosApiGatewayPassportClient.getTokenIdsByOwner(
+        apiProperties.getDigitalPassportContractAddress(), request);
+    return (tokenIdsByOwner.getTokensByOwner().get(0).getError() == null)
+        ? tokenIdsByOwner.getTokensByOwner().get(0).getValue().values()
+        : List.of();
   }
+
+  public Map<Integer, String> getOwnersByTokenIds(Collection<Integer> tokenIdList) {
+    var tokenOwners = new HashMap<Integer, String>();
+    var requestOwner = new DataFieldsRequest<>(List.of(
+        new MapQuery<>(StorageFields.OWNER_BY_TOKEN_ID, tokenIdList)
+    ));
+    tezosApiGatewayPassportClient.getOwnersByTokenIds(
+            apiProperties.getDigitalPassportContractAddress(), requestOwner)
+        .getOwnerBuTokenId()
+        .forEach(tagEntry -> tokenOwners.put(
+            tagEntry.getKey(),
+            tagEntry.getValue())
+        );
+    return tokenOwners;
+  }
+
+  public Map<Integer, String> getOperatorsByTokenIdsAndOwners(Collection<Integer> tokenIdList,
+      Map<Integer, String> tokenOwners) {
+    var tokenOperators = new HashMap<Integer, String>();
+    var requestOperators = new DataFieldsRequest<>(List.of(
+        new MapQuery<>(StorageFields.OPERATORS_BY_TOKEN,
+            tokenIdList.stream()
+                .map(tokenId -> new TagPair<>(tokenOwners.get(tokenId), tokenId))
+                .collect(Collectors.toList())
+        )
+    ));
+    tezosApiGatewayPassportClient.getOperatorsByTokenIdsAndOwners(
+            apiProperties.getDigitalPassportContractAddress(), requestOperators)
+        .getOperatorsByToken()
+        .forEach(tagEntry -> tokenOperators.put(
+            tagEntry.getKey().getY(),
+            tagEntry.getValue().get(0))
+        );
+    return tokenOperators;
+  }
+
 }

@@ -1,23 +1,24 @@
-
+##
+## ## Introduction
+##
+## See the FA2 standard definition:
+## <https://gitlab.com/tzip/tzip/-/blob/master/proposals/tzip-12/>
+##
+## See more examples/documentation at
+## <https://gitlab.com/smondet/fa2-smartpy/> and
+## <https://assets.tqtezos.com/docs/token-contracts/fa2/1-fa2-smartpy/>.
+##
 import smartpy as sp
-
-##############################################################################
-##############################################################################
-#################################### FA_2 ####################################
-##############################################################################
-##############################################################################
-
 ##
 ## ## Meta-Programming Configuration
 ##
 ## The `FA2_config` class holds the meta-programming configuration.
 ##
-
 class FA2_config:
     def __init__(self,
                  debug_mode                         = False,
                  single_asset                       = False,
-                 non_fungible                       = False,
+                 non_fungible                       = True,
                  add_mutez_transfer                 = False,
                  readable                           = True,
                  force_layouts                      = True,
@@ -26,7 +27,7 @@ class FA2_config:
                  store_total_supply                 = True,
                  lazy_entry_points                  = False,
                  allow_self_transfer                = False,
-                 use_token_metadata_offchain_view   = False
+                 use_token_metadata_offchain_view   = True
                  ):
 
         if debug_mode:
@@ -276,8 +277,10 @@ class Balance_of:
 class Token_meta_data:
     def __init__(self, config):
         self.config = config
+
     def get_type(self):
-        return sp.TRecord(token_id = token_id_type, token_info = sp.TMap(sp.TString, sp.TBytes))
+        return sp.TRecord(token_id = sp.TNat, token_info = sp.TMap(sp.TString, sp.TBytes))
+
     def set_type_and_layout(self, expr):
         sp.set_type(expr, self.get_type())
 
@@ -356,18 +359,23 @@ class FA2_core(sp.Contract):
         self.exception_optimization_level = "default-line"
         self.init(
             ledger = self.config.my_map(tvalue = Ledger_value.get_type()),
-            token_metadata = self.config.my_map(tkey = token_id_type, tvalue = self.token_meta_data.get_type()),
+            token_metadata = self.config.my_map(tkey = sp.TNat, tvalue = self.token_meta_data.get_type()),
             operators = self.operator_set.make(),
             all_tokens = self.token_id_set.empty(),
             metadata = metadata,
+            # reverse indexers
+            tokens_by_owner = sp.big_map(tkey = sp.TAddress, tvalue = sp.TSet(sp.TNat)),
+            owner_by_token_id = sp.big_map(tkey = sp.TNat, tvalue = sp.TAddress),
+            operators_by_token = sp.big_map(tkey = sp.TPair(sp.TAddress, sp.TNat), tvalue = sp.TSet(sp.TAddress)),
             **extra_storage
         )
+
         if self.config.store_total_supply:
             self.update_initial_storage(
-                total_supply = self.config.my_map(tkey = token_id_type, tvalue = sp.TNat),
+                total_supply = self.config.my_map(tkey = sp.TNat, tvalue = sp.TNat),
             )
 
-    #@sp.entry_point
+    @sp.entry_point
     def transfer(self, params):
         sp.verify( ~self.is_paused(), message = self.error_message.paused() )
         sp.set_type(params, self.batch_transfer.get_type())
@@ -405,11 +413,18 @@ class FA2_core(sp.Contract):
                     sp.if self.data.ledger.contains(to_user):
                         self.data.ledger[to_user].balance += tx.amount
                     sp.else:
-                         self.data.ledger[to_user] = Ledger_value.make(tx.amount)
+                        self.data.ledger[to_user] = Ledger_value.make(tx.amount)
+                    # update reverse indexers
+                    self.data.owner_by_token_id[tx.token_id] = tx.to_
+                    self.data.tokens_by_owner[current_from].remove(tx.token_id)
+                    sp.if self.data.tokens_by_owner.contains(tx.to_):
+                        self.data.tokens_by_owner[tx.to_].add(tx.token_id)
+                    sp.else:
+                        self.data.tokens_by_owner[tx.to_] = sp.set([tx.token_id])
                 sp.else:
                     pass
 
-    #@sp.entry_point
+    @sp.entry_point
     def balance_of(self, params):
         # paused may mean that balances are meaningless:
         sp.verify( ~self.is_paused(), message = self.error_message.paused())
@@ -430,7 +445,7 @@ class FA2_core(sp.Contract):
                     sp.record(
                         request = sp.record(
                             owner = sp.set_type_expr(req.owner, sp.TAddress),
-                            token_id = sp.set_type_expr(req.token_id, token_id_type)),
+                            token_id = sp.set_type_expr(req.token_id, sp.TNat)),
                         balance = 0))
         res = sp.local("responses", params.requests.map(f_process_request))
         destination = sp.set_type_expr(params.callback, sp.TContract(Balance_of.response_type()))
@@ -442,14 +457,14 @@ class FA2_core(sp.Contract):
         sp.set_type(
             req, sp.TRecord(
                 owner = sp.TAddress,
-                token_id = token_id_type
+                token_id = sp.TNat
             ).layout(("owner", "token_id")))
         user = self.ledger_key.make(req.owner, req.token_id)
         sp.verify(self.data.token_metadata.contains(req.token_id), message = self.error_message.token_undefined())
         sp.result(self.data.ledger[user].balance)
 
 
-    #@sp.entry_point
+    @sp.entry_point
     def update_operators(self, params):
         sp.set_type(params, sp.TList(
             sp.TVariant(
@@ -469,6 +484,11 @@ class FA2_core(sp.Contract):
                                               upd.owner,
                                               upd.operator,
                                               upd.token_id)
+                        # update reverse indexer
+                        sp.if self.data.operators_by_token.contains(sp.pair(upd.owner, upd.token_id)):
+                            self.data.operators_by_token[sp.pair(upd.owner, upd.token_id)].add(upd.operator)
+                        sp.else:
+                            self.data.operators_by_token[sp.pair(upd.owner, upd.token_id)] = sp.set([upd.operator])
                     with arg.match("remove_operator") as upd:
                         sp.verify(
                             (upd.owner == sp.sender) | self.is_administrator(sp.sender),
@@ -478,6 +498,8 @@ class FA2_core(sp.Contract):
                                                  upd.owner,
                                                  upd.operator,
                                                  upd.token_id)
+                        # update reverse indexer
+                        self.data.operators_by_token[sp.pair(upd.owner, upd.token_id)].remove(upd.operator)
         else:
             sp.failwith(self.error_message.operators_unsupported())
 
@@ -514,13 +536,10 @@ class FA2_change_metadata(FA2_core):
         self.data.metadata[k] = v
 
 class FA2_mint(FA2_core):
-    #@sp.entry_point
+    @sp.entry_point
     def mint(self, params):
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
         # We don't check for pauseness because we're the admin.
-        self.private_mint(params)
-
-    def private_mint(self, params):
         if self.config.single_asset:
             sp.verify(params.token_id == 0, message = "single-asset: token-id <> 0")
         if self.config.non_fungible:
@@ -545,6 +564,13 @@ class FA2_mint(FA2_core):
             )
             if self.config.store_total_supply:
                 self.data.total_supply[params.token_id] = params.amount
+        # update reverse indexers
+        self.data.owner_by_token_id[params.token_id] = params.address
+        sp.if self.data.tokens_by_owner.contains(params.address):
+            self.data.tokens_by_owner[params.address].add(params.token_id)
+        sp.else:
+            self.data.tokens_by_owner[params.address] = sp.set([params.token_id])
+
 
 class FA2_token_metadata(FA2_core):
     def set_token_metadata_view(self):
@@ -552,11 +578,12 @@ class FA2_token_metadata(FA2_core):
             """
             Return the token-metadata URI for the given token.
 
-        For a reference implementation, dynamic-views seem to be the
+            For a reference implementation, dynamic-views seem to be the
             most flexible choice.
             """
-            sp.set_type(tok, token_id_type)
+            sp.set_type(tok, sp.TNat)
             sp.result(self.data.token_metadata[tok])
+
         self.token_metadata = sp.offchain_view(pure = True, doc = "Get Token Metadata")(token_metadata)
 
     def make_metadata(symbol, name, decimals):
@@ -566,12 +593,6 @@ class FA2_token_metadata(FA2_core):
             "decimals" : sp.utils.bytes_of_string("%d" % decimals),
             "name" : sp.utils.bytes_of_string(name),
             "symbol" : sp.utils.bytes_of_string(symbol)
-        }))
-
-    def make_uri_metadata(metadata_uri: sp.TBytes):
-        "Helper function to build NFT metadata JSON bytes values with an external URI."
-        return (sp.map(l = {
-            "" : metadata_uri,
         }))
 
 
@@ -586,7 +607,7 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
     @sp.offchain_view(pure = True)
     def does_token_exist(self, tok):
         "Ask whether a token ID is exists."
-        sp.set_type(tok, token_id_type)
+        sp.set_type(tok, sp.TNat)
         sp.result(self.data.token_metadata.contains(tok))
 
     @sp.offchain_view(pure = True)
@@ -601,13 +622,13 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
         if self.config.store_total_supply:
             sp.result(self.data.total_supply[tok])
         else:
-            sp.set_type(tok, token_id_type)
+            sp.set_type(tok, sp.TNat)
             sp.result("total-supply not supported")
 
     @sp.offchain_view(pure = True)
     def is_operator(self, query):
         sp.set_type(query,
-                    sp.TRecord(token_id = token_id_type,
+                    sp.TRecord(token_id = sp.TNat,
                                owner = sp.TAddress,
                                operator = sp.TAddress).layout(
                                    ("owner", ("operator", "token_id"))))
@@ -642,11 +663,13 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
             , self.all_tokens
             , self.is_operator
         ]
+
         if config.store_total_supply:
             list_of_views = list_of_views + [self.total_supply]
         if config.use_token_metadata_offchain_view:
             self.set_token_metadata_view()
             list_of_views = list_of_views + [self.token_metadata]
+
         metadata_base = {
             "version": config.name # will be changed if using fatoo.
             , "description" : (
@@ -680,413 +703,112 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
         FA2_core.__init__(self, config, metadata, paused = False, administrator = admin)
 
 
-
-
-##############################################################################
-##############################################################################
-################################## MULTISIG ##################################
-##############################################################################
-##############################################################################
-
-participants_type = sp.TRecord(
-    address = sp.TAddress,
-    has_voted = sp.TBool, # Should be always initialized to False
-)
-
-## if :
-# - action_to_perform == 'mint' :
-#     * First participant is NFT Operator
-#     * Second participant is NFT Owner
-#     * param1 is asset_id
-#     * param2 is Link to metadata (in Bytes)
-#     * addr1 is operator
-#     * addr2 is nft_owner
-contract_type = sp.TRecord(
-    weight = sp.TNat, # Number of participants that have signed. Should be always initialized to 0
-    threshold = sp.TNat, # Number of signatures required
-    participants = sp.TList(participants_type),
-    ok = sp.TBool, # True means that the contract is signed by enough participants. Should be always initialised to False
-    action_to_perform = sp.TString,
-    ## Params
-    param1 = sp.TString,
-    param2 = sp.TBytes,
-    addr1 = sp.TAddress,
-    addr2 = sp.TAddress
-)
-
-
-class MultiSigFactory(sp.Contract, FA2):
-    def __init__(self):
-        self.update_initial_storage(
-            multisigs = sp.big_map(
-                tkey = sp.TNat, ## The contract_id
-                tvalue = contract_type
-            ),
-            multisig_counter = 0
+batch_mint_type = sp.TRecord(
+        metadata_links = sp.TList(sp.TBytes),
+        first_token_id = token_id_type,
+        address = sp.TAddress
         )
 
-    #@sp.entry_point THAT IS NOT AN ENTRY_POINT BECAUSE WE DON'T WANT THAT ANYONE CAN BUILD (else, anyone can build a "nft_creation" that will implies anyone can mint any nft for any ASSET_ID)
-    # Return the contract_id that has been created
-    def build(self, contract: contract_type):
-        self.data.multisigs[self.data.multisig_counter] = contract
-        self.data.multisig_counter += 1
-        return sp.as_nat(self.data.multisig_counter - 1)
-
-    #@sp.entry_point
-    def sign(self, id: sp.TAddress, contract_id: sp.TNat):
-        sp.verify(id == sp.sender)
-        contract = self.data.multisigs[contract_id]
-        sp.for participant in contract.participants:
-            sp.if participant.address == id:
-                sp.verify(~ participant.has_voted)
-                participant.has_voted = True
-                contract.weight += 1
-                sp.if ~contract.ok & (contract.threshold <= contract.weight):
-                    contract.ok = True
-                    self.on_ok(contract)
-
-    def on_ok(self, contract: contract_type):
-        sp.if contract.action_to_perform == "mint":
-            metadata = PASSPORT.make_uri_metadata(
-                contract.param2
-            )
-            self.private_mint(sp.record(
-                address = contract.addr2,
-                amount = 1,
-                metadata = metadata,
-                token_id = self.data.all_tokens
-            ))
-
-
-##############################################################################
-##############################################################################
-########################### BUSINESS : PASSPORT ##############################
-##############################################################################
-##############################################################################
-
-nft_creation_type = sp.TRecord(
-    nft_owner_address = sp.TAddress,
-    asset_id = sp.TString,
-    metadata_uri = sp.TBytes
-)
-
-nft_creation_consent_type = sp.TRecord(
-    contract_id = sp.TNat
-)
-
-organization_value_type = sp.TRecord(
-    roles = sp.TSet(sp.TNat),  # organization role (1: DSP, 2: BSP)
-    legal_name = sp.TString,
-    address = sp.TAddress,
-    encryption_key = sp.TString, # TODO this can be off-chain
-)
-
-organizations_type = sp.TMap(
-    sp.TAddress,
-    organization_value_type
-)
-
-
-nft_indexer_token_type = sp.TRecord(
-    token_key_ref = sp.TNat,
-    asset_id = sp.TString,
-    token_owner_address = sp.TAddress
-)
-
-nft_indexer_type = sp.TRecord(
-    tokens = sp.TSet(nft_indexer_token_type),
-    unsigned_multisigs = sp.TSet(sp.TNat)
-)
-
-
-class NFT_Creation_Management(sp.Contract, FA2, MultiSigFactory):
-    def __init__(self, _org: organizations_type):
-        self.update_initial_storage(
-            organizations = _org,
-            nft_indexer = sp.big_map(
-                tkey = sp.TAddress, ## The operator address
-                tvalue = nft_indexer_type
-            ),
-            token_id_by_asset_id = sp.big_map(
-                tkey = sp.TString,
-                tvalue = token_id_type
-            ),
-        )
-    def add_token_in_nft_indexer(self, adr, token_id, asset_id, token_owner_address):
-        token_info = sp.record(
-            token_key_ref = token_id,
-            asset_id = asset_id,
-            token_owner_address = token_owner_address
-        )
-        sp.if self.data.nft_indexer.contains(adr):
-            sp.if sp.len(self.data.nft_indexer[adr].tokens.elements()) != 0:
-                self.data.nft_indexer[adr].tokens.add(token_info)
-            sp.else:
-                self.data.nft_indexer[adr].tokens = sp.set([token_info])
-        sp.else:
-            self.data.nft_indexer[adr] = sp.record(
-                unsigned_multisigs = sp.set(l=[], t = sp.TNat),
-                tokens = sp.set(l = [token_info], t = nft_indexer_token_type)
-            )
-
-    def add_unsigned_multisig_in_nft_indexer(self, adr, multisig_id):
-        sp.if self.data.nft_indexer.contains(adr):
-            sp.if sp.len(self.data.nft_indexer[adr].unsigned_multisigs.elements()) != 0:
-                self.data.nft_indexer[adr].unsigned_multisigs.add(multisig_id)
-            sp.else:
-                self.data.nft_indexer[adr].unsigned_multisigs = sp.set([multisig_id])
-        sp.else:
-            self.data.nft_indexer[adr] = sp.record(
-                unsigned_multisigs = sp.set(l=[multisig_id], t = sp.TNat),
-                tokens = sp.set(l = [], t = nft_indexer_token_type)
-            )
-
-
-    @sp.entry_point
-    def init_passport_creation(self, params: nft_creation_type):
-        sp.verify(self.data.organizations.contains(sp.sender))
-        sp.verify(self.data.organizations[sp.sender].roles.contains(1))
-        sp.verify(~ self.data.token_id_by_asset_id.contains(params.asset_id), message = "EXISTING_TOKEN_WITH_THE_SAME_ASSET_ID")
-
-        contract = sp.record(
-            weight = 1, # The NFT operator signs
-            threshold = 2,
-            participants = [
-                sp.record(
-                    address = sp.sender,
-                    has_voted = True, # The NFT Operator signs
-                ),
-                sp.record(
-                    address = params.nft_owner_address,
-                    has_voted = False
-                )
-            ],
-            ok = False,
-            action_to_perform = 'mint',
-            param1 = params.asset_id,
-            param2 = params.metadata_uri,
-            addr1 = sp.sender,
-            addr2 = params.nft_owner_address
-        )
-        contract_id = self.build(contract)
-
-        ### Update indexers
-        #index waiting_consent Passport
-        self.add_unsigned_multisig_in_nft_indexer(sp.sender, contract_id)
-
-    @sp.entry_point
-    def passport_consent(self, params: nft_creation_consent_type):
-        multisig = self.data.multisigs[params.contract_id]
-        operator_address = multisig.addr1
-        nft_owner_address = multisig.addr2
-        sp.verify(sp.sender == nft_owner_address)
-        self.sign(nft_owner_address, params.contract_id)
-        created_token_id = self.data.all_tokens
-        ### Operator
-        self.update_operators([
-                sp.variant("add_operator", self.operator_param.make(
-                    owner = nft_owner_address,
-                    operator = operator_address,
-                    token_id = created_token_id
-                ))
-            ])
-        ### Update indexers
-        #index token_id by asset_id
-        self.data.token_id_by_asset_id[multisig.param1] = created_token_id
-        #remove indexed waiting_consent NFT
-        self.data.nft_indexer[operator_address].unsigned_multisigs.remove(params.contract_id)
-        #index NFT
-        self.add_token_in_nft_indexer(operator_address, created_token_id, multisig.param1, nft_owner_address)
-
-
-
-##############################################################################
-##############################################################################
-############################### PASSPORT CLASS ###############################
-##############################################################################
-##############################################################################
-
-class PASSPORT(FA2, MultiSigFactory, NFT_Creation_Management):
-    def __init__(self, config, metadata, admin, orgs):
+class Batch_NFT(FA2):
+    def __init__(self, config, metadata, admin):
         FA2.__init__(self, config, metadata, admin)
-        MultiSigFactory.__init__(self)
-        NFT_Creation_Management.__init__(self, orgs)
+
+    @sp.entry_point
+    def batch_mint(self, params):
+        sp.set_type(params, batch_mint_type)
+        sp.verify(
+            self.config.non_fungible & self.config.assume_consecutive_token_ids & ~ self.config.single_asset,
+            message = "Wrong Config: batch_mint requires 'non_fungible', 'consecutive_token_ids' and 'multiple_asset'"
+            )
+        sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
+        sp.verify(self.data.all_tokens == params.first_token_id,
+            message = "The first token_id has to respect the consecutiveness"
+        )
+        amount = 1
+        sp.for metadata in params.metadata_links:
+            token_id = self.data.all_tokens
+            user = self.ledger_key.make(params.address, token_id)
+            self.data.ledger[user] = Ledger_value.make(amount)
+            self.data.token_metadata[token_id] = sp.record(
+                token_id    = token_id,
+                token_info  = {"": metadata}
+            )
+            if self.config.store_total_supply:
+                self.data.total_supply[token_id] = amount
+            self.token_id_set.add(self.data.all_tokens, token_id)
+            # update reverse indexers
+            self.data.owner_by_token_id[token_id] = params.address
+            sp.if self.data.tokens_by_owner.contains(params.address):
+                self.data.tokens_by_owner[params.address].add(token_id)
+            sp.else:
+                self.data.tokens_by_owner[params.address] = sp.set([token_id])
+
+    @sp.onchain_view(name = "all_tokens")
+    def all_tokens(self):
+        sp.result(self.token_id_set.cardinal(self.data.all_tokens))
 
 
-
-
-##############################################################################
-##############################################################################
-################################### TESTS ####################################
-##############################################################################
-##############################################################################
 
 
 ## ### Generation of Test Scenarios
 ##
 ## Tests are also parametrized by the `FA2_config` object.
 ## The best way to visualize them is to use the online IDE
-## (<https://www.smartpy.io/dev/>).
+## (<https://www.smartpy.io/ide/>).
 def add_test(config, is_default = True):
     @sp.add_test(name = config.name, is_default = is_default)
     def test():
         scenario = sp.test_scenario()
         scenario.h1("FA2 Contract Name: " + config.name)
         scenario.table_of_contents()
-        # sp.test_account generates ED25519 key-pairs deterministically:
-        admin = sp.address("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV") # ADMIN ADDRESS
+
+        ## put the real proxy SC address and metadata_url here, the contract will be initially deployed with the following parameters
+        admin = sp.address("KT1F1cTtGEDUPxP4iZzNCgXhHxaXJZcAAsaY")
         alice = sp.test_account("Alice")
-        bob   = sp.test_account("Bob")
-        # Let's display the accounts:
-        scenario.h2("Accounts")
-        scenario.show([alice, bob])
+        metadata_url = "ipfs://QmYG2hWiukuc2aD3J9QQJLgTjTNarKiJgDYbkMtjB1gtnX"
 
-        #### INIT ORGANIZATIONS ###
-        orga_DSPConsortium1 = sp.record(
-            legal_name = 'DSPConsortium1',
-            address = sp.address('tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv'),
-            encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB',
-            roles = {1}
-        )
-        orga_BSPConsortium2 = sp.record(
-            legal_name = 'BSPConsortium2',
-            address = sp.address('tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2'),
-            encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB',
-            roles = {2}
-        )
-        organizations = sp.map(
-            {
-                orga_DSPConsortium1.address: orga_DSPConsortium1,
-                orga_BSPConsortium2.address: orga_BSPConsortium2
-            }
-        )
-        ###########################
-        c1 = PASSPORT(config = config,
-                 metadata = sp.utils.metadata_of_url("https://example.com"),
-                 admin = admin,
-                 orgs = organizations)
+        c1 = Batch_NFT(config = config,
+                 metadata = sp.utils.metadata_of_url(metadata_url),
+                 admin = admin)
         scenario += c1
+        scenario.p("Admin mints 4 NFTs")
+        scenario += c1.batch_mint(sp.record(
+            address = admin,
+            first_token_id = 0,
+            metadata_links = [
+                sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                sp.bytes("0x050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                sp.bytes("0x050300000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762"),
+                sp.bytes("0x050400000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
+                ]
+        )).run(sender = admin)
 
+        scenario.p("The mint fails when the first_token_id already exists")
+        scenario += c1.batch_mint(sp.record(address = admin, first_token_id = 3, metadata_links = [sp.bytes("0x0501")])).run(sender = admin, valid = False)
+        scenario.p("The mint fails when the first_token_id consecutiveness is not respected")
+        scenario += c1.batch_mint(sp.record(address = admin, first_token_id = 5, metadata_links = [sp.bytes("0x0501")])).run(sender = admin, valid = False)
+        scenario.p("The mint is successfull when the first_token_id consecutiveness is respected")
+        scenario += c1.batch_mint(sp.record(
+            address = admin,
+            first_token_id = 4,
+            metadata_links = [
+                sp.bytes("0x050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762")
+                ]
+        )).run(sender = admin)
+        scenario += c1.transfer([
+            sp.record(
+                from_ = admin,
+                txs = [
+                    sp.record(
+                        to_ = alice.address,
+                        token_id = 2,
+                        amount = 1
+                        )
+                    ]
+                )
+            ]
+        ).run(sender = admin)
 
-        ## FA2 tests
-        '''
-        scenario.h2("Initial Minting")
-        scenario.p("Give Nation creates token cards by minting amount 0 for admin account.")
-        tok0_md1 = COLLABORATE.make_metadata(
-            name = "The Token Hero 1",
-            decimals = 2,
-            symbol= "Hero1" )
-        scenario += c1.mint(sp.record(address = alice.address,
-                        amount = 1,
-                        metadata = tok0_md1,
-                        token_id = 0)).run(sender = admin)
-        tok0_md2 = COLLABORATE.make_metadata(
-            name = "The Token Hero 2",
-            decimals = 2,
-            symbol= "Hero2" )
-        scenario += c1.mint(sp.record(address = bob.address,
-                        amount = 1,
-                        metadata = tok0_md2,
-                        token_id = 1)).run(sender = admin)
-
-        scenario.h2("Alice transfers her token to Bob")
-        scenario += c1.transfer(
-            [
-                sp.record(from_ = alice.address,
-                                    txs = [
-                                        sp.record(to_ = bob.address,
-                                                  amount = 1,
-                                                  token_id = 0),
-                                    ])
-            ]).run(sender = alice)
-        '''
-
-
-
-        ## PASSPORT test
-        scenario.h2("Passport creation")
-        scenario.p("DSPConsortium1 can create a Passport")
-        scenario += c1.init_passport_creation(sp.record(
-                        nft_owner_address = alice.address,
-                        asset_id = "5YJSA1DG9DFP14705",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abc")
-                    )).run(sender = orga_DSPConsortium1.address)
-
-        scenario.p("DSPConsortium1 can create many passport for the same UUID")
-        scenario += c1.init_passport_creation(sp.record(
-                        nft_owner_address = alice.address,
-                        asset_id = "5YJSA1DG9DFP14708",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcdef")
-                    )).run(sender = orga_DSPConsortium1.address)
-
-        scenario.p("Alice cannot create a Passport")
-        scenario += c1.init_passport_creation(sp.record(
-                        nft_owner_address = alice.address,
-                        asset_id = "5YJSA1DG9DFP14709",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghi")
-                    )).run(sender = alice, valid = False)
-
-        scenario.p("BSPConsortium2 cannot create a Passport")
-        scenario += c1.init_passport_creation(sp.record(
-                        nft_owner_address = alice.address,
-                        asset_id = "5YJSA1DG9DFP14710",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghijkl")
-                    )).run(sender = orga_BSPConsortium2.address, valid = False)
-
-        ## PASSPORT test : number 2
-        scenario.h2("Passport creation : number 2")
-        scenario += c1.init_passport_creation(sp.record(
-                        nft_owner_address = alice.address,
-                        asset_id = "6ZKTB2EH0REZ63895",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcabc")
-                    )).run(sender = orga_DSPConsortium1.address)
-
-
-        ## PASSPORT test : number 3
-        scenario.h2("Passport creations : number 3")
-        scenario += c1.init_passport_creation(sp.record(
-                        nft_owner_address = bob.address,
-                        asset_id = "3EZGD4GO0DKS24456",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcabcabc")
-                    )).run(sender = orga_DSPConsortium1.address)
-
-
-        ## Alice signs
-        scenario.h2("Alice sign passport creation")
-        sig = sp.record(
-            contract_id = 0
-        )
-        scenario += c1.passport_consent(sig).run(sender = alice)
-
-
-        ## Bob signs
-        scenario.h2("Bob sign passport creation")
-        sig = sp.record(
-            contract_id = 3
-        )
-        scenario += c1.passport_consent(sig).run(sender = bob)
-
-        ## Bob signs two times
-        scenario.h2("Bob sign passport creation two times : can not vote two times")
-        sig = sp.record(
-            contract_id = 3
-        )
-        scenario += c1.passport_consent(sig).run(sender = bob, valid = False)
-
-        ## Bob signs consent a passport creation that is not for himself : error !
-        scenario.h2("Bob consents a passport creation that is not for himself")
-        sig = sp.record(
-            contract_id = 2
-        )
-        scenario += c1.passport_consent(sig).run(sender = bob, valid = False)
-
-        ## DSPConsortium1 try to create a passport for an asset_id that corresponds to a NFT already minted
-        scenario.p("DSPConsortium1 can not create a passport for an asset_id that corresponds to a NFT already minted")
-        scenario += c1.init_passport_creation(sp.record(
-                        nft_owner_address = bob.address,
-                        asset_id = "3EZGD4GO0DKS24456",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcabcabc")
-                    )).run(sender = orga_DSPConsortium1.address, valid = False)
 
 ##
 ## ## Global Environment Parameters
@@ -1116,7 +838,7 @@ def environment_config():
         support_operator = global_parameter("support_operator", True),
         assume_consecutive_token_ids =
             global_parameter("assume_consecutive_token_ids", True),
-        store_total_supply = global_parameter("store_total_supply", False),
+        store_total_supply = global_parameter("store_total_supply", True),
         lazy_entry_points = global_parameter("lazy_entry_points", False),
         allow_self_transfer = global_parameter("allow_self_transfer", False),
         use_token_metadata_offchain_view = global_parameter("use_token_metadata_offchain_view", True),
@@ -1128,3 +850,5 @@ def environment_config():
 ## for the browser version.
 if "templates" not in __name__:
     add_test(environment_config())
+    if not global_parameter("only_environment_test", False):
+        add_test(FA2_config(debug_mode = True), is_default = not sp.in_browser)
