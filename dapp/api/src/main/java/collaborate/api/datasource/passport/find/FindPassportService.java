@@ -1,79 +1,78 @@
 package collaborate.api.datasource.passport.find;
 
 import static collaborate.api.user.security.Authorizations.Roles.ASSET_OWNER;
-import static java.util.function.UnaryOperator.identity;
-import static java.util.stream.Collectors.toMap;
 
-import collaborate.api.datasource.nft.model.storage.TokenIndex;
-import collaborate.api.organization.OrganizationService;
-import collaborate.api.organization.model.OrganizationDTO;
+import collaborate.api.config.api.ApiProperties;
+import collaborate.api.datasource.multisig.ProxyTokenControllerTransactionService;
+import collaborate.api.datasource.multisig.model.ProxyTokenControllerTransaction;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
-import collaborate.api.datasource.passport.model.storage.PassportsIndexer;
-import collaborate.api.tag.model.TagEntry;
 import collaborate.api.user.UserService;
 import collaborate.api.user.connected.ConnectedUserService;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.LinkedList;
-import java.util.Map;
-import java.util.Objects;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
 public class FindPassportService {
 
+  private final ApiProperties apiProperties;
   private final DigitalPassportDetailsDTOFactory digitalPassportDetailsDTOFactory;
   private final ConnectedUserService connectedUserService;
   private final FindPassportDAO findPassportDAO;
-  private final OrganizationService organizationService;
+  private final ProxyTokenControllerTransactionService proxyTokenControllerTransactionService;
   private final UserService userService;
 
-  public Optional<DigitalPassportDetailsDTO> findPassportDetailsFromMultisig(Integer contractId) {
-    return findPassportDAO.findMultisigById(contractId)
-        .map(multisig ->
-            digitalPassportDetailsDTOFactory.createFromMultisigContractid(contractId, multisig)
+  public List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigByOwner(
+      String ownerAddress) {
+    var transactionList = proxyTokenControllerTransactionService
+        .findMultiSigListTransactionByOwner(
+            apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+            ownerAddress
         );
+    return findPassportDetailsFromMultisigTransaction(transactionList);
+  }
+
+  public List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigByOperator(
+      String operatorAddress) {
+    var transactionList = proxyTokenControllerTransactionService.findMultiSigListTransactionByOperator(
+        apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+        operatorAddress
+    );
+    return findPassportDetailsFromMultisigTransaction(transactionList);
+  }
+
+  public Optional<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigId(Integer contractId) {
+    var transaction = proxyTokenControllerTransactionService.getTransactionByTokenId(
+        apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+        Long.valueOf(contractId)
+    );
+
+    var digitalPassportsDetails = findPassportDetailsFromMultisigTransaction(List.of(transaction));
+    return Optional.ofNullable(digitalPassportsDetails)
+        .flatMap(l -> l.stream().findFirst());
+  }
+
+
+  private List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigTransaction(
+      List<ProxyTokenControllerTransaction> transactionList
+  ) {
+    return digitalPassportDetailsDTOFactory.makeFromMultiSig(transactionList);
+  }
+
+  public List<DigitalPassportDetailsDTO> findPassportDetailsByTokenIdList(
+      Collection<Integer> tokenIdList) {
+    return digitalPassportDetailsDTOFactory.makeFromFA2(tokenIdList);
   }
 
   public Optional<DigitalPassportDetailsDTO> findPassportDetailsByTokenId(Integer tokenId) {
-    return findDspAndPassportIndexerTokenByTokenId(tokenId)
-        .map(t -> digitalPassportDetailsDTOFactory
-            .createFromPassportIndexer(t.getKey(), t.getValue()));
-  }
-
-  /**
-   * @return An optional entry where key is the dspAddress and value the {@link TokenIndex}
-   */
-  Optional<SimpleEntry<String, TokenIndex>> findDspAndPassportIndexerTokenByTokenId(
-      Integer tokenId) {
-    var dspAddresses = organizationService.getAllDspWallets();
-
-    return findPassportDAO.findPassportsIndexersByDsps(dspAddresses).getPassportsIndexerByDsp()
-        .stream()
-        .filter(oneEntry -> StringUtils.isEmpty(oneEntry.getError()))
-        .filter(oneEntry -> oneEntry.getValue() != null)
-        .map(dspTokenEntry -> buildPassportsIndexerByDspAddress(tokenId, dspTokenEntry))
-        .filter(dspTokenEntry -> dspTokenEntry.getValue() != null)
-        .findFirst();
-  }
-
-  private SimpleEntry<String, TokenIndex> buildPassportsIndexerByDspAddress(
-      Integer tokenId, TagEntry<String, PassportsIndexer> dspTokenEntry) {
-    return new SimpleEntry<>(dspTokenEntry.getKey(),
-        dspTokenEntry.getValue().getTokens().stream()
-            .filter(Objects::nonNull)
-            .filter(token -> token.getTokenId().equals(tokenId))
-            .findFirst()
-            .orElse(null)
-    );
+    var digitalPassportsDetails = findPassportDetailsByTokenIdList(List.of(tokenId));
+    return Optional.ofNullable(digitalPassportsDetails)
+        .flatMap(l -> l.stream().findFirst());
   }
 
   public Collection<DigitalPassportDetailsDTO> getByConnectedUser() {
@@ -81,96 +80,35 @@ public class FindPassportService {
 
     Set<String> roles = connectedUserService.getRealmRoles();
     if (roles.contains(ASSET_OWNER)) {
-      digitalPassports = getAllPassportsByAssetOwner(connectedUserService.getEmailOrThrow());
+      var connectedUserEmail = connectedUserService.getEmailOrThrow();
+      var connectedUserWallet = userService.findWalletAddressByEmailOrThrow(connectedUserEmail);
+      var tokenIds = findPassportDAO.getTokenIdsByOwner(connectedUserWallet);
+      digitalPassports = findPassportDetailsByTokenIdList(tokenIds);
+      digitalPassports.addAll(findPassportDetailsFromMultisigByOwner(connectedUserWallet));
     } else {
-      digitalPassports = getAllPassports(Optional.empty());
+      var connectedUserWallet = connectedUserService.getWallet();
+      var tokenIds = findAllTokenIds();
+      digitalPassports = findPassportDetailsByTokenIdList(tokenIds);
+      digitalPassports.addAll(
+          findPassportDetailsFromMultisigByOperator(connectedUserWallet.getAddress()));
     }
 
     return digitalPassports;
   }
 
-  public long count() {
-    return findPassportDAO.count();
-  }
-
-  private Collection<DigitalPassportDetailsDTO> getAllPassportsByAssetOwner(
-      String assetOwnerEmail) {
-    var assetOwnerAddress = userService.findWalletAddressByEmailOrThrow(assetOwnerEmail);
-    return getAllPassports(Optional.of(assetOwnerAddress));
-  }
-
-  private Collection<DigitalPassportDetailsDTO> getAllPassports(
-      Optional<String> vehiculeOwnerAddressFilter) {
-    var dspAddresses = organizationService.getAllOrganizations().stream()
-        .map(OrganizationDTO::getAddress)
-        .collect(Collectors.toList());
-    return getAllPassportsByDsps(dspAddresses, vehiculeOwnerAddressFilter);
-  }
-
-  /**
-   * @param vehiculeOwnerAddressFilter null if we don't want filter the results by vehiculeOwner
-   */
-  private Collection<DigitalPassportDetailsDTO> getAllPassportsByDsps(
-      Collection<String> dspAddresses,
-      Optional<String> vehiculeOwnerAddressFilter) {
-    var passportsIndexer = findPassportDAO.findPassportsIndexersByDsps(dspAddresses);
-    return getPassportsFromPassportsIndexers(passportsIndexer, vehiculeOwnerAddressFilter);
-  }
-
-  /**
-   * @param vehiculeOwnerAddressFilter empty if we don't want filter the results by vehiculeOwner
-   */
-  private Collection<DigitalPassportDetailsDTO> getPassportsFromPassportsIndexers(
-      PassportsIndexerTagResponseDTO passportsIndexerDto,
-      Optional<String> vehiculeOwnerAddressFilter) {
-    if (passportsIndexerDto == null) {
-      return Collections.emptyList();
+  // FIXME remove for loop
+  private Collection<Integer> findAllTokenIds() {
+    var allTokens = findPassportDAO.countPassports();
+    var tokenIds = new LinkedList<Integer>();
+    for (int i = 0; i < allTokens; i++) {
+      tokenIds.add(i);
     }
-
-    var waitingConsentAssets = buildWaitingConsentAssets(passportsIndexerDto,
-        vehiculeOwnerAddressFilter);
-
-    var digitalPassportsByTokenId = buildAssetByTokenId(passportsIndexerDto,
-        vehiculeOwnerAddressFilter);
-
-    var result = new LinkedList<DigitalPassportDetailsDTO>();
-    result.addAll(digitalPassportsByTokenId.values());
-    result.addAll(waitingConsentAssets);
-    return result;
+    return tokenIds;
   }
 
-  private Set<DigitalPassportDetailsDTO> buildWaitingConsentAssets(
-      PassportsIndexerTagResponseDTO passportsIndexerDto,
-      Optional<String> vehiculeOwnerAddressFilter) {
-
-    var multisigContractIds = passportsIndexerDto.getPassportsIndexerByDsp().stream()
-        .filter(tagEntry -> tagEntry.getValue() != null)
-        .flatMap(tagEntry -> tagEntry.getValue().getUnsignedMultisigs().stream())
-        .filter(Objects::nonNull)
-        .collect(Collectors.toSet());
-
-    return findPassportDAO.findMultisigByIds(multisigContractIds)
-        .getMultisigs().stream()
-        .filter(entry -> vehiculeOwnerAddressFilter.isEmpty()
-            || entry.getValue().getAddr2().equals(vehiculeOwnerAddressFilter.get())
-        ).map(digitalPassportDetailsDTOFactory::fromMultisig)
-        .collect(Collectors.toSet());
-  }
-
-  private Map<Integer, DigitalPassportDetailsDTO> buildAssetByTokenId(
-      PassportsIndexerTagResponseDTO passportsIndexerDto,
-      Optional<String> vehiculeOwnerAddressFilter) {
-
-    return passportsIndexerDto.getPassportsIndexerByDsp().stream()
-        .filter(e -> e.getValue() != null)
-        .map(e -> e.getValue().getTokens().stream()
-            .filter(t -> vehiculeOwnerAddressFilter.isEmpty()
-                || t.getTokenOwnerAddress().equals(vehiculeOwnerAddressFilter.get())
-            ).map(token -> digitalPassportDetailsDTOFactory
-                .fromPassportsIndexerToken(token, e.getKey())
-            )
-        ).flatMap(Stream::distinct)
-        .collect(toMap(DigitalPassportDetailsDTO::getTokenId, identity()));
+  public long countPassports() {
+    // FIXME: the passport count should done using the ProxyTokenControllerTransactionDAO to count the signed NFT on the Digital passport FA2 SmartContract
+    return findPassportDAO.countPassports();
   }
 
 }

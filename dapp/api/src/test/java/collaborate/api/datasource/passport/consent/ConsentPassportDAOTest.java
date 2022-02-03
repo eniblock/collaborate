@@ -29,7 +29,7 @@ class ConsentPassportDAOTest {
   @BeforeEach
   void setUp() {
     String smartContractAddress = "KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t";
-    when(apiProperties.getDigitalPassportContractAddress()).thenReturn(smartContractAddress);
+    when(apiProperties.getDigitalPassportProxyTokenControllerContractAddress()).thenReturn(smartContractAddress);
     TransactionBatchFactory transactionBatchFactory = new TransactionBatchFactory();
     consentPassportDAO = new ConsentPassportDAO(
         tezosApiGatewayJobClient,

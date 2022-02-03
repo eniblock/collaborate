@@ -40,8 +40,7 @@ public class CreatePassportService {
         passportTokenMetadataSupplier);
     var job = createPassportDAO.create(
         ipfsMetadataUri,
-        assetOwnerWalletAddress,
-        createMultisigPassportDTO.getAssetId()
+        assetOwnerWalletAddress
     );
     sendMultisigCreatedEmail(createMultisigPassportDTO.getAssetOwnerMail());
     return job;

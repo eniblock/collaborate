@@ -29,47 +29,14 @@ class OrganizationServiceTest {
   @InjectMocks
   OrganizationService organizationService;
 
-  final String businessDataSCAddress = "bdSCAddress";
-  final String digitalPassportDataSCAddress = "dpSCAddress";
-
-  @Test
-  void getAllOrganizations_shouldNotContainsDuplicatedOrganizationAddress() {
-    // GIVEN
-    var expectedOrganizations = List.of(
-        OrganizationDTO.builder()
-            .legalName("DSPConsortium1A")
-            .address("addressDSPConsortium1")
-            .build(),
-        OrganizationDTO.builder()
-            .legalName("BSPConsortium2")
-            .address("addressBSPConsortium2")
-            .build()
-    );
-    when(apiProperties.getBusinessDataContractAddress()).thenReturn(businessDataSCAddress);
-    when(organizationDAO.getAllOrganizations(businessDataSCAddress))
-        .thenReturn(List.of(
-            OrganizationDTO.builder()
-                .legalName("DSPConsortium1B")
-                .address("addressDSPConsortium1")
-                .build()
-        ));
-
-    when(apiProperties.getDigitalPassportContractAddress())
-        .thenReturn(digitalPassportDataSCAddress);
-    when(organizationDAO.getAllOrganizations(digitalPassportDataSCAddress))
-        .thenReturn(expectedOrganizations);
-    // WHEN
-    var organizationResult = organizationService.getAllOrganizations();
-    // THEN
-    assertThat(organizationResult).hasSameElementsAs(expectedOrganizations);
-  }
+  final String organisationWalletSCAddress = "orgSCAddress";
 
   @ParameterizedTest
   @MethodSource("extractValuePathParameters")
   void getAllDspWallets_shouldIncludeDspRoleAndExcludeDspRole(
       List<OrganizationDTO> organizations, List<String> expectedWalletsResult) {
     // GIVEN
-    when(apiProperties.getBusinessDataContractAddress()).thenReturn(businessDataSCAddress);
+    when(apiProperties.getOrganizationWalletContractAddress()).thenReturn(organisationWalletSCAddress);
     when(organizationDAO.getAllOrganizations(any()))
         .thenReturn(organizations);
     // WHEN

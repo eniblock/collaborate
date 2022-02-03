@@ -1,5 +1,26 @@
 {
-  "nft_owner_address": "tz1gW6ZzAodKGbUHH1jqtUtryuPmxnhobi3q",
-  "asset_id": "WO0P6Z5QF9FRMXAGC",
-  "metadata_uri": "697066733a2f2f516d5874574237574a45314e4851447357376f644a4d36466d704a5431626177516436674336664a617639344d50"
+  "build_and_sign": true,
+  "call_params": {
+    "target_address": "KT1Wss6SAnRzcKPmx1Ffq3YJNcjvt8f1Wi2s",
+    "parameters": {
+      "mint": {
+        "mint_params": {
+          "amount": 1,
+          "address": "tz1gW6ZzAodKGbUHH1jqtUtryuPmxnhobi3q",
+          "metadata": [
+            {
+              "key": "",
+              "value": "697066733a2f2f516d5874574237574a45314e4851447357376f644a4d36466d704a5431626177516436674336664a617639344d50"
+            }
+          ]
+        },
+        "operator": "tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv"
+      }
+    },
+    "entry_point": "mint"
+  },
+  "multisig_id": 30,
+  "signers": [
+    "tz1U5jsPDiRPDM1wWqrWXQW3zkaGrbpskJVc"
+  ]
 }

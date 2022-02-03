@@ -6,7 +6,6 @@ import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.nft.model.metadata.AssetDataCatalog;
 import collaborate.api.datasource.nft.model.metadata.DatasourceLink;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
-import collaborate.api.datasource.nft.model.storage.Multisig;
 import collaborate.api.datasource.nft.model.storage.TokenMetadata;
 import collaborate.api.datasource.passport.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.passport.model.DatasourceDTO;
@@ -16,7 +15,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -36,36 +34,28 @@ public class CatalogService {
         .flatMap(this::findByIpfsLink);
   }
 
-  public Optional<AssetDataCatalogDTO> findByMultisig(Multisig multisig,
-      Integer multisigContractId) {
-    try {
-      if (multisig.getParam2() == null || StringUtils.isEmpty(multisig.getParam2().toString())) {
-        log.warn("No token metadata found for multisigContractId={}", multisigContractId);
-        return Optional.empty();
-      } else {
-        return findByIpfsLink(multisig.getParam2().toString());
-      }
-    } catch (Exception e) {
-      log.error("While getting dataCatalog from multisigContractId={}\n{}", multisigContractId, e);
-      return Optional.empty();
-    }
-  }
-
   public Optional<AssetDataCatalogDTO> findByIpfsLink(String metadataIpfsLink) {
     try {
       var tokenMetadata = ipfsService.cat(metadataIpfsLink, TZip21Metadata.class);
-      return tokenMetadata.getAssetDataCatalogUri()
-          .map(catalogUri -> ipfsService.cat(catalogUri, AssetDataCatalog.class))
-          .map(AssetDataCatalog::getDatasources)
-          .map(
-              links -> links.stream()
-                  .map(this::buildDatasourceDTO)
-                  .collect(Collectors.toList())
-          ).map(AssetDataCatalogDTO::new);
+      return getAssetDataCatalogDTO(tokenMetadata);
     } catch (Exception e) {
       log.error("While getting dataCatalog from metadataIpfsLink={}\n{}", metadataIpfsLink, e);
       return Optional.empty();
     }
+  }
+
+  public Optional<AssetDataCatalogDTO> getAssetDataCatalogDTO(TZip21Metadata tokenMetadata) {
+    if (tokenMetadata == null) {
+      return Optional.empty();
+    }
+    return tokenMetadata.getAssetDataCatalogUri()
+        .map(catalogUri -> ipfsService.cat(catalogUri, AssetDataCatalog.class))
+        .map(AssetDataCatalog::getDatasources)
+        .map(
+            links -> links.stream()
+                .map(this::buildDatasourceDTO)
+                .collect(Collectors.toList())
+        ).map(AssetDataCatalogDTO::new);
   }
 
   DatasourceDTO buildDatasourceDTO(DatasourceLink datasourceLink) {
@@ -83,4 +73,6 @@ public class CatalogService {
                 })
         ).build();
   }
+
+
 }

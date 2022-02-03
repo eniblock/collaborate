@@ -55,14 +55,16 @@ public class IpfsDAO {
     return fileCid.getCid();
   }
 
-  // FIXME might not found data
   public <T> T cat(String hash, Class<T> clazz) {
-
     try {
       return objectMapper.readValue(ipfsClient.cat(hash), clazz);
     } catch (JsonProcessingException e) {
       log.error("can't deserialize IPFS cid={} to class={}", hash, clazz.getName());
       throw new IllegalStateException(e);
+    } catch (Exception ex) {
+      log.error("Exception while getting cid={} content, class={}", hash, clazz);
+      // FIXME use Optional.empty()
+      return null;
     }
   }
 
