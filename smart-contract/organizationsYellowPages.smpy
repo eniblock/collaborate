@@ -8,7 +8,7 @@ organization_value_type = sp.TRecord(
     metadata = sp.TMap(sp.TString, sp.TBytes)
 )
 
-organizations_type = sp.TBigMap(
+organizations_type = sp.TMap(
     sp.TAddress,
     organization_value_type
 )
@@ -69,7 +69,7 @@ if "templates" not in __name__:
             roles = {2},
             metadata = {}
         )
-        organizations = sp.big_map(
+        organizations = sp.map(
             {
                 orga_DSPConsortium1.address: orga_DSPConsortium1,
                 orga_BSPConsortium2.address: orga_BSPConsortium2
