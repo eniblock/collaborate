@@ -1,5 +1,6 @@
 package collaborate.api.datasource.passport.model;
 
+import collaborate.api.config.ISO8601JsonStringFormat;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -30,6 +31,7 @@ public class DigitalPassportDetailsDTO {
   private AccessStatus accessStatus;
 
   @Schema(description = "The asset creation datetime (ISO8601 = yyyy-MM-dd'T'HH:mm:ss.SSSXXX)")
+  @ISO8601JsonStringFormat
   private ZonedDateTime creationDatetime;
 
   @Schema(description = "The NFT operator")
