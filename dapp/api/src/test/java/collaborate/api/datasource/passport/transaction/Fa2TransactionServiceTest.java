@@ -32,9 +32,9 @@ class Fa2TransactionServiceTest {
         .thenReturn(Optional.of(expected));
     //WHEN
     var actual = fa2TransactionService
-        .getTransactionDateByTokenId("SMART_CONTRACT", 1L);
+        .findTransactionDateByTokenId("SMART_CONTRACT", 1L);
     //THEN
-    assertThat(actual).isEqualTo(expected.getTimestamp());
+    assertThat(actual).hasValue(expected.getTimestamp());
   }
 
   private Fa2Transaction makeTransaction() {

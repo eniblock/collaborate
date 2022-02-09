@@ -7,6 +7,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,9 @@ public class Fa2TransactionService {
   private final Fa2TransactionDAO fa2TransactionDAO;
   private final ObjectMapper objectMapper;
 
-  public ZonedDateTime getTransactionDateByTokenId(String smartContract, Long tokenId) {
+  public Optional<ZonedDateTime> findTransactionDateByTokenId(String smartContract, Long tokenId) {
     return fa2TransactionDAO.findBySmartContractAndTokenId(smartContract, tokenId)
-        .map(Fa2Transaction::getTimestamp).orElse(null);
+        .map(Fa2Transaction::getTimestamp);
   }
 
   public void saveFa2Transaction(Transaction transaction) {
@@ -38,7 +39,7 @@ public class Fa2TransactionService {
         parameters.getIpfsMetadataURI(),
         timestamp,
         transaction.getParameters()
-        );
+    );
     fa2TransactionDAO.save(fa2Transaction);
   }
 

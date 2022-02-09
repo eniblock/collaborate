@@ -55,16 +55,19 @@ public class DigitalPassportDetailsDTOFactory {
               var metadata = tokenMetadataByTokenId.get(tokenId);
               var owner = tokenOwnersByTokenId.get(tokenId);
               var operator = tokenOperatorsByTokenId.get(tokenId);
-              var creationDatetime = fa2TransactionService
-                  .getTransactionDateByTokenId(
-                      apiProperties.getDigitalPassportContractAddress(), Long.valueOf(tokenId));
+              var creationDatetime =
+                  fa2TransactionService
+                      .findTransactionDateByTokenId(
+                          apiProperties.getDigitalPassportContractAddress(),
+                          Long.valueOf(tokenId)
+                      );
               return DigitalPassportDetailsDTO.builder()
                   .assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata)
                       .orElse(null))
                   .assetId(metadata == null ? null : metadata.getAssetId().orElse(null))
                   .assetOwner(userService.getByWalletAddress(owner))
                   .accessStatus(makeAccessStatus(owner, operator))
-                  .creationDatetime(creationDatetime)
+                  .creationDatetime(creationDatetime.orElse(null))
                   .operator(organizationService.getByWalletAddress(operator))
                   .multisigContractId(null)
                   .tokenId(tokenId)
