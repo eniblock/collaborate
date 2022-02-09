@@ -1,9 +1,6 @@
-package collaborate.api.datasource.businessdata;
+package collaborate.api.datasource.passport.transaction;
 
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.datasource.businessdata.access.GrantAccessTransactionHandler;
-import collaborate.api.datasource.businessdata.kpi.CreatedDatasourceTransactionHandler;
-import collaborate.api.datasource.businessdata.kpi.CreatedScopeTransactionHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
 import collaborate.api.transaction.TransactionProperties;
@@ -24,12 +21,10 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @ConditionalOnProperty(prefix = "transaction", name = "enabled", havingValue = "true")
-public class TransactionWatcherConfig {
+public class Fa2TransactionWatcherConfig {
 
   private final ApiProperties apiProperties;
-  private final CreatedDatasourceTransactionHandler createdDatasourceTransactionHandler;
-  private final CreatedScopeTransactionHandler createdScopeTransactionHandler;
-  private final GrantAccessTransactionHandler grantAccessTransactionHandler;
+  private final MintTokenHandler mintTokenHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
   private final TransactionProperties transactionProperties;
@@ -38,7 +33,7 @@ public class TransactionWatcherConfig {
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
     for (var watcherProperty : transactionProperties.getWatchers()) {
-      if (watcherProperty.isSmartContract(apiProperties.getBusinessDataContractAddress())) {
+      if (watcherProperty.isSmartContract(apiProperties.getDigitalPassportContractAddress())) {
         transactionWatcherPoolTaskScheduler.schedule(
             buildWatcher(watcherProperty),
             buildPeriodicTrigger(watcherProperty)
@@ -66,9 +61,7 @@ public class TransactionWatcherConfig {
 
   private TransactionEventManager initBusinessDataEventManager() {
     var transactionEventManager = new TransactionEventManager();
-    transactionEventManager.subscribe(createdDatasourceTransactionHandler);
-    transactionEventManager.subscribe(createdScopeTransactionHandler);
-    transactionEventManager.subscribe(grantAccessTransactionHandler);
+    transactionEventManager.subscribe(mintTokenHandler);
     return transactionEventManager;
   }
 
