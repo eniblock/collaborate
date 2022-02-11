@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @ConditionalOnProperty(prefix = "transaction", name = "enabled", havingValue = "true")
-public class TransactionWatcherConfig {
+public class BusinessDataTransactionWatcherConfig {
 
   private final ApiProperties apiProperties;
   private final CreatedDatasourceTransactionHandler createdDatasourceTransactionHandler;

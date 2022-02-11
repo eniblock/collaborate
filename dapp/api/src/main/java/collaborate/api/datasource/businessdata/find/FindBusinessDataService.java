@@ -1,5 +1,7 @@
 package collaborate.api.datasource.businessdata.find;
 
+import collaborate.api.config.api.ApiProperties;
+import collaborate.api.datasource.businessdata.transaction.BusinessDataTransactionService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
 import collaborate.api.datasource.passport.model.AccessStatus;
@@ -19,6 +21,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class FindBusinessDataService {
 
+  private final ApiProperties apiProperties;
+  private final BusinessDataTransactionService businessDataTransactionService;
   private final FindBusinessDataDAO findBusinessDataDAO;
   private final OrganizationService organizationService;
   private final UserMetadataService userMetadataService;
@@ -34,6 +38,11 @@ public class FindBusinessDataService {
   AssetDetailsDTO toAssetDetails(TokenIndex t) {
     var datasourceId = StringUtils.substringBefore(t.getAssetId(), ":");
     var assetIdForDatasource = StringUtils.substringAfter(t.getAssetId(), ":");
+    var creationDate = businessDataTransactionService
+        .findTransactionDateByTokenId(
+            apiProperties.getBusinessDataContractAddress(),
+            t.getAssetId()
+        );
     return AssetDetailsDTO.builder()
         .accessStatus(getAccessStatus(datasourceId, assetIdForDatasource))
         .assetDataCatalog(
@@ -49,6 +58,7 @@ public class FindBusinessDataService {
         .assetId(t.getAssetId())
         .tokenId(t.getTokenId())
         .tokenStatus(TokenStatus.CREATED)
+        .creationDatetime(creationDate.orElse(null))
         .build();
   }
 
