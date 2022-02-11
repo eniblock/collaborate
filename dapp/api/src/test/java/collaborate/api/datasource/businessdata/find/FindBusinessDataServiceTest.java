@@ -1,8 +1,11 @@
 package collaborate.api.datasource.businessdata.find;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.config.api.ApiProperties;
+import collaborate.api.datasource.businessdata.transaction.BusinessDataTransactionService;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
@@ -25,6 +28,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class FindBusinessDataServiceTest {
 
   @Mock
+  ApiProperties apiProperties;
+  @Mock
+  BusinessDataTransactionService businessDataTransactionService;
+  @Mock
   FindBusinessDataDAO findBusinessDataDAO;
   @Mock
   OrganizationService organizationService;
@@ -42,6 +49,10 @@ class FindBusinessDataServiceTest {
         .address("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
         .build();
 
+    when(apiProperties.getBusinessDataContractAddress())
+        .thenReturn("smartContractAdress");
+    when(businessDataTransactionService.findTransactionDateByTokenId(anyString(), anyString()))
+        .thenReturn(Optional.empty());
     when(organizationService.getByWalletAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"))
         .thenReturn(organization);
     when(userMetadataService.getOwnerOAuth2("3636ff0b-2295-4750-a6b2-677c680e0bbb"))
