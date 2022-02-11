@@ -2,6 +2,7 @@ package collaborate.api.datasource.model.dto;
 
 import collaborate.api.datasource.model.dto.web.authentication.transfer.PartnerTransferMethod;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.List;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,6 +38,12 @@ public class DatasourceDetailsDto {
 
   @Schema(description = "The name of the datasource.", example = "Company assets", required = true)
   String name;
+
+  @Schema(
+      description = "The purpose of the datasource.",
+      example = "digital passport",
+      required = true)
+  List<String> purpose;
 
   @Schema(description = "Information for making partners able to ask access to the datasource", required = true)
   PartnerTransferMethod partnerTransferMethod;

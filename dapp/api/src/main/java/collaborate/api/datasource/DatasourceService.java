@@ -50,6 +50,7 @@ public class DatasourceService {
     return DatasourceDetailsDto.builder()
         .id(datasource.getId())
         .name(datasource.getName())
+        .purpose(metadataService.getPurpose(datasource))
         .listOfScopes(
             getScopesByDataSourceId(datasource.getId())
                 .orElse(emptySet())
