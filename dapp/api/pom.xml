@@ -239,7 +239,7 @@
     <dependency>
       <groupId>org.springframework.security</groupId>
       <artifactId>spring-security-oauth2-client</artifactId>
-      <version>5.5.3</version>
+      <version>5.5.4</version>
     </dependency>
 
     <dependency>
