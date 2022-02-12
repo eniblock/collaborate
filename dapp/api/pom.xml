@@ -51,7 +51,7 @@
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-admin-client</artifactId>
-      <version>15.0.2</version>
+      <version>17.0.0</version>
     </dependency>
 
 
