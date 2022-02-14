@@ -1,6 +1,6 @@
 package collaborate.api.datasource.passport.metric;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
 import static java.util.Objects.requireNonNull;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
@@ -100,7 +100,7 @@ public class MetricService {
   Stream<GatewayResourceDTO> buildMetricUrls(DatasourceDTO datasourceDTO) {
     Set<Metadata> metadata = datasourceService.getMetadata(datasourceDTO.getId());
     return datasourceDTO.getScopes().stream()
-        .filter(s -> !SCOPE_ASSET_LIST.equals(s))
+        .filter(s -> !TEST_CONNECTION.equals(s))
         .filter(s -> startsWith(s, SCOPE_METRIC_PREFIX))
         .map(scope -> GatewayResourceDTO.builder()
             .datasourceId(datasourceDTO.getId())

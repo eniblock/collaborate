@@ -1,0 +1,28 @@
+{
+  "type": "WebServerDatasource",
+  "baseUrl": "https://dsp-a.fds.pcc.eniblock.fr/",
+  "name": "DSP A referentials",
+  "authMethod": {
+    "type": "OAuth2ClientCredentialsGrant",
+    "grantType": "client_credentials",
+    "authorizationServerUrl": "https://iam.fds.pcc.eniblock.fr/auth/realms/datasource/protocol/openid-connect/token",
+    "clientId": "collaborate",
+    "clientSecret": "57936b16-2f90-434a-9eb4-843668a3a521",
+    "partnerTransferMethod": {
+      "type": "OAuth2"
+    }
+  },
+  "keywords": [
+    "business-data"
+  ],
+  "resources": [
+    {
+      "description": "Documents list",
+      "keywords": [
+        "scope:referentials",
+        "list-asset"
+      ],
+      "url": "/documents"
+    }
+  ]
+}

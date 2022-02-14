@@ -30,7 +30,7 @@ public class CertificateBasedBasicAuthDatasourceFeatures {
           new ArrayList<>(List.of(
               WebServerResource.builder()
                   .description("Vehicles list")
-                  .keywords(new LinkedHashSet<>(List.of("scope:list-asset", "assets")))
+                  .keywords(new LinkedHashSet<>(List.of("scope:referentials", "list-asset")))
                   .url(
                       "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
                   ).build(),

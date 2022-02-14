@@ -2,7 +2,6 @@ package collaborate.api.datasource.create;
 
 import static collaborate.api.test.TestResources.objectMapper;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +14,6 @@ import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
-import collaborate.api.datasource.model.dto.DatasourceEnrichment;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
@@ -49,8 +47,6 @@ class CreateDatasourceServiceTest {
   @Mock
   DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
   @Mock
-  DatasourceEnricherVisitor datasourceEnricherVisitor;
-  @Mock
   OrganizationService organizationService;
   @Mock
   MintBusinessDataService mintBusinessDataService;
@@ -71,7 +67,6 @@ class CreateDatasourceServiceTest {
             authenticationMetadataVisitor,
             datasourceDAO,
             datasourceDTOMetadataVisitor,
-            datasourceEnricherVisitor,
             objectMapper,
             organizationService,
             mintBusinessDataService,
@@ -108,7 +103,7 @@ class CreateDatasourceServiceTest {
     // WHEN
     var datasourceResult =
         createDatasourceService.buildDatasource(
-            new DatasourceEnrichment<>(datasourceDTO, emptySet()),
+            datasourceDTO,
             traefikConfiguration);
     // THEN
     var middlewareResult =
@@ -138,8 +133,7 @@ class CreateDatasourceServiceTest {
     when(datasourceDTOMetadataVisitor.visitWebServerDatasource(datasource))
         .thenReturn(Stream.of(datasourceMetadata));
     // WHEN
-    var metadataResult = createDatasourceService.buildMetadata(
-        new DatasourceEnrichment<>(datasource, emptySet()));
+    var metadataResult = createDatasourceService.buildMetadata(datasource);
     // THEN
     assertThat(metadataResult).containsExactlyInAnyOrder(
         authMetadata,

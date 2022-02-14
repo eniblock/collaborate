@@ -1,6 +1,6 @@
 package collaborate.api.datasource.businessdata.document;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
+import static collaborate.api.datasource.passport.metric.MetricService.SCOPE_METRIC_PREFIX;
 import static java.util.stream.Collectors.toList;
 
 import collaborate.api.config.api.ApiProperties;
@@ -21,7 +21,9 @@ import collaborate.api.http.HttpClientFactory;
 import collaborate.api.user.metadata.UserMetadataService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -68,6 +70,7 @@ public class ScopeAssetsService {
   private final HttpClientFactory httpClientFactory;
   private final UserMetadataService userMetadataService;
   private final CatalogService catalogService;
+  private final ObjectMapper objectMapper;
 
   public Optional<ScopeAssetsDTO> listScopeAssets(Integer tokenId) {
     var catalogOpt = catalogService.findCatalogByTokenId(
@@ -87,7 +90,7 @@ public class ScopeAssetsService {
   public Optional<ScopeAssetsDTO> listScopeAssets(DatasourceDTO datasourceDTO) {
     var datasourceId = datasourceDTO.getId();
     var scope = datasourceDTO.getAssetIdForDatasource();
-    var scopesResponse = getAssetListResponse(datasourceId);
+    var scopesResponse = getAssetListResponse(datasourceId, scope);
     if (!scopesResponse.getStatusCode().is2xxSuccessful()) {
       log.error("Can't get asset list for datasourceId={} and scope={}", datasourceId, scope);
       throw new ResponseStatusException(scopesResponse.getStatusCode());
@@ -100,8 +103,16 @@ public class ScopeAssetsService {
             .datasourceId(datasourceId)
             .providerAddress(datasourceDTO.getOwnerAddress())
             .scopeName(scope)
-            .assets(filterByScope(assetListJsonString, scope).collect(toList()))
+            .assets(convertJsonToScopeAssetDTOs(assetListJsonString).collect(toList()))
             .build());
+  }
+
+  ResponseEntity<JsonNode> getAssetListResponse(String datasourceId, String scope) {
+    var gatewayResource = GatewayResourceDTO.builder()
+        .datasourceId(datasourceId)
+        .scope(SCOPE_METRIC_PREFIX + scope)
+        .build();
+    return gatewayUrlService.fetch(gatewayResource);
   }
 
   Optional<AccessTokenResponse> getJwt(String datasourceId, String scope) {
@@ -130,36 +141,24 @@ public class ScopeAssetsService {
         .map(accessToken -> AccessTokenResponse.builder().accessToken(accessToken).build());
   }
 
-  ResponseEntity<JsonNode> getAssetListResponse(String datasourceId) {
-    var gatewayResource = GatewayResourceDTO.builder()
-        .datasourceId(datasourceId)
-        .scope(SCOPE_ASSET_LIST)
-        .build();
-    return gatewayUrlService.fetch(
-        gatewayResource
-    );
-  }
-
-  Stream<ScopeAssetDTO> filterByScope(String jsonResponse, String scope) {
-    var resourcesPath = JSONPath.compile("$._embedded.metadatas");
+  Stream<ScopeAssetDTO> convertJsonToScopeAssetDTOs(String jsonResponse) {
     var namePath = JSONPath.compile("$.title");
-    var linkPath = JSONPath.compile("$._links.self.href");
-    var downloadPath = JSONPath.compile("$._links.download.href");
-    var scopePath = JSONPath.compile("$.scope");
-    if (resourcesPath.contains(jsonResponse)) {
-      var docs = resourcesPath.<JSONArray>eval(jsonResponse, JSONArray.class);
-      return docs.stream()
-          .filter(scopePath::contains)
-          .filter(d -> scope.equals(scopePath.eval(d, String.class)))
-          .map(d -> ScopeAssetDTO.builder()
-              .name(namePath.eval(d, String.class))
-              .type("MVP document")
-              .synchronizedDate(ZonedDateTime.now(clock))
-              .link(URI.create(linkPath.eval(d, String.class)))
-              .downloadLink(URI.create(downloadPath.eval(d, String.class)))
-              .build());
+    var downloadPath = JSONPath.compile("$.uri");
+
+    JSONArray docs;
+    try {
+      docs = objectMapper.readValue(jsonResponse, JSONArray.class);
+    } catch (JsonProcessingException e) {
+      log.error("While reading jsonResponse={}", jsonResponse);
+      throw new IllegalStateException(e);
     }
-    return Stream.empty();
+    return docs.stream()
+        .map(d -> ScopeAssetDTO.builder()
+            .name(namePath.eval(d, String.class))
+            .type("MVP document")
+            .synchronizedDate(ZonedDateTime.now(clock))
+            .downloadLink(URI.create(downloadPath.eval(d, String.class)))
+            .build());
   }
 
   public ZipOutputStream download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)

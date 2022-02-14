@@ -15,14 +15,14 @@ Scopes are used to make able a data source to limit the resources a user can acc
 
 ### Authentication process
 
-During the creation, the owner provides **credentials** and other information required about the **
-authentication process** used to access the data source. In the bellow
+During the creation, the owner provides **credentials** and other information required about the
+**authentication process** used to access the data source. In the bellow
 samples [OAuth 2.0 Client Credentials Grant](https://oauth.net/2/grant-types/client-credentials/) is
-defined by `type` and `grantType` fields. The `issuerIdentifierUri` and `wellKnownURIPathSuffix` to
-get the URL to use for getting a valid token whe needed using credentials defined by `clientId`
-and `clientSecret` fields. Authentication information is cyphered and stored locally to be used when
-another partner would like to request access to this data source[^1] where `partnerTransferMethod`
-field define the strategy to use in a such process
+defined by `type` and `grantType` fields. The `authorizationServerUrl` field is used for getting a
+valid token whe needed using credentials defined by `clientId`
+and `clientSecret` fields. Authentication information is cyphered and stored in your dApp instance ,
+it will be used to generate access token when another partner would like to request access to this
+data source[^1]. The `partnerTransferMethod` field define the strategy to use in a such process
 
 #### Future orientations
 
