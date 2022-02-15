@@ -15,7 +15,8 @@ public class URIFactory {
   public URI create(WebServerDatasourceDTO webServerDatasource,
       WebServerResource resource) {
     var uriBuilder = UriComponentsBuilder
-        .fromUriString(webServerDatasource.getBaseUrl() + "/" + resource.getUrl());
+        .fromHttpUrl(webServerDatasource.getBaseUrl())
+        .path("/" + resource.getUrl());
     if (resource.getQueryParams() != null) {
       resource.getQueryParams().forEach(q -> uriBuilder.queryParam(q.getKey(), q.getValue()));
     }

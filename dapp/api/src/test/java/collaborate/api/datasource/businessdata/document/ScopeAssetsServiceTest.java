@@ -65,7 +65,8 @@ class ScopeAssetsServiceTest {
         gatewayUrlService,
         httpClientFactory,
         userMetadataService,
-        catalogService);
+        catalogService,
+        TestResources.objectMapper);
   }
 
 
@@ -152,24 +153,16 @@ class ScopeAssetsServiceTest {
         "/datasource/businessdata/document/asset-list.json");
     var scope = "customers-analytics";
     // WHEN
-    var scopeAssetsResult = scopeAssetsService.filterByScope(assetListJsonString, scope);
+    var scopeAssetsResult = scopeAssetsService.convertJsonToScopeAssetDTOs(assetListJsonString);
     // THEN
     assertThat(scopeAssetsResult).containsExactlyInAnyOrder(
         ScopeAssetDTO.builder()
-            .name("Nombre de metrics saisis en atelier (par mois)")
+            .name("Airport, airline and route data")
             .type("MVP document")
             .synchronizedDate(ZonedDateTime.now(clock))
-            .link(URI.create("http://fake-datasource-api-dsp-a:3000/documents/dspA2"))
             .downloadLink(
-                URI.create("http://fake-datasource-api-dsp-a:3000/documents/dspA2/download"))
-            .build(),
-        ScopeAssetDTO.builder()
-            .name("Contactabilité des clients (à date)")
-            .type("MVP document")
-            .synchronizedDate(ZonedDateTime.now(clock))
-            .link(URI.create("http://fake-datasource-api-dsp-a:3000/documents/dspA6"))
-            .downloadLink(
-                URI.create("http://fake-datasource-api-dsp-a:3000/documents/dspA6/download"))
+                URI.create(
+                    "https://datasource-dsp-a.fake-datasource.localhost/referentials/airports/download"))
             .build()
     );
   }

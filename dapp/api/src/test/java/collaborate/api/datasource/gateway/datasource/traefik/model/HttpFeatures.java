@@ -25,17 +25,17 @@ public class HttpFeatures {
       .http(Http.builder()
           .routers(Map.ofEntries(
               new SimpleEntry<>(
-                  "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-router",
+                  "525003f6-f85f-11eb-9a03-0242ac130003-list-asset-router",
                   Router.builder()
                       .entryPoints(List.of("websecure"))
                       .service("525003f6-f85f-11eb-9a03-0242ac130003")
                       .rule(
-                          "PathPrefix(`/datasource/525003f6-f85f-11eb-9a03-0242ac130003/scope:list-asset`)")
+                          "PathPrefix(`/datasource/525003f6-f85f-11eb-9a03-0242ac130003/list-asset`)")
                       .middlewares(List.of(
                           "525003f6-f85f-11eb-9a03-0242ac130003-auth-headers",
-                          "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-query-params",
-                          "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-replace-path-regex",
-                          "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-strip-prefix"
+                          "525003f6-f85f-11eb-9a03-0242ac130003-list-asset-query-params",
+                          "525003f6-f85f-11eb-9a03-0242ac130003-list-asset-replace-path-regex",
+                          "525003f6-f85f-11eb-9a03-0242ac130003-list-asset-strip-prefix"
                       )).tls(true)
                       .build()),
               new SimpleEntry<>("525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-router",
@@ -65,7 +65,7 @@ public class HttpFeatures {
                       ).build()
               ),
               new SimpleEntry<>(
-                  "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-query-params",
+                  "525003f6-f85f-11eb-9a03-0242ac130003-list-asset-query-params",
                   Middleware.builder()
                       .redirectRegex(RedirectRegex.builder()
                           .regex("/([^\\?\\s]*)(\\??)(.*)")
@@ -84,12 +84,12 @@ public class HttpFeatures {
                       ).build()
               ),
               new SimpleEntry<>(
-                  "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-strip-prefix",
+                  "525003f6-f85f-11eb-9a03-0242ac130003-list-asset-strip-prefix",
                   Middleware.builder()
                       .stripPrefix(StripPrefix.builder()
                           .prefixes(
                               List.of(
-                                  "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/scope:list-asset"))
+                                  "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/list-asset"))
                           .build()
                       ).build()
               ),
@@ -104,11 +104,11 @@ public class HttpFeatures {
                       ).build()
               ),
               new SimpleEntry<>(
-                  "525003f6-f85f-11eb-9a03-0242ac130003-scope:list-asset-replace-path-regex",
+                  "525003f6-f85f-11eb-9a03-0242ac130003-list-asset-replace-path-regex",
                   Middleware.builder()
                       .replacePathRegex(new ReplacePathRegex(
-                          "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/scope:list-asset",
-                          "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/scope:list-asset/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles")
+                          "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/list-asset",
+                          "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/list-asset/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles")
                       ).build()
               ),
               new SimpleEntry<>(

@@ -17,8 +17,8 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.Callable;
-import javax.validation.Valid;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -30,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -58,15 +59,20 @@ public class DatasourceController {
           + "When the data source is for business data, the associated scope are also minted as NFT business data token",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DSP_ADMIN)
-  public Callable<ResponseEntity<Datasource>> createDatasource(
-      @Valid @RequestPart("datasource") DatasourceDTO datasource,
+  public ResponseEntity<Datasource> createDatasource(
+      @RequestPart("datasource") DatasourceDTO datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
       throws IOException, DatasourceVisitorException {
+    var violations = Validation.buildDefaultValidatorFactory()
+        .getValidator()
+        .validate(datasource);
+    if (!CollectionUtils.isEmpty(violations)) {
+      throw new ResponseStatusException(BAD_REQUEST, "",
+          new ConstraintViolationException(violations));
+    }
     testDatasourceConnection(datasource, pfxFile);
-    return () -> {
-      var datasourceResult = createDatasourceService.create(datasource, pfxFile);
-      return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
-    };
+    var datasourceResult = createDatasourceService.create(datasource, pfxFile);
+    return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
   }
 
   @GetMapping("/{id}")

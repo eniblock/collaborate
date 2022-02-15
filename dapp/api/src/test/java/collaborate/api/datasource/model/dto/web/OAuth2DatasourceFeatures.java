@@ -19,14 +19,14 @@ public class OAuth2DatasourceFeatures {
           .grantType("OAUTH2_CLIENT_CREDENTIALS_GRANT")
           .clientId("collaborate")
           .clientSecret("secret")
-          .issuerIdentifierUri(URI.create("http://dspconsortium1.localhost"))
-          .wellKnownURIPathSuffix(URI.create("/.well-known"))
+          .tokenEndpoint(URI.create("http://dspconsortium1.localhost/token"))
           .build()
       ).resources(
           new ArrayList<>(List.of(WebServerResource.builder()
               .description("Datasource documents")
               .keywords(
-                  new LinkedHashSet<>(List.of("routing-key:documents", "scope:business_data")))
+                  new LinkedHashSet<>(
+                      List.of("routing-key:documents", "scope:business_data", "list-asset")))
               .url("https://developer.dspconsortium1.io/webapi/b2b/api-reference-v3/specification/")
               .build()
           ))).build();
