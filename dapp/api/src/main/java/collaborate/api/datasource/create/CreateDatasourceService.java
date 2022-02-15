@@ -15,7 +15,6 @@ import collaborate.api.datasource.gateway.traefik.routing.DatasourceKeySupplier;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
-import collaborate.api.datasource.model.dto.DatasourceEnrichment;
 import collaborate.api.datasource.model.dto.DatasourcePurpose;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
@@ -40,7 +39,6 @@ public class CreateDatasourceService {
   private final AuthenticationMetadataVisitor authenticationMetadataVisitor;
   private final DatasourceDAO datasourceDAO;
   private final DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
-  private final DatasourceEnricherVisitor datasourceEnricherVisitor;
   private final ObjectMapper objectMapper;
   private final OrganizationService organizationService;
   private final MintBusinessDataService mintBusinessDataService;
@@ -57,9 +55,8 @@ public class CreateDatasourceService {
     datasourceDTO.setId(uuidGenerator.randomUUID());
 
     datasourceDTO.getAuthMethod().accept(saveAuthenticationVisitor);
-    var enrichment = datasourceDTO.accept(datasourceEnricherVisitor);
-    var providerConfiguration = traefikProviderService.save(enrichment.getDatasource());
-    var datasource = buildDatasource(enrichment, providerConfiguration);
+    var providerConfiguration = traefikProviderService.save(datasourceDTO);
+    var datasource = buildDatasource(datasourceDTO, providerConfiguration);
 
     var datasourceWithCid = datasourceDAO.save(datasource);
     if (DatasourcePurpose.BUSINESS_DATA.match(datasourceDTO)) {
@@ -68,12 +65,9 @@ public class CreateDatasourceService {
     return datasourceWithCid.getContent();
   }
 
-  Datasource buildDatasource(
-      DatasourceEnrichment<?> enrichment,
-      TraefikProviderConfiguration providerConfiguration
-  ) throws DatasourceVisitorException {
+  Datasource buildDatasource(DatasourceDTO datasourceDTO,
+      TraefikProviderConfiguration providerConfiguration) throws DatasourceVisitorException {
 
-    var datasourceDTO = enrichment.getDatasource();
     var authHeaderKeySupplier = new AuthHeaderKeySupplier(new DatasourceKeySupplier(datasourceDTO));
     providerConfiguration.getHttp().getMiddlewares().remove(authHeaderKeySupplier.get());
 
@@ -85,15 +79,13 @@ public class CreateDatasourceService {
         .providerConfiguration(
             objectMapper.convertValue(providerConfiguration, LinkedHashMap.class)
         ).provider(TraefikProviderConfiguration.class.getName())
-        .providerMetadata(buildMetadata(enrichment))
+        .providerMetadata(buildMetadata(datasourceDTO))
         .build();
   }
 
-  Set<Metadata> buildMetadata(DatasourceEnrichment<?> enrichment)
+  Set<Metadata> buildMetadata(DatasourceDTO datasourceDTO)
       throws DatasourceVisitorException {
-    var datasourceDTO = enrichment.getDatasource();
     return Stream.of(
-            enrichment.getMetadata().stream(),
             datasourceDTO.getAuthMethod().accept(authenticationMetadataVisitor),
             datasourceDTO.accept(datasourceDTOMetadataVisitor)
         ).flatMap(identity())

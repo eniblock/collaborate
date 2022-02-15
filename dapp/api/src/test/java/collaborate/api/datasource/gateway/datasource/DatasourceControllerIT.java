@@ -6,9 +6,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.http.MediaType.TEXT_PLAIN_VALUE;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import collaborate.api.datasource.DatasourceController;
@@ -86,12 +84,8 @@ class DatasourceControllerIT {
     var mvcResult = mockMvc.perform(
             multipart(API_V1_DATASOURCES)
                 .file(oAuth2Datasource)
-
-        ).andExpect(request().asyncStarted())
+        )
         .andDo(MockMvcResultHandlers.log())
-        .andReturn();
-    // THEN
-    mockMvc.perform(asyncDispatch(mvcResult))
         .andExpect(status().isCreated());
   }
 
@@ -164,11 +158,7 @@ class DatasourceControllerIT {
             multipart(API_V1_DATASOURCES)
                 .file(pfxFile)
                 .file(basicAuthDatasource)
-        ).andExpect(request().asyncStarted())
-        .andDo(MockMvcResultHandlers.log())
-        .andReturn();
-    // THEN
-    mockMvc.perform(asyncDispatch(mvcResult))
+        ).andDo(MockMvcResultHandlers.log())
         .andExpect(status().isCreated());
   }
 
@@ -192,11 +182,7 @@ class DatasourceControllerIT {
             multipart(API_V1_DATASOURCES)
                 .file(pfxFile)
                 .file(basicAuthDatasource)
-        ).andExpect(request().asyncStarted())
-        .andDo(MockMvcResultHandlers.log())
-        .andReturn();
-    // THEN    // THEN
-    mockMvc.perform(asyncDispatch(mvcResult))
+        ).andDo(MockMvcResultHandlers.log())
         .andExpect(status().isCreated());
   }
 
@@ -212,11 +198,7 @@ class DatasourceControllerIT {
             multipart(API_V1_DATASOURCES)
                 .file(pfxFile)
                 .file(basicAuthDatasource)
-        ).andExpect(request().asyncStarted())
-        .andDo(MockMvcResultHandlers.log())
-        .andReturn();
-    // THEN
-    mockMvc.perform(asyncDispatch(mvcResult))
+        ).andDo(MockMvcResultHandlers.log())
         .andExpect(status().isCreated());
   }
 

@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class BusinessDataTokenMetadataSupplier implements Supplier<TZip21Metadata> {
 
-  public static final String NFT_NAME = "BusinessData";
+  public static final String NFT_NAME = "CatalogBusinessData";
   public static final String NFT_SYMBOLE = "CBD";
   public static final int NFT_DECIMALS = 0;
   public static final String NFT_VERSION = "business-data.0.1";

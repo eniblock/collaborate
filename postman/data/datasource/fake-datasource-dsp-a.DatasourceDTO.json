@@ -5,8 +5,7 @@
   "authMethod": {
     "type": "OAuth2ClientCredentialsGrant",
     "grantType": "client_credentials",
-    "issuerIdentifierUri": "https://iam.fds.pcc.eniblock.fr/auth/realms/datasource/",
-    "wellKnownURIPathSuffix": ".well-known/openid-configuration",
+    "authorizationServerUrl": "https://iam.fds.pcc.eniblock.fr/auth/realms/datasource/protocol/openid-connect/token",
     "clientId": "collaborate",
     "clientSecret": "57936b16-2f90-434a-9eb4-843668a3a521",
     "partnerTransferMethod": {
@@ -20,7 +19,9 @@
     {
       "description": "Documents list",
       "keywords": [
-        "scope:list-asset"
+        "scope:referentials",
+        "category:referentials",
+        "list-asset"
       ],
       "url": "/documents"
     }

@@ -65,6 +65,21 @@ class URIFactoryTest {
   }
 
   @Test
+  void create_shouldHaveExpectedPath_withPort() {
+    // GIVEN
+    var resource = WebServerResource.builder()
+        .url("/path")
+        .build();
+    var datasource = WebServerDatasourceDTO.builder()
+        .baseUrl("https://www.test.com:3000/")
+        .build();
+    // WHEN
+    URI actualURI = uriFactory.create(datasource, resource);
+    // THEN
+    assertThat(actualURI).hasToString("https://www.test.com:3000/path");
+  }
+
+  @Test
   void create_shouldHaveExpectedPath_withAuthQueryParams() {
     // GIVEN
     var datasource = WebServerDatasourceDTO.builder()

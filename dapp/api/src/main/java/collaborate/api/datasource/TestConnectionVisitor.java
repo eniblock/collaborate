@@ -1,6 +1,6 @@
 package collaborate.api.datasource;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_ASSET_LIST;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
 
 import collaborate.api.datasource.create.RequestEntitySupplierFactory;
 import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;
@@ -19,7 +19,7 @@ public class TestConnectionVisitor implements DatasourceDTOVisitor<BooleanSuppli
 
   @Override
   public BooleanSupplier visitWebServerDatasource(WebServerDatasourceDTO serverDatasourceDTO) {
-    var requestEntity = requestEntitySupplierFactory.create(serverDatasourceDTO, SCOPE_ASSET_LIST);
+    var requestEntity = requestEntitySupplierFactory.create(serverDatasourceDTO, TEST_CONNECTION);
     return () -> responseCodeOkPredicate.test(requestEntity);
   }
 

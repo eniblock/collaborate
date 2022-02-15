@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test;
 class RoutingKeySupplierTest {
 
   @Test
-  void get_shouldReturnKeywordWithoutRoutingKeyPrefix_withScopePrefix() {
+  void get_shouldReturnKeyword_withScopePrefix() {
     // GIVEN
     List<String> keywords = List.of("scope:metric:odometer");
     // WHEN
@@ -20,17 +20,17 @@ class RoutingKeySupplierTest {
   }
 
   @Test
-  void get_shouldReturnKeywordWithoutRoutingKeyPrefix_withDocumentPrefix() {
+  void get_shouldReturnKeyword_withAssetList() {
     // GIVEN
-    List<String> keywords = List.of("document:test");
+    List<String> keywords = List.of("list-asset");
     // WHEN
     var route = new RoutingKeyFromKeywordSupplier(keywords).get();
     // THEN
-    assertThat(route).isEqualTo("document:test");
+    assertThat(route).isEqualTo("list-asset");
   }
 
   @Test
-  void get_shouldReturnFirstKeywordWithoutRoutingKeyPrefix_withScopePrefix() {
+  void get_shouldReturnFirstKeyword_withScopePrefix() {
     // GIVEN
     List<String> keywords = List.of("scope:routeA", "scope:routeB");
     // WHEN

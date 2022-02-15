@@ -26,7 +26,7 @@
     {
       "description": "Vehicles list",
       "keywords": [
-        "scope:list-asset",
+        "list-asset",
         "assets"
       ],
       "url": "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
