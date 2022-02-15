@@ -60,39 +60,4 @@ mapping to be applied on the response data.
 To illustrate data source usage, XDev provide two public simple API that you can use for testing
 your first data source creations.
 
-* [fake-datasource-dsp-a.json](../postman/data/datasource/fake-datasource-dsp-a.json) is provided as
-  a valid DatasourceDTO suitable for working with _Business
-  dataset_ https://dsp-a.fds.pcc.eniblock.fr data source usable for _Business dataset_ data source.
-* [fake-datasource-dsp-b.json](../postman/data/datasource/fake-datasource-dsp-b.json) is provided as
-  a valid DatasourceDTO suitable for working with _Digital
-  passport_ https://dsp-b.fds.pcc.eniblock.fr data source, where assets are vehicles.
-  _**NB**: This fake data source for digital passport is not well suited to illustrate an expected
-  API Access Control Management. Functional user journey are based on "Resources-based permissions"
-  instead of "Scope based permissions", ie: access on all data about the asset `VF1VY0C06UC283811`
-  instead of all data about `battery`_
-
-Get a JWT with `battery` scope:
-
-```shell
-curl --location --request POST 'https://iam.fds.pcc.eniblock.fr/auth/realms/datasource/protocol/openid-connect/token' \
---header 'Content-Type: application/x-www-form-urlencoded' \
---data-urlencode 'grant_type=client_credentials' \
---data-urlencode 'client_id=collaborate' \
---data-urlencode 'client_secret=57936b16-2f90-434a-9eb4-843668a3a521' \
---data-urlencode 'scope=battery' 
-```
-
-Then use this token on `GET https://dsp-b.fds.pcc.eniblock.fr/battery` to get all batteries
-resources:
-
-```
-curl --location --request GET 'https://datasource-dsp-b.fake-datasource.localhost/battery/VF1VY0C06UC283811' \
---header 'Authorization: Bearer XXX_ACCESS_TOKEN_GOES_HERE_XXX' \
---header 'Content-Type: application/x-www-form-urlencoded' \
---data-urlencode 'grant_type=client_credentials' \
---data-urlencode 'client_id=collaborate' \
---data-urlencode 'client_secret=57936b16-2f90-434a-9eb4-843668a3a521'
-```
-
-And `GET https://dsp-b.fds.pcc.eniblock.fr/battery/VF1VY0C06UC283811` to get the _VF1VY0C06UC283811_
-asset battery resource
+See: [Fake data source](fake-data-source.md)
