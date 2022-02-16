@@ -10,7 +10,7 @@ import collaborate.api.transaction.TransactionWatcherProperty;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
@@ -20,7 +20,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-@ConditionalOnProperty(prefix = "transaction", name = "enabled", havingValue = "true")
+@ConditionalOnExpression("!'${api.digitalPassportContractAddress}'.isEmpty()")
 public class Fa2TransactionWatcherConfig {
 
   private final ApiProperties apiProperties;
@@ -45,7 +45,7 @@ public class Fa2TransactionWatcherConfig {
   private TransactionWatcher buildWatcher(TransactionWatcherProperty watcherProperty) {
     return new TransactionWatcher(
         watcherProperty.getSmartContractAddress(),
-        initBusinessDataEventManager(),
+        initDigitalPassportEventManager(),
         tezosApiGatewayTransactionClient,
         transactionStateService
     );
@@ -59,7 +59,7 @@ public class Fa2TransactionWatcherConfig {
     );
   }
 
-  private TransactionEventManager initBusinessDataEventManager() {
+  private TransactionEventManager initDigitalPassportEventManager() {
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(mintTokenHandler);
     return transactionEventManager;
