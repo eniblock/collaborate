@@ -108,4 +108,12 @@ public class BusinessDataController {
     response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
     scopeAssetsService.download(scopeAssets, response.getOutputStream());
   }
+
+  @GetMapping("/smart-contract")
+  @Operation(
+      description = "Get the business data catalog smart contract address"
+  )
+  public String getBusinessDataSmartContractAddress() {
+    return apiProperties.getBusinessDataContractAddress();
+  }
 }

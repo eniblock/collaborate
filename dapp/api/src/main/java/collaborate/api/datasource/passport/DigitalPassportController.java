@@ -1,6 +1,7 @@
 package collaborate.api.datasource.passport;
 
 import collaborate.api.config.OpenApiConfig;
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.passport.consent.ConsentService;
 import collaborate.api.datasource.passport.create.CreateMultisigPassportDTO;
 import collaborate.api.datasource.passport.create.CreatePassportService;
@@ -40,6 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/digital-passport")
 public class DigitalPassportController {
 
+  private final ApiProperties apiProperties;
   private final ConsentService consentService;
   private final CreatePassportService createPassportService;
   private final FindPassportService findPassportService;
@@ -125,4 +127,20 @@ public class DigitalPassportController {
     return findPassportService.countPassports();
   }
 
+  @GetMapping("/smart-contract/proxy")
+  @Operation(
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description = "Get the digital passport proxy controller smart-contract address"
+  )
+  public String getDigitalPassportProxyContractAddress() {
+    return apiProperties.getDigitalPassportProxyTokenControllerContractAddress();
+  }
+
+  @GetMapping("/smart-contract/fa2")
+  @Operation(
+      description = "Get the digital passport FA2 smart-contract address"
+  )
+  public String getDigitalPassportProxyFA2Address() {
+    return apiProperties.getDigitalPassportContractAddress();
+  }
 }

@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "gateway", description =
-    "The data Gateway API. Used as a Facade to communicate with external data sources")
+    "The data Gateway API. Used as a Facade to communicate with external datasources")
 @RestController
 @Slf4j
 @RequestMapping(GatewayController.API_V_1_GATEWAY)
@@ -31,7 +31,7 @@ public class GatewayController {
 
   @PreAuthorize(HasRoles.API_GATEWAY_READ)
   @Operation(
-      description = "Get the given scope data for the given data source",
+      description = "Get the given scope data for the given datasource",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @GetMapping(value = "datasource/{datasourceId}/{scope}")
   public ResponseEntity<JsonNode> getScopeByDatasourceId(
@@ -43,7 +43,7 @@ public class GatewayController {
 
   @PreAuthorize(HasRoles.API_GATEWAY_READ)
   @Operation(
-      description = "Get the given scope data for the given assetId of the given data source",
+      description = "Get the given scope data for the given assetId of the given datasource",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @GetMapping(value = "datasource/{datasourceId}/{scope}/{assetId}")
   public ResponseEntity<JsonNode> getScopeByAssetIdAndDatasourceId(

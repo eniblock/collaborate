@@ -55,8 +55,8 @@ public class DatasourceController {
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(
-      description = "Generate a data source configuration and publish it on IPFS."
-          + "When the data source is for business data, the associated scope are also minted as NFT business data token",
+      description = "Generate a datasource configuration and publish it on IPFS."
+          + "When the datasource is for business data, the associated scope are also minted as NFT business data token",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DSP_ADMIN)
   public ResponseEntity<Datasource> createDatasource(
@@ -77,7 +77,7 @@ public class DatasourceController {
 
   @GetMapping("/{id}")
   @Operation(
-      description = "Get data source details",
+      description = "Get datasource details",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
   public ResponseEntity<DatasourceDetailsDto> getDatasourceById(
@@ -89,7 +89,7 @@ public class DatasourceController {
 
   @GetMapping
   @Operation(
-      description = "Get the list of created data sources",
+      description = "Get the list of created datasources",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
   public HttpEntity<Page<ListDatasourceDTO>> listDatasources(
@@ -101,7 +101,7 @@ public class DatasourceController {
 
   @GetMapping("/{id}/scopes")
   @Operation(
-      description = "Get scopes associated to a data source",
+      description = "Get scopes associated to a datasource",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
   public ResponseEntity<Set<String>> listScopesByDatasourceId(
@@ -112,7 +112,7 @@ public class DatasourceController {
 
   @PostMapping(value = "test-connection", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(
-      description = "Try to communicate to the underlying data source asset-list entry-point",
+      description = "Try to communicate to the underlying datasource asset-list entry-point",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DSP_ADMIN)
   public ResponseEntity<Void> testDatasourceConnection(
