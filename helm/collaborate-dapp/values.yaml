@@ -116,7 +116,7 @@ db:
     enabled: true
     size: 1Gi
   image:
-    tag: 12.6.0-debian-10-r14
+    tag: 12.10.0-debian-10-r10
   resources:
     requests:
       memory: 50Mi
@@ -157,27 +157,20 @@ ingress:
 keycloak:
   nameOverride: keycloak
   extraEnvVars:
-  - name: KEYCLOAK_LOGLEVEL
-    value: "DEBUG"
-  - name: WILDFLY_LOGLEVEL
-    value: "DEBUG"
-  - name: REALM
-    value: "collaborate-dapp"
-  - name: ROLE_ATTRIBUTE_KEY
-    value: "type"
-  - name: ROLE_ATTRIBUTE_VALUE
-    value: "collaborate-dapp"
-  service:
-    type: ClusterIP
-  commonAnnotations:
-    reloader.stakater.com/auto: "true"
-  extraEnvVars:
+    - name: KEYCLOAK_LOGLEVEL
+      value: "DEBUG"
+    - name: WILDFLY_LOGLEVEL
+      value: "DEBUG"
     - name: REALM
       value: "collaborate-dapp"
     - name: ROLE_ATTRIBUTE_KEY
       value: "type"
     - name: ROLE_ATTRIBUTE_VALUE
       value: "collaborate-dapp"
+  service:
+    type: ClusterIP
+  commonAnnotations:
+    reloader.stakater.com/auto: "true"
   image:
     registry: registry.gitlab.com
     repository: xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam
