@@ -112,6 +112,13 @@ public final class Authorizations {
         HasRoles.DSP_ADMIN
             + " OR " + HasRoles.ASSET_OWNER
             + " OR " + HasRoles.BSP_ADMIN;
+
+    public static final String WALLET_READ =
+        IDENTITY_ADMIN
+            + "OR " + DSP_ADMIN
+            + "OR " + BSP_ADMIN
+            + "OR " + DSP_OPERATOR
+            + "OR " + ASSET_OWNER;
   }
 
 }

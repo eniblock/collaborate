@@ -31,7 +31,7 @@ public class MintBusinessDataServiceTest {
   private final Tzip21MetadataService tzip21MetadataService;
 
   public void mint(DatasourceDTO datasourceDTO) {
-    // Use a visitor for Access and for Datasource type when new data source type will be implemented
+    // Use a visitor for Access and for Datasource type when new datasource type will be implemented
     if (isOAuth2WebServer(datasourceDTO)) {
       var webServerDatasourceDTO = (WebServerDatasourceDTO) datasourceDTO;
       var assetIdAndUris = webServerDatasourceDTO.getResources().stream()

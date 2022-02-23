@@ -85,7 +85,7 @@ Services accessible to end-user through this application are:
 #### Governance APP
 
 This application is dedicated to the consortium members. It offers an interface and functionalities
-for monitoring and managing platform data (e.g. data sources and data storage management, access
+for monitoring and managing platform data (e.g. datasources and data storage management, access
 control, and monitoring of revenue related to data valuation).
 
 ### Service Layer
@@ -136,9 +136,9 @@ This layer provides access mechanisms to the infrastructure layer for APIs of th
 
 #### Data API Gateway
 
-It provides mechanisms to access the data sources of all the consortium members and the Data Storage
+It provides mechanisms to access the datasources of all the consortium members and the Data Storage
 of the same consortium member. In order to achieve interoperability and adaptability goals, several
-connectors for the most common data sources ( Web Services, Relational Database, Files systems) are
+connectors for the most common datasources ( Web Services, Relational Database, Files systems) are
 provided. In order to guarantee the security and the privacy of the system, any data is duplicated,
 notarization services based on fingerprint mechanism are used.
 
@@ -148,7 +148,7 @@ It provides mechanisms to access the Key Storage and to sign blockchain transact
 
 #### Policy Manager
 
-It provides mechanisms for controlling access to data sources resources.
+It provides mechanisms for controlling access to datasources resources.
 
 #### Blockchain API Gateway
 
@@ -280,7 +280,7 @@ develop branch of the project repository.
 Detailed usage about:
 
 * [IAM: Identity Access Management](doc/iam.md)
-* [(1) Configuring data sources](doc/datasource.md)
+* [(1) Configuring datasources](doc/datasource.md)
 * [(2) Creating NFT Token for assets](doc/create-nft.md)
 * [(3) Consuming NFT Token associated data](doc/access-nft-dataset-catalog.md)
 

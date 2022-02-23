@@ -127,4 +127,14 @@ public class UserController {
     return () -> ResponseEntity.ok(connectedUserService.updateWithAssetOwnerRole());
   }
 
+  @GetMapping("wallet")
+  @Operation(
+      description = "Get the connected user wallet address.",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
+  )
+  @PreAuthorize(HasRoles.WALLET_READ)
+  public String getUserWalletAddress() {
+    return connectedUserService.getWalletAddress();
+  }
+
 }

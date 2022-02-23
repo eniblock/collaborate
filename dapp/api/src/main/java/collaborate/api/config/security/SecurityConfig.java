@@ -52,7 +52,7 @@ class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         .antMatchers("/api/api-docs/**").permitAll()
         .antMatchers("/api/swagger-ui.html").permitAll()
         .antMatchers("/api/swagger-ui/**").permitAll()
+        .antMatchers("/api/v1/*/smart-contract/**").permitAll()
         .anyRequest().authenticated();
   }
 }
-
