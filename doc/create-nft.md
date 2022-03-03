@@ -25,6 +25,7 @@ As you can see, the differences between digital passport for personal data and b
       calling `POST api/v1/digital-passport`.
     * The user can consent by calling `POST /api/v1/digital-passport/multisig/{contract-id}`. This
       consent triggers the digital-passport NFT mint, representing a user asset.
+      ![digital-passport-mint](images/digital-passport-mint.jpg)
 * With business dataset:
     * No consent is required, the owner mint directly a **business dataset NFT** for each scope of
       the created datasource.
