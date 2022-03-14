@@ -1,10 +1,9 @@
 package collaborate.api.datasource.nft.model;
 
 import collaborate.api.config.ISO8601JsonStringFormat;
-import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.datasource.passport.model.AccessStatus;
-import collaborate.api.datasource.passport.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.passport.model.TokenStatus;
+import collaborate.api.organization.model.OrganizationDTO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 import javax.validation.Valid;

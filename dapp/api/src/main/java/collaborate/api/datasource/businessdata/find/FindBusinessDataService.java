@@ -2,11 +2,11 @@ package collaborate.api.datasource.businessdata.find;
 
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.businessdata.transaction.BusinessDataTransactionService;
+import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
+import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
 import collaborate.api.datasource.passport.model.AccessStatus;
-import collaborate.api.datasource.passport.model.AssetDataCatalogDTO;
-import collaborate.api.datasource.passport.model.DatasourceDTO;
 import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.user.metadata.UserMetadataService;
@@ -47,7 +47,7 @@ public class FindBusinessDataService {
         .accessStatus(getAccessStatus(datasourceId, assetIdForDatasource))
         .assetDataCatalog(
             AssetDataCatalogDTO.builder()
-                .datasources(List.of(DatasourceDTO.builder()
+                .datasources(List.of(AssetDetailsDatasourceDTO.builder()
                     .id(datasourceId)
                     .assetIdForDatasource(assetIdForDatasource)
                     .ownerAddress(t.getTokenOwnerAddress())

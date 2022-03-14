@@ -3,12 +3,12 @@ package collaborate.api.datasource.nft.catalog;
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.Datasource;
+import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
+import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.datasource.nft.model.metadata.AssetDataCatalog;
 import collaborate.api.datasource.nft.model.metadata.DatasourceLink;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
 import collaborate.api.datasource.nft.model.storage.TokenMetadata;
-import collaborate.api.datasource.passport.model.AssetDataCatalogDTO;
-import collaborate.api.datasource.passport.model.DatasourceDTO;
 import collaborate.api.ipfs.IpfsService;
 import java.util.Collections;
 import java.util.Optional;
@@ -58,9 +58,9 @@ public class CatalogService {
         ).map(AssetDataCatalogDTO::new);
   }
 
-  DatasourceDTO buildDatasourceDTO(DatasourceLink datasourceLink) {
+  AssetDetailsDatasourceDTO buildDatasourceDTO(DatasourceLink datasourceLink) {
     var datasource = ipfsService.cat(datasourceLink.getUri(), Datasource.class);
-    return DatasourceDTO.builder()
+    return AssetDetailsDatasourceDTO.builder()
         .id(datasourceLink.getId())
         .assetIdForDatasource(datasourceLink.getAssetIdForDatasource())
         .baseUri(traefikProviderService.buildDatasourceBaseUri(datasource))

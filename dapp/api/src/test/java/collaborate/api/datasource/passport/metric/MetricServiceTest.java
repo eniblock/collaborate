@@ -10,9 +10,9 @@ import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.gateway.GatewayResourceDTO;
 import collaborate.api.datasource.gateway.GatewayUrlService;
 import collaborate.api.datasource.model.Metadata;
+import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
+import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.datasource.passport.find.FindPassportService;
-import collaborate.api.datasource.passport.model.AssetDataCatalogDTO;
-import collaborate.api.datasource.passport.model.DatasourceDTO;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.test.TestResources;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -48,7 +48,7 @@ class MetricServiceTest {
   @Test
   void buildMetricUrl_shouldResultInExpectedFormattedUrl_withoutEndingSlashInTraefikUrl() {
     // GIVEN
-    DatasourceDTO datasourceDTO = DatasourceDTO.builder()
+    AssetDetailsDatasourceDTO datasourceDTO = AssetDetailsDatasourceDTO.builder()
         .id("dsId")
         .assetIdForDatasource("assetId")
         .baseUri("unused")
@@ -79,7 +79,7 @@ class MetricServiceTest {
   void buildMetricUrl_shouldResultInExpectedFormattedUrl_withEndingSlashInTraefikUrl() {
     // GIVEN
     when(datasourceService.getMetadata("dsId")).thenReturn(emptySet());
-    DatasourceDTO datasourceDTO = DatasourceDTO.builder()
+    AssetDetailsDatasourceDTO datasourceDTO = AssetDetailsDatasourceDTO.builder()
         .id("dsId")
         .assetIdForDatasource("assetId")
         .baseUri("unused")
@@ -106,13 +106,13 @@ class MetricServiceTest {
         .assetDataCatalog(
             new AssetDataCatalogDTO(
                 List.of(
-                    DatasourceDTO.builder()
+                    AssetDetailsDatasourceDTO.builder()
                         .id("dsA")
                         .assetIdForDatasource("assetIdA")
                         .baseUri("unused")
                         .scopes(Set.of("scope:metric:A"))
                         .build(),
-                    DatasourceDTO.builder()
+                    AssetDetailsDatasourceDTO.builder()
                         .id("dsB")
                         .assetIdForDatasource("assetIdB")
                         .baseUri("unused")

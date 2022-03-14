@@ -15,8 +15,8 @@ import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.catalog.CatalogService;
-import collaborate.api.datasource.passport.model.AssetDataCatalogDTO;
-import collaborate.api.datasource.passport.model.DatasourceDTO;
+import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
+import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.user.metadata.UserMetadataService;
 import com.alibaba.fastjson.JSONArray;
@@ -87,7 +87,7 @@ public class ScopeAssetsService {
         .findFirst();
   }
 
-  public Optional<ScopeAssetsDTO> listScopeAssets(DatasourceDTO datasourceDTO) {
+  public Optional<ScopeAssetsDTO> listScopeAssets(AssetDetailsDatasourceDTO datasourceDTO) {
     var datasourceId = datasourceDTO.getId();
     var scope = datasourceDTO.getAssetIdForDatasource();
     var scopesResponse = getAssetListResponse(datasourceId, scope);

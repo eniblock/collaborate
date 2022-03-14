@@ -12,8 +12,8 @@ import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.gateway.GatewayResourceDTO;
 import collaborate.api.datasource.gateway.GatewayUrlService;
 import collaborate.api.datasource.model.Metadata;
+import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.datasource.passport.find.FindPassportService;
-import collaborate.api.datasource.passport.model.DatasourceDTO;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.datasource.passport.model.Metric;
 import collaborate.api.user.connected.ConnectedUserService;
@@ -97,7 +97,7 @@ public class MetricService {
         .flatMap(this::buildMetricUrls);
   }
 
-  Stream<GatewayResourceDTO> buildMetricUrls(DatasourceDTO datasourceDTO) {
+  Stream<GatewayResourceDTO> buildMetricUrls(AssetDetailsDatasourceDTO datasourceDTO) {
     Set<Metadata> metadata = datasourceService.getMetadata(datasourceDTO.getId());
     return datasourceDTO.getScopes().stream()
         .filter(s -> !TEST_CONNECTION.equals(s))

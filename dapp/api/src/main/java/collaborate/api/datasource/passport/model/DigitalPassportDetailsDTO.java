@@ -1,6 +1,8 @@
 package collaborate.api.datasource.passport.model;
 
 import collaborate.api.config.ISO8601JsonStringFormat;
+import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
+import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -51,7 +53,7 @@ public class DigitalPassportDetailsDTO {
     return getAssetDataCatalog()
         .getDatasources()
         .stream()
-        .map(DatasourceDTO::getScopes)
+        .map(AssetDetailsDatasourceDTO::getScopes)
         .mapToLong(Set::size)
         .sum();
   }

@@ -7,11 +7,11 @@ import static org.mockito.Mockito.when;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.businessdata.transaction.BusinessDataTransactionService;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
+import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
+import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
 import collaborate.api.datasource.passport.model.AccessStatus;
-import collaborate.api.datasource.passport.model.AssetDataCatalogDTO;
-import collaborate.api.datasource.passport.model.DatasourceDTO;
 import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
@@ -70,7 +70,7 @@ class FindBusinessDataServiceTest {
     assertThat(assetDetailsResult).isEqualTo(AssetDetailsDTO.builder()
         .assetDataCatalog(
             AssetDataCatalogDTO.builder()
-                .datasources(List.of(DatasourceDTO.builder()
+                .datasources(List.of(AssetDetailsDatasourceDTO.builder()
                     .id("3636ff0b-2295-4750-a6b2-677c680e0bbb")
                     .assetIdForDatasource("assetId")
                     .ownerAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
