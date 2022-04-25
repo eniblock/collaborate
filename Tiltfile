@@ -30,7 +30,7 @@ if os.getenv('BUSINESS_DATA_SC', '') != '':
 if os.getenv('DIGITAL_PASSPORT_SC', '') != '':
   overridedValues \
     .append(
-    'api.digitalPassportContractAddress=' + os.getenv('DIGITAL_PASSPORT_SC'))
+      'api.digitalPassportContractAddress=' + os.getenv('DIGITAL_PASSPORT_SC'))
 
 k8s_yaml(
     helm(
@@ -54,7 +54,7 @@ image_build(
 
 print('exposing maildev on port 1080')
 k8s_resource('col-collaborate-dapp-maildev',
-             port_forwards=['1080:80', '1025:25'])
+             port_forwards=['1080:1080', '1025:1025'])
 
 # group the resources in tilt webui
 for r in [

@@ -26,10 +26,10 @@ spec:
           image: "maildev/maildev"
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 1080
               protocol: TCP
             - name: smtp
-              containerPort: 25
+              containerPort: 1025
               protocol: TCP
           resources:
             requests:
