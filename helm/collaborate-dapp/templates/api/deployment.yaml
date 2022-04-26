@@ -91,6 +91,8 @@ spec:
           imagePullPolicy: {{ .Values.api.image.pullPolicy }}
           env:
             # Api properties
+            - name: SPRING_PROFILES_ACTIVE
+              value: {{ .Values.api.spring.profiles.active | quote }}
             - name: API_PLATFORM
               value: {{ .Values.api.platform | quote }}
             - name: API_DIGITAL_PASSPORT_CONTRACT_ADDRESS

@@ -62,7 +62,7 @@ logging:
       SQL: DEBUG
       type.descriptor.sql.BasicBinder: TRACE
     org.springframework:
-      web.filter.CommonsRequestLoggingFilter: DEBUG
+      #      web.filter.CommonsRequestLoggingFilter: DEBUG
       jdbc.core:
         JdbcTemplate: DEBUG
         StatementCreatorUtils: TRACE
@@ -72,11 +72,23 @@ management:
     web:
       exposure:
         include: health,metrics,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true
+      show-details: always
   health:
-    probes:
+    readinessState:
       enabled: true
 
 spring:
+  cloud:
+    discovery:
+      client:
+        composite-indicator:
+          enabled: false
+  main:
+    banner-mode: off
   rabbitmq:
     host: localhost
     port: 5672
@@ -105,6 +117,11 @@ spring:
     async.request-timeout: 240000
     log-request-details: false
   jpa:
+    properties:
+      hibernate:
+        types:
+          print:
+            banner: false
     hibernate:
       ddl-auto: update
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -157,6 +174,14 @@ feign:
       ipfs-client:
         connectTimeout: 10000
         readTimeout: 10000
+        loggerLevel: none
       ipfs-name-client:
         connectTimeout: 10000
         readTimeout: 300000
+        loggerLevel: none
+      ipfs-files-client:
+        loggerLevel: none
+      ipfs-pin-client:
+        loggerLevel: none
+      ipfs-key-client:
+        loggerLevel: none
