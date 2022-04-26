@@ -107,6 +107,10 @@ api:
     interval:
     scrapeTimeout:
 
+  spring:
+    profiles:
+      active:
+
 db:
   nameOverride: api-db
   postgresqlDatabase: api

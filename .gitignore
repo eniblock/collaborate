@@ -48,6 +48,7 @@ helm/**/charts
 
 # Tests resources
 dapp/api/src/main/resources/application-dev.yml
+dapp/api/src/main/resources/application-local.yml
 postman/data/datasource/digital-passport-valid.json
 postman/data/datasource/business-data-valid.json
 postman/data/datasource/MWPDRV01.pfx
