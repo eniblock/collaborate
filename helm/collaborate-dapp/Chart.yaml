@@ -26,10 +26,10 @@ appVersion: "0.6.0"
 dependencies:
   - name: postgresql
     alias: db
-    version: "10.2.5"
+    version: "11.1.6"
     repository: "https://charts.bitnami.com/bitnami"
   - name: keycloak
-    version: "2.4.3-develop.5"
+    version: "0.2.0-develop.116"
     repository: "oci://registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/keycloak/helm"
   - name: tezos-api-gateway
     version: "0.8.3"

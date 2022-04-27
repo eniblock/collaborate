@@ -159,81 +159,20 @@ ingress:
           name: ingress
 
 keycloak:
-  nameOverride: keycloak
-  extraEnvVars:
-    - name: KEYCLOAK_LOGLEVEL
-      value: "DEBUG"
-    - name: WILDFLY_LOGLEVEL
-      value: "DEBUG"
-    - name: REALM
-      value: "collaborate-dapp"
-    - name: ROLE_ATTRIBUTE_KEY
-      value: "type"
-    - name: ROLE_ATTRIBUTE_VALUE
-      value: "collaborate-dapp"
-  service:
-    type: ClusterIP
-  commonAnnotations:
-    reloader.stakater.com/auto: "true"
   image:
-    registry: registry.gitlab.com
-    repository: xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam
-    # FIXME
-    tag: develop
-    pullSecrets: []
-  auth:
-    adminUser: kcadmin
-    existingSecretPerPassword:
-      keyMapping:
-        adminPassword: admin-password
-        managementPassword: management-password
-        databasePassword: postgresql-password
-      adminPassword:
-        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
-      managementPassword:
-        name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
-      databasePassword:
-        name: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
-  extraEnvVarsSecret: '{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets'
-  podLabels:
-    "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-client": "true"
-  resources:
-    requests:
-      cpu: 50m
-      memory: 750Mi
+    repository: registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam
+  imagePullSecrets:
+    - name: gitlab-registry
+  extraEnv:
+    KEYCLOAK_LOGLEVEL: "DEBUG"
+  ingress:
+    enabled: true
+    host: somehostnametooverride.com
   metrics:
     enabled: true
-    serviceMonitor:
-      enabled: true
-  postgresql:
-    nameOverride: keycloak-db
-    existingSecret: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
-    persistence:
-      enabled: true
-      size: 1Gi
-    resources:
-      requests:
-        memory: 50Mi
-        cpu: 50m
-    primary:
-      annotations:
-        reloader.stakater.com/auto: "true"
-    rbac:
-      create: true
-    serviceAccount:
-      enabled: true
-    metrics:
-      enabled: true
-      serviceMonitor:
-        enabled: true
-      resources:
-        requests:
-          memory: 32Mi
-          cpu: 10m
-    networkPolicy:
-      enabled: true
-      allowExternal: false
-
+  configurator:
+    variables:
+      realm_id: "collaborate-dapp"
 
 ipfs:
   image:
