@@ -763,7 +763,7 @@ def add_test(config, is_default = True):
         scenario.table_of_contents()
 
         ## put the real proxy SC address and metadata_url here, the contract will be initially deployed with the following parameters
-        admin = sp.address("KT1F1cTtGEDUPxP4iZzNCgXhHxaXJZcAAsaY")
+        admin = sp.address("KT1UoJMPg3F8xQY7t98dKyVHy9N2z23E4fAB")
         alice = sp.test_account("Alice")
         metadata_url = "ipfs://QmYG2hWiukuc2aD3J9QQJLgTjTNarKiJgDYbkMtjB1gtnX"
 

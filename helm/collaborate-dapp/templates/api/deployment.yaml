@@ -29,7 +29,6 @@ spec:
         app.kubernetes.io/component: api
         {{ .Release.Name }}-{{ .Values.db.nameOverride }}-client: "true"
         {{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "nameOverride" }}-api-client: "true"
-        {{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}-client: "true"
         {{ include "collaborate-dapp.fullname" . }}-ipfs-client: "true"
     spec:
       {{- with .Values.api.imagePullSecrets }}
@@ -121,27 +120,6 @@ spec:
             # tezos-api-gateway config
             - name: TEZOS_API_GATEWAY_URL
               value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "nameOverride" }}-api:3333"
-            - name: SPRING_RABBITMQ_HOST
-              value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
-            - name: SPRING_RABBITMQ_USERNAME
-              value: user
-            - name: SPRING_RABBITMQ_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
-                  key: rabbitmq-password
-
-            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_HOST
-              value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
-            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_PORT
-              value: "5672"
-            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_USERNAME
-              value: user
-            - name: SPRING_MULTIRABBITMQ_CONNECTIONS_TEZOS_API_GATEWAY_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "rabbitmq" "nameOverride" }}"
-                  key: rabbitmq-password
 
             # db config
             - name: SPRING_DATASOURCE_URL
