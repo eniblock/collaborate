@@ -1,0 +1,104 @@
+[
+ {
+  "shortname": "OrganizationsYellowPages",
+  "longname": "OrganizationsYellowPages",
+  "scenario": [
+   {
+    "action": "newContract",
+    "accept_unknown_types": false,
+    "export": "(template_id (static_id 0 (\"organizationsYellowPages.py\" 81)) \nstorage (record (\"organizationsYellowPages.py\" 27) (administrators (set (\"organizationsYellowPages.py\" 79) (literal (address \"tz1W5ubDUJwpd9Gb94V2YKnZBHggAMMxtbBd\") (\"organizationsYellowPages.py\" 56)))) (organizations (map (\"organizationsYellowPages.py\" 72) ((literal (address \"tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv\") (\"organizationsYellowPages.py\" 60)) (record (\"organizationsYellowPages.py\" 58) (address (literal (address \"tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv\") (\"organizationsYellowPages.py\" 60))) (encryption_key (literal (string \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB\") (\"organizationsYellowPages.py\" 58))) (legal_name (literal (string \"DSPConsortium1\") (\"organizationsYellowPages.py\" 58))) (metadata (map (\"organizationsYellowPages.py\" 58) )) (roles (set (\"organizationsYellowPages.py\" 58) (literal (intOrNat 1) (\"organizationsYellowPages.py\" 58)))))) ((literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 67)) (record (\"organizationsYellowPages.py\" 65) (address (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 67))) (encryption_key (literal (string \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB\") (\"organizationsYellowPages.py\" 65))) (legal_name (literal (string \"BSPConsortium2\") (\"organizationsYellowPages.py\" 65))) (metadata (map (\"organizationsYellowPages.py\" 65) )) (roles (set (\"organizationsYellowPages.py\" 65) (literal (intOrNat 2) (\"organizationsYellowPages.py\" 65)))))))))\nstorage_type ((record ((administrators (set \"address\")) (organizations (map \"address\" (record ((address \"address\") (encryption_key \"string\") (legal_name \"string\") (metadata (map \"string\" \"bytes\")) (roles (set \"nat\"))) None (\"organizationsYellowPages.py\" 3))))) None (\"organizationsYellowPages.py\" 23)))\nentry_points ((update_organizations True None None None True (\"organizationsYellowPages.py\" 33) ((set_type (params (\"organizationsYellowPages.py\" 33)) (list (variant ((remove \"address\") (update (record ((address \"address\") (encryption_key \"string\") (legal_name \"string\") (metadata (map \"string\" \"bytes\")) (roles (set \"nat\"))) None (\"organizationsYellowPages.py\" 3)))) None (\"organizationsYellowPages.py\" 16))) (\"organizationsYellowPages.py\" 34)) (verify (contains (attr (data) \"administrators\" (\"organizationsYellowPages.py\" 35)) (sender) (\"organizationsYellowPages.py\" 35)) (literal (string \"INVALID_SENDER\") (\"organizationsYellowPages.py\" 35)) (\"organizationsYellowPages.py\" 35)) (forGroup \"updates\" (params (\"organizationsYellowPages.py\" 33)) ((match_cases (iter \"updates\" (\"organizationsYellowPages.py\" 36)) \"match_organizationsYellowPages_37\" ((match (cases_arg \"match_organizationsYellowPages_37\" (\"organizationsYellowPages.py\" 37)) \"update\" \"update\" ((set (getItem (attr (data) \"organizations\" (\"organizationsYellowPages.py\" 39)) (attr (variant_arg \"update\" (\"organizationsYellowPages.py\" 38)) \"address\" (\"organizationsYellowPages.py\" 39)) (\"organizationsYellowPages.py\" 39)) (variant_arg \"update\" (\"organizationsYellowPages.py\" 38)) (\"organizationsYellowPages.py\" 39))) (\"organizationsYellowPages.py\" 38)) (match (cases_arg \"match_organizationsYellowPages_37\" (\"organizationsYellowPages.py\" 37)) \"remove\" \"remove\" ((delItem (attr (data) \"organizations\" (\"organizationsYellowPages.py\" 39)) (variant_arg \"remove\" (\"organizationsYellowPages.py\" 40)) (\"organizationsYellowPages.py\" 41))) (\"organizationsYellowPages.py\" 40))) (\"organizationsYellowPages.py\" 37))) (\"organizationsYellowPages.py\" 36)))))\nflags ()\nprivates ()\nviews ((onchain get_org True (\"organizationsYellowPages.py\" 44) False \"\" ((verify (contains (attr (data) \"organizations\" (\"organizationsYellowPages.py\" 45)) (params (\"organizationsYellowPages.py\" 44)) (\"organizationsYellowPages.py\" 45)) (literal (string \"UNKNOWN_ORGANIZATION\") (\"organizationsYellowPages.py\" 45)) (\"organizationsYellowPages.py\" 45)) (result (getItem (attr (data) \"organizations\" (\"organizationsYellowPages.py\" 45)) (params (\"organizationsYellowPages.py\" 44)) (\"organizationsYellowPages.py\" 46)) (\"organizationsYellowPages.py\" 46)))) (onchain is_org True (\"organizationsYellowPages.py\" 49) False \"\" ((result (contains (attr (data) \"organizations\" (\"organizationsYellowPages.py\" 50)) (params (\"organizationsYellowPages.py\" 49)) (\"organizationsYellowPages.py\" 50)) (\"organizationsYellowPages.py\" 50)))))\nentry_points_layout ()\ninitial_metadata ()\nbalance ())",
+    "id": "(static_id 0 (\"organizationsYellowPages.py\" 81))",
+    "line_no": "(\"organizationsYellowPages.py\" 81)",
+    "show": true
+   },
+   {
+    "action": "message",
+    "id": "(static_id 0 (\"organizationsYellowPages.py\" 81))",
+    "line_no": "(\"organizationsYellowPages.py\" 84)",
+    "message": "update_organizations",
+    "params": "(list (\"organizationsYellowPages.py\" 84) (variant \"remove\" (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 67)) (\"organizationsYellowPages.py\" 84)))",
+    "sender": "(literal (address \"tz1W5ubDUJwpd9Gb94V2YKnZBHggAMMxtbBd\") (\"organizationsYellowPages.py\" 56))"
+   },
+   {
+    "action": "verify",
+    "condition": "(not (contains (attr (contract_data (static_id 0 (\"organizationsYellowPages.py\" 81)) (\"organizationsYellowPages.py\" 84)) \"organizations\" (\"organizationsYellowPages.py\" 85)) (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 67)) (\"organizationsYellowPages.py\" 85)) (\"organizationsYellowPages.py\" 85))",
+    "line_no": "(\"organizationsYellowPages.py\" 85)"
+   },
+   {
+    "action": "message",
+    "id": "(static_id 0 (\"organizationsYellowPages.py\" 81))",
+    "line_no": "(\"organizationsYellowPages.py\" 88)",
+    "message": "update_organizations",
+    "params": "(list (\"organizationsYellowPages.py\" 88) (variant \"update\" (record (\"organizationsYellowPages.py\" 65) (address (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 67))) (encryption_key (literal (string \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB\") (\"organizationsYellowPages.py\" 65))) (legal_name (literal (string \"BSPConsortium2\") (\"organizationsYellowPages.py\" 65))) (metadata (map (\"organizationsYellowPages.py\" 65) )) (roles (set (\"organizationsYellowPages.py\" 65) (literal (intOrNat 2) (\"organizationsYellowPages.py\" 65))))) (\"organizationsYellowPages.py\" 88)))",
+    "sender": "(literal (address \"tz1W5ubDUJwpd9Gb94V2YKnZBHggAMMxtbBd\") (\"organizationsYellowPages.py\" 56))"
+   },
+   {
+    "action": "verify",
+    "condition": "(contains (attr (contract_data (static_id 0 (\"organizationsYellowPages.py\" 81)) (\"organizationsYellowPages.py\" 88)) \"organizations\" (\"organizationsYellowPages.py\" 89)) (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 67)) (\"organizationsYellowPages.py\" 89))",
+    "line_no": "(\"organizationsYellowPages.py\" 89)"
+   },
+   {
+    "action": "message",
+    "id": "(static_id 0 (\"organizationsYellowPages.py\" 81))",
+    "line_no": "(\"organizationsYellowPages.py\" 99)",
+    "message": "update_organizations",
+    "params": "(list (\"organizationsYellowPages.py\" 99) (variant \"update\" (record (\"organizationsYellowPages.py\" 92) (address (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 94))) (encryption_key (literal (string \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB\") (\"organizationsYellowPages.py\" 92))) (legal_name (literal (string \"UPDBSPConsortium2\") (\"organizationsYellowPages.py\" 92))) (metadata (map (\"organizationsYellowPages.py\" 92) )) (roles (set (\"organizationsYellowPages.py\" 92) (literal (intOrNat 1) (\"organizationsYellowPages.py\" 92)) (literal (intOrNat 2) (\"organizationsYellowPages.py\" 92))))) (\"organizationsYellowPages.py\" 99)))",
+    "sender": "(literal (address \"tz1W5ubDUJwpd9Gb94V2YKnZBHggAMMxtbBd\") (\"organizationsYellowPages.py\" 56))"
+   },
+   {
+    "action": "verify",
+    "condition": "(contains (attr (contract_data (static_id 0 (\"organizationsYellowPages.py\" 81)) (\"organizationsYellowPages.py\" 99)) \"organizations\" (\"organizationsYellowPages.py\" 100)) (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 94)) (\"organizationsYellowPages.py\" 100))",
+    "line_no": "(\"organizationsYellowPages.py\" 100)"
+   },
+   {
+    "action": "verify",
+    "condition": "(eq (attr (getItem (attr (contract_data (static_id 0 (\"organizationsYellowPages.py\" 81)) (\"organizationsYellowPages.py\" 99)) \"organizations\" (\"organizationsYellowPages.py\" 100)) (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 67)) (\"organizationsYellowPages.py\" 101)) \"address\" (\"organizationsYellowPages.py\" 101)) (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 94)) (\"organizationsYellowPages.py\" 101))",
+    "line_no": "(\"organizationsYellowPages.py\" 101)"
+   },
+   {
+    "action": "verify",
+    "condition": "(eq (attr (getItem (attr (contract_data (static_id 0 (\"organizationsYellowPages.py\" 81)) (\"organizationsYellowPages.py\" 99)) \"organizations\" (\"organizationsYellowPages.py\" 100)) (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 67)) (\"organizationsYellowPages.py\" 102)) \"legal_name\" (\"organizationsYellowPages.py\" 102)) (literal (string \"UPDBSPConsortium2\") (\"organizationsYellowPages.py\" 102)) (\"organizationsYellowPages.py\" 102))",
+    "line_no": "(\"organizationsYellowPages.py\" 102)"
+   },
+   {
+    "action": "verify",
+    "condition": "(eq (attr (openVariant (view \"get_org\" (contract_address (static_id 0 (\"organizationsYellowPages.py\" 81)) \"\" (\"organizationsYellowPages.py\" 81)) (literal (address \"tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv\") (\"organizationsYellowPages.py\" 60)) (record ((address \"address\") (encryption_key \"string\") (legal_name \"string\") (metadata (map \"string\" \"bytes\")) (roles (set \"nat\"))) None (\"organizationsYellowPages.py\" 3)) (\"organizationsYellowPages.py\" 105)) \"Some\" (literal (string \"Invalid view\") (\"organizationsYellowPages.py\" 105)) (\"organizationsYellowPages.py\" 105)) \"address\" (\"organizationsYellowPages.py\" 106)) (literal (address \"tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv\") (\"organizationsYellowPages.py\" 60)) (\"organizationsYellowPages.py\" 106))",
+    "line_no": "(\"organizationsYellowPages.py\" 106)"
+   },
+   {
+    "action": "verify",
+    "condition": "(eq (attr (openVariant (view \"get_org\" (contract_address (static_id 0 (\"organizationsYellowPages.py\" 81)) \"\" (\"organizationsYellowPages.py\" 81)) (literal (address \"tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv\") (\"organizationsYellowPages.py\" 60)) (record ((address \"address\") (encryption_key \"string\") (legal_name \"string\") (metadata (map \"string\" \"bytes\")) (roles (set \"nat\"))) None (\"organizationsYellowPages.py\" 3)) (\"organizationsYellowPages.py\" 105)) \"Some\" (literal (string \"Invalid view\") (\"organizationsYellowPages.py\" 105)) (\"organizationsYellowPages.py\" 105)) \"legal_name\" (\"organizationsYellowPages.py\" 107)) (literal (string \"DSPConsortium1\") (\"organizationsYellowPages.py\" 58)) (\"organizationsYellowPages.py\" 107))",
+    "line_no": "(\"organizationsYellowPages.py\" 107)"
+   },
+   {
+    "action": "verify",
+    "condition": "(eq (attr (openVariant (view \"get_org\" (contract_address (static_id 0 (\"organizationsYellowPages.py\" 81)) \"\" (\"organizationsYellowPages.py\" 81)) (literal (address \"tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv\") (\"organizationsYellowPages.py\" 60)) (record ((address \"address\") (encryption_key \"string\") (legal_name \"string\") (metadata (map \"string\" \"bytes\")) (roles (set \"nat\"))) None (\"organizationsYellowPages.py\" 3)) (\"organizationsYellowPages.py\" 105)) \"Some\" (literal (string \"Invalid view\") (\"organizationsYellowPages.py\" 105)) (\"organizationsYellowPages.py\" 105)) \"legal_name\" (\"organizationsYellowPages.py\" 107)) (literal (string \"DSPConsortium1\") (\"organizationsYellowPages.py\" 58)) (\"organizationsYellowPages.py\" 108))",
+    "line_no": "(\"organizationsYellowPages.py\" 108)"
+   },
+   {
+    "action": "show",
+    "compile": false,
+    "expression": "(openVariant (view \"get_org\" (contract_address (static_id 0 (\"organizationsYellowPages.py\" 81)) \"\" (\"organizationsYellowPages.py\" 81)) (literal (address \"tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv\") (\"organizationsYellowPages.py\" 60)) (record ((address \"address\") (encryption_key \"string\") (legal_name \"string\") (metadata (map \"string\" \"bytes\")) (roles (set \"nat\"))) None (\"organizationsYellowPages.py\" 3)) (\"organizationsYellowPages.py\" 105)) \"Some\" (literal (string \"Invalid view\") (\"organizationsYellowPages.py\" 105)) (\"organizationsYellowPages.py\" 105))",
+    "html": true,
+    "line_no": "(\"organizationsYellowPages.py\" 109)",
+    "stripStrings": false
+   },
+   {
+    "action": "verify",
+    "condition": "(eq (view \"is_org\" (contract_address (static_id 0 (\"organizationsYellowPages.py\" 81)) \"\" (\"organizationsYellowPages.py\" 81)) (literal (address \"tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv\") (\"organizationsYellowPages.py\" 60)) \"bool\" (\"organizationsYellowPages.py\" 111)) (variant \"Some\" (literal (bool True) (\"organizationsYellowPages.py\" 111)) (\"organizationsYellowPages.py\" 111)) (\"organizationsYellowPages.py\" 111))",
+    "line_no": "(\"organizationsYellowPages.py\" 111)"
+   },
+   {
+    "action": "verify",
+    "condition": "(eq (view \"is_org\" (contract_address (static_id 0 (\"organizationsYellowPages.py\" 81)) \"\" (\"organizationsYellowPages.py\" 81)) (literal (address \"tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2\") (\"organizationsYellowPages.py\" 94)) \"bool\" (\"organizationsYellowPages.py\" 112)) (variant \"Some\" (literal (bool True) (\"organizationsYellowPages.py\" 112)) (\"organizationsYellowPages.py\" 112)) (\"organizationsYellowPages.py\" 112))",
+    "line_no": "(\"organizationsYellowPages.py\" 112)"
+   },
+   {
+    "action": "verify",
+    "condition": "(eq (view \"is_org\" (contract_address (static_id 0 (\"organizationsYellowPages.py\" 81)) \"\" (\"organizationsYellowPages.py\" 81)) (contract_address (static_id 0 (\"organizationsYellowPages.py\" 81)) \"\" (\"organizationsYellowPages.py\" 81)) \"bool\" (\"organizationsYellowPages.py\" 113)) (variant \"Some\" (literal (bool False) (\"organizationsYellowPages.py\" 113)) (\"organizationsYellowPages.py\" 113)) (\"organizationsYellowPages.py\" 113))",
+    "line_no": "(\"organizationsYellowPages.py\" 113)"
+   }
+  ],
+  "kind": "test"
+ }
+]
