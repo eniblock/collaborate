@@ -5,13 +5,16 @@ COPY mvnw .
 COPY .mvn .mvn
 COPY pom.xml .
 
-RUN ./mvnw dependency:go-offline -B
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw dependency:go-offline -B
 # cache build dependencies, without the sources
-RUN ./mvnw package -DskipTests -B || true
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw package -DskipTests -B || true
 
 COPY src src
 
-RUN ./mvnw package -DskipTests -B
+RUN --mount=type=cache,target=/root/.m2 \
+    ./mvnw package -DskipTests -B
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM openjdk:11-jdk as dev
