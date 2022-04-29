@@ -432,3 +432,9 @@ def test():
         rules
         )
     scenario += c0
+
+    ### CLI DEPLOYMENT TARGET
+    sp.add_compilation_target(
+        "Digital_Passport_Proxy_Controller",
+        c0
+    )

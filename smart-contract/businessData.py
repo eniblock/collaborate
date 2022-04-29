@@ -719,7 +719,7 @@ nft_indexer_type = sp.TRecord(
 )
 
 
-class NFT_Creation_Management(sp.Contract, FA2):
+class NFT_Creation_Management(FA2, sp.Contract):
     def __init__(self, _org: organizations_type):
         self.update_initial_storage(
             organizations = _org,
@@ -813,7 +813,7 @@ grant_access_request_type = sp.TRecord(
     requester_address = sp.TAddress
 )
 
-class AccessManagement(sp.Contract, NFT_Creation_Management):
+class AccessManagement(NFT_Creation_Management, sp.Contract):
     def __init__(self):
         self.update_initial_storage(
             access_requests = sp.big_map(
@@ -865,7 +865,7 @@ class AccessManagement(sp.Contract, NFT_Creation_Management):
 ##############################################################################
 ##############################################################################
 
-class DATA_CATALOG(FA2, NFT_Creation_Management, AccessManagement):
+class DATA_CATALOG(AccessManagement, NFT_Creation_Management, FA2):
     def __init__(self, config, metadata, admin, orgs):
         FA2.__init__(self, config, metadata, admin)
         NFT_Creation_Management.__init__(self, orgs)
@@ -926,6 +926,11 @@ def add_test(config, is_default = True):
                  orgs = organizations)
         scenario += c1
 
+        ### CLI DEPLOYMENT TARGET
+        sp.add_compilation_target(
+            "Business_Data",
+            c1
+        )
 
         ## Data Catalog test
         scenario.h2("Data Catalog creation")
