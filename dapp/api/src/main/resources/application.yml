@@ -89,16 +89,6 @@ spring:
           enabled: false
   main:
     banner-mode: off
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
-  multirabbitmq:
-    connections:
-      tezos-api-gateway:
-        host: localhost
-        port: 5674
   datasource:
     url: jdbc:postgresql://localhost:5432/collaborate
     username: postgres

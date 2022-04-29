@@ -41,13 +41,13 @@ k8s_yaml(
     )
 )
 
-image_build(
+docker_build(
     'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/api',
     'dapp/api',
     target='dev'
 )
 
-image_build(
+docker_build(
     'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam',
     'dapp/iam'
 )
