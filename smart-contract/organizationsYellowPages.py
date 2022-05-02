@@ -80,6 +80,12 @@ if "templates" not in __name__:
 
         scenario += c1
 
+        ### CLI DEPLOYMENT TARGET
+        sp.add_compilation_target(
+            "Organization_Yellow_Pages",
+            c1
+        )
+
         ## remove organization
         scenario += c1.update_organizations([sp.variant("remove", orga_BSPConsortium2.address)]).run(sender = admin)
         scenario.verify(~ c1.data.organizations.contains(orga_BSPConsortium2.address))
