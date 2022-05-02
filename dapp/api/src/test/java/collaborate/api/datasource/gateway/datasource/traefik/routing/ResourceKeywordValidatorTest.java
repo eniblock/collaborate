@@ -2,6 +2,7 @@ package collaborate.api.datasource.gateway.datasource.traefik.routing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import collaborate.api.datasource.model.dto.web.Attribute;
 import collaborate.api.datasource.model.dto.web.ResourceKeywordValidator;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -22,7 +23,9 @@ class ResourceKeywordValidatorTest {
   void isValidate_shouldBeTrue_withValidList() {
     // GIVEN
     var routingKeyValidator = new ResourceKeywordValidator();
-    var keywords = List.of("scope:route");
+    var keywords = List.of(Attribute.builder()
+            .name("alias")
+            .value("route").build());
     // WHEN
     var actualIsValid = routingKeyValidator.isValid(keywords, null);
     // THEN

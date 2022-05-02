@@ -349,12 +349,12 @@ def test():
     scenario = sp.test_scenario()
 
     minters = sp.set([
-        sp.address('tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv')
+        sp.address('tz1PC8dnju6zkgnpFVDCnYnmHXaDTNQoDh9W')
     ])
 
     consortium = sp.set([
-        sp.address('tz1WpmFuSZfuNS7XDKwDZxX3QhSNUneTkiTv'),
-        sp.address('tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2')
+        sp.address('tz1PC8dnju6zkgnpFVDCnYnmHXaDTNQoDh9W'),
+        sp.address('tz1SDYtreHuKGe7QNcZTjKQwfSreLR8JYW6c')
     ])
 
     scenario.show({"minters" : minters})

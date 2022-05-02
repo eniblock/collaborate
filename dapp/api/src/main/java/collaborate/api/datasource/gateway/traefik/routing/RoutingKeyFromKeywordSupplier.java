@@ -1,11 +1,12 @@
 package collaborate.api.datasource.gateway.traefik.routing;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_PREFIX;
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_SCOPE;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
 
+import collaborate.api.datasource.model.dto.web.Attribute;
 import java.util.Collection;
-import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
@@ -13,44 +14,25 @@ import java.util.function.Supplier;
  */
 public class RoutingKeyFromKeywordSupplier implements Supplier<String> {
 
-
-  public static final Set<String> ROUTING_KEY_PREFIXES = Set.of(SCOPE_PREFIX);
+  public static final String ATTR_NAME_ALIAS = "alias";
 
   private final String routingKey;
 
-  public RoutingKeyFromKeywordSupplier(Collection<String> keywords) {
-    var assetList = keywords.stream()
-        .filter(TEST_CONNECTION::equals)
-        .findFirst();
-
+  public RoutingKeyFromKeywordSupplier(Collection<Attribute> keywords) {
+    var assetList = Attribute.findFirstByName(keywords, ATTR_NAME_TEST_CONNECTION);
+    // Resource with "asset-list" attribute name use always the "asset-list" routing key
     if (assetList.isPresent()) {
-      routingKey = assetList.get();
+      routingKey = ATTR_NAME_TEST_CONNECTION;
     } else {
-      var matchingPrefix = getMatchingPrefix(keywords)
-          .orElseThrow(() ->
-              new IllegalStateException(
-                  String.format("no %s keyword or keyword beginning with %s",
-                      TEST_CONNECTION,
-                      SCOPE_PREFIX
-                  )
+      var optAlias = Attribute.findFirstByName(keywords, ATTR_NAME_ALIAS);
+      routingKey = optAlias.map(Attribute::getValue).orElseThrow(() ->
+          new IllegalStateException(
+              String.format("no attribute named %s or attribute named %s",
+                  ATTR_NAME_TEST_CONNECTION,
+                  ATTR_NAME_ALIAS
               )
-          );
-      routingKey = getRoutingKey(keywords, matchingPrefix);
+          ));
     }
-  }
-
-  private Optional<String> getMatchingPrefix(Collection<String> keywords) {
-    return ROUTING_KEY_PREFIXES.stream()
-        .filter(prefix -> keywords.stream().anyMatch(k -> k.startsWith(prefix)))
-        .findFirst();
-  }
-
-  private String getRoutingKey(Collection<String> keywords, String matchingPrefix) {
-    return keywords.stream()
-        .filter(k -> k.startsWith(matchingPrefix))
-        .findFirst()
-        .orElseThrow(
-            () -> new IllegalStateException("No keyword beginning by \"" + SCOPE_PREFIX + "\""));
   }
 
   @Override

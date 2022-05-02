@@ -1,26 +1,27 @@
 package collaborate.api.datasource.model.dto.web;
 
-import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.ROUTING_KEY_PREFIXES;
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
+import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.ATTR_NAME_ALIAS;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
 
 import java.util.Collection;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
+import org.apache.commons.lang3.StringUtils;
 
 public class ResourceKeywordValidator implements
-    ConstraintValidator<ResourceKeywordConstraint, Collection<String>> {
+    ConstraintValidator<ResourceKeywordConstraint, Collection<Attribute>> {
 
   @Override
-  public boolean isValid(Collection<String> strings,
+  public boolean isValid(Collection<Attribute> attributes,
       ConstraintValidatorContext constraintValidatorContext) {
-    return strings != null
-        && !strings.isEmpty()
-        && strings
+    return attributes != null
+        && !attributes.isEmpty()
+        && attributes
         .stream()
         .anyMatch(
             keyword ->
-                ROUTING_KEY_PREFIXES.stream().anyMatch(keyword::startsWith)
-                    || keyword.equals(TEST_CONNECTION)
+                StringUtils.startsWith(keyword.getName(), ATTR_NAME_ALIAS)
+                    || keyword.getName().equals(ATTR_NAME_TEST_CONNECTION)
         );
   }
 }

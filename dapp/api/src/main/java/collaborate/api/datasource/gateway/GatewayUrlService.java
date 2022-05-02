@@ -1,6 +1,6 @@
 package collaborate.api.datasource.gateway;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
 import static collaborate.api.datasource.passport.metric.MetricService.SCOPE_METRIC_PREFIX;
 import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
@@ -69,7 +69,7 @@ public class GatewayUrlService {
     if (scope == null) {
       return Optional.empty();
     } else {
-      if (TEST_CONNECTION.equals(scope)) {
+      if (ATTR_NAME_TEST_CONNECTION.equals(scope)) {
         return datasourceService.findById(datasourceId)
             .map(ContentWithCid::getContent)
             .flatMap(metadataService::getAssetListScope);

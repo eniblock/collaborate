@@ -20,20 +20,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class WebServerResource implements Keywords<String>, Serializable {
+public class WebServerResource implements Keywords<Attribute>, Serializable {
 
   @NoArgsConstructor(access = PRIVATE)
   public static class Keywords {
 
-    public static final String TEST_CONNECTION = "list-asset";
-    public static final String SCOPE_PREFIX = "scope:";
+    public static final String ATTR_NAME_TEST_CONNECTION = "list-asset";
+    public static final String ATTR_NAME_SCOPE = "scope";
   }
 
   @Schema(description = "A human readable description of this resource")
@@ -45,7 +44,7 @@ public class WebServerResource implements Keywords<String>, Serializable {
       "Keyword can be used to extend feature about a resource."
           + "For an example, integrated to an API Gateway, can be used to defined the routing path for this resource",
       example = "routing-key:assets"))
-  private Set<String> keywords;
+  private Set<Attribute> keywords;
 
   @NoQueryStringConstraint
   @Schema(description = "The resource path relative to the datasource baseUrl<br>"
@@ -58,15 +57,13 @@ public class WebServerResource implements Keywords<String>, Serializable {
   private ArrayList<QueryParam> queryParams;
 
   @JsonIgnore
-  public Optional<String> findFirstKeywordRemovingPrefix(String prefix) {
-    return keywords.stream()
-        .filter(keyword -> keyword.startsWith(prefix))
-        .findFirst()
-        .map(keyword -> StringUtils.removeStart(keyword, prefix));
+  public Optional<String> findFirstKeywordValueByName(String name) {
+    return Attribute.findFirstByName(keywords, name)
+        .map(Attribute::getValue);
   }
 
   @JsonIgnore
-  public boolean keywordsContain(String keyword) {
-    return keywords.stream().anyMatch(k -> k.equals(keyword));
+  public boolean keywordsContainsName(String name) {
+    return Attribute.containsName(keywords, name);
   }
 }

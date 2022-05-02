@@ -1,8 +1,8 @@
 package collaborate.api.datasource.businessdata.create;
 
 import static collaborate.api.datasource.businessdata.document.ScopeAssetsService.ASSET_ID_SEPARATOR;
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_PREFIX;
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_SCOPE;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
 
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
@@ -32,8 +32,8 @@ public class MintBusinessDataService {
     if (isOAuth2WebServer(datasourceDTO)) {
       var webServerDatasourceDTO = (WebServerDatasourceDTO) datasourceDTO;
       var assetIdAndUris = webServerDatasourceDTO.getResources().stream()
-          .filter(r -> !r.keywordsContain(TEST_CONNECTION))
-          .map(resource -> resource.findFirstKeywordRemovingPrefix(SCOPE_PREFIX))
+          .filter(r -> !r.keywordsContainsName(ATTR_NAME_TEST_CONNECTION))
+          .map(resource -> resource.findFirstKeywordValueByName(ATTR_NAME_SCOPE))
           .flatMap(Optional::stream)
           .map(scope -> buildAssetDto(datasourceDTO.getId(), scope))
           .map(this::buildAssetIdAndMetadataUri)

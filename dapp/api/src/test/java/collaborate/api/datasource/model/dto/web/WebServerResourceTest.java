@@ -25,12 +25,20 @@ class WebServerResourceTest {
   void setup() {
     webResource = WebServerResource.builder()
         .url("/test")
-        .keywords(Set.of("scope:metric:odometer"))
-        .build();
+        .keywords(Set.of(
+            Attribute.builder()
+                .name("alias")
+                .value("metric:odometer")
+                .build(),
+            Attribute.builder()
+                .name("scope")
+                .value("metric:odometer")
+                .build()
+        )).build();
   }
 
   @Test
-  void validate_keywords_shouldNotReturnViolations_withScopeKeyword() {
+  void validate_keywords_shouldNotReturnViolations_withAliasKeyword() {
     // GIVEN
     // WHEN
     var actualViolations = validator.validate(webResource);
@@ -41,7 +49,9 @@ class WebServerResourceTest {
   @Test
   void validate_keywords_shouldNotReturnViolations_withPurposeKeyword() {
     // GIVEN
-    webResource.setKeywords(Set.of("scope:list-asset"));
+    webResource.setKeywords(Set.of(Attribute.builder()
+        .name("list-asset")
+        .build()));
     // WHEN
     var actualViolations = validator.validate(webResource);
     // THEN
@@ -61,7 +71,9 @@ class WebServerResourceTest {
   @Test
   void validate_keywords_shouldReturnViolations_withMissingScopeKeywords() {
     // GIVEN
-    webResource.setKeywords(Set.of("resource"));
+    webResource.setKeywords(Set.of(Attribute.builder()
+            .name("resource")
+            .build()));
     // WHEN
     var actualViolations = validator.validate(webResource);
     // THEN
@@ -89,26 +101,35 @@ class WebServerResourceTest {
     assertThat(actualViolations.iterator().next().getPropertyPath()).hasToString("url");
   }
 
-  private static Stream<Arguments> findFirstKeywordRemovingPrefixParameters() {
+  private static Stream<Arguments> findFirstKeywordByNameParameters() {
     return Stream.of(
-        Arguments.of("scope:", Optional.of("A")),
-        Arguments.of("param:", Optional.of("")),
+        Arguments.of("scope", Optional.of("A")),
+        Arguments.of("param", Optional.of("")),
         Arguments.of("pre", Optional.empty())
     );
   }
 
   @ParameterizedTest
-  @MethodSource("findFirstKeywordRemovingPrefixParameters")
-  void findFirstKeywordRemovingPrefix(String prefix, Optional<String> expected) {
+  @MethodSource("findFirstKeywordByNameParameters")
+  void findFirstKeywordByName(String prefix, Optional<String> expected) {
     // GIVEN
-    Set<String> keywords = Set.of(
-        "scope:A",
-        "document:C",
-        "param:"
+    var keywords = Set.of(
+        Attribute.builder()
+            .name("scope")
+            .value("A")
+            .build(),
+        Attribute.builder()
+            .name("document")
+            .value("C")
+            .build(),
+        Attribute.builder()
+            .name("param")
+            .value("")
+            .build()
     );
     var resource = WebServerResource.builder().keywords(keywords).build();
     // WHEN
-    var keywordResult = resource.findFirstKeywordRemovingPrefix(prefix);
+    var keywordResult = resource.findFirstKeywordValueByName(prefix);
     // THEN
     assertThat(keywordResult.isPresent()).isEqualTo(expected.isPresent());
     expected.ifPresent(e ->

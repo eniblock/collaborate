@@ -14,7 +14,7 @@ import javax.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ResourceKeywordConstraint {
 
-  String message() default "Resource keyword should contain a keyword prefixed with 'scope:' or 'purpose:' prefix";
+  String message() default "Resource keyword should contain a keyword with name 'alias'";
 
   Class<?>[] groups() default {};
 

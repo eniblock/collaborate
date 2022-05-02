@@ -2,16 +2,16 @@ package collaborate.api.datasource.create;
 
 import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Keys.DATASOURCE_PURPOSE;
 import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Keys.DATASOURCE_TYPE;
-import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.METADATA_REGEXP;
-import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.TYPE_GROUP_INDEX;
-import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Regexp.VALUE_GROUP_INDEX;
 import static lombok.AccessLevel.PRIVATE;
+import static org.apache.commons.lang3.StringUtils.removeStart;
+import static org.apache.commons.lang3.StringUtils.startsWith;
 
 import collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
+import collaborate.api.datasource.model.dto.web.Attribute;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -19,8 +19,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -32,21 +30,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream<Metadata>> {
 
-  @NoArgsConstructor(access = PRIVATE)
-  public static final class Regexp {
-
-    private static final String METADATA_PREFIX = "metadata:";
-    private static final String KEY_GROUP_REGEXP = "([^:]+)";
-    private static final String VALUE_GROUP_REGEXP = ":([^:]*)";
-    private static final String OPTIONAL_TYPE_GROUP_REGEXP = "(?::([A-z]*))?";
-
-    public static final Pattern METADATA_REGEXP =
-        Pattern.compile(
-            METADATA_PREFIX + KEY_GROUP_REGEXP + VALUE_GROUP_REGEXP + OPTIONAL_TYPE_GROUP_REGEXP);
-    public static final int NAME_GROUP_INDEX = 1;
-    public static final int VALUE_GROUP_INDEX = 2;
-    public static final int TYPE_GROUP_INDEX = 3;
-  }
+  private static final String METADATA_PREFIX = "metadata:";
 
   @NoArgsConstructor(access = PRIVATE)
   public static final class Keys {
@@ -97,20 +81,19 @@ public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream
         .flatMap(this::buildResourceKeywords);
   }
 
-  Stream<Metadata> buildResourceKeywords(Collection<String> keywords) {
+  Stream<Metadata> buildResourceKeywords(Collection<Attribute> keywords) {
     var routingKey = new RoutingKeyFromKeywordSupplier(keywords).get();
     return keywords.stream()
-        .map(METADATA_REGEXP::matcher)
-        .filter(Matcher::find)
-        .map(matcher -> buildResourceKeyword(matcher, routingKey));
+        .filter(attr -> startsWith(attr.getName(), METADATA_PREFIX))
+        .map(attr -> buildResourceMetadata(attr, routingKey));
   }
 
 
-  private Metadata buildResourceKeyword(Matcher matcher, String routingKey) {
+  private Metadata buildResourceMetadata(Attribute attribute, String routingKey) {
     return Metadata.builder()
-        .name(routingKey + ":" + matcher.group(Regexp.NAME_GROUP_INDEX))
-        .value(matcher.group(VALUE_GROUP_INDEX))
-        .type(matcher.group(TYPE_GROUP_INDEX))
+        .name(routingKey + ":" + removeStart(attribute.getName(), METADATA_PREFIX))
+        .value(attribute.getValue())
+        .type(attribute.getType())
         .build();
   }
 }

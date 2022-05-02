@@ -14,7 +14,7 @@ import javax.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface HasAssetListConstraint {
 
-  String message() default "Datasource should have at least on resource with 'list-asset' keyword";
+  String message() default "Datasource should have at least one resource with 'list-asset' keyword name";
 
   Class<?>[] groups() default {};
 

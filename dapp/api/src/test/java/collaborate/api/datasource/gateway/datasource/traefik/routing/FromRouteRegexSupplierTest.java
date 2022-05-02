@@ -1,6 +1,7 @@
 package collaborate.api.datasource.gateway.datasource.traefik.routing;
 
-import static collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures.getResourceByKeyword;
+import static collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures.getResourceByAlias;
+import static collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures.getResourceHavingKeywordName;
 import static collaborate.api.test.TestResources.objectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -19,7 +20,7 @@ class FromRouteRegexSupplierTest {
     String resourceKeyword = "list-asset";
     var resource = objectMapper
         .readValue(objectMapper.writeValueAsString(
-                getResourceByKeyword(resourceKeyword)),
+                getResourceHavingKeywordName(resourceKeyword)),
             WebServerResource.class);
     // WHEN
     var supplier = new FromRouteRegexSupplier(datasourceName, resource);
@@ -30,12 +31,12 @@ class FromRouteRegexSupplierTest {
   @Test
   void get_shouldReturnExpectedPath_with1QueryParams() {
     // GIVEN
-    String resourceKeyword = "scope:metric:odometer";
-    var resource = getResourceByKeyword(resourceKeyword);
+    String resourceKeyword = "metric:odometer";
+    var resource = getResourceByAlias(resourceKeyword);
     // WHEN
     var supplier = new FromRouteRegexSupplier(datasourceName, resource);
     // THEN
-    assertThat(supplier.get()).isEqualTo("/datasource/ds1/scope:metric:odometer/(.*)");
+    assertThat(supplier.get()).isEqualTo("/datasource/ds1/metric:odometer/(.*)");
   }
 
 }

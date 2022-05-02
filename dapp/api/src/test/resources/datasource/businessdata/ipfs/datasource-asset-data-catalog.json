@@ -1,0 +1,9 @@
+{
+  "datasources": [
+    {
+      "id": "966b857b-0062-4433-b721-97e5e0d1fb37",
+      "uri": "ipfs://QmcsaQSRVQvekp3CzeS4BK4ehwYhxTiWVPuH7RySJMCHmV",
+      "assetIdForDatasource": "maintenance-plans-A"
+    }
+  ]
+}

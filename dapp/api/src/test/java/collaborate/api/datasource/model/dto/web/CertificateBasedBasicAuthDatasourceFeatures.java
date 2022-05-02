@@ -1,5 +1,7 @@
 package collaborate.api.datasource.model.dto.web;
 
+import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.ATTR_NAME_ALIAS;
+
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.datasource.model.dto.web.authentication.transfer.CertificateBasedAuthorityEmail;
 import collaborate.api.test.TestResources;
@@ -7,6 +9,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.lang3.StringUtils;
 
 public class CertificateBasedBasicAuthDatasourceFeatures {
 
@@ -30,14 +33,33 @@ public class CertificateBasedBasicAuthDatasourceFeatures {
           new ArrayList<>(List.of(
               WebServerResource.builder()
                   .description("Vehicles list")
-                  .keywords(new LinkedHashSet<>(List.of("scope:referentials", "list-asset")))
-                  .url(
+                  .keywords(new LinkedHashSet<>(
+                          List.of(
+                              Attribute.builder()
+                                  .name("scope")
+                                  .value("referentials").build(),
+                              Attribute.builder()
+                                  .name("list-asset").build()
+                          )
+                      )
+                  ).url(
                       "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
                   ).build(),
               WebServerResource.builder()
                   .description("Last odometer values")
-                  .keywords(new LinkedHashSet<>(List.of("scope:metric:odometer", "event_usage")))
-                  .url(
+                  .keywords(new LinkedHashSet<>(
+                          List.of(
+                              Attribute.builder()
+                                  .name("alias")
+                                  .value("metric:odometer").build(),
+                              Attribute.builder()
+                                  .name("scope")
+                                  .value("metric:odometer").build(),
+                              Attribute.builder()
+                                  .name("event_usage").build()
+                          )
+                      )
+                  ).url(
                       "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status")
                   .queryParams(new ArrayList<>(List.of(
                       QueryParam.builder().key("profile").value("fleet").build(),
@@ -52,13 +74,28 @@ public class CertificateBasedBasicAuthDatasourceFeatures {
   private CertificateBasedBasicAuthDatasourceFeatures() {
   }
 
-  public static WebServerResource getResourceByKeyword(String keyword) {
+  public static WebServerResource getResourceByAlias(String alias) {
     return CertificateBasedBasicAuthDatasourceFeatures.datasource
         .getResources().stream()
-        .filter(r -> r.getKeywords().stream().anyMatch(k -> k.contains(keyword)))
+        .filter(r -> r.findFirstKeywordValueByName(ATTR_NAME_ALIAS)
+            .map(a -> StringUtils.equals(a, alias))
+            .orElse(false)
+        )
         .findFirst()
         .orElseThrow(
-            () -> new IllegalStateException(keyword + " keyword not found in webServerResource"));
+            () -> new IllegalStateException(
+                "No resource having a keyword name=" + ATTR_NAME_ALIAS + ", value=" + alias
+                    + " found in webServerResource"));
+  }
+
+  public static WebServerResource getResourceHavingKeywordName(String name) {
+    return CertificateBasedBasicAuthDatasourceFeatures.datasource
+        .getResources().stream()
+        .filter(r -> r.keywordsContainsName(name))
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalStateException(
+                "No resource having a keyword name=" + name + " found in webServerResource"));
   }
 
 }
