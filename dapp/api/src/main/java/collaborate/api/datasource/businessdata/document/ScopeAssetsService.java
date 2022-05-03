@@ -63,7 +63,7 @@ public class ScopeAssetsService {
   public static final String ASSET_ID_SEPARATOR = ":";
 
   private final AccessTokenProvider accessTokenProvider;
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final Clock clock;
   private final FindBusinessDataService findBusinessDataService;
   private final GatewayUrlService gatewayUrlService;
@@ -75,7 +75,7 @@ public class ScopeAssetsService {
   public Optional<ScopeAssetsDTO> listScopeAssets(Integer tokenId) {
     var catalogOpt = catalogService.findCatalogByTokenId(
         tokenId,
-        apiProperties.getBusinessDataContractAddress()
+        businessDataContractAddress
     );
 
     return catalogOpt

@@ -44,7 +44,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class BusinessDataController {
 
   private final AccessRequestService accessRequestService;
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final FindBusinessDataService findBusinessDataService;
   private final ScopeAssetsService scopeAssetsService;
   private final NftDatasourceService nftDatasourceService;
@@ -83,7 +83,7 @@ public class BusinessDataController {
   public ScopeAssetsDTO listAssetDocuments(@PathVariable Integer tokenId)
       throws InterruptedException {
     if (nftDatasourceService.saveGatewayConfigurationByTokenId(tokenId,
-        apiProperties.getBusinessDataContractAddress())) {
+        businessDataContractAddress)) {
       // Wait a while to ensure that traefik has loaded the configuration
       Thread.sleep(1000);
     }
@@ -114,6 +114,6 @@ public class BusinessDataController {
       description = "Get the business data catalog smart contract address"
   )
   public String getBusinessDataSmartContractAddress() {
-    return apiProperties.getBusinessDataContractAddress();
+    return businessDataContractAddress;
   }
 }

@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class FindBusinessDataService {
 
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final BusinessDataTransactionService businessDataTransactionService;
   private final FindBusinessDataDAO findBusinessDataDAO;
   private final OrganizationService organizationService;
@@ -40,7 +40,7 @@ public class FindBusinessDataService {
     var assetIdForDatasource = StringUtils.substringAfter(t.getAssetId(), ":");
     var creationDate = businessDataTransactionService
         .findTransactionDateByTokenId(
-            apiProperties.getBusinessDataContractAddress(),
+            businessDataContractAddress,
             t.getAssetId()
         );
     return AssetDetailsDTO.builder()

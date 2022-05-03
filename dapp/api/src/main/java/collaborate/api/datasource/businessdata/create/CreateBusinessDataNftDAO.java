@@ -25,7 +25,7 @@ public class CreateBusinessDataNftDAO {
 
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final UserService userService;
 
   public static final String DATA_CATALOG_CREATION_ENTRYPOINT = "create_business_datasource";
@@ -39,7 +39,7 @@ public class CreateBusinessDataNftDAO {
             .build()
         ).map(p -> Transaction.builder()
             .entryPoint(DATA_CATALOG_CREATION_ENTRYPOINT)
-            .contractAddress(apiProperties.getBusinessDataContractAddress())
+            .contractAddress(businessDataContractAddress)
             .entryPointParams(p)
             .build()
         ).collect(Collectors.toList());

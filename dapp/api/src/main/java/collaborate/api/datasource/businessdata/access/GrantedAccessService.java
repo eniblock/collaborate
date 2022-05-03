@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class GrantedAccessService {
 
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final CipherJwtService cipherService;
   private final GrantAccessDAO grantAccessDAO;
   private final ObjectMapper objectMapper;
@@ -42,7 +42,7 @@ public class GrantedAccessService {
 
     nftDatasourceService.saveGatewayConfigurationByTokenId(
         accessRequest.getTokenId(),
-        apiProperties.getBusinessDataContractAddress()
+        businessDataContractAddress
     );
 
     log.info("Credentials has been stored");

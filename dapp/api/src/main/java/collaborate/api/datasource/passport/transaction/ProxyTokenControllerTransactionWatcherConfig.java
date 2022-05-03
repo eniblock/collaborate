@@ -24,7 +24,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnExpression("!'${api.digitalPassportProxyTokenControllerContractAddress}'.isEmpty()")
 public class ProxyTokenControllerTransactionWatcherConfig {
 
-  private final ApiProperties apiProperties;
+  private final String digitalPassportProxyControllerContractAddress;
   private final BuildMultiSigHandler buildMultiSigHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
@@ -34,8 +34,7 @@ public class ProxyTokenControllerTransactionWatcherConfig {
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
     for (var watcherProperty : transactionProperties.getWatchers()) {
-      if (watcherProperty.isSmartContract(
-          apiProperties.getDigitalPassportProxyTokenControllerContractAddress())) {
+      if (watcherProperty.isSmartContract(digitalPassportProxyControllerContractAddress)) {
         transactionWatcherPoolTaskScheduler.schedule(
             buildWatcher(watcherProperty),
             buildPeriodicTrigger(watcherProperty)

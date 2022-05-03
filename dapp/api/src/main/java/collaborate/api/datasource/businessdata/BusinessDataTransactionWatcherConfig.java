@@ -26,7 +26,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnExpression("!'${api.businessDataContractAddress}'.isEmpty()")
 public class BusinessDataTransactionWatcherConfig {
 
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final CreatedDatasourceTransactionHandler createdDatasourceTransactionHandler;
   private final CreatedScopeTransactionHandler createdScopeTransactionHandler;
   private final GrantAccessTransactionHandler grantAccessTransactionHandler;
@@ -38,7 +38,7 @@ public class BusinessDataTransactionWatcherConfig {
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
     for (var watcherProperty : transactionProperties.getWatchers()) {
-      if (watcherProperty.isSmartContract(apiProperties.getBusinessDataContractAddress())) {
+      if (watcherProperty.isSmartContract(businessDataContractAddress)) {
         transactionWatcherPoolTaskScheduler.schedule(
             buildWatcher(watcherProperty),
             buildPeriodicTrigger(watcherProperty)

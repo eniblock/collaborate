@@ -94,16 +94,18 @@ spec:
               value: {{ .Values.api.spring.profiles.active | quote }}
             - name: API_PLATFORM
               value: {{ .Values.api.platform | quote }}
-            - name: API_DIGITAL_PASSPORT_CONTRACT_ADDRESS
-              value: {{ .Values.api.digitalPassportContractAddress | quote }}
-            - name: API_DIGITAL_PASSPORT_PROXY_TOKEN_CONTROLLER_CONTRACT_ADDRESS
-              value: {{ .Values.api.digitalPassportProxyTokenControllerContractAddress | quote }}
             - name: API_PRIVATE_KEY
               value: {{ .Values.api.privateKey | quote }}
-            - name: API_BUSINESS_DATA_CONTRACT_ADDRESS
-              value: {{ .Values.api.businessDataContractAddress | quote }}
-            - name: API_ORGANIZATION_WALLET_CONTRACT_ADDRESS
-              value: {{ .Values.api.organizationWalletContractAddress | quote }}
+
+            # Smart contracts
+            - name: SMART_CONTRACT_ADDRESS_DIGITAL_PASSPORT
+              value: {{ .Values.api.smartContractAddress.digitalPassport | quote }}
+            - name: SMART_CONTRACT_ADDRESS_DIGITAL_PASSPORT_PROXY_TOKEN_CONTROLLER
+              value: {{ .Values.api.smartContractAddress.digitalPassportProxyTokenController | quote }}
+            - name: SMART_CONTRACT_ADDRESS_BUSINESS_DATA
+              value: {{ .Values.api.smartContractAddress.businessData | quote }}
+            - name: SMART_CONTRACT_ADDRESS_ORGANIZATION_YELLOW_PAGE
+              value: {{ .Values.api.smartContractAddress.organizationYellowPage | quote }}
 
             # Api-gateway
             - name: TRAEFIK_CERTIFICATES_PATH

@@ -27,7 +27,7 @@ public class RoutingKeyFromKeywordSupplier implements Supplier<String> {
       var optAlias = Attribute.findFirstByName(keywords, ATTR_NAME_ALIAS);
       routingKey = optAlias.map(Attribute::getValue).orElseThrow(() ->
           new IllegalStateException(
-              String.format("no attribute named %s or attribute named %s",
+              String.format("no attribute named '%s' or attribute named '%s'",
                   ATTR_NAME_TEST_CONNECTION,
                   ATTR_NAME_ALIAS
               )

@@ -38,8 +38,7 @@ class ScopeAssetsServiceTest {
 
   @Mock
   AccessTokenProvider accessTokenProvider;
-  @Mock
-  ApiProperties apiProperties;
+  String businessDataContractAddress = "smartContractAdress";
   Clock clock = Clock.fixed(Instant.parse("2018-08-19T16:45:42.00Z"), ZoneOffset.UTC);
   @Mock
   FindBusinessDataService findBusinessDataService;
@@ -59,7 +58,7 @@ class ScopeAssetsServiceTest {
   void setUp() {
     scopeAssetsService = new ScopeAssetsService(
         accessTokenProvider,
-        apiProperties,
+        businessDataContractAddress,
         clock,
         findBusinessDataService,
         gatewayUrlService,

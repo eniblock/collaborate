@@ -20,7 +20,7 @@ import org.springframework.stereotype.Repository;
 class AccessRequestDAO {
 
   public static final String REQUEST_ACCESS_ENTRY_POINT = "request_access";
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final TezosApiGatewayJobClient tezosApiGatewayClient;
   private final UUIDGenerator uuidGenerator;
 
@@ -51,7 +51,7 @@ class AccessRequestDAO {
 
   public Transaction<AccessRequestParams> toTransaction(AccessRequestParams accessRequestParams) {
     return Transaction.<AccessRequestParams>builder()
-        .contractAddress(apiProperties.getBusinessDataContractAddress())
+        .contractAddress(businessDataContractAddress)
         .entryPoint(REQUEST_ACCESS_ENTRY_POINT)
         .entryPointParams(accessRequestParams)
         .build();

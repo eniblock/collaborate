@@ -24,7 +24,7 @@ class GrantAccessDAO {
   public static final String GRANT_ACCESS_ENTRY_POINT = "grant_access";
   public static final String ACCESS_REQUESTS_STORAGE_FIELD = "access_requests";
 
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final TAGBusinessDataClient tagBusinessDataClient;
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
@@ -34,7 +34,7 @@ class GrantAccessDAO {
         GRANT_ACCESS_ENTRY_POINT,
         accessGrantParams,
         Optional.empty(),
-        apiProperties.getBusinessDataContractAddress()
+        businessDataContractAddress
     );
     return tezosApiGatewayJobClient.sendTransactionBatch(transactions, false);
 
@@ -45,7 +45,7 @@ class GrantAccessDAO {
         new MapQuery<>(ACCESS_REQUESTS_STORAGE_FIELD, List.of(id))
     ));
     var accessRequestResult = tagBusinessDataClient.getAccessRequests(
-        apiProperties.getBusinessDataContractAddress(),
+        businessDataContractAddress,
         requestAccessRequest
     );
     if (accessRequestResult.getAccessRequests() != null) {

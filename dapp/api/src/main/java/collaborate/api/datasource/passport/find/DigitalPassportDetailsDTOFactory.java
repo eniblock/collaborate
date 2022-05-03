@@ -1,6 +1,7 @@
 package collaborate.api.datasource.passport.find;
 
 import collaborate.api.config.api.ApiProperties;
+import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.datasource.multisig.model.ProxyTokenControllerTransaction;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DigitalPassportDetailsDTOFactory {
 
-  private final ApiProperties apiProperties;
+  private final String digitalPassportContractAddress;
   private final CatalogService catalogService;
   private final ConnectedUserService connectedUserService;
   private final FindPassportDAO findPassportDAO;
@@ -43,7 +44,7 @@ public class DigitalPassportDetailsDTOFactory {
      */
     var tokenMetadataByTokenId = nftDatasourceService.getTZip21MetadataByTokenIds(
         tokenIdList,
-        apiProperties.getDigitalPassportContractAddress());
+        digitalPassportContractAddress);
 
     var tokenOwnersByTokenId = findPassportDAO.getOwnersByTokenIds(tokenIdList);
 
@@ -58,7 +59,7 @@ public class DigitalPassportDetailsDTOFactory {
               var creationDatetime =
                   fa2TransactionService
                       .findTransactionDateByTokenId(
-                          apiProperties.getDigitalPassportContractAddress(),
+                          digitalPassportContractAddress,
                           Long.valueOf(tokenId)
                       );
               return DigitalPassportDetailsDTO.builder()

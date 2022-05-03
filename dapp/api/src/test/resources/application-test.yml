@@ -1,10 +1,12 @@
 api:
-  digitalPassportContractAddress: KT1KmJt6bQKjqYrFKTsXi7fVApAhACScq7pj
-  digitalPassportProxyTokenControllerContractAddress: KT1V2z6ksNNcWB2nfX3ZoSbAUE2gpNv5Eknt
-  organizationWalletContractAddress: KT19i3jNCGe71qF3qicQqQEReZUv5CHdG6G3
-  businessDataContractAddress: KT19juhbuKpBmcpccwDMY7WasLo7rSnmRE47
   privateKey: aa
   platform: dspA
+
+smart-contract-address:
+  digitalPassport: KT1KmJt6bQKjqYrFKTsXi7fVApAhACScq7pj
+  digitalPassportProxyTokenController: KT1V2z6ksNNcWB2nfX3ZoSbAUE2gpNv5Eknt
+  organizationYellowPage: KT19i3jNCGe71qF3qicQqQEReZUv5CHdG6G3
+  businessData: KT19juhbuKpBmcpccwDMY7WasLo7rSnmRE47
 
 ipfs:
   url: http://localhost:5010

@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 @ConditionalOnExpression("!'${api.digitalPassportContractAddress}'.isEmpty()")
 public class Fa2TransactionWatcherConfig {
 
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final MintTokenHandler mintTokenHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
@@ -33,7 +33,7 @@ public class Fa2TransactionWatcherConfig {
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
     for (var watcherProperty : transactionProperties.getWatchers()) {
-      if (watcherProperty.isSmartContract(apiProperties.getDigitalPassportContractAddress())) {
+      if (watcherProperty.isSmartContract(businessDataContractAddress)) {
         transactionWatcherPoolTaskScheduler.schedule(
             buildWatcher(watcherProperty),
             buildPeriodicTrigger(watcherProperty)

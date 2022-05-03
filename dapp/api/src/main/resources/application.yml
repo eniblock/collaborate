@@ -1,10 +1,12 @@
 api:
   platform:
   idp-admin-role: service_identity_provider_administrator
-  digitalPassportContractAddress:
-  digitalPassportProxyTokenControllerContractAddress:
-  businessDataContractAddress:
-  organizationWalletContractAddress:
+
+smart-contract-address:
+  digitalPassport:
+  digitalPassportProxyTokenController:
+  businessData:
+  organizationYellowPage:
 
 transaction:
   tag-client-url:

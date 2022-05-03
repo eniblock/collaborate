@@ -1,13 +1,10 @@
 package collaborate.api.organization;
 
 import static collaborate.api.organization.model.OrganizationRole.DSP;
-import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.user.UserService;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,13 +21,12 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class OrganizationService {
 
-  private final ApiProperties apiProperties;
+  private final String organizationYellowPageContractAddress;
   private final OrganizationDAO organizationDAO;
   private final UserService userService;
 
   public Collection<OrganizationDTO> getAllOrganizations() {
-    return organizationDAO.getAllOrganizations(
-        apiProperties.getOrganizationWalletContractAddress());
+    return organizationDAO.getAllOrganizations(organizationYellowPageContractAddress);
   }
 
   private <T> Predicate<T> distinctByKeyPredicate(Function<? super T, Object> keyExtractor) {
@@ -44,13 +40,11 @@ public class OrganizationService {
   }
 
   public OrganizationDTO getByWalletAddress(String walletAddress) {
-    return findOrganizationByPublicKeyHash(
-        walletAddress,
-        apiProperties.getOrganizationWalletContractAddress()
-    ).orElseGet(() -> {
-      log.warn("No organization found for account={}", walletAddress);
-      return OrganizationDTO.builder().address(walletAddress).build();
-    });
+    return findOrganizationByPublicKeyHash(walletAddress, organizationYellowPageContractAddress)
+        .orElseGet(() -> {
+          log.warn("No organization found for account={}", walletAddress);
+          return OrganizationDTO.builder().address(walletAddress).build();
+        });
   }
 
   public OrganizationDTO getCurrentOrganization() {
