@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toList;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestParams;
 import collaborate.api.config.UUIDGenerator;
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.job.Transaction;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Repository;
 
 @RequiredArgsConstructor
 @Repository
-class AccessRequestDAO {
+class RequestAccessDAO {
 
   public static final String REQUEST_ACCESS_ENTRY_POINT = "request_access";
   private final String businessDataContractAddress;

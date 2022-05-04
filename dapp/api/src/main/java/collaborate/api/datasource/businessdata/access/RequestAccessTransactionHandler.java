@@ -9,12 +9,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
+/**
+ * WHEN a Block chain transaction {@link #isRequestAccessForCurrentOrganisation(Transaction)} <br>
+ * THEN Call the {@link GrantAccessService#grant(Transaction)}
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class AccessRequestTransactionHandler implements TransactionHandler {
+public class RequestAccessTransactionHandler implements TransactionHandler {
 
-  private final AccessGrantService accessGrantService;
+  private final GrantAccessService accessGrantService;
   private final OrganizationService organizationService;
   String organizationWallet = "";
 
@@ -32,7 +36,7 @@ public class AccessRequestTransactionHandler implements TransactionHandler {
   }
 
   boolean isRequestAccessForCurrentOrganisation(Transaction transaction) {
-    boolean isRequestAccessTransaction = AccessRequestDAO.REQUEST_ACCESS_ENTRY_POINT
+    boolean isRequestAccessTransaction = RequestAccessDAO.REQUEST_ACCESS_ENTRY_POINT
         .equals(transaction.getEntrypoint());
 
     if (isRequestAccessTransaction) {

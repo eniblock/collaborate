@@ -14,6 +14,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class AssetDTO {
 
+  @Schema(description = "A displayable name", example = "My awesome asset", required = true)
+  @NotNull
+  private String displayName;
+
   @Schema(description = "The datasource Universal Unique Identifier (UUID) where the vehicle data (metrics) are stored. Mostly, this datasource is own by the DSP", example = "ab357d94-04da-4695-815e-24c569fd3a49", required = true)
   @NotNull
   private UUID datasourceUUID;

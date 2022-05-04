@@ -208,15 +208,15 @@ spec:
             - name: TRANSACTION_WATCHERS_0_FIXED_DELAY_IN_MS
               value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
             - name: TRANSACTION_WATCHERS_0_SMART_CONTRACT_ADDRESS
-              value: {{ .Values.api.businessDataContractAddress | quote }}
+              value: {{ .Values.api.smartContractAddress.businessData | quote }}
             - name: TRANSACTION_WATCHERS_1_FIXED_DELAY_IN_MS
               value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
             - name: TRANSACTION_WATCHERS_1_SMART_CONTRACT_ADDRESS
-              value: {{ .Values.api.digitalPassportContractAddress | quote }}
+              value: {{ .Values.api.smartContractAddress.digitalPassport | quote }}
             - name: TRANSACTION_WATCHERS_2_FIXED_DELAY_IN_MS
               value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
             - name: TRANSACTION_WATCHERS_2_SMART_CONTRACT_ADDRESS
-              value: {{ .Values.api.digitalPassportProxyTokenControllerContractAddress | quote }}
+              value: {{ .Values.api.smartContractAddress.digitalPassportProxyTokenController | quote }}
           ports:
             - name: http
               containerPort: 7772

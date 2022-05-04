@@ -12,6 +12,7 @@ public class TransactionEventManager {
   private final List<TransactionHandler> listeners = new ArrayList<>();
 
   public void subscribe(TransactionHandler handler) {
+    log.info(String.format("Adding transactionHandler=%s",handler.getClass()));
     listeners.add(handler);
   }
 

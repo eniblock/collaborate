@@ -1,6 +1,5 @@
 package collaborate.api.datasource.businessdata.create;
 
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.create.DataCatalogCreationDTO;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
@@ -28,20 +27,22 @@ public class CreateBusinessDataNftDAO {
   private final String businessDataContractAddress;
   private final UserService userService;
 
-  public static final String DATA_CATALOG_CREATION_ENTRYPOINT = "create_business_datasource";
+  public static final String CREATE_DATASOURCE_ENTRYPOINT = "create_business_datasource";
 
   public Job mintBusinessDataNFT(List<AssetIdAndUri> assetIdAndUris) {
     var transactions = assetIdAndUris.stream()
-        .map(a -> DataCatalogCreationDTO.builder()
-            .nftOperatorAddress(userService.getAdminUser().getAddress())
-            .assetId(a.getAssetId())
-            .metadataUri(new Bytes(a.getUri()))
-            .build()
-        ).map(p -> Transaction.builder()
-            .entryPoint(DATA_CATALOG_CREATION_ENTRYPOINT)
-            .contractAddress(businessDataContractAddress)
-            .entryPointParams(p)
-            .build()
+        .map(asset ->
+            DataCatalogCreationDTO.builder()
+                .nftOperatorAddress(userService.getAdminUser().getAddress())
+                .assetId(asset.getAssetId())
+                .metadataUri(new Bytes(asset.getUri()))
+                .build()
+        ).map(
+            catalogDTO -> Transaction.builder()
+                .entryPoint(CREATE_DATASOURCE_ENTRYPOINT)
+                .contractAddress(businessDataContractAddress)
+                .entryPointParams(catalogDTO)
+                .build()
         ).collect(Collectors.toList());
 
     var transactionBatch = transactionBatchFactory.createEntryPointBatchJob(

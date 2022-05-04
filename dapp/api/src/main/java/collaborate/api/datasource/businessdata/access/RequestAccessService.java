@@ -10,9 +10,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class AccessRequestService {
+public class RequestAccessService {
 
-  private final AccessRequestDAO accessRequestDAO;
+  private final RequestAccessDAO accessRequestDAO;
 
   public Job requestAccess(List<AccessRequestDTO> accessRequestDTOs) {
     return accessRequestDAO.accessRequest(accessRequestDTOs);

@@ -38,10 +38,7 @@ public class Tzip21MetadataFactory {
         .build();
 
     return tokenMetadataSupplier.get().toBuilder()
-        .description(
-            "The metadata for the " + assetDTO.getAssetType() + " asset having '"
-                + assetDTO.getAssetId()
-                + "' assetId")
+        .description(assetDTO.getDisplayName())
         .attributes(List.of(catalogAttribute, assetIdAttribute))
         .build();
   }

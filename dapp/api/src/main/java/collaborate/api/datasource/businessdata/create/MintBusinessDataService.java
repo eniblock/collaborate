@@ -1,16 +1,17 @@
 package collaborate.api.datasource.businessdata.create;
 
 import static collaborate.api.datasource.businessdata.document.ScopeAssetsService.ASSET_ID_SEPARATOR;
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_SCOPE;
+import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.ATTR_NAME_ALIAS;
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
+import static java.lang.String.format;
 
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
+import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.datasource.nft.catalog.create.Tzip21MetadataService;
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -33,9 +34,8 @@ public class MintBusinessDataService {
       var webServerDatasourceDTO = (WebServerDatasourceDTO) datasourceDTO;
       var assetIdAndUris = webServerDatasourceDTO.getResources().stream()
           .filter(r -> !r.keywordsContainsName(ATTR_NAME_TEST_CONNECTION))
-          .map(resource -> resource.findFirstKeywordValueByName(ATTR_NAME_SCOPE))
-          .flatMap(Optional::stream)
-          .map(scope -> buildAssetDto(datasourceDTO.getId(), scope))
+          .filter(r -> r.keywordsContainsName(ATTR_NAME_ALIAS))
+          .map(resource -> buildAssetDto(datasourceDTO.getId(), resource))
           .map(this::buildAssetIdAndMetadataUri)
           .collect(Collectors.toList());
       createBusinessDataNftDAO.mintBusinessDataNFT(assetIdAndUris);
@@ -44,12 +44,16 @@ public class MintBusinessDataService {
     }
   }
 
-  private AssetDTO buildAssetDto(UUID dataSourceUUID, String scope) {
+  private AssetDTO buildAssetDto(UUID dataSourceUUID, WebServerResource webServerResource) {
+    var alias = webServerResource.findFirstKeywordValueByName(ATTR_NAME_ALIAS)
+        .orElseThrow(() -> new IllegalStateException(
+            format("Missing keyword with name=%s", ATTR_NAME_ALIAS)));
     return AssetDTO.builder()
-        .assetId(dataSourceUUID + ASSET_ID_SEPARATOR + scope)
+        .displayName(webServerResource.getDescription())
+        .assetId(dataSourceUUID + ASSET_ID_SEPARATOR + alias)
         .assetType("business-data")
         .datasourceUUID(dataSourceUUID)
-        .assetIdForDatasource(scope)
+        .assetIdForDatasource(alias)
         .build();
   }
 

@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Service
 @Slf4j
-public class AccessGrantService {
+public class GrantAccessService {
 
   private final CipherJwtService cipherService;
   private final AccessTokenProvider accessTokenProvider;

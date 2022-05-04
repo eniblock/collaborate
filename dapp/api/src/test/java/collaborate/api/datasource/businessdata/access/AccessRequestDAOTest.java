@@ -22,7 +22,7 @@ class AccessRequestDAOTest {
   UUIDGenerator uuidGenerator;
 
   @InjectMocks
-  AccessRequestDAO accessRequestDAO;
+  RequestAccessDAO accessRequestDAO;
 
   AccessRequestDTO assetDetails = readContent(
       "/datasource/businessdata/access/request/access-request-dto.json",

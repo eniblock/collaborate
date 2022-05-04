@@ -15,23 +15,23 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
-class Fa2TransactionServiceTest {
+class DigitalPassportTransactionServiceTest {
 
   @Mock
-  Fa2TransactionDAO fa2TransactionDAO;
+  DigitalPassportTransactionDAO digitalPassportTransactionDAO;
 
   @InjectMocks
-  Fa2TransactionService fa2TransactionService;
+  DigitalPassportTransactionService digitalPassportTransactionService;
 
   @Test
   void getTransactionDateByTokenId() {
     //GIVEN
     var expected = makeTransaction();
-    when(fa2TransactionDAO
+    when(digitalPassportTransactionDAO
         .findBySmartContractAndTokenId(anyString(), anyLong()))
         .thenReturn(Optional.of(expected));
     //WHEN
-    var actual = fa2TransactionService
+    var actual = digitalPassportTransactionService
         .findTransactionDateByTokenId("SMART_CONTRACT", 1L);
     //THEN
     assertThat(actual).hasValue(expected.getTimestamp());

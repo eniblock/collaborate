@@ -1,6 +1,5 @@
 package collaborate.api.datasource.passport.transaction;
 
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
 import collaborate.api.transaction.TransactionProperties;
@@ -20,8 +19,8 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-@ConditionalOnExpression("!'${api.digitalPassportContractAddress}'.isEmpty()")
-public class Fa2TransactionWatcherConfig {
+@ConditionalOnExpression("!'${smartContractAddress.digitalPassport}'.isEmpty()")
+public class DigitalPassportTransactionWatcherConfig {
 
   private final String businessDataContractAddress;
   private final MintTokenHandler mintTokenHandler;
@@ -60,6 +59,7 @@ public class Fa2TransactionWatcherConfig {
   }
 
   private TransactionEventManager initDigitalPassportEventManager() {
+    log.info("Initializing block chain transaction event manager");
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(mintTokenHandler);
     return transactionEventManager;

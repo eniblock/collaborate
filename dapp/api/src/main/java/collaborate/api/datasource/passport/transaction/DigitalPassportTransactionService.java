@@ -15,13 +15,13 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class Fa2TransactionService {
+public class DigitalPassportTransactionService {
 
-  private final Fa2TransactionDAO fa2TransactionDAO;
+  private final DigitalPassportTransactionDAO digitalPassportTransactionDAO;
   private final ObjectMapper objectMapper;
 
   public Optional<ZonedDateTime> findTransactionDateByTokenId(String smartContract, Long tokenId) {
-    return fa2TransactionDAO.findBySmartContractAndTokenId(smartContract, tokenId)
+    return digitalPassportTransactionDAO.findBySmartContractAndTokenId(smartContract, tokenId)
         .map(Fa2Transaction::getTimestamp);
   }
 
@@ -40,7 +40,7 @@ public class Fa2TransactionService {
         timestamp,
         transaction.getParameters()
     );
-    fa2TransactionDAO.save(fa2Transaction);
+    digitalPassportTransactionDAO.save(fa2Transaction);
   }
 
   private Fa2TransactionParameters deserializeTransactionParameters(JsonNode param) {

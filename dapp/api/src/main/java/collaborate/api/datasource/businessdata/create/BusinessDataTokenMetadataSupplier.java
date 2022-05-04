@@ -23,6 +23,7 @@ public class BusinessDataTokenMetadataSupplier implements Supplier<TZip21Metadat
   public TZip21Metadata get() {
     return TZip21Metadata.builder()
         .name(NFT_NAME)
+        .shouldPreferSymbol(true)
         .symbol(NFT_SYMBOLE)
         .decimals(NFT_DECIMALS)
         .version(NFT_VERSION)

@@ -1,7 +1,7 @@
 package collaborate.api.datasource.businessdata.kpi;
 
 
-import static collaborate.api.datasource.businessdata.create.CreateBusinessDataNftDAO.DATA_CATALOG_CREATION_ENTRYPOINT;
+import static collaborate.api.datasource.businessdata.create.CreateBusinessDataNftDAO.CREATE_DATASOURCE_ENTRYPOINT;
 
 import collaborate.api.datasource.businessdata.transaction.BusinessDataTransactionService;
 import collaborate.api.transaction.Transaction;
@@ -25,7 +25,7 @@ public class CreatedDatasourceTransactionHandler implements TransactionHandler {
   }
 
   boolean isCreateBusinessDatasource(Transaction transaction) {
-    return DATA_CATALOG_CREATION_ENTRYPOINT
+    return CREATE_DATASOURCE_ENTRYPOINT
         .equals(transaction.getEntrypoint());
   }
 }

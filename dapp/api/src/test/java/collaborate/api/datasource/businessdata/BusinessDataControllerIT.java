@@ -13,7 +13,7 @@ import collaborate.api.config.ControllerExceptionHandler;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.config.api.SmartContractConfig;
-import collaborate.api.datasource.businessdata.access.AccessRequestService;
+import collaborate.api.datasource.businessdata.access.RequestAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.document.ScopeAssetsService;
 import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
@@ -54,7 +54,7 @@ class BusinessDataControllerIT {
   @MockBean
   ApiProperties apiProperties;
   @MockBean
-  AccessRequestService accessRequestService;
+  RequestAccessService accessRequestService;
   @MockBean
   NftDatasourceService nftDatasourceService;
   @MockBean
