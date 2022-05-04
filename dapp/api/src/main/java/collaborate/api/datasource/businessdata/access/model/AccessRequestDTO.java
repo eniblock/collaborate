@@ -16,10 +16,14 @@ public class AccessRequestDTO {
   @NotNull
   private Integer tokenId;
 
+  // FIXME COL-569
+  @Deprecated
   @Schema(description = "The unique identifier of the datasource", example = "c36f12b9-d98c-4450-8fb8-93960466b45d", required = true)
   @NotBlank
   private String datasourceId;
 
+  // FIXME COL-569
+  @Deprecated
   @Schema(description = "The Asset identifier used by the datasource provider api.", example = "124091f9115613c46574764", required = true)
   @NotBlank
   private String assetIdForDatasource;

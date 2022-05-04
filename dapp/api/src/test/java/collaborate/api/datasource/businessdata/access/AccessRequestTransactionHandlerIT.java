@@ -59,7 +59,7 @@ class AccessRequestTransactionHandlerIT {
   void organizationWallet_shouldBeInitializedOnStartup() {
     // GIVEN
     // WHEN
-    var currentResult = accessRequestTransactionHandler.organizationWallet;
+    var currentResult = accessRequestTransactionHandler.organizationAccountAddress;
     // THEN
     assertThat(currentResult).isEqualTo(PROVIDER_ADDRESS);
   }

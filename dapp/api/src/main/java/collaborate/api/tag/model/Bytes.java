@@ -19,6 +19,9 @@ public class Bytes {
   @NotNull
   private byte[] value;
 
+  /**
+   * @param str A decoded string to convert to bytes
+   */
   public Bytes(@NonNull String str) {
     this.value = str.getBytes(StandardCharsets.UTF_8);
   }

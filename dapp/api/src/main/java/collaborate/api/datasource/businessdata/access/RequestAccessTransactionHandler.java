@@ -1,5 +1,7 @@
-package collaborate.api.datasource.businessdata.access
-    ;
+package collaborate.api.datasource.businessdata.access;
+
+import static collaborate.api.datasource.businessdata.access.RequestAccessDAO.REQUEST_ACCESS_ENTRY_POINT;
+import static collaborate.api.datasource.businessdata.access.model.AccessRequestParams.AttributeName.PROVIDER_ADDRESS;
 
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.transaction.Transaction;
@@ -20,11 +22,11 @@ public class RequestAccessTransactionHandler implements TransactionHandler {
 
   private final GrantAccessService accessGrantService;
   private final OrganizationService organizationService;
-  String organizationWallet = "";
+  String organizationAccountAddress = "";
 
   @PostConstruct
   public void init() {
-    this.organizationWallet = organizationService.getCurrentOrganization().getAddress();
+    this.organizationAccountAddress = organizationService.getCurrentOrganization().getAddress();
   }
 
   @Override
@@ -36,13 +38,7 @@ public class RequestAccessTransactionHandler implements TransactionHandler {
   }
 
   boolean isRequestAccessForCurrentOrganisation(Transaction transaction) {
-    boolean isRequestAccessTransaction = RequestAccessDAO.REQUEST_ACCESS_ENTRY_POINT
-        .equals(transaction.getEntrypoint());
-
-    if (isRequestAccessTransaction) {
-      var providerAddress = transaction.getParameters().get("provider_address");
-      return providerAddress != null && organizationWallet.equals(providerAddress.asText());
-    }
-    return false;
+    return transaction.isEntryPoint(REQUEST_ACCESS_ENTRY_POINT)
+        && transaction.hasParameterValue(PROVIDER_ADDRESS, organizationAccountAddress);
   }
 }

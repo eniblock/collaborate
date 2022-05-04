@@ -35,7 +35,6 @@ class RequestAccessDAO {
     );
   }
 
-
   AccessRequestParams toAccessRequestParam(AccessRequestDTO accessRequestDTO) {
     return AccessRequestParams.builder()
         .accessRequestsUuid(uuidGenerator.randomUUID())
