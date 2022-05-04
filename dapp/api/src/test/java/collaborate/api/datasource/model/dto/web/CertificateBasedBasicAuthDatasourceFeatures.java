@@ -50,7 +50,7 @@ public class CertificateBasedBasicAuthDatasourceFeatures {
                   .keywords(new LinkedHashSet<>(
                           List.of(
                               Attribute.builder()
-                                  .name("alias")
+                                  .name("provider:routing:alias")
                                   .value("metric:odometer").build(),
                               Attribute.builder()
                                   .name("scope")

@@ -27,7 +27,7 @@ class WebServerResourceTest {
         .url("/test")
         .keywords(Set.of(
             Attribute.builder()
-                .name("alias")
+                .name("provider:routing:alias")
                 .value("metric:odometer")
                 .build(),
             Attribute.builder()
@@ -97,7 +97,7 @@ class WebServerResourceTest {
     // WHEN
     var actualViolations = validator.validate(webResource);
     // THEN
-    assertThat(actualViolations).hasSize(1);
+      assertThat(actualViolations).hasSize(1);
     assertThat(actualViolations.iterator().next().getPropertyPath()).hasToString("url");
   }
 

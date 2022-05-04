@@ -24,7 +24,7 @@ class ResourceKeywordValidatorTest {
     // GIVEN
     var routingKeyValidator = new ResourceKeywordValidator();
     var keywords = List.of(Attribute.builder()
-            .name("alias")
+            .name("provider:routing:alias")
             .value("route").build());
     // WHEN
     var actualIsValid = routingKeyValidator.isValid(keywords, null);

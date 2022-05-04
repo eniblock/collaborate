@@ -18,7 +18,7 @@ class FromRoutePrefixSupplierTest {
   private static Stream<Arguments> getParameters() {
     return Stream.of(
         Arguments.of(List.of(Attribute.builder()
-                .name("alias")
+                .name("provider:routing:alias")
                 .value("odometer").build()),
             "/datasource/datasource-name/odometer"),
         Arguments.of(List.of(Attribute.builder().name("list-asset").build()),

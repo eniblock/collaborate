@@ -43,11 +43,11 @@ class RoutingKeySupplierTest {
   void get_shouldReturnFirstAlias_withMultipleAliases() {
     // GIVEN
     List<Attribute> keywords = List.of(Attribute.builder()
-            .name("alias")
+            .name("provider:routing:alias")
             .value("alias1")
             .build(),
         Attribute.builder()
-            .name("alias")
+            .name("provider:routing:alias")
             .value("alias2")
             .build()
     );

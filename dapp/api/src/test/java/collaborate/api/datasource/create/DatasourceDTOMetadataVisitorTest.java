@@ -40,7 +40,7 @@ class DatasourceDTOMetadataVisitorTest {
     var keywords =
         Set.of(
             Attribute.builder()
-                .name("alias")
+                .name("provider:routing:alias")
                 .value("aliasA").build(),
             Attribute.builder()
                 .name("scope")
@@ -67,7 +67,7 @@ class DatasourceDTOMetadataVisitorTest {
     var keywords =
         Set.of(
             Attribute.builder()
-                .name("alias")
+                .name("provider:routing:alias")
                 .value("aliasA").build(),
             Attribute.builder()
                 .name("scope")
@@ -98,7 +98,7 @@ class DatasourceDTOMetadataVisitorTest {
     var keywords =
         Set.of(
             Attribute.builder()
-                .name("alias")
+                .name("provider:routing:alias")
                 .value("aliasA").build(),
             Attribute.builder()
                 .name("scope")

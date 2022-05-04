@@ -14,7 +14,7 @@ import java.util.function.Supplier;
  */
 public class RoutingKeyFromKeywordSupplier implements Supplier<String> {
 
-  public static final String ATTR_NAME_ALIAS = "alias";
+  public static final String ATTR_NAME_ALIAS = "provider:routing:alias";
 
   private final String routingKey;
 
