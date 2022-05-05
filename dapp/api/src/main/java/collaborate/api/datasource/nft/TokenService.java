@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +27,7 @@ public class TokenService {
 
   public Optional<Map<String, JsonNode>> getOffChainMetadataByTokenId(String contract, Integer tokenId) {
     var onChainMetadataOpt = getOnChainMetadataByTokenId(contract, tokenId);
-    Map<String, JsonNode> offChainMetadata = new HashMap<>();
+    Map<String, JsonNode> offChainMetadata = new TreeMap<>();
     onChainMetadataOpt.flatMap(onChainMetadata -> ofNullable(onChainMetadata.get(EMPTY)))
         .map(ipfsService::catJson)
         .ifPresent(jsonNode -> jsonNode.fields().forEachRemaining(

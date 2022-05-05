@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.TreeMap;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,11 +26,24 @@ public class TagEntry<K, V> {
    */
   public static <K, V> Map<K, V> asMap(Collection<TagEntry<K, V>> tagEntries) {
     return tagEntries.stream()
-        .collect(toMap(TagEntry::getKey, TagEntry::getValue));
+        .collect(toMap(
+            TagEntry::getKey,
+            TagEntry::getValue,
+            (a, b) -> {
+              throw new IllegalStateException("Duplicate key");
+            },
+            TreeMap::new));
   }
 
   public static <K, V> Map<String, String> asMapOfString(Collection<TagEntry<K, V>> tagEntries) {
     return tagEntries.stream()
-        .collect(toMap(e -> e.getKey().toString(), e -> e.getValue().toString()));
+        .collect(toMap(
+            e -> e.getKey().toString(),
+            e -> e.getValue().toString(),
+            (a, b) -> {
+              throw new IllegalStateException("Duplicate key");
+            },
+            TreeMap::new
+        ));
   }
 }
