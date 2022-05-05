@@ -35,6 +35,9 @@ public class WebServerResource implements Keywords<Attribute>, Serializable {
     public static final String ATTR_NAME_SCOPE = "scope";
   }
 
+  @Schema(description = "A display name for this resource")
+  private String name;
+
   @Schema(description = "A human readable description of this resource")
   private String description;
 

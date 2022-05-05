@@ -9,37 +9,25 @@ import collaborate.api.ipfs.IpnsService;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class Tzip21MetadataFactory {
+public class BusinessTzip21MetadataFactory {
 
   private final IpnsService ipnsService;
   private final TokenMetadataProperties tokenMetadataProperties;
 
-  public TZip21Metadata create(
-      Supplier<TZip21Metadata> tokenMetadataSupplier,
-      AssetDTO assetDTO, String assetDataCatalogRelativePath) {
+  public TZip21Metadata create(AssetDTO assetDTO) {
     var catalogAttribute = Attribute.builder()
         .name(AttributeKeys.ASSET_DATA_CATALOG)
-        .value(IpfsService.IPNS_PROTOCOL_PREFIX
-            + buildAssetDataCatalogIpnsPath(assetDataCatalogRelativePath)
-        )
+        .value(buildAssetDataCatalogIpnsPath(assetDTO.getAssetRelativePath()))
         .type("URI")
         .build();
 
-    var assetIdAttribute = Attribute.builder()
-        .name(AttributeKeys.ASSET_ID)
-        .value(assetDTO.getAssetId())
-        .type("String")
-        .build();
-
-    return tokenMetadataSupplier.get().toBuilder()
-        .description(assetDTO.getDisplayName())
-        .attributes(List.of(catalogAttribute, assetIdAttribute))
+    return assetDTO.getTZip21Metadata().toBuilder()
+        .attributes(List.of(catalogAttribute))
         .build();
   }
 
@@ -51,7 +39,7 @@ public class Tzip21MetadataFactory {
             tokenMetadataProperties.getAssetDataCatalogRootFolder())
         ).getId();
 
-    return Path.of(ipnsRoot, assetDataCatalogRelativePath).toString();
+    return IpfsService.IPNS_PROTOCOL_PREFIX + Path.of(ipnsRoot, assetDataCatalogRelativePath);
   }
 
 

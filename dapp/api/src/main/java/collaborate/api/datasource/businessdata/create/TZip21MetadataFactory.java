@@ -1,28 +1,28 @@
-package collaborate.api.datasource.passport.create;
+package collaborate.api.datasource.businessdata.create;
 
+import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.nft.model.metadata.License;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
 import java.util.List;
-import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class PassportTokenMetadataSupplier implements Supplier<TZip21Metadata> {
-
-  public static final String NFT_NAME = "DigitalPassport";
-  public static final String NFT_SYMBOLE = "CDP";
+public class TZip21MetadataFactory {
+  public static final String NFT_SYMBOLE = "CBD";
   public static final int NFT_DECIMALS = 0;
-  public static final String NFT_VERSION = "digital-passport.0.1";
+  public static final String NFT_VERSION = "business-data.0.1";
   public static final String NFT_LICENCE = "MIT";
   public static final List<String> NFT_AUTHOR = List.of("The Blockchain Xdev team");
   public static final String NFT_HOMEPAGE = "https://www.theblockchainxdev.com/";
   public static final List<String> NFT_INTERFACES = List.of("TZIP-012", "TZIP-021");
 
-  public TZip21Metadata get() {
+  public TZip21Metadata create(WebServerResource resource) {
     return TZip21Metadata.builder()
-        .name(NFT_NAME)
+        .name(resource.getName())
+        .description(resource.getDescription())
+        .shouldPreferSymbol(false)
         .symbol(NFT_SYMBOLE)
         .decimals(NFT_DECIMALS)
         .version(NFT_VERSION)

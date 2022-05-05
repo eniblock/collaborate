@@ -2,6 +2,7 @@ package collaborate.api.datasource.nft.catalog.create;
 
 import static collaborate.api.ipfs.IpfsService.IPFS_PROTOCOL_PREFIX;
 
+import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.nft.TokenMetadataProperties;
 import collaborate.api.datasource.nft.model.metadata.AssetDataCatalog;
@@ -17,23 +18,7 @@ import org.springframework.stereotype.Component;
 @Component
 @RequiredArgsConstructor
 public class AssetDataCatalogFactory {
-
-  private final Clock clock;
   private final DatasourceService datasourceService;
-  private final DateFormatterFactory dateFormatterFactory;
-  private final TokenMetadataProperties tokenMetadataProperties;
-
-  Path buildRelativePathForAssetId(AssetDTO assetDTO) {
-    return Path.of(
-        assetDTO.getAssetType(),
-        dateFormatterFactory
-            .forPattern(tokenMetadataProperties.getAssetDataCatalogPartitionDatePattern()),
-        // ms is added to prevent multiple creation on the same asset collision,
-        //could occurs if a creation is made by providing an invalid asset Id already used on the same partition
-        assetDTO.getAssetId() + "_" + clock.millis()
-    );
-  }
-
   AssetDataCatalog create(AssetDTO assetDTO) {
     var datasourceInIpfs = datasourceService
         .findById(assetDTO.getDatasourceUUID().toString())

@@ -1,17 +1,23 @@
 package collaborate.api.datasource.businessdata.create;
 
-import static collaborate.api.datasource.businessdata.document.ScopeAssetsService.ASSET_ID_SEPARATOR;
 import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.ATTR_NAME_ALIAS;
+import static collaborate.api.datasource.model.dto.web.Attribute.ATTR_JWT_SCOPE;
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
 import static java.lang.String.format;
 
+import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
+import collaborate.api.datasource.model.scope.AssetScope;
+import collaborate.api.datasource.nft.AssetScopeDAO;
+import collaborate.api.datasource.nft.TokenMetadataProperties;
 import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.datasource.nft.catalog.create.Tzip21MetadataService;
+import collaborate.api.date.DateFormatterFactory;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -24,9 +30,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class MintBusinessDataService {
 
-  private final BusinessDataTokenMetadataSupplier tokenMetadataSupplier;
+  private final AssetScopeDAO assetScopeDAO;
   private final CreateBusinessDataNftDAO createBusinessDataNftDAO;
+  private final DateFormatterFactory dateFormatterFactory;
+  private final TokenMetadataProperties tokenMetadataProperties;
+  private final TZip21MetadataFactory tZip21MetadataFactory;
   private final Tzip21MetadataService tzip21MetadataService;
+  private final UUIDGenerator uuidGenerator;
+
 
   public void mint(DatasourceDTO datasourceDTO) {
     // Use a visitor for Access and for Datasource type when new datasource type will be implemented
@@ -48,20 +59,35 @@ public class MintBusinessDataService {
     var alias = webServerResource.findFirstKeywordValueByName(ATTR_NAME_ALIAS)
         .orElseThrow(() -> new IllegalStateException(
             format("Missing keyword with name=%s", ATTR_NAME_ALIAS)));
+
+    webServerResource.findFirstKeywordValueByName(ATTR_JWT_SCOPE)
+        .ifPresent(scope -> assetScopeDAO.save(
+            new AssetScope(dataSourceUUID.toString() + ":" + alias, scope)));
+
     return AssetDTO.builder()
-        .displayName(webServerResource.getDescription())
-        .assetId(dataSourceUUID + ASSET_ID_SEPARATOR + alias)
+        .assetRelativePath(buildAssetRelativePath())
         .assetType("business-data")
         .datasourceUUID(dataSourceUUID)
         .assetIdForDatasource(alias)
+        .tZip21Metadata(tZip21MetadataFactory.create(webServerResource))
         .build();
+  }
+
+
+  String buildAssetRelativePath() {
+    return Path.of(
+        dateFormatterFactory.forPattern(
+            tokenMetadataProperties.getAssetDataCatalogPartitionDatePattern()
+        ),
+        uuidGenerator.randomUUID().toString()
+    ).toString();
   }
 
   private AssetIdAndUri buildAssetIdAndMetadataUri(AssetDTO assetDTO) {
     try {
       log.info("Minting asset={}", assetDTO);
-      var ipfsMetadataUri = tzip21MetadataService.saveMetadata(assetDTO, tokenMetadataSupplier);
-      return new AssetIdAndUri(assetDTO.getAssetId(), ipfsMetadataUri);
+      var ipfsMetadataUri = tzip21MetadataService.saveMetadata(assetDTO);
+      return new AssetIdAndUri(assetDTO.getAssetRelativePath(), ipfsMetadataUri);
     } catch (IOException e) {
       log.error("error while minting asset={}", assetDTO);
       throw new IllegalStateException(e);

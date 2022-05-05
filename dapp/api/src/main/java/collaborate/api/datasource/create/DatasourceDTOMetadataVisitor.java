@@ -2,6 +2,7 @@ package collaborate.api.datasource.create;
 
 import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Keys.DATASOURCE_PURPOSE;
 import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Keys.DATASOURCE_TYPE;
+import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.ATTR_NAME_ALIAS;
 import static lombok.AccessLevel.PRIVATE;
 import static org.apache.commons.lang3.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.startsWith;
@@ -18,7 +19,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
@@ -76,9 +79,18 @@ public class DatasourceDTOMetadataVisitor implements DatasourceDTOVisitor<Stream
   }
 
   private Stream<Metadata> buildResources(List<WebServerResource> webServerResources) {
-    return webServerResources.stream()
+    var keywordMetadata = webServerResources.stream()
         .map(WebServerResource::getKeywords)
         .flatMap(this::buildResourceKeywords);
+    var resources = webServerResources.stream()
+        .map(r -> r.findFirstKeywordValueByName(ATTR_NAME_ALIAS))
+        .flatMap(Optional::stream)
+        .collect(Collectors.joining(","));
+    var resourcesMetadata = Metadata.builder()
+        .name("resources")
+        .value(resources)
+        .build();
+    return Stream.concat(keywordMetadata, Stream.of(resourcesMetadata));
   }
 
   Stream<Metadata> buildResourceKeywords(Collection<Attribute> keywords) {

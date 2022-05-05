@@ -146,6 +146,10 @@ class DatasourceDTOMetadataVisitorTest {
             .name("datasource:purpose")
             .value("[\"vehicles\",\"digital-passport\"]")
             .type("string[]").build(),
+        Metadata.builder()
+            .name("resources")
+            .value("metric:odometer")
+            .build(),
         datasourceTypeMetadata
     );
   }
