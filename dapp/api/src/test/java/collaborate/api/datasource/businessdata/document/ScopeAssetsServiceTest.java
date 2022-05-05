@@ -11,6 +11,7 @@ import collaborate.api.datasource.gateway.GatewayUrlService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
+import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.test.TestResources;
@@ -50,7 +51,8 @@ class ScopeAssetsServiceTest {
   UserMetadataService userMetadataService;
   @Mock
   CatalogService catalogService;
-
+  @Mock
+  AssetScopeDAO assetScopeDAO;
   @InjectMocks
   ScopeAssetsService scopeAssetsService;
 
@@ -58,6 +60,7 @@ class ScopeAssetsServiceTest {
   void setUp() {
     scopeAssetsService = new ScopeAssetsService(
         accessTokenProvider,
+        assetScopeDAO,
         businessDataContractAddress,
         clock,
         findBusinessDataService,

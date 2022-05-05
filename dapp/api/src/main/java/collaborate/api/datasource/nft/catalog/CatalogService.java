@@ -34,12 +34,12 @@ public class CatalogService {
         .flatMap(this::findByIpfsLink);
   }
 
-  public Optional<AssetDataCatalogDTO> findByIpfsLink(String metadataIpfsLink) {
+  public Optional<AssetDataCatalogDTO> findByIpfsLink(String tZip21Url) {
     try {
-      var tokenMetadata = ipfsService.cat(metadataIpfsLink, TZip21Metadata.class);
+      var tokenMetadata = ipfsService.cat(tZip21Url, TZip21Metadata.class);
       return getAssetDataCatalogDTO(tokenMetadata);
     } catch (Exception e) {
-      log.error("While getting dataCatalog from metadataIpfsLink={}\n{}", metadataIpfsLink, e);
+      log.error("While getting dataCatalog from tZip21Url={}\n{}", tZip21Url, e);
       return Optional.empty();
     }
   }
@@ -66,9 +66,9 @@ public class CatalogService {
         .baseUri(traefikProviderService.buildDatasourceBaseUri(datasource))
         .ownerAddress(datasource.getOwner())
         .scopes(
-            datasourceService.getScopesByDataSourceId(datasourceLink.getId())
+            datasourceService.getResourcesByDataSourceId(datasourceLink.getId())
                 .orElseGet(() -> {
-                  log.warn("No scopes found for datasource={}", datasourceLink.getId());
+                  log.warn("No resources found for datasource={}", datasourceLink.getId());
                   return Collections.emptySet();
                 })
         ).build();

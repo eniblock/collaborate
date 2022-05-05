@@ -6,7 +6,6 @@ import static org.apache.commons.lang3.StringUtils.EMPTY;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.tag.model.TagEntry;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
@@ -22,7 +21,7 @@ public class TokenService {
 
   public Optional<Map<String, String>> getOnChainMetadataByTokenId(String contractAddress,
       Integer tokenId) {
-    return tokenDAO.getMetadataByTokenId(contractAddress, tokenId).map(TagEntry::asMapOfString);
+    return tokenDAO.findMetadataByTokenId(contractAddress, tokenId).map(TagEntry::asMapOfString);
   }
 
   public Optional<Map<String, JsonNode>> getOffChainMetadataByTokenId(String contract, Integer tokenId) {

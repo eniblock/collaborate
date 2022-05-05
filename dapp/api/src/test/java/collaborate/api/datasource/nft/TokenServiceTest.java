@@ -40,7 +40,7 @@ public class TokenServiceTest {
   @Test
   void getOnChainMetadataByTokenId() {
     // GIVEN
-    when(tokenDAO.getMetadataByTokenId(contract, tokenId)).thenReturn(Optional.of(tokenResponse));
+    when(tokenDAO.findMetadataByTokenId(contract, tokenId)).thenReturn(Optional.of(tokenResponse));
     // WHEN
     var r = tokenService.getOnChainMetadataByTokenId(contract, tokenId);
     // THEN
@@ -51,7 +51,7 @@ public class TokenServiceTest {
   @Test
   void getOffChainMetadataByTokenId() {
     // GIVEN
-    when(tokenDAO.getMetadataByTokenId(contract, tokenId)).thenReturn(Optional.of(tokenResponse));
+    when(tokenDAO.findMetadataByTokenId(contract, tokenId)).thenReturn(Optional.of(tokenResponse));
     when(ipfsService.catJson(TZIP21_URL))
         .thenReturn(readContent("/datasource/nft/t-zip-21.json", JsonNode.class));
     // WHEN

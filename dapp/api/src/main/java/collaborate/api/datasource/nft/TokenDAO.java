@@ -17,9 +17,9 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 public class TokenDAO {
 
-  private final TagClient tagClient;
+  private final TagTokenMetadataClient tagClient;
 
-  public Optional<List<TagEntry<String, Bytes>>> getMetadataByTokenId(String contract, Integer tokenId) {
+  public Optional<List<TagEntry<String, Bytes>>> findMetadataByTokenId(String contract, Integer tokenId) {
     var requestTokenMetadata = new DataFieldsRequest<>(List.of(
         new MapQuery<>(StorageFields.TOKEN_METADATA, List.of(tokenId))
     ));

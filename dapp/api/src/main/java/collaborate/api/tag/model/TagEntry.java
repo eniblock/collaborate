@@ -4,6 +4,8 @@ import static java.util.stream.Collectors.toMap;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -45,5 +47,13 @@ public class TagEntry<K, V> {
             },
             TreeMap::new
         ));
+  }
+
+  public static <K, V> Optional<V> findFirstNonNullValueByKey(Collection<TagEntry<K, V>> tagEntries,
+      K key) {
+    return tagEntries.stream().filter(e -> e.getKey().equals(key))
+        .filter(e -> Objects.nonNull(e.getValue()))
+        .map(TagEntry::getValue)
+        .findFirst();
   }
 }

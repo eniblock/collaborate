@@ -3,7 +3,6 @@ package collaborate.api.datasource.businessdata.access;
 import collaborate.api.datasource.businessdata.TAGBusinessDataClient;
 import collaborate.api.datasource.businessdata.access.model.AccessGrantParams;
 import collaborate.api.datasource.businessdata.access.model.AccessRequest;
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.TagEntry;
@@ -11,7 +10,6 @@ import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -48,14 +46,9 @@ class GrantAccessDAO {
         businessDataContractAddress,
         requestAccessRequest
     );
-    if (accessRequestResult.getAccessRequests() != null) {
-      return accessRequestResult.getAccessRequests().stream()
-          .filter(e -> e.getKey().equals(id))
-          .filter(e -> Objects.nonNull(e.getValue()))
-          .map(TagEntry::getValue)
-          .findFirst();
-    }
-    return Optional.empty();
+    return Optional.ofNullable(accessRequestResult.getAccessRequests())
+        .flatMap(accessRequest -> TagEntry.findFirstNonNullValueByKey(accessRequest, id));
+
   }
 
 }

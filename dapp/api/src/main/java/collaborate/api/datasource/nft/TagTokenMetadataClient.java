@@ -1,4 +1,4 @@
-package collaborate.api.datasource.nft.catalog;
+package collaborate.api.datasource.nft;
 
 import collaborate.api.datasource.nft.model.storage.TokenMetadataResponseDTO;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(url = "${tezos-api-gateway.url}/api", name = "tag-token-metadata-client")
-public interface TAGTokenMetadataClient {
+public interface TagTokenMetadataClient {
 
   @PostMapping("/tezos_node/storage/{contractAddress}")
   TokenMetadataResponseDTO getTokenMetadata(@PathVariable String contractAddress,

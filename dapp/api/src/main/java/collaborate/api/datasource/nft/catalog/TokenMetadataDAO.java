@@ -1,5 +1,6 @@
 package collaborate.api.datasource.nft.catalog;
 
+import collaborate.api.datasource.nft.TagTokenMetadataClient;
 import collaborate.api.datasource.nft.model.storage.TokenMetadata;
 import collaborate.api.datasource.passport.model.storage.StorageFields;
 import collaborate.api.tag.model.TagEntry;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 class TokenMetadataDAO {
 
-  private final TAGTokenMetadataClient tagTokenMetadataClient;
+  private final TagTokenMetadataClient tagTokenMetadataClient;
 
   public List<TagEntry<Integer, TokenMetadata>> findByIds(Collection<Integer> tokenIds,
       String smartContract) {

@@ -14,6 +14,8 @@ import collaborate.api.datasource.gateway.GatewayUrlService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
+import collaborate.api.datasource.model.scope.AssetScope;
+import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
@@ -63,6 +65,7 @@ public class ScopeAssetsService {
   public static final String ASSET_ID_SEPARATOR = ":";
 
   private final AccessTokenProvider accessTokenProvider;
+  private final AssetScopeDAO assetScopeDAO;
   private final String businessDataContractAddress;
   private final Clock clock;
   private final FindBusinessDataService findBusinessDataService;
@@ -87,6 +90,9 @@ public class ScopeAssetsService {
         .findFirst();
   }
 
+  /**
+   * @return The datasource response for the given resource
+   */
   public Optional<ScopeAssetsDTO> listScopeAssets(AssetDetailsDatasourceDTO datasourceDTO) {
     var datasourceId = datasourceDTO.getId();
     var scope = datasourceDTO.getAssetIdForDatasource();
@@ -107,19 +113,18 @@ public class ScopeAssetsService {
             .build());
   }
 
-  ResponseEntity<JsonNode> getAssetListResponse(String datasourceId, String scope) {
+  ResponseEntity<JsonNode> getAssetListResponse(String datasourceId, String alias) {
     var gatewayResource = GatewayResourceDTO.builder()
         .datasourceId(datasourceId)
-        .scope(SCOPE_METRIC_PREFIX + scope)
+        .scope(alias)
         .build();
     return gatewayUrlService.fetch(gatewayResource);
   }
 
-  Optional<AccessTokenResponse> getJwt(String datasourceId, String scope) {
-    var oAuthScope = StringUtils.removeStart(scope, "scope:");
+  Optional<AccessTokenResponse> getJwt(String datasourceId, String resource) {
     return getOAuth2(datasourceId)
-        .map(oAuth2 -> getOwnerAccessToken(oAuth2, oAuthScope))
-        .or(() -> getRequesterAccessToken(datasourceId, oAuthScope));
+        .map(oAuth2 -> getOwnerAccessToken(datasourceId, oAuth2, resource))
+        .or(() -> getRequesterAccessToken(datasourceId, resource));
   }
 
   Optional<OAuth2ClientCredentialsGrant> getOAuth2(String datasourceId) {
@@ -128,9 +133,10 @@ public class ScopeAssetsService {
         .map(VaultMetadata::getOAuth2);
   }
 
-  private AccessTokenResponse getOwnerAccessToken(OAuth2ClientCredentialsGrant auth2,
-      String scope) {
-    return accessTokenProvider.get(auth2, Optional.of(scope));
+  private AccessTokenResponse getOwnerAccessToken(String datasourceId, OAuth2ClientCredentialsGrant auth2,
+      String resource) {
+    var scope = assetScopeDAO.findById(datasourceId+":"+resource).map(AssetScope::getScope);
+    return accessTokenProvider.get(auth2, scope);
   }
 
   private Optional<AccessTokenResponse> getRequesterAccessToken(String datasourceId, String scope) {
@@ -172,8 +178,7 @@ public class ScopeAssetsService {
         .map(URI::toString)
         .map(s -> fetch(s, accessTokenResponseOpt.get()))
         .collect(toList());
-    return
-        zip(r, outputStream);
+    return zip(r, outputStream);
   }
 
   public ZipOutputStream zip(List<DownloadDocument> documents, ServletOutputStream outputStream)

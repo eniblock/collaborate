@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -98,7 +99,7 @@ public class MetricService {
   }
 
   Stream<GatewayResourceDTO> buildMetricUrls(AssetDetailsDatasourceDTO datasourceDTO) {
-    Set<Metadata> metadata = datasourceService.getMetadata(datasourceDTO.getId());
+    Set<Metadata> metadata = datasourceService.getMetadata(datasourceDTO.getId()).orElse(Collections.emptySet());
     return datasourceDTO.getScopes().stream()
         .filter(s -> !ATTR_NAME_TEST_CONNECTION.equals(s))
         .filter(s -> startsWith(s, SCOPE_METRIC_PREFIX))

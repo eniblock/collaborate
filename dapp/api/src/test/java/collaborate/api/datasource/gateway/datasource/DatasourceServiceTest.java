@@ -47,7 +47,6 @@ class DatasourceServiceTest {
   @BeforeEach
   void setUp() {
     datasourceService = new DatasourceService(
-        objectMapper,
         datasourceDAO,
         metadataService,
         traefikProviderService
@@ -87,7 +86,7 @@ class DatasourceServiceTest {
         )
     );
     // WHEN
-    var scopesResult = datasourceService.getScopesByDataSourceId(datasourceId);
+    var scopesResult = datasourceService.getResourcesByDataSourceId(datasourceId);
     // THEN
     assertThat(scopesResult).isNotPresent();
   }
@@ -98,7 +97,7 @@ class DatasourceServiceTest {
     String datasourceId = "4f4daa53-eb12-4deb-b263-04b0e537842f";
     when(datasourceDAO.findById(datasourceId)).thenReturn(Optional.empty());
     // WHEN
-    var scopesResult = datasourceService.getScopesByDataSourceId(datasourceId);
+    var scopesResult = datasourceService.getResourcesByDataSourceId(datasourceId);
     // THEN
     assertThat(scopesResult).isNotPresent();
   }
@@ -125,7 +124,7 @@ class DatasourceServiceTest {
         )
     );
     // WHEN
-    var scopesResult = datasourceService.getScopesByDataSourceId(datasourceId);
+    var scopesResult = datasourceService.getResourcesByDataSourceId(datasourceId);
     // THEN
     assertThat(scopesResult).isPresent().hasValue(Collections.emptySet());
   }
@@ -159,7 +158,7 @@ class DatasourceServiceTest {
         )
     );
     // WHEN
-    var scopesResult = datasourceService.getScopesByDataSourceId(datasourceId);
+    var scopesResult = datasourceService.getResourcesByDataSourceId(datasourceId);
     // THEN
     assertThat(scopesResult).isPresent();
     assertThat(scopesResult.get())
