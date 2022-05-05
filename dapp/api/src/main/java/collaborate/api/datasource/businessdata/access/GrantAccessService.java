@@ -4,12 +4,15 @@ import collaborate.api.datasource.businessdata.access.model.AccessGrantParams;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestParams;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.model.dto.VaultMetadata;
+import collaborate.api.datasource.model.scope.AssetScope;
+import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.transaction.Transaction;
 import collaborate.api.user.metadata.UserMetadataService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +22,8 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class GrantAccessService {
+
+  private final AssetScopeDAO assetScopeDAO;
 
   private final CipherJwtService cipherService;
   private final AccessTokenProvider accessTokenProvider;
@@ -33,9 +38,14 @@ public class GrantAccessService {
     VaultMetadata vaultMetadata = getVaultMetadata(accessRequestParams);
 
     // Get JWT
+    var assetScope = assetScopeDAO.findAllById(accessRequestParams.getScopes())
+        .stream()
+        .map(AssetScope::getScope)
+        .collect(Collectors.joining(" "));
+
     var accessTokenResponse = accessTokenProvider.get(
         vaultMetadata.getOAuth2(),
-        Optional.of(accessRequestParams.getDatasourceScope())
+        Optional.of(assetScope).filter(s -> !s.isBlank())
     );
 
     // Cipher token

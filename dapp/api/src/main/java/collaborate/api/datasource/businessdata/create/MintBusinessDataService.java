@@ -87,7 +87,9 @@ public class MintBusinessDataService {
     try {
       log.info("Minting asset={}", assetDTO);
       var ipfsMetadataUri = tzip21MetadataService.saveMetadata(assetDTO);
-      return new AssetIdAndUri(assetDTO.getAssetRelativePath(), ipfsMetadataUri);
+      return new AssetIdAndUri(
+          assetDTO.getDatasourceUUID() + ":" + assetDTO.getAssetIdForDatasource(),
+          ipfsMetadataUri);
     } catch (IOException e) {
       log.error("error while minting asset={}", assetDTO);
       throw new IllegalStateException(e);

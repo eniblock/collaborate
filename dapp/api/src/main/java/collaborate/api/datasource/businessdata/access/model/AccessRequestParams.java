@@ -31,8 +31,8 @@ public class AccessRequestParams implements Serializable {
   @NotNull
   private Integer nftId;
 
-  // FIXME COL-569, rename scopes/ change structure ?
-  @Deprecated
+
+  @Deprecated // FIXME rename to alias ?
   @NotEmpty
   private List<String> scopes;
 
@@ -42,13 +42,11 @@ public class AccessRequestParams implements Serializable {
   @NotNull
   private UUID accessRequestsUuid;
 
-  @Deprecated
   @JsonIgnore
   public String getDatasourceId() {
     return StringUtils.substringBefore(getScopes().get(0), ":");
   }
 
-  @Deprecated
   @JsonIgnore
   public String getDatasourceScope() {
     return StringUtils.substringAfter(getScopes().get(0), ":");
