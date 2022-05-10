@@ -21,7 +21,6 @@ public class PassportTzip21MetadataFactory {
   public TZip21Metadata create(String assetId) {
     return TZip21Metadata.builder()
         .name(assetId)
-        .name(assetId)
         .symbol(NFT_SYMBOLE)
         .decimals(NFT_DECIMALS)
         .version(NFT_VERSION)

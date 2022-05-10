@@ -20,8 +20,7 @@ public class ConfigController {
   private final SmartContractAddressProperties smartContractAddressProperties;
 
   @GetMapping("/smart-contract")
-  @Operation(
-      description = "Get the underlying block chain smart-contracts")
+  @Operation(description = "Get the underlying block chain smart-contracts")
   public SmartContractAddressProperties smartContracts() {
     return smartContractAddressProperties;
   }

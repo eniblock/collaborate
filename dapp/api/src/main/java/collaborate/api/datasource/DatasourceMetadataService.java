@@ -11,15 +11,18 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class MetadataService {
+public class DatasourceMetadataService {
 
   public static final String LIST_ASSET_SCOPE = "list-asset-scope";
 
@@ -87,5 +90,14 @@ public class MetadataService {
         .filter(a -> a.getName().equals(LIST_ASSET_SCOPE))
         .map(Metadata::getValue)
         .findFirst();
+  }
+
+  public Map<String, String> findByAlias(Datasource datasource, String resourceAlias) {
+    return datasource.getProviderMetadata().stream()
+        .filter(a -> StringUtils.startsWith(a.getName(), resourceAlias))
+        .collect(Collectors.toMap(
+            m -> StringUtils.removeStart(m.getName(), resourceAlias + ":"),
+            Metadata::getValue)
+        );
   }
 }

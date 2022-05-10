@@ -4,14 +4,14 @@ import static java.util.Collections.emptySet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import collaborate.api.datasource.MetadataService;
+import collaborate.api.datasource.DatasourceMetadataService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.test.TestResources;
 import org.junit.jupiter.api.Test;
 
-class MetadataServiceTest {
+class DatasourceMetadataServiceTest {
 
-  MetadataService metadataService = new MetadataService(TestResources.objectMapper);
+  DatasourceMetadataService datasourceMetadataService = new DatasourceMetadataService(TestResources.objectMapper);
 
   Datasource datasource = TestResources.readContent(
       "/datasource/model/web/datasource.json",
@@ -25,7 +25,7 @@ class MetadataServiceTest {
   void getDatasourceType_shouldReturnExpected_withExistingMetadata() {
     // GIVEN
     // WHEN
-    var typeResult = metadataService.getType(datasource);
+    var typeResult = datasourceMetadataService.getType(datasource);
     // THEN
     assertThat(typeResult).isEqualTo("WebServerDatasourceDTO");
   }
@@ -36,7 +36,7 @@ class MetadataServiceTest {
     // THEN
     assertThrows(IllegalStateException.class, () -> {
       // WHEN
-      metadataService.getType(emptyDatasource);
+      datasourceMetadataService.getType(emptyDatasource);
     });
   }
 
@@ -44,7 +44,7 @@ class MetadataServiceTest {
   void getAuthentication_shouldReturnExpected_withExistingMetadata() {
     // GIVEN
     // WHEN
-    var authenticationResult = metadataService.getAuthentication(datasource);
+    var authenticationResult = datasourceMetadataService.getAuthentication(datasource);
     // THEN
     assertThat(authenticationResult).isEqualTo("BasicAuth");
   }
@@ -55,7 +55,7 @@ class MetadataServiceTest {
     // THEN
     assertThrows(IllegalStateException.class, () -> {
       // WHEN
-      metadataService.getAuthentication(emptyDatasource);
+      datasourceMetadataService.getAuthentication(emptyDatasource);
     });
   }
 
@@ -81,7 +81,7 @@ class MetadataServiceTest {
   void getPurpose_shouldReturnExpected_withExistingMetadata() {
     // GIVEN
     // WHEN
-    var purposeResult = metadataService.getPurpose(datasource);
+    var purposeResult = datasourceMetadataService.getPurpose(datasource);
     // THEN
     assertThat(purposeResult).containsExactlyInAnyOrder("digital-passport");
   }
@@ -92,7 +92,7 @@ class MetadataServiceTest {
     // THEN
     assertThrows(IllegalStateException.class, () -> {
       // WHEN
-      metadataService.getPurpose(emptyDatasource);
+      datasourceMetadataService.getPurpose(emptyDatasource);
     });
   }
 }

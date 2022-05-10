@@ -8,19 +8,22 @@ import static org.mockito.Mockito.when;
 
 import collaborate.api.datasource.DatasourceDAO;
 import collaborate.api.datasource.DatasourceService;
-import collaborate.api.datasource.MetadataService;
+import collaborate.api.datasource.DatasourceMetadataService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.gateway.traefik.model.Http;
 import collaborate.api.datasource.gateway.traefik.model.Router;
 import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
 import collaborate.api.datasource.model.Datasource;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
+import collaborate.api.datasource.model.dto.web.Attribute;
 import collaborate.api.ipfs.domain.dto.ContentWithCid;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -37,7 +40,7 @@ class DatasourceServiceTest {
   @Mock
   DatasourceDAO datasourceDAO;
   @Mock
-  MetadataService metadataService;
+  DatasourceMetadataService datasourceMetadataService;
   @Mock
   TraefikProviderService traefikProviderService;
 
@@ -48,7 +51,7 @@ class DatasourceServiceTest {
   void setUp() {
     datasourceService = new DatasourceService(
         datasourceDAO,
-        metadataService,
+        datasourceMetadataService,
         traefikProviderService
     );
   }
@@ -126,11 +129,11 @@ class DatasourceServiceTest {
     // WHEN
     var scopesResult = datasourceService.getResourcesByDataSourceId(datasourceId);
     // THEN
-    assertThat(scopesResult).isPresent().hasValue(Collections.emptySet());
+    assertThat(scopesResult).isNotPresent();
   }
 
   @Test
-  void getScopesByDataSourceId_shouldReturnExpectedScopes_withDatasourceContainingScope() {
+  void getResourcesByDataSourceId_shouldReturnExpectedScopes_withDatasourceContainingScope() {
     // GIVEN
     String datasourceId = "4f4daa53-eb12-4deb-b263-04b0e537842f";
     var provider = objectMapper.convertValue(
@@ -152,6 +155,12 @@ class DatasourceServiceTest {
                 "dsCid",
                 Datasource.builder()
                     .provider(TraefikProviderConfiguration.class.getName())
+                    .providerMetadata(Set.of(
+                        Metadata.builder()
+                            .name("resources")
+                            .value("odometer,fuel")
+                            .build()
+                    ))
                     .providerConfiguration(provider)
                     .build()
             )
@@ -162,6 +171,7 @@ class DatasourceServiceTest {
     // THEN
     assertThat(scopesResult).isPresent();
     assertThat(scopesResult.get())
-        .containsExactlyInAnyOrder("scope:odometer", "scope:energy:fuel");
+        .containsExactlyInAnyOrder("odometer", "fuel");
   }
 }
+

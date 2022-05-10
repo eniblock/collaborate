@@ -1,9 +1,9 @@
 package collaborate.api.datasource.businessdata.document;
 
-import static collaborate.api.datasource.passport.metric.MetricService.SCOPE_METRIC_PREFIX;
 import static java.util.stream.Collectors.toList;
 
-import collaborate.api.config.api.ApiProperties;
+import collaborate.api.datasource.DatasourceMetadataService;
+import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.businessdata.document.model.DownloadDocument;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
@@ -34,7 +34,9 @@ import java.net.URI;
 import java.nio.file.Files;
 import java.time.Clock;
 import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +70,8 @@ public class ScopeAssetsService {
   private final AssetScopeDAO assetScopeDAO;
   private final String businessDataContractAddress;
   private final Clock clock;
+  private final DatasourceService datasourceService;
+  private final DatasourceMetadataService datasourceMetadataService;
   private final FindBusinessDataService findBusinessDataService;
   private final GatewayUrlService gatewayUrlService;
   private final HttpClientFactory httpClientFactory;
@@ -95,21 +99,23 @@ public class ScopeAssetsService {
    */
   public Optional<ScopeAssetsDTO> listScopeAssets(AssetDetailsDatasourceDTO datasourceDTO) {
     var datasourceId = datasourceDTO.getId();
-    var scope = datasourceDTO.getAssetIdForDatasource();
-    var scopesResponse = getAssetListResponse(datasourceId, scope);
-    if (!scopesResponse.getStatusCode().is2xxSuccessful()) {
-      log.error("Can't get asset list for datasourceId={} and scope={}", datasourceId, scope);
-      throw new ResponseStatusException(scopesResponse.getStatusCode());
+    var resourceAlias = datasourceDTO.getAssetIdForDatasource();
+    var resourceResponse = getAssetListResponse(datasourceId, resourceAlias);
+    if (!resourceResponse.getStatusCode().is2xxSuccessful()) {
+      log.error("Can't get asset list for datasourceId={} and resourceAlias={}", datasourceId,
+          resourceAlias);
+      throw new ResponseStatusException(resourceResponse.getStatusCode());
     }
 
-    return Optional.ofNullable(scopesResponse.getBody())
+    return Optional.ofNullable(resourceResponse.getBody())
         .map(JsonNode::toString)
         .map(assetListJsonString -> ScopeAssetsDTO.builder()
-            .accessStatus(findBusinessDataService.getAccessStatus(datasourceId, scope))
+            .accessStatus(findBusinessDataService.getAccessStatus(datasourceId, resourceAlias))
             .datasourceId(datasourceId)
             .providerAddress(datasourceDTO.getOwnerAddress())
-            .scopeName(scope)
-            .assets(convertJsonToScopeAssetDTOs(assetListJsonString).collect(toList()))
+            .scopeName(resourceAlias)
+            .assets(convertJsonToScopeAssetDTOs(assetListJsonString, datasourceId,
+                resourceAlias).collect(toList()))
             .build());
   }
 
@@ -133,9 +139,10 @@ public class ScopeAssetsService {
         .map(VaultMetadata::getOAuth2);
   }
 
-  private AccessTokenResponse getOwnerAccessToken(String datasourceId, OAuth2ClientCredentialsGrant auth2,
+  private AccessTokenResponse getOwnerAccessToken(String datasourceId,
+      OAuth2ClientCredentialsGrant auth2,
       String resource) {
-    var scope = assetScopeDAO.findById(datasourceId+":"+resource).map(AssetScope::getScope);
+    var scope = assetScopeDAO.findById(datasourceId + ":" + resource).map(AssetScope::getScope);
     return accessTokenProvider.get(auth2, scope);
   }
 
@@ -147,24 +154,40 @@ public class ScopeAssetsService {
         .map(accessToken -> AccessTokenResponse.builder().accessToken(accessToken).build());
   }
 
-  Stream<ScopeAssetDTO> convertJsonToScopeAssetDTOs(String jsonResponse) {
-    var namePath = JSONPath.compile("$.title");
-    var downloadPath = JSONPath.compile("$.uri");
+  Stream<ScopeAssetDTO> convertJsonToScopeAssetDTOs(String jsonResponse, String datasourceId,
+      String resourceAlias) {
+    var metadata = datasourceService.findById(datasourceId)
+        .map(d -> datasourceMetadataService.findByAlias(d.getContent(), resourceAlias))
+        .orElse(Collections.emptyMap());
 
-    JSONArray docs;
+    var idPath = Optional.ofNullable(metadata.get("id.jsonPath"))
+        .map(JSONPath::compile)
+        .orElse(JSONPath.compile("$.title"));
+
+    var downloadLink = Optional.ofNullable(metadata.get("downloadLink"));
+    var downloadPath = Optional.ofNullable(metadata.get("download.jsonPath"))
+        .map(JSONPath::compile)
+        .orElse(JSONPath.compile("$.uri"));
+
+    JSONArray results;
     try {
-      docs = objectMapper.readValue(jsonResponse, JSONArray.class);
+      results = objectMapper.readValue(jsonResponse, JSONArray.class);
     } catch (JsonProcessingException e) {
       log.error("While reading jsonResponse={}", jsonResponse);
       throw new IllegalStateException(e);
     }
-    return docs.stream()
-        .map(d -> ScopeAssetDTO.builder()
-            .name(namePath.eval(d, String.class))
+    return results.stream()
+        .map(r -> ScopeAssetDTO.builder()
+            .name(idPath.eval(r, String.class))
             .type("MVP document")
             .synchronizedDate(ZonedDateTime.now(clock))
-            .downloadLink(URI.create(downloadPath.eval(d, String.class)))
-            .build());
+            .downloadLink(
+                URI.create(downloadLink.map(
+                        d -> StringUtils.replace(d, "$id", idPath.eval(r, String.class)))
+                    .orElse(downloadPath.eval(r, String.class))
+                )
+            ).build()
+        );
   }
 
   public ZipOutputStream download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)
@@ -218,25 +241,30 @@ public class ScopeAssetsService {
         downloadResponseToDownloadDocument);
   }
 
+
   private final ResponseExtractor<DownloadDocument> downloadResponseToDownloadDocument =
       httpResponse -> {
-        var contentDisposition = Optional.ofNullable(
+        var filename = Optional.ofNullable(
                 httpResponse.getHeaders().get("Content-Disposition")
             ).stream()
             .flatMap(Collection::stream)
             .findFirst()
-            .orElseThrow(() -> new IllegalStateException("Filename"));
-
-        String filename = contentDisposition.substring(
-            contentDisposition.indexOf("\"") + 1,
-            contentDisposition.lastIndexOf("\"")
-        );
+            .map(contentDisposition -> contentDisposition.substring(
+                    contentDisposition.indexOf("\"") + 1,
+                    contentDisposition.lastIndexOf("\"")
+                )
+            ).orElse(buildDownloadFilename());
 
         File ret = File.createTempFile(filename, "");
         StreamUtils.copy(httpResponse.getBody(), new FileOutputStream(ret));
 
         return new DownloadDocument(filename, ret);
       };
+
+  private String buildDownloadFilename(){
+    var dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
+    return dateFormatter.format(ZonedDateTime.now(clock));
+  }
 
   private RestTemplate buildRestTemplate() {
     var restTemplate = new RestTemplate();

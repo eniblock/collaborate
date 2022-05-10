@@ -1,13 +1,11 @@
 package collaborate.api.datasource.gateway;
 
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
-import static collaborate.api.datasource.passport.metric.MetricService.SCOPE_METRIC_PREFIX;
-import static org.apache.commons.lang.StringUtils.removeStart;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.DatasourceService;
-import collaborate.api.datasource.MetadataService;
+import collaborate.api.datasource.DatasourceMetadataService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.scope.AssetScope;
@@ -34,7 +32,7 @@ public class GatewayUrlService {
   private final GatewayUrlDAO gatewayURLDAO;
   private final TraefikProperties traefikProperties;
   private final UserMetadataService userMetadataService;
-  private final MetadataService metadataService;
+  private final DatasourceMetadataService datasourceMetadataService;
   private final AccessTokenProvider accessTokenProvider;
 
   public ResponseEntity<JsonNode> fetch(GatewayResourceDTO resourceDTO) {
@@ -86,7 +84,7 @@ public class GatewayUrlService {
       if (ATTR_NAME_TEST_CONNECTION.equals(scope)) {
         return datasourceService.findById(datasourceId)
             .map(ContentWithCid::getContent)
-            .flatMap(metadataService::getAssetListScope);
+            .flatMap(datasourceMetadataService::getAssetListScope);
       } else {
         return Optional.of(scope);
       }

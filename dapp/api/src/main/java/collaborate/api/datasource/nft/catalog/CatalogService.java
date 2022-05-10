@@ -3,6 +3,7 @@ package collaborate.api.datasource.nft.catalog;
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.Datasource;
+import collaborate.api.datasource.nft.TokenDAO;
 import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.datasource.nft.model.metadata.AssetDataCatalog;
@@ -24,7 +25,7 @@ public class CatalogService {
 
   private final IpfsService ipfsService;
   private final DatasourceService datasourceService;
-  private final TokenMetadataDAO tokenMetadataDAO;
+  private final TokenDAO tokenMetadataDAO;
   private final TraefikProviderService traefikProviderService;
 
   public Optional<AssetDataCatalogDTO> findCatalogByTokenId(Integer tokenId, String smartContract) {
