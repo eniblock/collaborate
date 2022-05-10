@@ -106,7 +106,7 @@ public class DatasourceController {
   @PreAuthorize(HasRoles.DATASOURCE_READ)
   public ResponseEntity<Set<String>> listScopesByDatasourceId(
       @PathVariable(value = "id") String id) {
-    var scopesOpt = datasourceService.getScopesByDataSourceId(id);
+    var scopesOpt = datasourceService.getResourcesByDataSourceId(id);
     return scopesOpt.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
   }
 

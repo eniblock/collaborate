@@ -21,20 +21,17 @@ class ConsentPassportDAOTest {
 
   @Mock
   private TezosApiGatewayJobClient tezosApiGatewayJobClient;
-  @Mock
-  private ApiProperties apiProperties;
 
   private ConsentPassportDAO consentPassportDAO;
 
   @BeforeEach
   void setUp() {
-    String smartContractAddress = "KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t";
-    when(apiProperties.getDigitalPassportProxyTokenControllerContractAddress()).thenReturn(smartContractAddress);
     TransactionBatchFactory transactionBatchFactory = new TransactionBatchFactory();
+    String businessDataContractAddress = "KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t";
     consentPassportDAO = new ConsentPassportDAO(
         tezosApiGatewayJobClient,
         transactionBatchFactory,
-        apiProperties
+        businessDataContractAddress
     );
   }
 

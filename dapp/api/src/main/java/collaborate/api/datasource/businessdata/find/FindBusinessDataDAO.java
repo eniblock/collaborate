@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 class FindBusinessDataDAO {
 
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final TAGBusinessDataClient tagBusinessDataClient;
 
   public IndexerTagResponseDTO findPassportsIndexersByDsps(
@@ -24,7 +24,7 @@ class FindBusinessDataDAO {
     ));
     return tagBusinessDataClient
         .getIndexer(
-            apiProperties.getBusinessDataContractAddress(),
+            businessDataContractAddress,
             requestPassportsIndexer
         );
   }

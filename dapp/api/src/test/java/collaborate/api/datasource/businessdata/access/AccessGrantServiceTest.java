@@ -20,7 +20,7 @@ class AccessGrantServiceTest {
 
   ObjectMapper objectMapper = Mockito.spy(TestResources.objectMapper);
   @InjectMocks
-  AccessGrantService accessGrantService;
+  GrantAccessService accessGrantService;
 
   @Test
   void getAccessRequestParams_shouldResultInExpectedDeserializedAccessRequestParams() {

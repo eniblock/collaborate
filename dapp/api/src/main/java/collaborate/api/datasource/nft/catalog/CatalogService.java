@@ -3,6 +3,7 @@ package collaborate.api.datasource.nft.catalog;
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.Datasource;
+import collaborate.api.datasource.nft.TokenDAO;
 import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.datasource.nft.model.metadata.AssetDataCatalog;
@@ -24,7 +25,7 @@ public class CatalogService {
 
   private final IpfsService ipfsService;
   private final DatasourceService datasourceService;
-  private final TokenMetadataDAO tokenMetadataDAO;
+  private final TokenDAO tokenMetadataDAO;
   private final TraefikProviderService traefikProviderService;
 
   public Optional<AssetDataCatalogDTO> findCatalogByTokenId(Integer tokenId, String smartContract) {
@@ -34,12 +35,12 @@ public class CatalogService {
         .flatMap(this::findByIpfsLink);
   }
 
-  public Optional<AssetDataCatalogDTO> findByIpfsLink(String metadataIpfsLink) {
+  public Optional<AssetDataCatalogDTO> findByIpfsLink(String tZip21Url) {
     try {
-      var tokenMetadata = ipfsService.cat(metadataIpfsLink, TZip21Metadata.class);
+      var tokenMetadata = ipfsService.cat(tZip21Url, TZip21Metadata.class);
       return getAssetDataCatalogDTO(tokenMetadata);
     } catch (Exception e) {
-      log.error("While getting dataCatalog from metadataIpfsLink={}\n{}", metadataIpfsLink, e);
+      log.error("While getting dataCatalog from tZip21Url={}\n{}", tZip21Url, e);
       return Optional.empty();
     }
   }
@@ -66,9 +67,9 @@ public class CatalogService {
         .baseUri(traefikProviderService.buildDatasourceBaseUri(datasource))
         .ownerAddress(datasource.getOwner())
         .scopes(
-            datasourceService.getScopesByDataSourceId(datasourceLink.getId())
+            datasourceService.getResourcesByDataSourceId(datasourceLink.getId())
                 .orElseGet(() -> {
-                  log.warn("No scopes found for datasource={}", datasourceLink.getId());
+                  log.warn("No resources found for datasource={}", datasourceLink.getId());
                   return Collections.emptySet();
                 })
         ).build();

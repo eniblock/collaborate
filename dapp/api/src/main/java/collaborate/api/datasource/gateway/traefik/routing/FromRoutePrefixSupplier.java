@@ -1,5 +1,6 @@
 package collaborate.api.datasource.gateway.traefik.routing;
 
+import collaborate.api.datasource.model.dto.web.Attribute;
 import java.util.Collection;
 import java.util.function.Supplier;
 
@@ -11,7 +12,7 @@ public class FromRoutePrefixSupplier implements Supplier<String> {
 
   private final String routePrefix;
 
-  public FromRoutePrefixSupplier(String datasourceName, Collection<String> keywords) {
+  public FromRoutePrefixSupplier(String datasourceName, Collection<Attribute> keywords) {
     this.routePrefix = "/datasource/" + datasourceName + "/"
         + new RoutingKeyFromKeywordSupplier(keywords).get();
   }

@@ -11,12 +11,12 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class MintTokenHandler implements TransactionHandler {
 
-  private final Fa2TransactionService fa2TransactionService;
+  private final DigitalPassportTransactionService digitalPassportTransactionService;
 
   @Override
   public void handle(Transaction transaction) {
     if (transaction.getEntrypoint().equals("mint")){
-      fa2TransactionService.saveFa2Transaction(transaction);
+      digitalPassportTransactionService.saveFa2Transaction(transaction);
     }
 
   }

@@ -5,18 +5,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.config.api.ApiProperties;
+import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.UserService;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class CreatePassportDAOTest {
@@ -26,7 +28,7 @@ class CreatePassportDAOTest {
   @Mock
   private TransactionBatchFactory transactionBatchFactory;
   @Mock
-  private ApiProperties apiProperties;
+  private SmartContractAddressProperties smartContractAddressProperties;
   @Mock
   private TezosApiGatewayPassportCreationClient tezosApiGatewayPassportCreationClient;
   @Mock
@@ -35,13 +37,12 @@ class CreatePassportDAOTest {
   @InjectMocks
   CreatePassportDAO createPassportDAO;
 
+
   @Test
   void create_shouldReturnMockedJob() {
     //GIVEN
     Job mockedJob = initSomeJob();
 
-    when(apiProperties.getDigitalPassportContractAddress())
-        .thenReturn("KT1CucfmZNzz3cwxvR8dGtLzxqnkzBvdRJ2t");
     when(tezosApiGatewayJobClient.sendTransactionBatch(any(), eq(false))).thenReturn(mockedJob);
     when(tezosApiGatewayPassportCreationClient.getMultisigNb(any(), any())).thenReturn(
         MultisigNbResponseDTO.builder().multisigNb(1).build()

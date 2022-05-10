@@ -1,6 +1,6 @@
 package collaborate.api.datasource.model.dto.web;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.TEST_CONNECTION;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
 
 import java.util.List;
 import javax.validation.ConstraintValidator;
@@ -14,7 +14,6 @@ public class HasAssetListValidator implements
       ConstraintValidatorContext constraintValidatorContext) {
     return resources != null
         && resources.stream()
-        .anyMatch(resource -> resource.getKeywords() != null && resource.getKeywords()
-            .contains(TEST_CONNECTION));
+        .anyMatch(resource -> Attribute.containsName(resource.getKeywords(), ATTR_NAME_TEST_CONNECTION));
   }
 }

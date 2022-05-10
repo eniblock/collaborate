@@ -26,8 +26,19 @@ public class OAuth2DatasourceFeatures {
               .description("Datasource documents")
               .keywords(
                   new LinkedHashSet<>(
-                      List.of("routing-key:documents", "scope:business_data", "list-asset")))
-              .url("https://developer.dspconsortium1.io/webapi/b2b/api-reference-v3/specification/")
+                      List.of(
+                          Attribute.builder()
+                              .name("routing-key")
+                              .value("documents").build(),
+                          Attribute.builder()
+                              .name("scope")
+                              .value("business_data").build(),
+                          Attribute.builder()
+                              .name("list-asset").build()
+                      )
+                  )
+              ).url(
+                  "https://developer.dspconsortium1.io/webapi/b2b/api-reference-v3/specification/")
               .build()
           ))).build();
 

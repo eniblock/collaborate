@@ -2,6 +2,7 @@ package collaborate.api.datasource.nft.catalog;
 
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.Datasource;
+import collaborate.api.datasource.nft.TokenDAO;
 import collaborate.api.datasource.nft.model.metadata.AssetDataCatalog;
 import collaborate.api.datasource.nft.model.metadata.DatasourceLink;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
@@ -23,7 +24,7 @@ public class NftDatasourceService {
 
   private final CatalogService catalogService;
   private final IpfsService ipfsService;
-  private final TokenMetadataDAO tokenMetadataDAO;
+  private final TokenDAO tokenMetadataDAO;
   private final TraefikProviderService traefikProviderService;
 
   /**

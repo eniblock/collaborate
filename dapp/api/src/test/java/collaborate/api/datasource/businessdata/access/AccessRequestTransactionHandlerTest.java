@@ -24,7 +24,7 @@ class AccessRequestTransactionHandlerTest {
   @Mock
   OrganizationService organizationService;
   @InjectMocks
-  AccessRequestTransactionHandler accessRequestTransactionHandler;
+  RequestAccessTransactionHandler accessRequestTransactionHandler;
 
   @ParameterizedTest
   @MethodSource("isRequestAccessForCurrentOrganisationParams")

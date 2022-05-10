@@ -17,14 +17,14 @@ class ConsentPassportDAO {
   private static final String CONSENT_ENTRY_POINT = "sign";
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
 
   public Job consent(ConsentPassportDTO consentPassportDTO) {
     var transactions = transactionBatchFactory.createEntryPointJob(
         CONSENT_ENTRY_POINT,
         consentPassportDTO.getContractId(),
         Optional.of(consentPassportDTO.getVehicleOwnerUserWallet().getUserId()),
-        apiProperties.getDigitalPassportProxyTokenControllerContractAddress()
+        businessDataContractAddress
     );
     return tezosApiGatewayJobClient.sendTransactionBatch(transactions, false);
   }

@@ -2,27 +2,37 @@ package collaborate.api.datasource.gateway.datasource.traefik.routing;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier;
+import collaborate.api.datasource.model.dto.web.Attribute;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 
 class RoutingKeySupplierTest {
 
   @Test
-  void get_shouldReturnKeyword_withScopePrefix() {
+  void get_shouldThrowException_withoutKeywordHavingAliasName() {
     // GIVEN
-    List<String> keywords = List.of("scope:metric:odometer");
-    // WHEN
-    var route = new RoutingKeyFromKeywordSupplier(keywords).get();
+    List<Attribute> keywords = List.of(Attribute.builder()
+        .name("scope")
+        .value("metric:odometer")
+        .build());
+
     // THEN
-    assertThat(route).isEqualTo("scope:metric:odometer");
+    assertThrows(IllegalStateException.class, () -> {
+      // WHEN
+      new RoutingKeyFromKeywordSupplier(keywords).get();
+    });
   }
 
   @Test
-  void get_shouldReturnKeyword_withAssetList() {
+  void get_shouldReturnListAsset_withAssetList() {
     // GIVEN
-    List<String> keywords = List.of("list-asset");
+    List<Attribute> keywords = List.of(Attribute.builder()
+        .name("list-asset")
+        .build());
     // WHEN
     var route = new RoutingKeyFromKeywordSupplier(keywords).get();
     // THEN
@@ -30,22 +40,21 @@ class RoutingKeySupplierTest {
   }
 
   @Test
-  void get_shouldReturnFirstKeyword_withScopePrefix() {
+  void get_shouldReturnFirstAlias_withMultipleAliases() {
     // GIVEN
-    List<String> keywords = List.of("scope:routeA", "scope:routeB");
+    List<Attribute> keywords = List.of(Attribute.builder()
+            .name("provider:routing:alias")
+            .value("alias1")
+            .build(),
+        Attribute.builder()
+            .name("provider:routing:alias")
+            .value("alias2")
+            .build()
+    );
     // WHEN
     var route = new RoutingKeyFromKeywordSupplier(keywords).get();
     // THEN
-    assertThat(route).isEqualTo("scope:routeA");
+    assertThat(route).isEqualTo("alias1");
   }
 
-  @Test
-  void get_shouldThrowException_withInvalidKeywords() {
-    // GIVEN
-    List<String> keywords = List.of("routeA", "routeB");
-    // THEN
-    assertThatExceptionOfType(IllegalStateException.class)
-        // WHEN
-        .isThrownBy(() -> new RoutingKeyFromKeywordSupplier(keywords));
-  }
 }

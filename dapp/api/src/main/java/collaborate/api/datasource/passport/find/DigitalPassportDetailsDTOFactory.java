@@ -1,6 +1,5 @@
 package collaborate.api.datasource.passport.find;
 
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.multisig.model.ProxyTokenControllerTransaction;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
@@ -8,7 +7,7 @@ import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
 import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
 import collaborate.api.datasource.passport.model.TokenStatus;
-import collaborate.api.datasource.passport.transaction.Fa2TransactionService;
+import collaborate.api.datasource.passport.transaction.DigitalPassportTransactionService;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.user.UserService;
@@ -25,14 +24,14 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DigitalPassportDetailsDTOFactory {
 
-  private final ApiProperties apiProperties;
+  private final String digitalPassportContractAddress;
   private final CatalogService catalogService;
   private final ConnectedUserService connectedUserService;
   private final FindPassportDAO findPassportDAO;
   private final IpfsService ipfsService;
   private final NftDatasourceService nftDatasourceService;
   private final OrganizationService organizationService;
-  private final Fa2TransactionService fa2TransactionService;
+  private final DigitalPassportTransactionService digitalPassportTransactionService;
   private final UserService userService;
 
   public List<DigitalPassportDetailsDTO> makeFromFA2(Collection<Integer> tokenIdList) {
@@ -43,7 +42,7 @@ public class DigitalPassportDetailsDTOFactory {
      */
     var tokenMetadataByTokenId = nftDatasourceService.getTZip21MetadataByTokenIds(
         tokenIdList,
-        apiProperties.getDigitalPassportContractAddress());
+        digitalPassportContractAddress);
 
     var tokenOwnersByTokenId = findPassportDAO.getOwnersByTokenIds(tokenIdList);
 
@@ -56,9 +55,9 @@ public class DigitalPassportDetailsDTOFactory {
               var owner = tokenOwnersByTokenId.get(tokenId);
               var operator = tokenOperatorsByTokenId.get(tokenId);
               var creationDatetime =
-                  fa2TransactionService
+                  digitalPassportTransactionService
                       .findTransactionDateByTokenId(
-                          apiProperties.getDigitalPassportContractAddress(),
+                          digitalPassportContractAddress,
                           Long.valueOf(tokenId)
                       );
               return DigitalPassportDetailsDTO.builder()

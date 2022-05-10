@@ -57,8 +57,7 @@ public class WebServerDatasourceDTO extends DatasourceDTO {
     Optional<WebServerResource> firstMatchingResource = Optional.empty();
     if (resources != null) {
       firstMatchingResource = resources.stream()
-          .filter(r -> r.getKeywords() != null)
-          .filter(r -> r.getKeywords().stream().anyMatch(k -> k.contains(keyword)))
+          .filter(r -> r.keywordsContainsName(keyword))
           .findFirst();
     }
     return firstMatchingResource;

@@ -12,6 +12,7 @@ public class TransactionEventManager {
   private final List<TransactionHandler> listeners = new ArrayList<>();
 
   public void subscribe(TransactionHandler handler) {
+    log.info("Adding transactionHandler={}", handler.getClass());
     listeners.add(handler);
   }
 
@@ -20,6 +21,7 @@ public class TransactionEventManager {
   }
 
   void notify(Transaction transaction) {
+    log.info("Dispatching transaction.hash={}", transaction.getHash());
     listeners.forEach(handler -> {
       try {
         handler.handle(transaction);

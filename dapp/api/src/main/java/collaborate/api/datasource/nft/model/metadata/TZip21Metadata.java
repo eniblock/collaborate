@@ -28,6 +28,7 @@ public class TZip21Metadata {
   }
 
   private String name;
+  private Boolean shouldPreferSymbol;
   private String symbol;
   private Integer decimals;
   private String description;
