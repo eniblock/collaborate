@@ -1,0 +1,31 @@
+{
+  "name": "CatalogBusinessData",
+  "shouldPreferSymbol": true,
+  "symbol": "CBD",
+  "decimals": 0,
+  "description": "The list of existing assets",
+  "version": "business-data.0.1",
+  "license": {
+    "name": "MIT"
+  },
+  "authors": [
+    "The Blockchain Xdev team"
+  ],
+  "homepage": "https://www.theblockchainxdev.com/",
+  "interfaces": [
+    "TZIP-012",
+    "TZIP-021"
+  ],
+  "attributes": [
+    {
+      "name": "assetDataCatalog",
+      "value": "ipns://k51qzi5uqu5djkoswedfdhfbtihehvn2hdcemjx58qtlpnkbfdwrtuf64rkh6n/business-data/20220504/51dca9b1-ecb4-4a47-bb76-2195d9d77d27:referentials_1651670555861",
+      "type": "URI"
+    },
+    {
+      "name": "assetId",
+      "value": "51dca9b1-ecb4-4a47-bb76-2195d9d77d27:referentials",
+      "type": "String"
+    }
+  ]
+}

@@ -3,6 +3,7 @@ package collaborate.api.datasource.passport.find;
 import static collaborate.api.user.security.Authorizations.Roles.ASSET_OWNER;
 
 import collaborate.api.config.api.ApiProperties;
+import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.datasource.multisig.ProxyTokenControllerTransactionService;
 import collaborate.api.datasource.multisig.model.ProxyTokenControllerTransaction;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;
@@ -20,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class FindPassportService {
 
-  private final ApiProperties apiProperties;
+  private final String digitalPassportProxyControllerContractAddress;
   private final DigitalPassportDetailsDTOFactory digitalPassportDetailsDTOFactory;
   private final ConnectedUserService connectedUserService;
   private final FindPassportDAO findPassportDAO;
@@ -31,7 +32,7 @@ public class FindPassportService {
       String ownerAddress) {
     var transactionList = proxyTokenControllerTransactionService
         .findMultiSigListTransactionByOwner(
-            apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+            digitalPassportProxyControllerContractAddress,
             ownerAddress
         );
     return findPassportDetailsFromMultisigTransaction(transactionList);
@@ -40,7 +41,7 @@ public class FindPassportService {
   public List<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigByOperator(
       String operatorAddress) {
     var transactionList = proxyTokenControllerTransactionService.findMultiSigListTransactionByOperator(
-        apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+        digitalPassportProxyControllerContractAddress,
         operatorAddress
     );
     return findPassportDetailsFromMultisigTransaction(transactionList);
@@ -48,7 +49,7 @@ public class FindPassportService {
 
   public Optional<DigitalPassportDetailsDTO> findPassportDetailsFromMultisigId(Integer contractId) {
     var transaction = proxyTokenControllerTransactionService.getTransactionByTokenId(
-        apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+        digitalPassportProxyControllerContractAddress,
         Long.valueOf(contractId)
     );
 

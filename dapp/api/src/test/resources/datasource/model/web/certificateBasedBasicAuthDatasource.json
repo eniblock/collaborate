@@ -26,16 +26,31 @@
     {
       "description": "Vehicles list",
       "keywords": [
-        "list-asset",
-        "assets"
+        {
+          "name": "list-asset"
+        },
+        {
+          "name": "assets"
+        }
       ],
       "url": "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles"
     },
     {
       "description": "Last odometer values",
       "keywords": [
-        "scope:metric:odometer",
-        "metadata:value.jsonPath:$._embedded.odometer.value:Integer"
+        {
+          "name": "alias",
+          "value": "metric:odometer"
+        },
+        {
+          "name": "scope",
+          "value": "metric:odometer"
+        },
+        {
+          "name": "metadata:value.jsonPath",
+          "value": "$._embedded.odometer.value",
+          "type": "Integer"
+        }
       ],
       "url": "/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status",
       "queryParams": [

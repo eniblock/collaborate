@@ -18,6 +18,7 @@ import collaborate.api.test.TestResources;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
@@ -54,7 +55,7 @@ class MetricServiceTest {
         .baseUri("unused")
         .scopes(Set.of("scope:metric:A", "scope:metric:B"))
         .build();
-    when(datasourceService.getMetadata("dsId")).thenReturn(emptySet());
+    when(datasourceService.getMetadata("dsId")).thenReturn(Optional.empty());
     // WHEN
     var metricUrl = metricService.buildMetricUrls(datasourceDTO);
 
@@ -78,7 +79,7 @@ class MetricServiceTest {
   @Test
   void buildMetricUrl_shouldResultInExpectedFormattedUrl_withEndingSlashInTraefikUrl() {
     // GIVEN
-    when(datasourceService.getMetadata("dsId")).thenReturn(emptySet());
+    when(datasourceService.getMetadata("dsId")).thenReturn(Optional.empty());
     AssetDetailsDatasourceDTO datasourceDTO = AssetDetailsDatasourceDTO.builder()
         .id("dsId")
         .assetIdForDatasource("assetId")
@@ -124,7 +125,7 @@ class MetricServiceTest {
                 )
             )
         ).build();
-    when(datasourceService.getMetadata("dsA")).thenReturn(emptySet());
+    when(datasourceService.getMetadata("dsA")).thenReturn(Optional.empty());
     // WHEN
     var metricUrls = metricService.buildMetricUrls(passportDetailsDTO);
     // THEN

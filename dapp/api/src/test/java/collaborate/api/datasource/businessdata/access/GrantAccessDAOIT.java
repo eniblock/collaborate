@@ -7,6 +7,8 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 import collaborate.api.config.api.ApiProperties;
+import collaborate.api.config.api.SmartContractAddressProperties;
+import collaborate.api.config.api.SmartContractConfig;
 import collaborate.api.datasource.businessdata.access.model.AccessRequest;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.test.config.FeignTestConfig;
@@ -38,6 +40,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
         KeycloakTestConfig.class,
         NoSecurityTestConfig.class,
         ApiProperties.class,
+        SmartContractAddressProperties.class,
+        SmartContractConfig.class,
         TransactionBatchFactory.class,
         GrantAccessDAO.class,
     })

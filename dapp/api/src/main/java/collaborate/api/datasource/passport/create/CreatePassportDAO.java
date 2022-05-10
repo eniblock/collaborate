@@ -2,7 +2,7 @@ package collaborate.api.datasource.passport.create;
 
 import static collaborate.api.datasource.nft.model.storage.TokenMetadata.TOKEN_METADATA_FIELD;
 
-import collaborate.api.config.api.ApiProperties;
+import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.Bytes;
@@ -29,9 +29,10 @@ import org.springframework.web.server.ResponseStatusException;
 @Slf4j
 class CreatePassportDAO {
 
+  private final SmartContractAddressProperties smartContractAddress;
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
-  private final ApiProperties apiProperties;
+
   private final TezosApiGatewayPassportCreationClient tezosApiGatewayPassportCreationClient;
   private final UserService userService;
 
@@ -39,7 +40,7 @@ class CreatePassportDAO {
 
   public Job create(String metadataUri, String vehicleOwnerAddress) {
     var multisigId = tezosApiGatewayPassportCreationClient.getMultisigNb(
-        apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+        smartContractAddress.getDigitalPassportProxyTokenController(),
         new DataFieldsRequest<>(List.of("multisig_nb"))
     );
 
@@ -47,7 +48,7 @@ class CreatePassportDAO {
         CREATION_ENTRY_POINT,
         buildCreateEntryPointParam(metadataUri, vehicleOwnerAddress, multisigId.getMultisigNb()),
         Optional.empty(),
-        apiProperties.getDigitalPassportProxyTokenControllerContractAddress()
+        smartContractAddress.getDigitalPassportProxyTokenController()
     );
 
     Job job;
@@ -73,7 +74,7 @@ class CreatePassportDAO {
         .signers(List.of(vehicleOwnerAddress))
         .callParams(
             MultisigBuildCallParamMint.builder()
-                .targetAddress(apiProperties.getDigitalPassportContractAddress())
+                .targetAddress(smartContractAddress.getDigitalPassport())
                 .parameters(
                     MultisigBuildCallParamMintDetails.builder()
                         .mint(

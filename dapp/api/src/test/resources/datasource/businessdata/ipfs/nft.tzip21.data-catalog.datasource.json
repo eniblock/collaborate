@@ -1,0 +1,180 @@
+{
+  "id": "966b857b-0062-4433-b721-97e5e0d1fb37",
+  "name": "DSP A referentials",
+  "owner": "tz1SDYtreHuKGe7QNcZTjKQwfSreLR8JYW6c",
+  "provider": "collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration",
+  "providerMetadata": [
+    {
+      "name": "datasource:purpose",
+      "value": "[\"business-data\"]",
+      "type": "string[]"
+    },
+    {
+      "name": "datasource:type",
+      "value": "WebServerDatasource",
+      "type": "string"
+    },
+    {
+      "name": "datasource:partnerTransferMethod",
+      "value": "{\"type\":\"OAuth2\"}",
+      "type": "collaborate.api.datasource.model.dto.web.authentication.transfer.OAuth2"
+    },
+    {
+      "name": "datasource:authentication",
+      "value": "OAuth2ClientCredentialsGrant",
+      "type": "string"
+    }
+  ],
+  "providerConfiguration": {
+    "http": {
+      "routers": {
+        "966b857b-0062-4433-b721-97e5e0d1fb37-list-asset-router": {
+          "entryPoints": [
+            "websecure"
+          ],
+          "rule": "PathPrefix(`/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/list-asset`)",
+          "service": "966b857b-0062-4433-b721-97e5e0d1fb37",
+          "middlewares": [
+            "966b857b-0062-4433-b721-97e5e0d1fb37-list-asset-replace-path-regex",
+            "966b857b-0062-4433-b721-97e5e0d1fb37-list-asset-strip-prefix"
+          ],
+          "tls": true
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:customers-analytics-router": {
+          "entryPoints": [
+            "websecure"
+          ],
+          "rule": "PathPrefix(`/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:customers-analytics`)",
+          "service": "966b857b-0062-4433-b721-97e5e0d1fb37",
+          "middlewares": [
+            "966b857b-0062-4433-b721-97e5e0d1fb37-scope:customers-analytics-replace-path-regex",
+            "966b857b-0062-4433-b721-97e5e0d1fb37-scope:customers-analytics-strip-prefix"
+          ],
+          "tls": true
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-A-router": {
+          "entryPoints": [
+            "websecure"
+          ],
+          "rule": "PathPrefix(`/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:maintenance-plans-A`)",
+          "service": "966b857b-0062-4433-b721-97e5e0d1fb37",
+          "middlewares": [
+            "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-A-replace-path-regex",
+            "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-A-strip-prefix"
+          ],
+          "tls": true
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-B-router": {
+          "entryPoints": [
+            "websecure"
+          ],
+          "rule": "PathPrefix(`/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:maintenance-plans-B`)",
+          "service": "966b857b-0062-4433-b721-97e5e0d1fb37",
+          "middlewares": [
+            "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-B-replace-path-regex",
+            "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-B-strip-prefix"
+          ],
+          "tls": true
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:referentials-router": {
+          "entryPoints": [
+            "websecure"
+          ],
+          "rule": "PathPrefix(`/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:referentials`)",
+          "service": "966b857b-0062-4433-b721-97e5e0d1fb37",
+          "middlewares": [
+            "966b857b-0062-4433-b721-97e5e0d1fb37-scope:referentials-replace-path-regex",
+            "966b857b-0062-4433-b721-97e5e0d1fb37-scope:referentials-strip-prefix"
+          ],
+          "tls": true
+        }
+      },
+      "services": {
+        "966b857b-0062-4433-b721-97e5e0d1fb37": {
+          "loadBalancer": {
+            "servers": [
+              {
+                "url": "https://datasource-dsp-a.fake-datasource.localhost/"
+              }
+            ],
+            "passHostHeader": false,
+            "serversTransport": "966b857b-0062-4433-b721-97e5e0d1fb37-serversTransport"
+          }
+        }
+      },
+      "middlewares": {
+        "966b857b-0062-4433-b721-97e5e0d1fb37-list-asset-replace-path-regex": {
+          "replacePathRegex": {
+            "regex": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/list-asset",
+            "replacement": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/list-asset/db"
+          }
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:customers-analytics-replace-path-regex": {
+          "replacePathRegex": {
+            "regex": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:customers-analytics",
+            "replacement": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:customers-analytics/customers-analytics"
+          }
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:customers-analytics-strip-prefix": {
+          "stripPrefix": {
+            "prefixes": [
+              "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:customers-analytics"
+            ]
+          }
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-A-strip-prefix": {
+          "stripPrefix": {
+            "prefixes": [
+              "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:maintenance-plans-A"
+            ]
+          }
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:referentials-replace-path-regex": {
+          "replacePathRegex": {
+            "regex": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:referentials",
+            "replacement": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:referentials/referentials"
+          }
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:referentials-strip-prefix": {
+          "stripPrefix": {
+            "prefixes": [
+              "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:referentials"
+            ]
+          }
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-B-strip-prefix": {
+          "stripPrefix": {
+            "prefixes": [
+              "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:maintenance-plans-B"
+            ]
+          }
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-B-replace-path-regex": {
+          "replacePathRegex": {
+            "regex": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:maintenance-plans-B",
+            "replacement": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:maintenance-plans-B/maintenance-plans-B"
+          }
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-list-asset-strip-prefix": {
+          "stripPrefix": {
+            "prefixes": [
+              "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/list-asset"
+            ]
+          }
+        },
+        "966b857b-0062-4433-b721-97e5e0d1fb37-scope:maintenance-plans-A-replace-path-regex": {
+          "replacePathRegex": {
+            "regex": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:maintenance-plans-A",
+            "replacement": "/datasource/966b857b-0062-4433-b721-97e5e0d1fb37/scope:maintenance-plans-A/maintenance-plans-A"
+          }
+        }
+      },
+      "serversTransports": {
+        "966b857b-0062-4433-b721-97e5e0d1fb37-serversTransport": {
+          "insecureSkipVerify": true
+        }
+      }
+    }
+  },
+  "creationDatetime": "2022-05-02T11:51:16.800Z"
+}

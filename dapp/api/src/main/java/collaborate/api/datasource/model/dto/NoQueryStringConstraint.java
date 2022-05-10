@@ -14,7 +14,7 @@ import javax.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface NoQueryStringConstraint {
 
-  String message() default "URL should not has query string suffix";
+  String message() default "URL should not have query string suffix";
 
   Class<?>[] groups() default {};
 

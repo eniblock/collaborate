@@ -20,16 +20,27 @@
     {
       "description": "Datasource documents",
       "keywords": [
-        "routing-key:documents",
-        "scope:business_data"
+        {
+          "name": "alias",
+          "value": "documents"
+        },
+        {
+          "name": "scope",
+          "value": "business_data"
+        }
       ],
       "url": "https://developer.dspconsortium1.io/webapi/b2b/api-reference-v3/specification/"
     },
     {
       "description": "Test connection",
       "keywords": [
-        "scope:test",
-        "list-asset"
+        {
+          "name": "scope",
+          "value": "test"
+        },
+        {
+          "name": "list-asset"
+        }
       ],
       "url": "https://developer.dspconsortium1.io/webapi/b2b/api-reference-v3/specification/"
     }

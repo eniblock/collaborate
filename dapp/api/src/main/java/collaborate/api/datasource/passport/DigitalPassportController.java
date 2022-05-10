@@ -127,20 +127,5 @@ public class DigitalPassportController {
     return findPassportService.countPassports();
   }
 
-  @GetMapping("/smart-contract/proxy")
-  @Operation(
-      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "Get the digital passport proxy controller smart-contract address"
-  )
-  public String getDigitalPassportProxyContractAddress() {
-    return apiProperties.getDigitalPassportProxyTokenControllerContractAddress();
-  }
 
-  @GetMapping("/smart-contract/fa2")
-  @Operation(
-      description = "Get the digital passport FA2 smart-contract address"
-  )
-  public String getDigitalPassportProxyFA2Address() {
-    return apiProperties.getDigitalPassportContractAddress();
-  }
 }

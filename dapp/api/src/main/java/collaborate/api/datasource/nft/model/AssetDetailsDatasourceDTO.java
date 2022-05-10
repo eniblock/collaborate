@@ -27,7 +27,7 @@ public class AssetDetailsDatasourceDTO {
   @Schema(description = "The datasource owner wallet address", example = "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
   private String ownerAddress;
 
-
+  // FIXME rename resources ?
   private Set<String> scopes;
 
 }

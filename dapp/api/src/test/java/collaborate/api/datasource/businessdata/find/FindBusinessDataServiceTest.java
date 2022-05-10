@@ -2,6 +2,7 @@ package collaborate.api.datasource.businessdata.find;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.config.api.ApiProperties;
@@ -49,9 +50,7 @@ class FindBusinessDataServiceTest {
         .address("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
         .build();
 
-    when(apiProperties.getBusinessDataContractAddress())
-        .thenReturn("smartContractAdress");
-    when(businessDataTransactionService.findTransactionDateByTokenId(anyString(), anyString()))
+    when(businessDataTransactionService.findTransactionDateByTokenId(nullable(String.class), anyString()))
         .thenReturn(Optional.empty());
     when(organizationService.getByWalletAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"))
         .thenReturn(organization);

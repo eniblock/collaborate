@@ -38,17 +38,17 @@ public class HttpFeatures {
                           "525003f6-f85f-11eb-9a03-0242ac130003-list-asset-strip-prefix"
                       )).tls(true)
                       .build()),
-              new SimpleEntry<>("525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-router",
+              new SimpleEntry<>("525003f6-f85f-11eb-9a03-0242ac130003-metric:odometer-router",
                   Router.builder()
                       .entryPoints(List.of("websecure"))
                       .service("525003f6-f85f-11eb-9a03-0242ac130003")
                       .rule(
-                          "PathPrefix(`/datasource/525003f6-f85f-11eb-9a03-0242ac130003/scope:metric:odometer`)")
+                          "PathPrefix(`/datasource/525003f6-f85f-11eb-9a03-0242ac130003/metric:odometer`)")
                       .middlewares(List.of(
                           "525003f6-f85f-11eb-9a03-0242ac130003-auth-headers",
-                          "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-query-params",
-                          "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-replace-path-regex",
-                          "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-strip-prefix"
+                          "525003f6-f85f-11eb-9a03-0242ac130003-metric:odometer-query-params",
+                          "525003f6-f85f-11eb-9a03-0242ac130003-metric:odometer-replace-path-regex",
+                          "525003f6-f85f-11eb-9a03-0242ac130003-metric:odometer-strip-prefix"
                       )).tls(true)
                       .build())
           ))
@@ -74,7 +74,7 @@ public class HttpFeatures {
                       ).build()
               ),
               new SimpleEntry<>(
-                  "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-query-params",
+                  "525003f6-f85f-11eb-9a03-0242ac130003-metric:odometer-query-params",
                   Middleware.builder()
                       .redirectRegex(RedirectRegex.builder()
                           .regex("/([^\\?\\s]*)(\\??)(.*)")
@@ -94,12 +94,12 @@ public class HttpFeatures {
                       ).build()
               ),
               new SimpleEntry<>(
-                  "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-strip-prefix",
+                  "525003f6-f85f-11eb-9a03-0242ac130003-metric:odometer-strip-prefix",
                   Middleware.builder()
                       .stripPrefix(StripPrefix.builder()
                           .prefixes(
                               List.of(
-                                  "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/scope:metric:odometer"))
+                                  "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/metric:odometer"))
                           .build()
                       ).build()
               ),
@@ -112,11 +112,11 @@ public class HttpFeatures {
                       ).build()
               ),
               new SimpleEntry<>(
-                  "525003f6-f85f-11eb-9a03-0242ac130003-scope:metric:odometer-replace-path-regex",
+                  "525003f6-f85f-11eb-9a03-0242ac130003-metric:odometer-replace-path-regex",
                   Middleware.builder()
                       .replacePathRegex(new ReplacePathRegex(
-                          "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/scope:metric:odometer/(.*)",
-                          "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/scope:metric:odometer/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status")
+                          "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/metric:odometer/(.*)",
+                          "/datasource/525003f6-f85f-11eb-9a03-0242ac130003/metric:odometer/connectedasset/v3/fleets/5fb2830db35c87031c2e0d68/vehicles/$1/status")
                       ).build()
               )
           ))

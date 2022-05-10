@@ -11,19 +11,6 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class ApiProperties {
 
-  @Schema(description = "The business data smart-contract address")
-  private String businessDataContractAddress;
-
-  @Schema(description = "The digital passport smart-contract address")
-  private String digitalPassportContractAddress;
-
-  @Schema(description = "The digital passport Proxy Token Controller smart-contract address")
-  private String digitalPassportProxyTokenControllerContractAddress;
-
-  @Schema(description = "The organization wallet smart-contract address")
-  @NotEmpty
-  private String organizationWalletContractAddress;
-
   @Schema(description = "The \"service identity provider administrator\" role")
   @NotEmpty
   private String idpAdminRole;
