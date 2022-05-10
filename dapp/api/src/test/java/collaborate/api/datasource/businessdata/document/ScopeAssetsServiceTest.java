@@ -3,16 +3,21 @@ package collaborate.api.datasource.businessdata.document;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.config.api.ApiProperties;
+import collaborate.api.datasource.DatasourceMetadataService;
+import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.gateway.GatewayUrlService;
+import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
+import collaborate.api.datasource.model.scope.AssetScope;
+import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.http.HttpClientFactory;
+import collaborate.api.ipfs.domain.dto.ContentWithCid;
 import collaborate.api.test.TestResources;
 import collaborate.api.user.metadata.UserMetadataService;
 import java.net.URI;
@@ -20,6 +25,8 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +37,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 
@@ -38,9 +46,12 @@ class ScopeAssetsServiceTest {
 
   @Mock
   AccessTokenProvider accessTokenProvider;
-  @Mock
-  ApiProperties apiProperties;
+  String businessDataContractAddress = "smartContractAddress";
   Clock clock = Clock.fixed(Instant.parse("2018-08-19T16:45:42.00Z"), ZoneOffset.UTC);
+  @Mock
+  DatasourceService datasourceService;
+  @Mock
+  DatasourceMetadataService datasourceMetadataService;
   @Mock
   FindBusinessDataService findBusinessDataService;
   @Mock
@@ -51,7 +62,8 @@ class ScopeAssetsServiceTest {
   UserMetadataService userMetadataService;
   @Mock
   CatalogService catalogService;
-
+  @Mock
+  AssetScopeDAO assetScopeDAO;
   @InjectMocks
   ScopeAssetsService scopeAssetsService;
 
@@ -59,8 +71,11 @@ class ScopeAssetsServiceTest {
   void setUp() {
     scopeAssetsService = new ScopeAssetsService(
         accessTokenProvider,
-        apiProperties,
+        assetScopeDAO,
+        businessDataContractAddress,
         clock,
+        datasourceService,
+        datasourceMetadataService,
         findBusinessDataService,
         gatewayUrlService,
         httpClientFactory,
@@ -110,15 +125,17 @@ class ScopeAssetsServiceTest {
       VaultMetadata scopeIdVaultMetadata, AccessTokenResponse expectedResult) {
     // GIVEN
     String datasourceId = "dsId";
-    String scope = "scope:scopeA";
+    String scope = "scopeA";
     when(userMetadataService.find(datasourceId, VaultMetadata.class))
         .thenReturn(Optional.ofNullable(dsVaultMetadata));
 
     if (dsVaultMetadata != null) {
       when(accessTokenProvider.get(dsVaultMetadata.getOAuth2(), Optional.of("scopeA")))
           .thenReturn(AccessTokenResponse.builder().accessToken("jwt").build());
+      when(assetScopeDAO.findById(datasourceId + ":scopeA"))
+          .thenReturn(Optional.of(new AssetScope("", scope)));
     } else {
-      when(userMetadataService.find(datasourceId + ":scopeA", VaultMetadata.class))
+      when(userMetadataService.find(datasourceId + ":" + scope, VaultMetadata.class))
           .thenReturn(Optional.ofNullable(scopeIdVaultMetadata));
     }
 
@@ -147,13 +164,21 @@ class ScopeAssetsServiceTest {
   }
 
   @Test
-  void filterByScope() {
+  void convertJsonToScopeAssetDTOs() {
     // GIVEN
     var assetListJsonString = TestResources.readContent(
         "/datasource/businessdata/document/asset-list.json");
     var scope = "customers-analytics";
+    var datasourceId = "datasourceId";
+    var mockDatasource = Mockito.mock(Datasource.class);
+    var resourceAlias = "resourceAlias";
+    when(datasourceService.findById(datasourceId))
+        .thenReturn(Optional.of(new ContentWithCid<>("cid", mockDatasource)));
+    when(datasourceMetadataService.findByAlias(mockDatasource, resourceAlias)).thenReturn(
+        new HashMap<>());
     // WHEN
-    var scopeAssetsResult = scopeAssetsService.convertJsonToScopeAssetDTOs(assetListJsonString);
+    var scopeAssetsResult = scopeAssetsService.convertJsonToScopeAssetDTOs(assetListJsonString,
+        datasourceId, resourceAlias);
     // THEN
     assertThat(scopeAssetsResult).containsExactlyInAnyOrder(
         ScopeAssetDTO.builder()
@@ -167,4 +192,35 @@ class ScopeAssetsServiceTest {
     );
   }
 
+  @Test
+  void convertJsonToScopeAssetDTOs_withMetadata() {
+    // GIVEN
+    var assetListJsonString = TestResources.readContent(
+        "/datasource/businessdata/document/asset-list.custom-structure.json");
+    var scope = "customers-analytics";
+    var datasourceId = "datasourceId";
+    var mockDatasource = Mockito.mock(Datasource.class);
+    var resourceAlias = "resourceAlias";
+    when(datasourceService.findById(datasourceId))
+        .thenReturn(Optional.of(new ContentWithCid<>("cid", mockDatasource)));
+    when(datasourceMetadataService.findByAlias(mockDatasource, resourceAlias)).thenReturn(
+        Map.of("id.jsonPath", "$['key']",
+            "downloadLink", "https://custom.api/$id"
+        )
+    );
+    // WHEN
+    var scopeAssetsResult = scopeAssetsService.convertJsonToScopeAssetDTOs(assetListJsonString,
+        datasourceId, resourceAlias);
+    // THEN
+    assertThat(scopeAssetsResult).containsExactlyInAnyOrder(
+        ScopeAssetDTO.builder()
+            .name("2022-05-01LHRBA874B")
+            .type("MVP document")
+            .synchronizedDate(ZonedDateTime.now(clock))
+            .downloadLink(
+                URI.create(
+                    "https://custom.api/2022-05-01LHRBA874B"))
+            .build()
+    );
+  }
 }

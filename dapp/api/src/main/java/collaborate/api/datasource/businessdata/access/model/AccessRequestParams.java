@@ -1,6 +1,9 @@
 package collaborate.api.datasource.businessdata.access.model;
 
+import static collaborate.api.datasource.businessdata.access.model.AccessRequestParams.AttributeName.PROVIDER_ADDRESS;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.io.Serializable;
@@ -21,10 +24,19 @@ import org.apache.commons.lang3.StringUtils;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AccessRequestParams implements Serializable {
 
+  public static final class AttributeName {
+    public static final String PROVIDER_ADDRESS = "provider_address";
+  }
+
   @NotNull
   private Integer nftId;
+
+
+  @Deprecated // FIXME rename to alias ?
   @NotEmpty
   private List<String> scopes;
+
+  @JsonProperty(PROVIDER_ADDRESS)
   @NotEmpty
   private String providerAddress;
   @NotNull

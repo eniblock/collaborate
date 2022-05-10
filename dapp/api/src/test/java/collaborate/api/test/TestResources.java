@@ -20,6 +20,10 @@ public class TestResources {
     objectMapper.setSerializationInclusion(Include.NON_NULL);
   }
 
+  /**
+   * @param testResourcePath Should begin by a leading slash
+   * @return The test resource file content
+   */
   public static String readContent(String testResourcePath) {
     try {
       return IOUtils.toString(

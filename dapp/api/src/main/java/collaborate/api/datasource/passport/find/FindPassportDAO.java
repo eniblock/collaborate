@@ -21,7 +21,8 @@ import org.springframework.stereotype.Repository;
 @RequiredArgsConstructor
 class FindPassportDAO {
 
-  private final ApiProperties apiProperties;
+  private final String digitalPassportContractAddress;
+  private final String digitalPassportProxyControllerContractAddress;
   private final TezosApiGatewayPassportClient tezosApiGatewayPassportClient;
 
   public MultisigTagResponseDTO findMultisigByIds(Collection<Integer> multisigIds) {
@@ -30,7 +31,7 @@ class FindPassportDAO {
     ));
     return tezosApiGatewayPassportClient
         .getMultisigs(
-            apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+            digitalPassportProxyControllerContractAddress,
             requestMultisigs
         );
   }
@@ -42,7 +43,7 @@ class FindPassportDAO {
     ));
     return tezosApiGatewayPassportClient
         .getTokenMetadata(
-            apiProperties.getDigitalPassportContractAddress(),
+            digitalPassportContractAddress,
             requestTokenMetadata
         ).getTokenMetadata();
   }
@@ -59,7 +60,7 @@ class FindPassportDAO {
     var requestPassportCount = new DataFieldsRequest<>(List.of("all_tokens"));
     return tezosApiGatewayPassportClient
         .getPassportCount(
-            apiProperties.getDigitalPassportContractAddress(),
+            digitalPassportContractAddress,
             requestPassportCount
         ).getAllTokens();
   }
@@ -72,7 +73,7 @@ class FindPassportDAO {
     var requestMultisigCount = new DataFieldsRequest<>(List.of("multisig_nb"));
     return tezosApiGatewayPassportClient
         .getMultisigCount(
-            apiProperties.getDigitalPassportProxyTokenControllerContractAddress(),
+            digitalPassportProxyControllerContractAddress,
             requestMultisigCount
         ).getMultisigNb();
   }
@@ -82,7 +83,7 @@ class FindPassportDAO {
         new MapQuery<>(StorageFields.TOKENS_BY_OWNER, List.of(ownerAddress))
     ));
     var tokenIdsByOwner = tezosApiGatewayPassportClient.getTokenIdsByOwner(
-        apiProperties.getDigitalPassportContractAddress(), request);
+        digitalPassportContractAddress, request);
     return (tokenIdsByOwner.getTokensByOwner().get(0).getError() == null)
         ? tokenIdsByOwner.getTokensByOwner().get(0).getValue().values()
         : List.of();
@@ -93,8 +94,7 @@ class FindPassportDAO {
     var requestOwner = new DataFieldsRequest<>(List.of(
         new MapQuery<>(StorageFields.OWNER_BY_TOKEN_ID, tokenIdList)
     ));
-    tezosApiGatewayPassportClient.getOwnersByTokenIds(
-            apiProperties.getDigitalPassportContractAddress(), requestOwner)
+    tezosApiGatewayPassportClient.getOwnersByTokenIds(digitalPassportContractAddress, requestOwner)
         .getOwnerBuTokenId()
         .forEach(tagEntry -> tokenOwners.put(
             tagEntry.getKey(),
@@ -114,7 +114,7 @@ class FindPassportDAO {
         )
     ));
     tezosApiGatewayPassportClient.getOperatorsByTokenIdsAndOwners(
-            apiProperties.getDigitalPassportContractAddress(), requestOperators)
+            digitalPassportContractAddress, requestOperators)
         .getOperatorsByToken()
         .forEach(tagEntry -> tokenOperators.put(
             tagEntry.getKey().getY(),

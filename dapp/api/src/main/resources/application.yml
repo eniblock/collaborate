@@ -1,10 +1,12 @@
 api:
   platform:
   idp-admin-role: service_identity_provider_administrator
-  digitalPassportContractAddress:
-  digitalPassportProxyTokenControllerContractAddress:
-  businessDataContractAddress:
-  organizationWalletContractAddress:
+
+smart-contract-address:
+  digitalPassport:
+  digitalPassportProxyTokenController:
+  businessData:
+  organizationYellowPage:
 
 transaction:
   tag-client-url:
@@ -59,8 +61,8 @@ logging:
     collaborate.api.user.tag.TezosApiGatewayUserClient: DEBUG
     collaborate.api.tag.TezosApiGatewayJobClient: DEBUG
     org.hibernate:
-      SQL: DEBUG
-      type.descriptor.sql.BasicBinder: TRACE
+      SQL: INFO
+      type.descriptor.sql.BasicBinder: INFO
     org.springframework:
       #      web.filter.CommonsRequestLoggingFilter: DEBUG
       jdbc.core:
@@ -158,9 +160,6 @@ feign:
   okhttp.enabled: true
   client:
     config:
-      tag-user-client:
-        connectTimeout: 10000
-        readTimeout: 240000
       ipfs-client:
         connectTimeout: 10000
         readTimeout: 10000
@@ -175,3 +174,8 @@ feign:
         loggerLevel: none
       ipfs-key-client:
         loggerLevel: none
+      tag-transaction-client:
+        loggerLevel: none
+      tag-user-client:
+        connectTimeout: 10000
+        readTimeout: 240000

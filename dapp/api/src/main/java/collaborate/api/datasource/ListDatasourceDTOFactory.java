@@ -12,17 +12,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class ListDatasourceDTOFactory {
 
-  private final MetadataService metadataService;
+  private final DatasourceMetadataService datasourceMetadataService;
 
   public ListDatasourceDTO create(Datasource datasource) {
     ListDatasourceDTO listDatasourceDTOResult = null;
     try {
       listDatasourceDTOResult = ListDatasourceDTO.builder()
           .creationDateTime(datasource.getCreationDatetime())
-          .datasourceType(metadataService.getType(datasource))
+          .datasourceType(datasourceMetadataService.getType(datasource))
           .id(datasource.getId())
           .name(datasource.getName())
-          .purpose(metadataService.getPurpose(datasource))
+          .purpose(datasourceMetadataService.getPurpose(datasource))
           .status(DatasourceStatus.CREATED)
           .build();
     } catch (Exception e) {

@@ -4,7 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.datasource.ListDatasourceDTOFactory;
-import collaborate.api.datasource.MetadataService;
+import collaborate.api.datasource.DatasourceMetadataService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.enumeration.DatasourceStatus;
 import collaborate.api.test.TestResources;
@@ -19,7 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class ListDatasourceDTOFactoryTest {
 
   @Mock
-  MetadataService metadataService;
+  DatasourceMetadataService datasourceMetadataService;
 
   @InjectMocks
   ListDatasourceDTOFactory listDatasourceDTOFactory;
@@ -41,7 +41,7 @@ class ListDatasourceDTOFactoryTest {
   @Test
   void create_shouldInitDatasourceType() {
     // GIVEN
-    when(metadataService.getType(datasource)).thenReturn("WebServerDatasourceDTO");
+    when(datasourceMetadataService.getType(datasource)).thenReturn("WebServerDatasourceDTO");
     // WHEN
     var detailsResult = listDatasourceDTOFactory.create(datasource);
     // THEN
@@ -69,7 +69,7 @@ class ListDatasourceDTOFactoryTest {
   @Test
   void create_shouldInitPurpose() {
     // GIVEN
-    when(metadataService.getPurpose(datasource)).thenReturn(List.of("digital-passport"));
+    when(datasourceMetadataService.getPurpose(datasource)).thenReturn(List.of("digital-passport"));
     // WHEN
     var detailsResult = listDatasourceDTOFactory.create(datasource);
     // THEN

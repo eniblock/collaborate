@@ -1,5 +1,6 @@
 package collaborate.api.ipfs;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,10 @@ public class IpfsService {
 
   public <T> T cat(String address, Class<T> tClass) {
     return ipfsDAO.cat(cleanUri(address), tClass);
+  }
+
+  public JsonNode catJson(String address) {
+    return cat(address, JsonNode.class);
   }
 
   public String cleanUri(String address) {

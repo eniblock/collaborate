@@ -8,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 @Data
 @Builder
@@ -32,4 +33,12 @@ public class Transaction {
   private String entrypoint;
   private JsonNode parameters;
 
+  public boolean isEntryPoint(String expectedEntrypoint) {
+    return StringUtils.equals(expectedEntrypoint, this.entrypoint);
+  }
+
+  public boolean hasParameterValue(String key, String expectedValue) {
+    var providerAddress = getParameters().get(key);
+    return providerAddress != null && StringUtils.equals(expectedValue, providerAddress.asText());
+  }
 }

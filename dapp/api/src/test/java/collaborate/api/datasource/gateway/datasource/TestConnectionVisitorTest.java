@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.URIFactory;
 import collaborate.api.datasource.create.RequestEntitySupplierFactory;
-import collaborate.api.datasource.gateway.AccessTokenProvider;
+import collaborate.api.datasource.model.dto.web.Attribute;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.model.dto.web.authentication.BasicAuth;
@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -53,7 +52,7 @@ class TestConnectionVisitorTest {
     // GIVEN
     var expectedResource = WebServerResource.builder()
         .url("myExpectedResourceUrl")
-        .keywords(Set.of("list-asset"))
+        .keywords(Set.of(Attribute.builder().name("list-asset").build()))
         .build();
     String baseUrl = "http://baseUrl";
     WebServerDatasourceDTO datasource = WebServerDatasourceDTO
@@ -78,11 +77,11 @@ class TestConnectionVisitorTest {
     // GIVEN
     var resourceA = WebServerResource.builder()
         .url("resourceUrlA")
-        .keywords(Set.of("test-connection"))
+        .keywords(Set.of(Attribute.builder().name("test-connection").build()))
         .build();
     var resourceB = WebServerResource.builder()
         .url("resourceUrlB")
-        .keywords(Set.of("assets"))
+        .keywords(Set.of(Attribute.builder().name("assets").build()))
         .build();
     WebServerDatasourceDTO datasource = WebServerDatasourceDTO
         .builder()

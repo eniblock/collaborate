@@ -10,6 +10,7 @@ import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.model.OrganizationRole;
 import java.util.List;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -18,25 +19,28 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizationServiceTest {
 
   @Mock
   OrganizationDAO organizationDAO;
-  @Mock
-  ApiProperties apiProperties;
   @InjectMocks
   OrganizationService organizationService;
 
-  final String organisationWalletSCAddress = "orgSCAddress";
+  @BeforeEach
+  public void setUp() {
+    ReflectionTestUtils.setField(organizationService, "organizationYellowPageContractAddress",
+        "orgSCAddress");
+  }
+
 
   @ParameterizedTest
   @MethodSource("extractValuePathParameters")
   void getAllDspWallets_shouldIncludeDspRoleAndExcludeDspRole(
       List<OrganizationDTO> organizations, List<String> expectedWalletsResult) {
     // GIVEN
-    when(apiProperties.getOrganizationWalletContractAddress()).thenReturn(organisationWalletSCAddress);
     when(organizationDAO.getAllOrganizations(any()))
         .thenReturn(organizations);
     // WHEN

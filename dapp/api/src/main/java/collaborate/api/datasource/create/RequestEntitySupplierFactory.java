@@ -1,6 +1,6 @@
 package collaborate.api.datasource.create;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.SCOPE_PREFIX;
+import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_SCOPE;
 
 import collaborate.api.datasource.URIFactory;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
@@ -24,7 +24,7 @@ public class RequestEntitySupplierFactory {
     var resource = serverDatasourceDTO.getResourceByKeywordOrThrow(resourceKeyword);
     var uri = uriFactory.create(serverDatasourceDTO, resource);
 
-    Optional<String> scope = resource.findFirstKeywordRemovingPrefix(SCOPE_PREFIX);
+    Optional<String> scope = resource.findFirstKeywordValueByName(ATTR_NAME_SCOPE);
     var requestEntityVisitor = requestEntityVisitorFactory.create(uri, scope);
     return serverDatasourceDTO.getAuthMethod().accept(requestEntityVisitor);
   }

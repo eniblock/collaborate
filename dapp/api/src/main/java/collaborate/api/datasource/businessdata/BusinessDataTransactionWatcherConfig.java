@@ -2,6 +2,7 @@ package collaborate.api.datasource.businessdata;
 
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.businessdata.access.GrantAccessTransactionHandler;
+import collaborate.api.datasource.businessdata.access.RequestAccessTransactionHandler;
 import collaborate.api.datasource.businessdata.kpi.CreatedDatasourceTransactionHandler;
 import collaborate.api.datasource.businessdata.kpi.CreatedScopeTransactionHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
@@ -23,13 +24,15 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-@ConditionalOnExpression("!'${api.businessDataContractAddress}'.isEmpty()")
+@ConditionalOnExpression("!'${smartContractAddress.businessData}'.isEmpty()")
 public class BusinessDataTransactionWatcherConfig {
 
-  private final ApiProperties apiProperties;
+  private final String businessDataContractAddress;
   private final CreatedDatasourceTransactionHandler createdDatasourceTransactionHandler;
   private final CreatedScopeTransactionHandler createdScopeTransactionHandler;
   private final GrantAccessTransactionHandler grantAccessTransactionHandler;
+  private final RequestAccessTransactionHandler requestAccessTransactionHandler
+      ;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
   private final TransactionProperties transactionProperties;
@@ -38,7 +41,7 @@ public class BusinessDataTransactionWatcherConfig {
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
     for (var watcherProperty : transactionProperties.getWatchers()) {
-      if (watcherProperty.isSmartContract(apiProperties.getBusinessDataContractAddress())) {
+      if (watcherProperty.isSmartContract(businessDataContractAddress)) {
         transactionWatcherPoolTaskScheduler.schedule(
             buildWatcher(watcherProperty),
             buildPeriodicTrigger(watcherProperty)
@@ -65,10 +68,12 @@ public class BusinessDataTransactionWatcherConfig {
   }
 
   private TransactionEventManager initBusinessDataEventManager() {
+    log.info("Initializing block chain transaction event manager");
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(createdDatasourceTransactionHandler);
     transactionEventManager.subscribe(createdScopeTransactionHandler);
     transactionEventManager.subscribe(grantAccessTransactionHandler);
+    transactionEventManager.subscribe(requestAccessTransactionHandler);
     return transactionEventManager;
   }
 

@@ -86,7 +86,7 @@ class DatasourceControllerTest {
     // GIVEN
     var scopesOpt = Optional.of(Set.of("scope"));
     // WHEN
-    when(datasourceService.getScopesByDataSourceId(datasourceUUID.toString()))
+    when(datasourceService.getResourcesByDataSourceId(datasourceUUID.toString()))
         .thenReturn(scopesOpt);
     // THEN
     assertThat(
@@ -99,7 +99,7 @@ class DatasourceControllerTest {
     // GIVEN
     var scopesOpt = Optional.<Set<String>>empty();
     // WHEN
-    when(datasourceService.getScopesByDataSourceId(datasourceUUID.toString()))
+    when(datasourceService.getResourcesByDataSourceId(datasourceUUID.toString()))
         .thenReturn(scopesOpt);
     // THEN
     assertThat(
