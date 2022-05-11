@@ -717,7 +717,7 @@ class Batch_NFT(FA2):
     def batch_mint(self, params):
         sp.set_type(params, batch_mint_type)
         sp.verify(
-            self.config.non_fungible & self.config.assume_consecutive_token_ids & ~ self.config.single_asset,
+            self.config.non_fungible & self.config.assume_consecutive_token_ids & (self.config.single_asset == False),
             message = "Wrong Config: batch_mint requires 'non_fungible', 'consecutive_token_ids' and 'multiple_asset'"
             )
         sp.verify(self.is_administrator(sp.sender), message = self.error_message.not_admin())
@@ -770,6 +770,15 @@ def add_test(config, is_default = True):
         c1 = Batch_NFT(config = config,
                  metadata = sp.utils.metadata_of_url(metadata_url),
                  admin = admin)
+
+        ### CLI DEPLOYMENT TARGET
+        sp.add_compilation_target(
+            "DIGITAL_PASSPORT",
+            Batch_NFT(config = config,
+                 metadata = sp.utils.metadata_of_url(metadata_url),
+                 admin = admin)
+        )
+
         scenario += c1
         scenario.p("Admin mints 4 NFTs")
         scenario += c1.batch_mint(sp.record(
@@ -850,5 +859,3 @@ def environment_config():
 ## for the browser version.
 if "templates" not in __name__:
     add_test(environment_config())
-    if not global_parameter("only_environment_test", False):
-        add_test(FA2_config(debug_mode = True), is_default = not sp.in_browser)
