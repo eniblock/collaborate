@@ -5,6 +5,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Positive;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.validation.annotation.Validated;
 
 @Data
@@ -14,12 +15,12 @@ public class TransactionWatcherProperty {
   @NotNull
   @Positive
   private Long fixedDelayInMs;
-  @NotEmpty
   private String smartContractAddress;
 
   @JsonIgnore
   public boolean isSmartContract(String address) {
-    return smartContractAddress.equals(address);
+    return StringUtils.isNotBlank(smartContractAddress) &&
+        StringUtils.equals(smartContractAddress, address);
   }
 
 }
