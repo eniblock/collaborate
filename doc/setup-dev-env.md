@@ -24,7 +24,14 @@
     - [ ] Optionnaly you can setup [Lens](https://k8slens.dev/) to get additional information about
       your deployed K8S cluster
       ![Lens preview](images/lens.png)
-
+- Update your `sysctl` config:
+    - Edit the `/etc/sysctl.conf` file
+    - Add the following content:
+    ```
+    fs.inotify.max_user_watches = 5242880
+    fs.inotify.max_user_instances = 5120
+    ```
+    - Execute `sudo sysctl -p`:
 - [Install git](https://git-scm.com/downloads).
 
 - Clone the Collaborate project
