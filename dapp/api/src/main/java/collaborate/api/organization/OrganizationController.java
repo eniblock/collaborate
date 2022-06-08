@@ -56,7 +56,6 @@ public class OrganizationController {
           responseCode = "200",
           description = "Organization has been found",
           content = @Content(schema = @Schema(implementation = OrganizationDTO.class)))})
-  @Cacheable(value = ORGANIZATION)
   @PreAuthorize(HasRoles.ORGANIZATION_READ)
   public OrganizationDTO getCurrentOrganization() {
     return organizationService.getCurrentOrganization();
