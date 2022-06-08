@@ -1,3 +1,4 @@
+# see: https://smartpy.io/reference.html
 import smartpy as sp
 
 organization_value_type = sp.TRecord(
@@ -5,7 +6,6 @@ organization_value_type = sp.TRecord(
     legal_name = sp.TString,
     address = sp.TAddress,
     encryption_key = sp.TString, # TODO this can be off-chain
-    metadata = sp.TMap(sp.TString, sp.TBytes)
 )
 
 organizations_type = sp.TMap(
@@ -19,20 +19,26 @@ update_org_type = sp.TList(sp.TVariant(
 ))
 
 class OrganizationsYellowPages(sp.Contract):
-    def __init__(self, organizations: organizations_type, administrators):
+    def __init__(self, organizations: organizations_type, administrator):
         self.init_type(sp.TRecord(
             organizations = organizations_type,
-            administrators = sp.TSet(sp.TAddress)
+            administrator = sp.TAddress
         ))
         self.init(
             organizations = organizations,
-            administrators = administrators
+            administrator = administrator
         )
+
+    @sp.entry_point
+    def set_administrator(self, params):
+        sp.verify(self.data.administrator == sp.sender, message = "403 - Not admin")
+        self.data.administrator = params
 
     @sp.entry_point
     def update_organizations(self, params):
         sp.set_type(params, update_org_type)
-        sp.verify(self.data.administrators.contains(sp.sender), "INVALID_SENDER")
+        sp.verify(self.data.administrator == sp.sender,
+                  message="403 - Sender not allowed")
         sp.for updates in params:
             with updates.match_cases() as arg:
                 with arg.match("update") as upd:
@@ -50,70 +56,78 @@ class OrganizationsYellowPages(sp.Contract):
         sp.result(self.data.organizations.contains(org_address))
 
 if "templates" not in __name__:
-    @sp.add_test(name = "OrganizationsYellowPages")
+    def origination():
+        ### Origination - deployment target
+        origination = OrganizationsYellowPages(
+            organizations = sp.map(tkey=sp.TAddress, tvalue=organization_value_type),
+            administrator = sp.address("tz1SDYtreHuKGe7QNcZTjKQwfSreLR8JYW6c")
+        )
+
+        sp.add_compilation_target(
+            "Organization_Yellow_Pages",
+            origination
+        )
+
+    @sp.add_test(name = "OrganizationsYellowPages", is_default = True)
     def test():
+        origination()
+
         scenario = sp.test_scenario()
         admin = sp.address("tz1W5ubDUJwpd9Gb94V2YKnZBHggAMMxtbBd")
 
-        orga_DSPConsortium1 = sp.record(
+        dsp_org_1 = sp.record(
             legal_name = 'DSPConsortium1',
             address = sp.address('tz1SDYtreHuKGe7QNcZTjKQwfSreLR8JYW6c'),
             encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB',
-            roles = {1},
-            metadata = {}
+            roles = {1}
         )
-        orga_BSPConsortium2 = sp.record(
+        bsp_org_2 = sp.record(
             legal_name = 'BSPConsortium2',
             address = sp.address('tz1PC8dnju6zkgnpFVDCnYnmHXaDTNQoDh9W'),
             encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB',
-            roles = {2},
-            metadata = {}
+            roles = {2}
         )
         organizations = sp.map(
             {
-                orga_DSPConsortium1.address: orga_DSPConsortium1,
-                orga_BSPConsortium2.address: orga_BSPConsortium2
+                dsp_org_1.address: dsp_org_1,
+                bsp_org_2.address: bsp_org_2
             }
         )
 
-        c1 = OrganizationsYellowPages(organizations, sp.set([admin]))
+        c1 = OrganizationsYellowPages(
+            organizations = organizations,
+            administrator=admin)
 
         scenario += c1
 
-        ### CLI DEPLOYMENT TARGET
-        sp.add_compilation_target(
-            "Organization_Yellow_Pages",
-            c1
-        )
-
         ## remove organization
-        scenario += c1.update_organizations([sp.variant("remove", orga_BSPConsortium2.address)]).run(sender = admin)
-        scenario.verify(~ c1.data.organizations.contains(orga_BSPConsortium2.address))
+        scenario += c1.update_organizations([sp.variant("remove", bsp_org_2.address)]).run(sender = admin)
+        scenario.verify(~ c1.data.organizations.contains(bsp_org_2.address))
 
         ## add org
-        scenario += c1.update_organizations([sp.variant("update", orga_BSPConsortium2)]).run(sender = admin)
-        scenario.verify(c1.data.organizations.contains(orga_BSPConsortium2.address))
+        scenario += c1.update_organizations([sp.variant("update", bsp_org_2)]).run(sender = admin)
+        scenario.verify(c1.data.organizations.contains(bsp_org_2.address))
 
         ## update org
-        updated_orga_BSPConsortium2 = sp.record(
-            legal_name = 'UPDBSPConsortium2',
-            address = sp.address('tz1XDwkYzcxqswBhQDd1QxiBrA53J5bZzHg2'),
-            encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB',
-            roles = {2, 1},
-            metadata = {}
+        expected_dsp_org_2 = sp.record(
+            legal_name = 'U'+bsp_org_2.legal_name,
+            address = bsp_org_2.address,
+            encryption_key = bsp_org_2.encryption_key,
+            roles = {2, 1}
         )
-        scenario += c1.update_organizations([sp.variant("update", updated_orga_BSPConsortium2)]).run(sender = admin)
-        scenario.verify(c1.data.organizations.contains(updated_orga_BSPConsortium2.address))
-        scenario.verify(c1.data.organizations[orga_BSPConsortium2.address].address == updated_orga_BSPConsortium2.address)
-        scenario.verify(c1.data.organizations[orga_BSPConsortium2.address].legal_name == "UPDBSPConsortium2")
+        scenario += c1.update_organizations([sp.variant("update", expected_dsp_org_2)]).run(sender = admin)
+        scenario.verify(c1.data.organizations.contains(expected_dsp_org_2.address))
+        actual_dsp_org_2 = c1.data.organizations[expected_dsp_org_2.address]
+        scenario.verify(actual_dsp_org_2.address == expected_dsp_org_2.address)
+        scenario.verify(actual_dsp_org_2.legal_name == expected_dsp_org_2.legal_name)
 
         ## test onchain views
-        view_org1 = sp.view("get_org", c1.address, orga_DSPConsortium1.address, t = organization_value_type).open_some("Invalid view")
-        scenario.verify(view_org1.address == orga_DSPConsortium1.address)
-        scenario.verify(view_org1.legal_name == orga_DSPConsortium1.legal_name)
-        scenario.verify(view_org1.legal_name == orga_DSPConsortium1.legal_name)
+        view_org1 = sp.view("get_org", c1.address, dsp_org_1.address, t = organization_value_type).open_some("Invalid view")
+        scenario.verify(view_org1.address == dsp_org_1.address)
+        scenario.verify(view_org1.legal_name == dsp_org_1.legal_name)
+        scenario.verify(view_org1.legal_name == dsp_org_1.legal_name)
         scenario.show(view_org1)
 
-        scenario.verify(sp.view("is_org", c1.address, orga_DSPConsortium1.address, t = sp.TBool) == sp.some(True))
-        scenario.verify(sp.view("is_org", c1.address, updated_orga_BSPConsortium2.address, t = sp.TBool) == sp.some(True))
+        scenario.verify(sp.view("is_org", c1.address, dsp_org_1.address, t = sp.TBool) == sp.some(True))
+        scenario.verify(sp.view("is_org", c1.address, expected_dsp_org_2.address, t = sp.TBool) == sp.some(True))
         scenario.verify(sp.view("is_org", c1.address, c1.address, t = sp.TBool) == sp.some(False))

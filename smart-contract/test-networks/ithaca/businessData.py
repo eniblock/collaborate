@@ -1,3 +1,4 @@
+# see: https://smartpy.io/reference.html
 
 import smartpy as sp
 
@@ -15,19 +16,19 @@ import smartpy as sp
 
 class FA2_config:
     def __init__(self,
-                 debug_mode                         = False,
-                 single_asset                       = False,
-                 non_fungible                       = False,
-                 add_mutez_transfer                 = False,
-                 readable                           = True,
-                 force_layouts                      = True,
-                 support_operator                   = True,
-                 assume_consecutive_token_ids       = True,
-                 store_total_supply                 = True,
-                 lazy_entry_points                  = False,
-                 allow_self_transfer                = False,
-                 use_token_metadata_offchain_view   = False
-                 ):
+        debug_mode                         = False,
+        single_asset                       = False,
+        non_fungible                       = False,
+        add_mutez_transfer                 = False,
+        readable                           = True,
+        force_layouts                      = True,
+        support_operator                   = True,
+        assume_consecutive_token_ids       = True,
+        store_total_supply                 = True,
+        lazy_entry_points                  = False,
+        allow_self_transfer                = False,
+        use_token_metadata_offchain_view   = False
+    ):
 
         if debug_mode:
             self.my_map = sp.map
@@ -128,7 +129,7 @@ class Error_message:
     def __init__(self, config):
         self.config = config
         self.prefix = "FA2_"
-    def make(self, s): return (self.prefix + s)
+    def make(self, s): return self.prefix + s
     def token_undefined(self):       return self.make("TOKEN_UNDEFINED")
     def insufficient_balance(self):  return self.make("INSUFFICIENT_BALANCE")
     def not_operator(self):          return self.make("NOT_OPERATOR")
@@ -167,7 +168,7 @@ class Batch_transfer:
             )
         transfer_type = sp.TRecord(from_ = sp.TAddress,
                                    txs = sp.TList(tx_type)).layout(
-                                       ("from_", "txs"))
+            ("from_", "txs"))
         return transfer_type
     def get_type(self):
         return sp.TList(self.get_transfer_type())
@@ -372,13 +373,13 @@ class FA2_core(sp.Contract):
         sp.verify( ~self.is_paused(), message = self.error_message.paused() )
         sp.set_type(params, self.batch_transfer.get_type())
         sp.for transfer in params:
-           current_from = transfer.from_
-           sp.for tx in transfer.txs:
+            current_from = transfer.from_
+            sp.for tx in transfer.txs:
                 if self.config.single_asset:
                     sp.verify(tx.token_id == 0, message = "single-asset: token-id <> 0")
 
                 sender_verify = ((self.is_administrator(sp.sender)) |
-                                (current_from == sp.sender))
+                                 (current_from == sp.sender))
                 message = self.error_message.not_owner()
                 if self.config.support_operator:
                     message = self.error_message.not_operator()
@@ -405,89 +406,89 @@ class FA2_core(sp.Contract):
                     sp.if self.data.ledger.contains(to_user):
                         self.data.ledger[to_user].balance += tx.amount
                     sp.else:
-                         self.data.ledger[to_user] = Ledger_value.make(tx.amount)
-                sp.else:
-                    pass
-
-    #@sp.entry_point
-    def balance_of(self, params):
-        # paused may mean that balances are meaningless:
-        sp.verify( ~self.is_paused(), message = self.error_message.paused())
-        sp.set_type(params, Balance_of.entry_point_type())
-        def f_process_request(req):
-            user = self.ledger_key.make(req.owner, req.token_id)
-            sp.verify(self.data.token_metadata.contains(req.token_id), message = self.error_message.token_undefined())
-            sp.if self.data.ledger.contains(user):
-                balance = self.data.ledger[user].balance
-                sp.result(
-                    sp.record(
-                        request = sp.record(
-                            owner = sp.set_type_expr(req.owner, sp.TAddress),
-                            token_id = sp.set_type_expr(req.token_id, sp.TNat)),
-                        balance = balance))
+                    self.data.ledger[to_user] = Ledger_value.make(tx.amount)
             sp.else:
-                sp.result(
-                    sp.record(
-                        request = sp.record(
-                            owner = sp.set_type_expr(req.owner, sp.TAddress),
-                            token_id = sp.set_type_expr(req.token_id, token_id_type)),
-                        balance = 0))
-        res = sp.local("responses", params.requests.map(f_process_request))
-        destination = sp.set_type_expr(params.callback, sp.TContract(Balance_of.response_type()))
-        sp.transfer(res.value, sp.mutez(0), destination)
+            pass
 
-    @sp.offchain_view(pure = True)
-    def get_balance(self, req):
-        """This is the `get_balance` view defined in TZIP-12."""
-        sp.set_type(
-            req, sp.TRecord(
-                owner = sp.TAddress,
-                token_id = token_id_type
-            ).layout(("owner", "token_id")))
+#@sp.entry_point
+def balance_of(self, params):
+    # paused may mean that balances are meaningless:
+    sp.verify( ~self.is_paused(), message = self.error_message.paused())
+    sp.set_type(params, Balance_of.entry_point_type())
+    def f_process_request(req):
         user = self.ledger_key.make(req.owner, req.token_id)
         sp.verify(self.data.token_metadata.contains(req.token_id), message = self.error_message.token_undefined())
-        sp.result(self.data.ledger[user].balance)
+        sp.if self.data.ledger.contains(user):
+            balance = self.data.ledger[user].balance
+            sp.result(
+                sp.record(
+                    request = sp.record(
+                        owner = sp.set_type_expr(req.owner, sp.TAddress),
+                        token_id = sp.set_type_expr(req.token_id, sp.TNat)),
+                    balance = balance))
+        sp.else:
+        sp.result(
+            sp.record(
+                request = sp.record(
+                    owner = sp.set_type_expr(req.owner, sp.TAddress),
+                    token_id = sp.set_type_expr(req.token_id, token_id_type)),
+                balance = 0))
+res = sp.local("responses", params.requests.map(f_process_request))
+destination = sp.set_type_expr(params.callback, sp.TContract(Balance_of.response_type()))
+sp.transfer(res.value, sp.mutez(0), destination)
+
+@sp.offchain_view(pure = True)
+def get_balance(self, req):
+    """This is the `get_balance` view defined in TZIP-12."""
+    sp.set_type(
+        req, sp.TRecord(
+            owner = sp.TAddress,
+            token_id = token_id_type
+        ).layout(("owner", "token_id")))
+    user = self.ledger_key.make(req.owner, req.token_id)
+    sp.verify(self.data.token_metadata.contains(req.token_id), message = self.error_message.token_undefined())
+    sp.result(self.data.ledger[user].balance)
 
 
-    #@sp.entry_point
-    def update_operators(self, params):
-        sp.set_type(params, sp.TList(
-            sp.TVariant(
-                add_operator = self.operator_param.get_type(),
-                remove_operator = self.operator_param.get_type()
-            )
-        ))
-        if self.config.support_operator:
-            sp.for update in params:
-                with update.match_cases() as arg:
-                    with arg.match("add_operator") as upd:
-                        #sp.verify(
-                        #    (upd.owner == sp.sender) | self.is_administrator(sp.sender),
-                        #    message = self.error_message.not_admin_or_operator()
-                        #)
-                        self.operator_set.add(self.data.operators,
-                                              upd.owner,
-                                              upd.operator,
-                                              upd.token_id)
-                    with arg.match("remove_operator") as upd:
-                        sp.verify(
-                            (upd.owner == sp.sender) | self.is_administrator(sp.sender),
-                            message = self.error_message.not_admin_or_operator()
-                        )
-                        self.operator_set.remove(self.data.operators,
-                                                 upd.owner,
-                                                 upd.operator,
-                                                 upd.token_id)
-        else:
-            sp.failwith(self.error_message.operators_unsupported())
+#@sp.entry_point
+def update_operators(self, params):
+    sp.set_type(params, sp.TList(
+        sp.TVariant(
+            add_operator = self.operator_param.get_type(),
+            remove_operator = self.operator_param.get_type()
+        )
+    ))
+    if self.config.support_operator:
+        sp.for update in params:
+            with update.match_cases() as arg:
+                with arg.match("add_operator") as upd:
+                    #sp.verify(
+                    #    (upd.owner == sp.sender) | self.is_administrator(sp.sender),
+                    #    message = self.error_message.not_admin_or_operator()
+                    #)
+                    self.operator_set.add(self.data.operators,
+                                          upd.owner,
+                                          upd.operator,
+                                          upd.token_id)
+                with arg.match("remove_operator") as upd:
+                    sp.verify(
+                        (upd.owner == sp.sender) | self.is_administrator(sp.sender),
+                        message = self.error_message.not_admin_or_operator()
+                    )
+                    self.operator_set.remove(self.data.operators,
+                                             upd.owner,
+                                             upd.operator,
+                                             upd.token_id)
+    else:
+        sp.failwith(self.error_message.operators_unsupported())
 
-    # this is not part of the standard but can be supported through inheritance.
-    def is_paused(self):
-        return sp.bool(False)
+# this is not part of the standard but can be supported through inheritance.
+def is_paused(self):
+    return sp.bool(False)
 
-    # this is not part of the standard but can be supported through inheritance.
-    def is_administrator(self, sender):
-        return sp.bool(False)
+# this is not part of the standard but can be supported through inheritance.
+def is_administrator(self, sender):
+    return sp.bool(False)
 
 class FA2_administrator(FA2_core):
     def is_administrator(self, sender):
@@ -534,17 +535,17 @@ class FA2_mint(FA2_core):
         sp.if self.data.ledger.contains(user):
             self.data.ledger[user].balance += params.amount
         sp.else:
-            self.data.ledger[user] = Ledger_value.make(params.amount)
-        sp.if self.data.token_metadata.contains(params.token_id):
-            if self.config.store_total_supply:
-                self.data.total_supply[params.token_id] = params.amount
-        sp.else:
-            self.data.token_metadata[params.token_id] = sp.record(
-                token_id    = params.token_id,
-                token_info  = params.metadata
-            )
-            if self.config.store_total_supply:
-                self.data.total_supply[params.token_id] = params.amount
+        self.data.ledger[user] = Ledger_value.make(params.amount)
+    sp.if self.data.token_metadata.contains(params.token_id):
+        if self.config.store_total_supply:
+            self.data.total_supply[params.token_id] = params.amount
+    sp.else:
+    self.data.token_metadata[params.token_id] = sp.record(
+        token_id    = params.token_id,
+        token_info  = params.metadata
+    )
+    if self.config.store_total_supply:
+        self.data.total_supply[params.token_id] = params.amount
 
 class FA2_token_metadata(FA2_core):
     def set_token_metadata_view(self):
@@ -610,7 +611,7 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
                     sp.TRecord(token_id = token_id_type,
                                owner = sp.TAddress,
                                operator = sp.TAddress).layout(
-                                   ("owner", ("operator", "token_id"))))
+                        ("owner", ("operator", "token_id"))))
         sp.result(
             self.operator_set.is_member(self.data.operators,
                                         query.owner,
@@ -667,13 +668,13 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
             }
             , "permissions": {
                 "operator":
-                "owner-or-operator-transfer" if config.support_operator else "owner-transfer"
+                    "owner-or-operator-transfer" if config.support_operator else "owner-transfer"
                 , "receiver": "owner-no-hook"
                 , "sender": "owner-no-hook"
             }
             , "fa2-smartpy": {
                 "configuration" :
-                dict([(k, getattr(config, k)) for k in dir(config) if "__" not in k and k != 'my_map'])
+                    dict([(k, getattr(config, k)) for k in dir(config) if "__" not in k and k != 'my_map'])
             }
         }
         self.init_metadata("metadata_base", metadata_base)
@@ -689,6 +690,11 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
 ##############################################################################
 ##############################################################################
 
+class OrganizationRoles:
+    BNO = 0 # Business Network Operator
+    DSP = 1 # Data Service Provider
+    BSP = 2 # Business Service Provider
+
 nft_creation_type = sp.TRecord(
     nft_operator_address = sp.TAddress,
     asset_id = sp.TString,
@@ -696,7 +702,7 @@ nft_creation_type = sp.TRecord(
 )
 
 organization_value_type = sp.TRecord(
-    roles = sp.TSet(sp.TNat),  # organization role (1: DSP, 2: BSP)
+    roles = sp.TSet(sp.TNat),  # class OrganizationRoles
     legal_name = sp.TString,
     address = sp.TAddress,
     encryption_key = sp.TString, # TODO this can be off-chain
@@ -718,6 +724,10 @@ nft_indexer_type = sp.TRecord(
     tokens = sp.TSet(nft_indexer_token_type)
 )
 
+update_org_type = sp.TList(sp.TVariant(
+    update = organization_value_type,
+    remove = sp.TAddress
+))
 
 class NFT_Creation_Management(FA2, sp.Contract):
     def __init__(self, _org: organizations_type):
@@ -742,43 +752,56 @@ class NFT_Creation_Management(FA2, sp.Contract):
             sp.if sp.len(self.data.nft_indexer[adr].tokens.elements()) != 0:
                 self.data.nft_indexer[adr].tokens.add(token_info)
             sp.else:
-                self.data.nft_indexer[adr].tokens = sp.set([token_info])
-        sp.else:
-            self.data.nft_indexer[adr] = sp.record(
-                tokens = sp.set(l = [token_info], t = nft_indexer_token_type)
-            )
+            self.data.nft_indexer[adr].tokens = sp.set([token_info])
+    sp.else:
+    self.data.nft_indexer[adr] = sp.record(
+        tokens = sp.set(l = [token_info], t = nft_indexer_token_type)
+    )
 
 
-    @sp.entry_point
-    def create_business_datasource(self, params: nft_creation_type):
-        sp.verify(self.data.organizations.contains(sp.sender))
-        sp.verify(self.data.organizations[sp.sender].roles.contains(1))
-        sp.verify(~ self.data.token_id_by_asset_id.contains(params.asset_id), message = "EXISTING_TOKEN_WITH_THE_SAME_ASSET_ID")
+@sp.entry_point
+def update_organizations(self, params: update_org_type):
+    sp.verify(self.data.administrator == sp.sender,
+              message="403 - Sender not allowed")
+    sp.for updates in params:
+        with updates.match_cases() as arg:
+            with arg.match("update") as upd:
+                self.data.organizations[upd.address] = upd
+            with arg.match("remove") as upd:
+                del self.data.organizations[upd]
 
-        ### Mint token
-        metadata = DATA_CATALOG.make_uri_metadata(
-            params.metadata_uri
-        )
-        self.private_mint(sp.record(
-            address = sp.sender,
-            amount = 1,
-            metadata = metadata,
-            token_id = self.data.all_tokens
+
+@sp.entry_point
+def create_business_datasource(self, params: nft_creation_type):
+    sp.verify(self.data.organizations.contains(sp.sender),
+              message = "403 - Sender not allowed")
+    sp.verify(self.data.organizations[sp.sender].roles.contains(OrganizationRoles.DSP),
+              message = "403 - Sender not allowed")
+    sp.verify(~ self.data.token_id_by_asset_id.contains(params.asset_id),
+              message = "400 - EXISTING_TOKEN_WITH_THE_SAME_ASSET_ID")
+
+    ### Mint token
+    metadata = DATA_CATALOG.make_uri_metadata(params.metadata_uri)
+    self.private_mint(sp.record(
+        address = sp.sender,
+        amount = 1,
+        metadata = metadata,
+        token_id = self.data.all_tokens
+    ))
+    created_token_id = self.data.all_tokens
+    ### Operator
+    self.update_operators([
+        sp.variant("add_operator", self.operator_param.make(
+            owner = sp.sender,
+            operator = params.nft_operator_address,
+            token_id = created_token_id
         ))
-        created_token_id = self.data.all_tokens
-        ### Operator
-        self.update_operators([
-                sp.variant("add_operator", self.operator_param.make(
-                    owner = sp.sender,
-                    operator = params.nft_operator_address,
-                    token_id = created_token_id
-                ))
-            ])
-        ### Update indexers
-        #index token_id by asset_id
-        self.data.token_id_by_asset_id[params.asset_id] = created_token_id
-        #index NFT
-        self.add_token_in_nft_indexer(params.nft_operator_address, created_token_id, params.asset_id, sp.sender)
+    ])
+    ### Update indexers
+    #index token_id by asset_id
+    self.data.token_id_by_asset_id[params.asset_id] = created_token_id
+    #index NFT
+    self.add_token_in_nft_indexer(params.nft_operator_address, created_token_id, params.asset_id, sp.sender)
 
 
 
@@ -819,22 +842,30 @@ class AccessManagement(NFT_Creation_Management, sp.Contract):
             access_requests = sp.big_map(
                 tkey = sp.TString,
                 tvalue = access_request_value_type
-            )
+            ),
         )
 
     @sp.entry_point
     def request_access(self, params: access_request_parameters_type):
-        sp.verify(self.data.organizations.contains(sp.sender))
-        sp.verify(self.data.organizations.contains(params.provider_address))
-        sp.verify(self.data.token_metadata.contains(params.nft_id))
+        sp.verify(self.data.organizations.contains(sp.sender),
+                  message="403 - Sender not allowed")
+        sp.verify(self.data.organizations.contains(params.provider_address),
+                  message="400 - Unknown provider"
+                  )
+        sp.verify(self.data.token_metadata.contains(params.nft_id),
+                  message="400 - Unknown nft_id")
+
         user = self.ledger_key.make(params.provider_address, params.nft_id)
-        sp.verify(self.data.ledger.contains(user))
+        sp.verify(self.data.ledger.contains(user),
+                  message="400 - No ledger entry")
 
-        key = params.access_requests_uuid
+        sp.verify(sp.len(params.scopes) > 0, message = "No scope provided")
 
-        sp.verify( ~ self.data.access_requests.contains(key))
+        request_uuid = params.access_requests_uuid
+        sp.verify( ~ self.data.access_requests.contains(request_uuid),
+                   message = "400 - Duplicated request_uuid")
 
-        self.data.access_requests[key] = sp.record(
+        self.data.access_requests[request_uuid] = sp.record(
             nft_id = params.nft_id,
             requester_address = sp.sender,
             provider_address = params.provider_address,
@@ -872,8 +903,6 @@ class DATA_CATALOG(AccessManagement, NFT_Creation_Management, FA2):
         AccessManagement.__init__(self)
 
 
-
-
 ##############################################################################
 ##############################################################################
 ################################### TESTS ####################################
@@ -887,8 +916,52 @@ class DATA_CATALOG(AccessManagement, NFT_Creation_Management, FA2):
 ## The best way to visualize them is to use the online IDE
 ## (<https://www.smartpy.io/dev/>).
 def add_test(config, is_default = True):
+
+    def origination():
+        ### Origination - deployment target
+        origination = DATA_CATALOG(config = config,
+                                   metadata = sp.utils.metadata_of_url("https://example.com"),
+                                   admin = sp.address("tz1SDYtreHuKGe7QNcZTjKQwfSreLR8JYW6c"),
+                                   orgs = sp.map(tkey=sp.TAddress, tvalue=organization_value_type))
+
+        sp.add_compilation_target(
+            "Business_Data",
+            origination
+        )
+
     @sp.add_test(name = config.name, is_default = is_default)
     def test():
+        origination()
+
+        #### INIT ORGANIZATIONS ###
+        dsp_org_1 = sp.record(
+            legal_name = 'Sita',
+            address = sp.address('tz1T8T3AQdH2tUkkh4FRUkjW3AsQqK8RuBcu'),
+            encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB',
+            roles = {OrganizationRoles.DSP}
+        )
+        bsp_org_2 = sp.record(
+            legal_name = 'AMS',
+            address = sp.address('tz1aae7QbR1aNXUpPZS6y2Kg4md4WsShMXfR'),
+            encryption_key = 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDGMxlezR6jk0Ky6fe0X1FkcwqxdJV/HQlppeopyi36i/HP3T6O9XHfdc2l9TaClvtXXUkzGfj9/k6MTCLJ9GwU93kF/YCFzyUV9WZGxCF3ePQl0TDhf6bpD91Z/jAy7mzYZm11fHIls1YYxB/rOa3qHot7BcH3kSq0Fk36yoEy8wIDAQAB/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB',
+            roles = {OrganizationRoles.BSP, OrganizationRoles.BNO}
+        )
+        organizations = sp.map(
+            {
+                dsp_org_1.address: dsp_org_1,
+                bsp_org_2.address: bsp_org_2
+            }
+        )
+
+        admin = dsp_org_1.address
+        contract1 = DATA_CATALOG(config = config,
+                                 metadata = sp.utils.metadata_of_url("https://example.com"),
+                                 admin = admin,
+                                 orgs = organizations)
+
+
+        ###########################
+
         scenario = sp.test_scenario()
         scenario.h1("FA2 Contract Name: " + config.name)
         scenario.table_of_contents()
@@ -899,65 +972,163 @@ def add_test(config, is_default = True):
         scenario.h2("Accounts")
         scenario.show([alice, bob])
 
-        #### INIT ORGANIZATIONS ###
-        orga_DSPConsortium1 = sp.record(
-            legal_name = 'DSPConsortium1',
-            address = sp.address('tz1SDYtreHuKGe7QNcZTjKQwfSreLR8JYW6c'),
-            encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB',
-            roles = {1}
-        )
-        orga_BSPConsortium2 = sp.record(
-            legal_name = 'BSPConsortium2',
-            address = sp.address('tz1PC8dnju6zkgnpFVDCnYnmHXaDTNQoDh9W'),
+        scenario += contract1
+
+        # FA2_administrator
+        scenario.h1("FA2_administrator")
+        scenario.h2("admin is current administrator")
+        scenario.verify_equal(admin, contract1.data.administrator)
+
+        scenario.h2("Current admin can update administrator")
+        scenario += contract1.set_administrator(dsp_org_1.address).run(sender = admin)
+        scenario.verify_equal(dsp_org_1.address, contract1.data.administrator)
+        scenario += contract1.set_administrator(admin).run(sender = dsp_org_1.address)
+
+        # NFT Creation Management ###
+        scenario.h1("NFT Creation Management")
+        ## remove organization
+        scenario.h2("Remove organization")
+        scenario += contract1.update_organizations([sp.variant("remove", bsp_org_2.address)]).run(sender = admin)
+        scenario.verify(~ contract1.data.organizations.contains(bsp_org_2.address))
+
+        ## add org
+        scenario.h2("Add organization")
+        scenario += contract1.update_organizations([sp.variant("update", bsp_org_2)]).run(sender = admin)
+        scenario.verify(contract1.data.organizations.contains(bsp_org_2.address))
+
+        ## update org
+        scenario.h2("Update organization")
+        bsp_org_2 = sp.record(
+            legal_name = 'UPDBSPConsortium2',
+            address = bsp_org_2.address,
             encryption_key = 'MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsCSS6ayF41KEOOxaTVdnO5SulP7EnFFxjs6E7i8HSDxYgoLQTlqPycvp86dcfRwLPtySP1EHHtTKEsQmPnaWA7npBEwkTmg9VkFseetmph6h2GiaCcxhOpRnpYEfCtjlF89OPVZPU3lvIeQCZhud/YaGk/4+8I1ZRHgEwhJXXc3MFr9V71k8jGxj/Sbmy0v5ATzzMmCchi1MGvH9acZy2UUSczO8O7burs5SrRpxY9JmAV/tFy1cnYwsPrs25XklI/x6KS/fZneybEJZ0QHNQLUEkKgqZOeNc7aK8TWX2ZTvjMnCfp1zhR2sFtXNMSja/fA9H/1UcR8j3cu4qaI1ewIDAQAB',
-            roles = {2}
+            roles = {OrganizationRoles.BSP, OrganizationRoles.BNO}
         )
-        organizations = sp.map(
-            {
-                orga_DSPConsortium1.address: orga_DSPConsortium1,
-                orga_BSPConsortium2.address: orga_BSPConsortium2
-            }
+        scenario += contract1.update_organizations([sp.variant("update", bsp_org_2)]).run(sender = admin)
+        scenario.verify(contract1.data.organizations.contains(bsp_org_2.address))
+        scenario.verify(contract1.data.organizations[bsp_org_2.address].address == bsp_org_2.address)
+        scenario.verify(contract1.data.organizations[bsp_org_2.address].legal_name == "UPDBSPConsortium2")
+
+        scenario.h2("DSPConsortium1 can create a Data Catalog")
+        scenario += contract1.create_business_datasource(sp.record(
+            nft_operator_address = bsp_org_2.address,
+            asset_id = "5YJSA1DG9DFP14705",
+            metadata_uri = sp.utils.bytes_of_string("my-url://abc")
+        )).run(sender = dsp_org_1.address)
+
+        scenario.h2("Alice cannot create a Data Catalog")
+        scenario += contract1.create_business_datasource(sp.record(
+            nft_operator_address = bsp_org_2.address,
+            asset_id = "5YJSA1DG9DFP14709",
+            metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghi")
+        )).run(sender = alice, valid = False)
+
+        scenario.h3("BSPConsortium2 cannot create a Data Catalog")
+        scenario += contract1.create_business_datasource(sp.record(
+            nft_operator_address = bsp_org_2.address,
+            asset_id = "5YJSA1DG9DFP14710",
+            metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghijkl")
+        )).run(sender = bsp_org_2.address, valid = False)
+
+        # Access Management ###
+        scenario.h1("Access Management")
+
+        ## Request access ###
+        scenario.h2("Request access")
+        scenario.h3("BSPConsortium2 can request access on DSPConsortium1 token")
+
+        ### Given
+        expected_access_requests_1 = sp.record(
+            nft_id = 1,
+            uuid = "uuid-001",
+            requester_address = bsp_org_2.address,
+            provider_address = dsp_org_1.address,
+            scopes = sp.list("scopeA", sp.TString),
+            access_granted = False,
+            access_token_hash = sp.none
         )
-        ###########################
-        admin = orga_DSPConsortium1.address
-        c1 = DATA_CATALOG(config = config,
-                 metadata = sp.utils.metadata_of_url("https://example.com"),
-                 admin = admin,
-                 orgs = organizations)
-        scenario += c1
+        ### When
+        scenario += contract1.request_access(sp.record(
+            nft_id = expected_access_requests_1.nft_id,
+            access_requests_uuid = expected_access_requests_1.uuid,
+            provider_address = expected_access_requests_1.provider_address,
+            scopes = expected_access_requests_1.scopes
+        )).run(sender = expected_access_requests_1.requester_address)
+        ### Then
+        actual_access_request_1 = contract1.data.access_requests[
+            expected_access_requests_1.uuid]
+        scenario.verify_equal(actual_access_request_1.nft_id,
+                              expected_access_requests_1.nft_id)
+        scenario.verify_equal(actual_access_request_1.requester_address,
+                              expected_access_requests_1.requester_address)
+        scenario.verify_equal(actual_access_request_1.provider_address,
+                              expected_access_requests_1.provider_address)
+        scenario.verify_equal(actual_access_request_1.scopes,
+                              expected_access_requests_1.scopes)
+        scenario.verify_equal(actual_access_request_1.access_granted,
+                              expected_access_requests_1.access_granted)
+        scenario.verify_equal(actual_access_request_1.access_token_hash,
+                              expected_access_requests_1.access_token_hash)
 
-        ### CLI DEPLOYMENT TARGET
-        sp.add_compilation_target(
-            "Business_Data",
-            c1
-        )
+        ## Given
+        scenario.h2("Alice can't request access on DSPConsortium1 token")
+        ### When
+        scenario += contract1.request_access(sp.record(
+            nft_id = expected_access_requests_1.nft_id,
+            access_requests_uuid = "uuid-002",
+            provider_address = expected_access_requests_1.provider_address,
+            scopes = expected_access_requests_1.scopes
+        )).run(sender = alice,
+               #Then
+               valid = False)
 
-        ## Data Catalog test
-        scenario.h2("Data Catalog creation")
-        scenario.p("DSPConsortium1 can create a Data Catalog")
-        scenario += c1.create_business_datasource(sp.record(
-                        nft_operator_address = orga_BSPConsortium2.address,
-                        asset_id = "5YJSA1DG9DFP14705",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abc")
-                    )).run(sender = orga_DSPConsortium1.address)
+        ## Given
+        scenario.h2("Can't request access on un-existing NFT")
+        ### When
+        scenario += contract1.request_access(sp.record(
+            nft_id = 42,
+            access_requests_uuid = "uuid-002",
+            provider_address = expected_access_requests_1.provider_address,
+            scopes = expected_access_requests_1.scopes
+        )).run(sender = bsp_org_2.address,
+               #Then
+               valid = False)
 
-        scenario.p("Alice cannot create a Data Catalog")
-        scenario += c1.create_business_datasource(sp.record(
-                        nft_operator_address = orga_BSPConsortium2.address,
-                        asset_id = "5YJSA1DG9DFP14709",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghi")
-                    )).run(sender = alice, valid = False)
+        ## Given
+        scenario.h2("Can't request access on un-existing provider")
+        ### When
+        scenario += contract1.request_access(sp.record(
+            nft_id = expected_access_requests_1.nft_id,
+            access_requests_uuid = "uuid-002",
+            provider_address = alice.address,
+            scopes = expected_access_requests_1.scopes
+        )).run(sender = bsp_org_2.address,
+               #Then
+               valid = False)
 
-        scenario.p("BSPConsortium2 cannot create a Data Catalog")
-        scenario += c1.create_business_datasource(sp.record(
-                        nft_operator_address = orga_BSPConsortium2.address,
-                        asset_id = "5YJSA1DG9DFP14710",
-                        metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghijkl")
-                    )).run(sender = orga_BSPConsortium2.address, valid = False)
+        ## Given
+        scenario.h2("Can't request access to a provider not owning the token")
+        ### When
+        scenario += contract1.request_access(sp.record(
+            nft_id = expected_access_requests_1.nft_id,
+            access_requests_uuid = "uuid-002",
+            provider_address = bsp_org_2.address,
+            scopes = expected_access_requests_1.scopes
+        )).run(sender = bsp_org_2.address,
+               #Then
+               valid = False)
 
-
-
-
+        ## Given
+        scenario.h2("Can't request access without scope")
+        ### When
+        scenario += contract1.request_access(sp.record(
+            nft_id = expected_access_requests_1.nft_id,
+            access_requests_uuid = "uuid-002",
+            provider_address = dsp_org_1.address,
+            scopes = sp.list()
+        )).run(sender = bsp_org_2.address,
+               #Then
+               valid = False)
 
 ##
 ## ## Global Environment Parameters
@@ -986,7 +1157,7 @@ def environment_config():
         force_layouts = global_parameter("force_layouts", True),
         support_operator = global_parameter("support_operator", True),
         assume_consecutive_token_ids =
-            global_parameter("assume_consecutive_token_ids", True),
+        global_parameter("assume_consecutive_token_ids", True),
         store_total_supply = global_parameter("store_total_supply", False),
         lazy_entry_points = global_parameter("lazy_entry_points", False),
         allow_self_transfer = global_parameter("allow_self_transfer", False),
