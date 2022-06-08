@@ -56,12 +56,12 @@ server:
 
 logging:
   level:
-    collaborate.api: DEBUG
+    collaborate.api: ERROR
+    collaborate.api.ipfs: ERROR
     collaborate.api.organization.tag.TezosApiGatewayOrganizationClient: DEBUG
     collaborate.api.user.tag.TezosApiGatewayUserClient: DEBUG
     collaborate.api.tag.TezosApiGatewayJobClient: DEBUG
-    collaborate.api.ipfs.UpdateIpnsKeysScheduler: ERROR
-    collaborate.api.ipfs.IpnsService: ERROR
+    collaborate.api.organization.tag.TezosApiGatewayStorageClient: DEBUG
     org.hibernate:
       SQL: INFO
       type.descriptor.sql.BasicBinder: INFO
@@ -162,22 +162,14 @@ feign:
   okhttp.enabled: true
   client:
     config:
+      default:
+        loggerLevel: full
       ipfs-client:
         connectTimeout: 10000
         readTimeout: 10000
-        loggerLevel: none
       ipfs-name-client:
         connectTimeout: 10000
         readTimeout: 300000
-        loggerLevel: none
-      ipfs-files-client:
-        loggerLevel: none
-      ipfs-pin-client:
-        loggerLevel: none
-      ipfs-key-client:
-        loggerLevel: none
-      tag-transaction-client:
-        loggerLevel: none
       tag-user-client:
         connectTimeout: 10000
         readTimeout: 240000
