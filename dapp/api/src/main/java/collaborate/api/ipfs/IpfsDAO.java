@@ -62,7 +62,7 @@ public class IpfsDAO {
       log.error("can't deserialize IPFS cid={} to class={}", hash, clazz.getName());
       throw new IllegalStateException(e);
     } catch (Exception ex) {
-      log.error("Exception while getting cid={} content, class={}", hash, clazz);
+      log.error(String.format("Exception while getting cid={%s} content, class={%s}", hash, clazz), ex);
       // FIXME use Optional.empty()
       return null;
     }
