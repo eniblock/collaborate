@@ -60,6 +60,8 @@ logging:
     collaborate.api.organization.tag.TezosApiGatewayOrganizationClient: DEBUG
     collaborate.api.user.tag.TezosApiGatewayUserClient: DEBUG
     collaborate.api.tag.TezosApiGatewayJobClient: DEBUG
+    collaborate.api.ipfs.UpdateIpnsKeysScheduler: ERROR
+    collaborate.api.ipfs.IpnsService: ERROR
     org.hibernate:
       SQL: INFO
       type.descriptor.sql.BasicBinder: INFO
