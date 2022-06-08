@@ -56,17 +56,18 @@ server:
 
 logging:
   level:
-    collaborate.api: ERROR
+    collaborate.api: DEBUG
     collaborate.api.ipfs: ERROR
-    collaborate.api.organization.tag.TezosApiGatewayOrganizationClient: DEBUG
+    collaborate.api.organization.tag.TezosApiGatewayOrganizationClient: ERROR
     collaborate.api.user.tag.TezosApiGatewayUserClient: DEBUG
     collaborate.api.tag.TezosApiGatewayJobClient: DEBUG
-    collaborate.api.organization.tag.TezosApiGatewayStorageClient: DEBUG
+    collaborate.api.transaction.TezosApiGatewayTransactionClient: ERROR
+    collaborate.api.user.TagUserClient: ERROR
     org.hibernate:
       SQL: INFO
       type.descriptor.sql.BasicBinder: INFO
     org.springframework:
-      #      web.filter.CommonsRequestLoggingFilter: DEBUG
+      web.filter.CommonsRequestLoggingFilter: ERROR
       jdbc.core:
         JdbcTemplate: DEBUG
         StatementCreatorUtils: TRACE

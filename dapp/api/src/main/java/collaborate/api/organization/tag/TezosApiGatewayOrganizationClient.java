@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(name = "tag-storage-client", url = "${tezos-api-gateway.url}/api")
-public interface TezosApiGatewayStorageClient {
+public interface TezosApiGatewayOrganizationClient {
 
   @PostMapping("tezos_node/storage/{contractAddress}")
   OrganizationMap getOrganizations(@PathVariable String contractAddress,

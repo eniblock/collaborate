@@ -1,10 +1,9 @@
 package collaborate.api.organization;
 
-import static collaborate.api.cache.CacheConfig.CacheNames.ORGANIZATION;
 import static java.util.stream.Collectors.toList;
 
 import collaborate.api.organization.model.OrganizationDTO;
-import collaborate.api.organization.tag.TezosApiGatewayStorageClient;
+import collaborate.api.organization.tag.TezosApiGatewayOrganizationClient;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import java.util.Arrays;
@@ -15,7 +14,6 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -23,7 +21,7 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 public class OrganizationDAO {
 
-  private final TezosApiGatewayStorageClient tezosApiGatewayStorageClient;
+  private final TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
   private final ModelMapper modelMapper;
 
   public static final String ORGANIZATION_FIELD = "organizations";
@@ -31,7 +29,7 @@ public class OrganizationDAO {
       List.of(ORGANIZATION_FIELD));
 
   public Collection<OrganizationDTO> getAllOrganizations(String smartContractAddress) {
-    var organizations = tezosApiGatewayStorageClient.getOrganizations(
+    var organizations = tezosApiGatewayOrganizationClient.getOrganizations(
         smartContractAddress,
         GET_ALL_ORGANIZATIONS_REQUEST
     );

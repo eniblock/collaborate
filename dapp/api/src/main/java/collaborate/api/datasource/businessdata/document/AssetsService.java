@@ -49,6 +49,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +64,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class ScopeAssetsService {
+public class AssetsService {
 
   public static final String ASSET_ID_SEPARATOR = ":";
 
@@ -192,14 +194,12 @@ public class ScopeAssetsService {
 
   public ZipOutputStream download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)
       throws IOException {
-    var accessTokenResponseOpt = getJwt(scopeAssets.getDatasourceId(), scopeAssets.getScopeName());
-    if (accessTokenResponseOpt.isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
+    var accessTokenResponse = getJwt(scopeAssets.getDatasourceId(), scopeAssets.getScopeName())
+        .orElseThrow(() ->   new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
     var r = scopeAssets.getAssets().stream()
         .map(ScopeAssetDTO::getDownloadLink)
         .map(URI::toString)
-        .map(s -> fetch(s, accessTokenResponseOpt.get()))
+        .map(s -> fetch(s, accessTokenResponse))
         .collect(toList());
     return zip(r, outputStream);
   }
@@ -275,5 +275,30 @@ public class ScopeAssetsService {
     );
 
     return restTemplate;
+  }
+
+  public ResponseEntity<String> testConnection(Integer tokenId) {
+    var assetsDTO = listScopeAssets(tokenId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    var accessTokenResponse = getJwt(assetsDTO.getDatasourceId(), assetsDTO.getScopeName())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
+
+
+    var downloadLink = assetsDTO.getAssets().stream()
+        .findFirst()
+        .map(ScopeAssetDTO::getDownloadLink)
+        .map(URI::toString)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    RestTemplate restTemplate = buildRestTemplate();
+    HttpHeaders headers = new HttpHeaders();
+    headers.setBearerAuth(accessTokenResponse.getAccessToken());
+
+    return restTemplate.exchange(
+        downloadLink,
+        HttpMethod.GET,
+        new HttpEntity<String>(null, headers),
+        String.class);
   }
 }
