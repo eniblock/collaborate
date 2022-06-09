@@ -111,9 +111,8 @@ public class BusinessDataController {
       @ApiResponse(responseCode = "407", description = "Not existing or expired access request token"),
       @ApiResponse(responseCode = "502", description = "Unavailable datasource")}
   )
-  @ResponseStatus(value = HttpStatus.PROXY_AUTHENTICATION_REQUIRED, reason = "Invalid access request token")
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public ResponseEntity<Void> fetch(@PathVariable Integer tokenId,
+  public ResponseEntity<String> fetch(@PathVariable Integer tokenId,
       @PathVariable Optional<String> assetIdOpt)
       throws InterruptedException {
     if (nftDatasourceService.saveGatewayConfigurationByTokenId(tokenId,
@@ -122,13 +121,20 @@ public class BusinessDataController {
       Thread.sleep(1000);
     }
 
-    var statusCode = assetsService.fetch(tokenId, assetIdOpt).getStatusCode();
+    var assetResponse = assetsService.fetch(tokenId, assetIdOpt);
+    var statusCode = assetResponse.getStatusCode();
     switch (statusCode) {
       case SERVICE_UNAVAILABLE:
         statusCode = HttpStatus.BAD_GATEWAY;
         break;
+      default:
+        break;
     }
-    return new ResponseEntity<>(null, statusCode);
+    return new ResponseEntity<>(
+        assetIdOpt.map(o -> assetResponse.getBody())
+            .orElse(null),
+        assetResponse.getHeaders(),
+        statusCode);
   }
 
 

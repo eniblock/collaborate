@@ -296,7 +296,8 @@ public class AssetsService {
 
     RestTemplate restTemplate = buildRestTemplate();
     HttpHeaders headers = new HttpHeaders();
-    headers.setBearerAuth(accessTokenResponse.getAccessToken());
+    headers.set("Authorization", "Bearer "+accessTokenResponse.getAccessToken());
+    //headers.setBearerAuth(accessTokenResponse.getAccessToken());
 
     return restTemplate.exchange(
         downloadLink,
