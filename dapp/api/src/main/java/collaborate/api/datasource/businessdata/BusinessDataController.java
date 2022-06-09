@@ -18,6 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -99,7 +100,7 @@ public class BusinessDataController {
     return assets.get();
   }
 
-  @GetMapping("asset/{tokenId}/test-connection")
+  @GetMapping(value = {"asset/{tokenId}/test-connection", "asset/{tokenId}/fetch/{assetIdOpt}"})
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "Try to consume an element of the business data collection"
@@ -112,7 +113,8 @@ public class BusinessDataController {
   )
   @ResponseStatus(value = HttpStatus.PROXY_AUTHENTICATION_REQUIRED, reason = "Invalid access request token")
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public ResponseEntity<Void> testConnection(@PathVariable Integer tokenId)
+  public ResponseEntity<Void> fetch(@PathVariable Integer tokenId,
+      @PathVariable Optional<String> assetIdOpt)
       throws InterruptedException {
     if (nftDatasourceService.saveGatewayConfigurationByTokenId(tokenId,
         businessDataContractAddress)) {
@@ -120,14 +122,15 @@ public class BusinessDataController {
       Thread.sleep(1000);
     }
 
-    var statusCode = assetsService.testConnection(tokenId).getStatusCode();
-    switch (statusCode){
+    var statusCode = assetsService.fetch(tokenId, assetIdOpt).getStatusCode();
+    switch (statusCode) {
       case SERVICE_UNAVAILABLE:
         statusCode = HttpStatus.BAD_GATEWAY;
         break;
     }
     return new ResponseEntity<>(null, statusCode);
   }
+
 
   @PostMapping("asset/download")
   @Operation(

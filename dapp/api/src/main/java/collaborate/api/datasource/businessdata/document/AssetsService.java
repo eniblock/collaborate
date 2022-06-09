@@ -195,11 +195,11 @@ public class AssetsService {
   public ZipOutputStream download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)
       throws IOException {
     var accessTokenResponse = getJwt(scopeAssets.getDatasourceId(), scopeAssets.getScopeName())
-        .orElseThrow(() ->   new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
     var r = scopeAssets.getAssets().stream()
         .map(ScopeAssetDTO::getDownloadLink)
         .map(URI::toString)
-        .map(s -> fetch(s, accessTokenResponse))
+        .map(s -> download(s, accessTokenResponse))
         .collect(toList());
     return zip(r, outputStream);
   }
@@ -228,7 +228,7 @@ public class AssetsService {
     }
   }
 
-  public DownloadDocument fetch(String url, AccessTokenResponse oAuth2Jwt) {
+  public DownloadDocument download(String url, AccessTokenResponse oAuth2Jwt) {
     RestTemplate restTemplate = buildRestTemplate();
 
     return restTemplate.execute(
@@ -261,7 +261,7 @@ public class AssetsService {
         return new DownloadDocument(filename, ret);
       };
 
-  private String buildDownloadFilename(){
+  private String buildDownloadFilename() {
     var dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
     return dateFormatter.format(ZonedDateTime.now(clock));
   }
@@ -277,19 +277,22 @@ public class AssetsService {
     return restTemplate;
   }
 
-  public ResponseEntity<String> testConnection(Integer tokenId) {
+  public ResponseEntity<String> fetch(Integer tokenId, Optional<String> assetIdOpt) {
     var assetsDTO = listScopeAssets(tokenId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+
+    var downloadLink = assetIdOpt.map(
+            assetId -> assetsDTO.getAssets().stream()
+                .filter(assetDTO -> StringUtils.equals(assetDTO.getName(), assetId))
+                .findFirst()
+        ).orElse(assetsDTO.getAssets().stream().findFirst())
+        .map(ScopeAssetDTO::getDownloadLink)
+        .map(URI::toString)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     var accessTokenResponse = getJwt(assetsDTO.getDatasourceId(), assetsDTO.getScopeName())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
-
-
-    var downloadLink = assetsDTO.getAssets().stream()
-        .findFirst()
-        .map(ScopeAssetDTO::getDownloadLink)
-        .map(URI::toString)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
     RestTemplate restTemplate = buildRestTemplate();
     HttpHeaders headers = new HttpHeaders();
@@ -301,4 +304,5 @@ public class AssetsService {
         new HttpEntity<String>(null, headers),
         String.class);
   }
+
 }
