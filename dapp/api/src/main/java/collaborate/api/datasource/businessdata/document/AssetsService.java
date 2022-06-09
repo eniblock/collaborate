@@ -49,6 +49,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,7 +64,7 @@ import org.springframework.web.server.ResponseStatusException;
 @RequiredArgsConstructor
 @Slf4j
 @Service
-public class ScopeAssetsService {
+public class AssetsService {
 
   public static final String ASSET_ID_SEPARATOR = ":";
 
@@ -192,14 +194,12 @@ public class ScopeAssetsService {
 
   public ZipOutputStream download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)
       throws IOException {
-    var accessTokenResponseOpt = getJwt(scopeAssets.getDatasourceId(), scopeAssets.getScopeName());
-    if (accessTokenResponseOpt.isEmpty()) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN);
-    }
+    var accessTokenResponse = getJwt(scopeAssets.getDatasourceId(), scopeAssets.getScopeName())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
     var r = scopeAssets.getAssets().stream()
         .map(ScopeAssetDTO::getDownloadLink)
         .map(URI::toString)
-        .map(s -> fetch(s, accessTokenResponseOpt.get()))
+        .map(s -> download(s, accessTokenResponse))
         .collect(toList());
     return zip(r, outputStream);
   }
@@ -228,7 +228,7 @@ public class ScopeAssetsService {
     }
   }
 
-  public DownloadDocument fetch(String url, AccessTokenResponse oAuth2Jwt) {
+  public DownloadDocument download(String url, AccessTokenResponse oAuth2Jwt) {
     RestTemplate restTemplate = buildRestTemplate();
 
     return restTemplate.execute(
@@ -261,7 +261,7 @@ public class ScopeAssetsService {
         return new DownloadDocument(filename, ret);
       };
 
-  private String buildDownloadFilename(){
+  private String buildDownloadFilename() {
     var dateFormatter = DateTimeFormatter.ofPattern("yyyyMMdd-HHmmss");
     return dateFormatter.format(ZonedDateTime.now(clock));
   }
@@ -276,4 +276,34 @@ public class ScopeAssetsService {
 
     return restTemplate;
   }
+
+  public ResponseEntity<String> fetch(Integer tokenId, Optional<String> assetIdOpt) {
+    var assetsDTO = listScopeAssets(tokenId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+
+    var downloadLink = assetIdOpt.map(
+            assetId -> assetsDTO.getAssets().stream()
+                .filter(assetDTO -> StringUtils.equals(assetDTO.getName(), assetId))
+                .findFirst()
+        ).orElse(assetsDTO.getAssets().stream().findFirst())
+        .map(ScopeAssetDTO::getDownloadLink)
+        .map(URI::toString)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    var accessTokenResponse = getJwt(assetsDTO.getDatasourceId(), assetsDTO.getScopeName())
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
+
+    RestTemplate restTemplate = buildRestTemplate();
+    HttpHeaders headers = new HttpHeaders();
+    headers.set("Authorization", "Bearer "+accessTokenResponse.getAccessToken());
+    //headers.setBearerAuth(accessTokenResponse.getAccessToken());
+
+    return restTemplate.exchange(
+        downloadLink,
+        HttpMethod.GET,
+        new HttpEntity<String>(null, headers),
+        String.class);
+  }
+
 }

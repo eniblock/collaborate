@@ -37,7 +37,7 @@ class RsaCipherServiceIT {
   @Test
   void cipherThenUncipher_shouldBeIdentity() {
 
-    var secret = "small-secret";
+    var secret = "iGTCCJ/6kFconAZAms5jcHEosfswtSE0NPo09KPhqgw= qTbhFpHCklgs1fAYTZ2Uhw==";
     // WHEN
     var ciphered = rsaCipherService.cipher(secret, PUBLIC_KEY);
     var deciphered = rsaCipherService.decipher(ciphered, PRIVATE_KEY);

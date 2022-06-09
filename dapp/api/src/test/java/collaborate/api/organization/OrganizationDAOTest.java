@@ -7,7 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.organization.tag.OrganizationMap;
-import collaborate.api.organization.tag.TezosApiGatewayStorageClient;
+import collaborate.api.organization.tag.TezosApiGatewayOrganizationClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,12 +23,12 @@ class OrganizationDAOTest {
   private OrganizationDAO organizationDAO;
 
   @Mock
-  private TezosApiGatewayStorageClient tezosApiGatewayStorageClient;
+  private TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
 
   @BeforeEach
   void setUp() {
     organizationDAO = new OrganizationDAO(
-        tezosApiGatewayStorageClient,
+        tezosApiGatewayOrganizationClient,
         new ModelMapper()
     );
   }
@@ -40,7 +40,7 @@ class OrganizationDAOTest {
     var indexerResponse = objectMapper.readValue(organizationJson, OrganizationMap.class);
 
     String contractAdress = "contract-address";
-    when(tezosApiGatewayStorageClient
+    when(tezosApiGatewayOrganizationClient
         .getOrganizations(contractAdress, OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST))
         .thenReturn(indexerResponse);
     // WHEN

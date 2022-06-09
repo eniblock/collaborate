@@ -64,3 +64,8 @@ Error: we could not install a suitable pip version...
 
 Then, execute the `apt-get install python3-distutils` command and execute
 again `curl -sSL https://clk-project.org/install.sh | env CLK_EXTENSIONS=k8s bash`
+
+#### Too much data for RSA block
+The configure RSA keys is too short for ciphering the message.
+You can use the following command for generating a new key pair, `2048` is the recommanded size:
+`openssl genrsa -out keypair.pem 2048 && openssl rsa -in keypair.pem -pubout -out publickey.crt && openssl pkcs8 -topk8 -inform PEM -outform PEM -nocrypt -in keypair.pem -out pkcs8.key`

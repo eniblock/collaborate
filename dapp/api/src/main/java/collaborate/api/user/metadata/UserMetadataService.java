@@ -1,6 +1,6 @@
 package collaborate.api.user.metadata;
 
-import static collaborate.api.datasource.businessdata.document.ScopeAssetsService.ASSET_ID_SEPARATOR;
+import static collaborate.api.datasource.businessdata.document.AssetsService.ASSET_ID_SEPARATOR;
 
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
