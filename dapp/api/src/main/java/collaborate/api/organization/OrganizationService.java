@@ -29,11 +29,6 @@ public class OrganizationService {
     return organizationDAO.getAllOrganizations(organizationYellowPageContractAddress);
   }
 
-  private <T> Predicate<T> distinctByKeyPredicate(Function<? super T, Object> keyExtractor) {
-    Map<Object, Boolean> map = new ConcurrentHashMap<>();
-    return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-  }
-
   public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String publicKeyHash,
       String smartContractAddress) {
     return organizationDAO.findOrganizationByPublicKeyHash(publicKeyHash, smartContractAddress);

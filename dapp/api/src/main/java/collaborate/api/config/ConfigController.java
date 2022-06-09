@@ -24,4 +24,5 @@ public class ConfigController {
   public SmartContractAddressProperties smartContracts() {
     return smartContractAddressProperties;
   }
+
 }
