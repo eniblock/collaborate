@@ -265,7 +265,7 @@ ipfs:
   resources:
     requests:
       memory: 50Mi
-      cpu: 400m
+      cpu: 50m
 
 mail:
   dev: false

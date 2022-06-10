@@ -15,7 +15,7 @@ import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.config.api.SmartContractConfig;
 import collaborate.api.datasource.businessdata.access.RequestAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
-import collaborate.api.datasource.businessdata.document.ScopeAssetsService;
+import collaborate.api.datasource.businessdata.document.AssetsService;
 import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
@@ -60,7 +60,7 @@ class BusinessDataControllerIT {
   @MockBean
   FindBusinessDataService findBusinessDataService;
   @MockBean
-  ScopeAssetsService scopeAssetsService;
+  AssetsService assetsService;
 
   @Autowired
   private WebApplicationContext context;

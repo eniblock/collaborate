@@ -42,7 +42,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 
 @ExtendWith(MockitoExtension.class)
-class ScopeAssetsServiceTest {
+class AssetsServiceTest {
 
   @Mock
   AccessTokenProvider accessTokenProvider;
@@ -65,11 +65,11 @@ class ScopeAssetsServiceTest {
   @Mock
   AssetScopeDAO assetScopeDAO;
   @InjectMocks
-  ScopeAssetsService scopeAssetsService;
+  AssetsService assetsService;
 
   @BeforeEach
   void setUp() {
-    scopeAssetsService = new ScopeAssetsService(
+    assetsService = new AssetsService(
         accessTokenProvider,
         assetScopeDAO,
         businessDataContractAddress,
@@ -95,7 +95,7 @@ class ScopeAssetsServiceTest {
         .thenReturn(Optional.ofNullable(vaultMetadata));
 
     // WHEN
-    var oAuth2ResultO = scopeAssetsService.getOAuth2(datasourceId);
+    var oAuth2ResultO = assetsService.getOAuth2(datasourceId);
     // THEN
     assertThat(oAuth2ResultO).isEqualTo(Optional.ofNullable(expectedOAuth2));
   }
@@ -140,7 +140,7 @@ class ScopeAssetsServiceTest {
     }
 
     // WHEN
-    var oAuth2ResultO = scopeAssetsService.getJwt(datasourceId, scope);
+    var oAuth2ResultO = assetsService.getJwt(datasourceId, scope);
     // THEN
     assertThat(oAuth2ResultO).isEqualTo(Optional.ofNullable(expectedResult));
   }
@@ -177,7 +177,7 @@ class ScopeAssetsServiceTest {
     when(datasourceMetadataService.findByAlias(mockDatasource, resourceAlias)).thenReturn(
         new HashMap<>());
     // WHEN
-    var scopeAssetsResult = scopeAssetsService.convertJsonToScopeAssetDTOs(assetListJsonString,
+    var scopeAssetsResult = assetsService.convertJsonToScopeAssetDTOs(assetListJsonString,
         datasourceId, resourceAlias);
     // THEN
     assertThat(scopeAssetsResult).containsExactlyInAnyOrder(
@@ -209,7 +209,7 @@ class ScopeAssetsServiceTest {
         )
     );
     // WHEN
-    var scopeAssetsResult = scopeAssetsService.convertJsonToScopeAssetDTOs(assetListJsonString,
+    var scopeAssetsResult = assetsService.convertJsonToScopeAssetDTOs(assetListJsonString,
         datasourceId, resourceAlias);
     // THEN
     assertThat(scopeAssetsResult).containsExactlyInAnyOrder(
