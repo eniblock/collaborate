@@ -46,7 +46,6 @@ public class OrganizationDAO {
     }
   }
 
-  @Cacheable(value = ORGANIZATION)
   public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String address,
       String smartContractAddress) {
     return getAllOrganizations(smartContractAddress).stream()
