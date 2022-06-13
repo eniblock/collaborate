@@ -1,6 +1,5 @@
 package collaborate.api.datasource.businessdata.find;
 
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.businessdata.transaction.BusinessDataTransactionService;
 import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
@@ -12,9 +11,11 @@ import collaborate.api.organization.OrganizationService;
 import collaborate.api.user.metadata.UserMetadataService;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
@@ -27,10 +28,15 @@ public class FindBusinessDataService {
   private final OrganizationService organizationService;
   private final UserMetadataService userMetadataService;
 
-  public Collection<AssetDetailsDTO> getAll() {
-    var dspWallets = organizationService.getAllDspWallets();
+  public Collection<AssetDetailsDTO> find(Pageable pageable, Optional<String> query,
+      Optional<String> ownerAddress) {
+    var dspWallets = ownerAddress.map(List::of)
+        .orElse(organizationService.getAllDspWallets());
+
     var assetByDsp = findBusinessDataDAO.findPassportsIndexersByDsps(dspWallets);
-    return assetByDsp.streamTokenIndexes()
+    var tokenIndexStream =  assetByDsp.streamTokenIndexes()
+        .skip(pageable.getOffset())
+
         .map(this::toAssetDetails)
         .collect(Collectors.toList());
   }
