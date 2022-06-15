@@ -24,32 +24,26 @@ local_resource('helm dependencies',
 overridedValues = [
   'api.traefik.pilot.token=' + os.getenv('TRAEFIK_PILOT_TOKEN', '')
 ]
-if os.getenv('BUSINESS_DATA_SC', '') != '':
-  overridedValues \
-    .append('api.businessDataContractAddress=' + os.getenv('BUSINESS_DATA_SC'))
-if os.getenv('DIGITAL_PASSPORT_SC', '') != '':
-  overridedValues \
-    .append(
-      'api.digitalPassportContractAddress=' + os.getenv('DIGITAL_PASSPORT_SC'))
 
+helm_values = ['./helm/collaborate-dapp/values-dev.yaml']
+user_helm_values = './helm/collaborate-dapp/values-dev-user.yaml'
+helm_values.extend([user_helm_values] if os.path.exists(user_helm_values) else [])
 k8s_yaml(
     helm(
         'helm/collaborate-dapp',
-        values=['./helm/collaborate-dapp/values-dev.yaml'],
+        values=helm_values,
         name='col',
         set=overridedValues
     )
 )
 
-# FIXME replaced by image_build once the bug with k3d will be resolved
-docker_build(
+image_build(
     'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/api',
     'dapp/api',
     target='dev'
 )
 
-# FIXME replaced by image_build once the bug with k3d will be resolved
-docker_build(
+image_build(
     'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam',
     'dapp/iam'
 )
