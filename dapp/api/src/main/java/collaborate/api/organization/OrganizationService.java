@@ -2,6 +2,7 @@ package collaborate.api.organization;
 
 import static collaborate.api.organization.model.OrganizationRole.DSP;
 
+import collaborate.api.cache.CacheConfig.CacheNames;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.user.UserService;
 import java.util.Collection;
@@ -14,31 +15,32 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@CacheConfig(cacheNames={CacheNames.ORGANIZATION})
 public class OrganizationService {
 
   private final String organizationYellowPageContractAddress;
   private final OrganizationDAO organizationDAO;
   private final UserService userService;
 
+  @Cacheable
   public Collection<OrganizationDTO> getAllOrganizations() {
     return organizationDAO.getAllOrganizations(organizationYellowPageContractAddress);
   }
 
-  private <T> Predicate<T> distinctByKeyPredicate(Function<? super T, Object> keyExtractor) {
-    Map<Object, Boolean> map = new ConcurrentHashMap<>();
-    return t -> map.putIfAbsent(keyExtractor.apply(t), Boolean.TRUE) == null;
-  }
-
+  @Cacheable
   public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String publicKeyHash,
       String smartContractAddress) {
     return organizationDAO.findOrganizationByPublicKeyHash(publicKeyHash, smartContractAddress);
   }
 
+  @Cacheable
   public OrganizationDTO getByWalletAddress(String walletAddress) {
     return findOrganizationByPublicKeyHash(walletAddress, organizationYellowPageContractAddress)
         .orElseGet(() -> {
@@ -47,11 +49,13 @@ public class OrganizationService {
         });
   }
 
+  @Cacheable
   public OrganizationDTO getCurrentOrganization() {
     var adminUser = userService.getAdminUser();
     return getByWalletAddress(adminUser.getAddress());
   }
 
+  @Cacheable
   public List<String> getAllDspWallets() {
     return getAllOrganizations()
         .stream()
