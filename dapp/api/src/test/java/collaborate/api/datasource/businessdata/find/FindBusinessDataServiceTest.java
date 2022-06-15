@@ -2,20 +2,13 @@ package collaborate.api.datasource.businessdata.find;
 
 import static collaborate.api.datasource.nft.model.storage.TokenIndexByTokenIdMatcher.matchTokenId;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
-import collaborate.api.datasource.nft.model.storage.TokenIndex;
 import collaborate.api.organization.OrganizationFeature;
 import collaborate.api.organization.OrganizationService;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import org.assertj.core.api.Condition;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,7 +17,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Order;
 
 @ExtendWith(MockitoExtension.class)
 class FindBusinessDataServiceTest {

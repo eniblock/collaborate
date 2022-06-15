@@ -1,6 +1,8 @@
 package collaborate.api.datasource.businessdata.find;
 
 import collaborate.api.datasource.businessdata.transaction.BusinessDataTransactionService;
+import collaborate.api.datasource.kpi.KpiService;
+import collaborate.api.datasource.kpi.KpiSpecification;
 import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
@@ -22,6 +24,7 @@ public class AssetDetailsService {
   private final BusinessDataTransactionService businessDataTransactionService;
   private final OrganizationService organizationService;
   private final UserMetadataService userMetadataService;
+  private final KpiService kpiService;
 
   AssetDetailsDTO toAssetDetails(TokenIndex t) {
     var datasourceId = StringUtils.substringBefore(t.getAssetId(), ":");
@@ -47,6 +50,7 @@ public class AssetDetailsService {
         .tokenId(t.getTokenId())
         .tokenStatus(TokenStatus.CREATED)
         .creationDatetime(creationDate.orElse(null))
+        .grantedAccess(kpiService.count(new KpiSpecification("nft-id", t.getTokenId().toString())))
         .build();
   }
 
