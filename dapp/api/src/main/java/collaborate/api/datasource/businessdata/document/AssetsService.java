@@ -7,6 +7,7 @@ import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.businessdata.document.model.DownloadDocument;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
+import collaborate.api.datasource.businessdata.find.AssetDetailsService;
 import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.gateway.GatewayResourceDTO;
@@ -69,12 +70,12 @@ public class AssetsService {
   public static final String ASSET_ID_SEPARATOR = ":";
 
   private final AccessTokenProvider accessTokenProvider;
+  private final AssetDetailsService assetDetailsService;
   private final AssetScopeDAO assetScopeDAO;
   private final String businessDataContractAddress;
   private final Clock clock;
   private final DatasourceService datasourceService;
   private final DatasourceMetadataService datasourceMetadataService;
-  private final FindBusinessDataService findBusinessDataService;
   private final GatewayUrlService gatewayUrlService;
   private final HttpClientFactory httpClientFactory;
   private final UserMetadataService userMetadataService;
@@ -112,7 +113,7 @@ public class AssetsService {
     return Optional.ofNullable(resourceResponse.getBody())
         .map(JsonNode::toString)
         .map(assetListJsonString -> ScopeAssetsDTO.builder()
-            .accessStatus(findBusinessDataService.getAccessStatus(datasourceId, resourceAlias))
+            .accessStatus(assetDetailsService.getAccessStatus(datasourceId, resourceAlias))
             .datasourceId(datasourceId)
             .providerAddress(datasourceDTO.getOwnerAddress())
             .scopeName(resourceAlias)

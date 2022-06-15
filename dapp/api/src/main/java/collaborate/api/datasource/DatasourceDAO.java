@@ -70,7 +70,7 @@ public class DatasourceDAO {
 
   @NonNull
   public Page<ListDatasourceDTO> findAll(Pageable pageable) {
-    var datasource =
+    var datasources =
         streamDatasourcesByCid()
             .skip(pageable.getOffset())
             .limit(pageable.getPageSize())
@@ -78,7 +78,7 @@ public class DatasourceDAO {
             .map(listDatasourceDTOFactory::create)
             .filter(Objects::nonNull)
             .collect(toList());
-    return new PageImpl<>(datasource, pageable, streamDatasourcesByCid().count());
+    return new PageImpl<>(datasources, pageable, streamDatasourcesByCid().count());
   }
 
 

@@ -8,7 +8,6 @@ import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
-import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
@@ -26,14 +25,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.SortDefault;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -41,7 +37,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -66,15 +61,15 @@ public class BusinessDataController {
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public HttpEntity<Page<AssetDetailsDTO>> listAssetDetails(
-      @SortDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+      Pageable pageable,
       @RequestParam(required = false) Optional<String> query,
       @RequestParam(required = false) Optional<String> ownerAddress
   ) {
-    var result = findBusinessDataService.find(pageable, query, owner);
-    if (CollectionUtils.isEmpty(result)) {
+    var result = findBusinessDataService.find(pageable, query, ownerAddress);
+    if (result.isEmpty()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    return result;
+    return ResponseEntity.ok(result);
   }
 
   @PostMapping("access-request")
@@ -83,7 +78,7 @@ public class BusinessDataController {
       description = "Make a grant access request for the given tokens"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_GRANT_ACCESS_REQUEST)
-  public Job grantAccessRequest(
+  public Job requestAccess(
       @RequestBody @NotEmpty List<@Valid AccessRequestDTO> accessRequestDTOs) {
     return accessRequestService.requestAccess(accessRequestDTOs);
   }

@@ -10,23 +10,15 @@ class IndexerTagResponseDTOTest {
   @Test
   void canBeDeserialized() {
     // WHEN
-    var indexer = TestResources.readContent(
-        "/datasource/businessdata/indexer-response.json",
-        IndexerTagResponseDTO.class
-    );
-
+    var indexer = IndexerTagResponseFeature.indexerTagResponse;
     // THEN
-    assertThat(indexer.getPassportsIndexerByDsp()).hasSize(3);
+    assertThat(indexer.getNftByDsp()).hasSize(3);
   }
 
   @Test
   void streamTokenIndexes_hasExpectedSize() {
     // WHEN
-    var indexer = TestResources.readContent(
-        "/datasource/businessdata/indexer-response.json",
-        IndexerTagResponseDTO.class
-    );
-
+    var indexer = IndexerTagResponseFeature.indexerTagResponse;
     // THEN
     assertThat(indexer.streamTokenIndexes()).hasSize(2);
   }
