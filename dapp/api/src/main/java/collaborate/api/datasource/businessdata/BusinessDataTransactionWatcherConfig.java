@@ -31,8 +31,7 @@ public class BusinessDataTransactionWatcherConfig {
   private final CreatedDatasourceTransactionHandler createdDatasourceTransactionHandler;
   private final CreatedScopeTransactionHandler createdScopeTransactionHandler;
   private final GrantAccessTransactionHandler grantAccessTransactionHandler;
-  private final RequestAccessTransactionHandler requestAccessTransactionHandler
-      ;
+  private final RequestAccessTransactionHandler requestAccessTransactionHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
   private final TransactionProperties transactionProperties;

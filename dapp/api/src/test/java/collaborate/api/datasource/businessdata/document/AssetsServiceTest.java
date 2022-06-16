@@ -6,7 +6,7 @@ import static org.mockito.Mockito.when;
 import collaborate.api.datasource.DatasourceMetadataService;
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
-import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
+import collaborate.api.datasource.businessdata.find.AssetDetailsService;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.gateway.GatewayUrlService;
 import collaborate.api.datasource.model.Datasource;
@@ -46,14 +46,14 @@ class AssetsServiceTest {
 
   @Mock
   AccessTokenProvider accessTokenProvider;
+  @Mock
+  AssetDetailsService assetDetailsService;
   String businessDataContractAddress = "smartContractAddress";
   Clock clock = Clock.fixed(Instant.parse("2018-08-19T16:45:42.00Z"), ZoneOffset.UTC);
   @Mock
   DatasourceService datasourceService;
   @Mock
   DatasourceMetadataService datasourceMetadataService;
-  @Mock
-  FindBusinessDataService findBusinessDataService;
   @Mock
   GatewayUrlService gatewayUrlService;
   @Mock
@@ -71,12 +71,12 @@ class AssetsServiceTest {
   void setUp() {
     assetsService = new AssetsService(
         accessTokenProvider,
+        assetDetailsService,
         assetScopeDAO,
         businessDataContractAddress,
         clock,
         datasourceService,
         datasourceMetadataService,
-        findBusinessDataService,
         gatewayUrlService,
         httpClientFactory,
         userMetadataService,

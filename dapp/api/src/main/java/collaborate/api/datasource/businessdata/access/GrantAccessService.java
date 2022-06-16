@@ -3,13 +3,17 @@ package collaborate.api.datasource.businessdata.access;
 import collaborate.api.datasource.businessdata.access.model.AccessGrantParams;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestParams;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
+import collaborate.api.datasource.kpi.Kpi;
+import collaborate.api.datasource.kpi.KpiService;
 import collaborate.api.datasource.model.dto.VaultMetadata;
 import collaborate.api.datasource.model.scope.AssetScope;
 import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.transaction.Transaction;
 import collaborate.api.user.metadata.UserMetadataService;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -31,8 +35,11 @@ public class GrantAccessService {
   private final UserMetadataService userMetadataService;
   private final GrantAccessDAO grantAccessDAO;
 
+  private final KpiService kpiService;
+
   public void grant(Transaction transaction) {
     AccessRequestParams accessRequestParams = getAccessRequestParams(transaction);
+    kpiService.save(buildGrantKpi(transaction, accessRequestParams));
     var requester = transaction.getSource();
     // Get OAuth2 vault metadata
     VaultMetadata vaultMetadata = getVaultMetadata(accessRequestParams);
@@ -98,4 +105,13 @@ public class GrantAccessService {
     }
   }
 
+
+  Kpi buildGrantKpi(Transaction transaction, AccessRequestParams accessRequestParams) {
+    return Kpi.builder()
+        .createdAt(transaction.getTimestamp())
+        .kpiKey("business-data.grant")
+        .organizationWallet(transaction.getSource())
+        .values(objectMapper.convertValue(Map.of("nft-id", accessRequestParams.getNftId()), JsonNode.class))
+        .build();
+  }
 }
