@@ -2,6 +2,7 @@ package collaborate.api.datasource.passport.transaction;
 
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
+import collaborate.api.transaction.TransactionPersistenceHandler;
 import collaborate.api.transaction.TransactionStateService;
 import collaborate.api.transaction.TransactionWatcher;
 import collaborate.api.transaction.TransactionWatchersProperties;
@@ -26,6 +27,7 @@ public class DigitalPassportTransactionWatcher {
   private final MintTokenHandler mintTokenHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
+  private final TransactionPersistenceHandler transactionPersistenceHandler;
   private final TransactionWatchersProperties watchersProperties;
   private final TransactionStateService transactionStateService;
 
@@ -59,6 +61,7 @@ public class DigitalPassportTransactionWatcher {
     log.info("Initializing block chain transaction event manager");
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(mintTokenHandler);
+    transactionEventManager.subscribe(transactionPersistenceHandler);
     return transactionEventManager;
   }
 

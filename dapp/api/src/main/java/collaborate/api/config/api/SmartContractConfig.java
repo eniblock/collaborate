@@ -1,5 +1,7 @@
 package collaborate.api.config.api;
 
+import java.util.Collection;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
@@ -32,5 +34,14 @@ public class SmartContractConfig {
   @Bean
   public String organizationYellowPageContractAddress() {
     return smartContractAddressProperties.getOrganizationYellowPage();
+  }
+
+  @Bean
+  public Collection<String> allSmartContracts() {
+    return List.of(smartContractAddressProperties.getBusinessData(),
+        smartContractAddressProperties.getDigitalPassport(),
+        smartContractAddressProperties.getDigitalPassportProxyTokenController(),
+        smartContractAddressProperties.getOrganizationYellowPage()
+    );
   }
 }

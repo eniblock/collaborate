@@ -6,6 +6,7 @@ import collaborate.api.datasource.businessdata.kpi.CreatedDatasourceTransactionH
 import collaborate.api.datasource.businessdata.kpi.CreatedScopeTransactionHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
+import collaborate.api.transaction.TransactionPersistenceHandler;
 import collaborate.api.transaction.TransactionStateService;
 import collaborate.api.transaction.TransactionWatcher;
 import collaborate.api.transaction.TransactionWatchersProperties;
@@ -33,6 +34,7 @@ public class BusinessDataTransactionWatcher {
   private final RequestAccessTransactionHandler requestAccessTransactionHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
+  private final TransactionPersistenceHandler transactionPersistenceHandler;
   private final TransactionWatchersProperties watchersProperties;
   private final TransactionStateService transactionStateService;
 
@@ -67,6 +69,7 @@ public class BusinessDataTransactionWatcher {
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(createdDatasourceTransactionHandler);
     transactionEventManager.subscribe(createdScopeTransactionHandler);
+    transactionEventManager.subscribe(transactionPersistenceHandler);
     transactionEventManager.subscribe(grantAccessTransactionHandler);
     transactionEventManager.subscribe(requestAccessTransactionHandler);
     return transactionEventManager;

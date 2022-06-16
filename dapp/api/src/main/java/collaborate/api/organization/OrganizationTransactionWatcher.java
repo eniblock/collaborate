@@ -2,6 +2,7 @@ package collaborate.api.organization;
 
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
+import collaborate.api.transaction.TransactionPersistenceHandler;
 import collaborate.api.transaction.TransactionStateService;
 import collaborate.api.transaction.TransactionWatcher;
 import collaborate.api.transaction.TransactionWatchersProperties;
@@ -25,6 +26,9 @@ public class OrganizationTransactionWatcher {
   private final String organizationYellowPageContractAddress;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
+
+  private final OnUpdateOrganizationTransactionHandler onUpdateOrganizationTransactionHandler;
+  private final TransactionPersistenceHandler transactionPersistenceHandler;
   private final TransactionWatchersProperties watchersProperties;
   private final TransactionStateService transactionStateService;
 
@@ -57,6 +61,8 @@ public class OrganizationTransactionWatcher {
   private TransactionEventManager initEventManager() {
     log.info("Initializing block chain transaction event manager");
     var transactionEventManager = new TransactionEventManager();
+    transactionEventManager.subscribe(onUpdateOrganizationTransactionHandler);
+    transactionEventManager.subscribe(transactionPersistenceHandler);
     return transactionEventManager;
   }
 

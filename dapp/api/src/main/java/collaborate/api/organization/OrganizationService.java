@@ -24,17 +24,17 @@ public class OrganizationService {
   private final OrganizationDAO organizationDAO;
   private final UserService userService;
 
-  @Cacheable
+  @Cacheable(key = "'all'")
   public Collection<OrganizationDTO> getAllOrganizations() {
     return organizationDAO.getAllOrganizations();
   }
 
-  @Cacheable
+  @Cacheable(key = "'publicKey' + #publicKeyHash")
   public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String publicKeyHash) {
     return organizationDAO.findOrganizationByPublicKeyHash(publicKeyHash);
   }
 
-  @Cacheable
+  @Cacheable(key = "'wallet' + #walletAddress")
   public OrganizationDTO getByWalletAddress(String walletAddress) {
     return findOrganizationByPublicKeyHash(walletAddress)
         .orElseGet(() -> {
@@ -43,13 +43,13 @@ public class OrganizationService {
         });
   }
 
-  @Cacheable
+  @Cacheable(key = "'current'")
   public OrganizationDTO getCurrentOrganization() {
     var adminUser = userService.getAdminUser();
     return getByWalletAddress(adminUser.getAddress());
   }
 
-  @Cacheable
+  @Cacheable(key = "'dspWallets'")
   public List<String> getAllDspWallets() {
     return getAllOrganizations()
         .stream()

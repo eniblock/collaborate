@@ -46,7 +46,8 @@ class TagUserDAO {
         .build();
     log.debug("[TAG] create({})", createUsersDTO);
     try {
-      ResponseEntity<List<UserWalletDTO>> createdUsers = tagUserClient.createActiveUser(createUsersDTO);
+      ResponseEntity<List<UserWalletDTO>> createdUsers = tagUserClient.createActiveUser(
+          createUsersDTO);
       expectResponseStatusCode(createdUsers, CREATED);
       return Optional.ofNullable(createdUsers.getBody())
           .flatMap(body -> body.stream().findFirst());
@@ -77,7 +78,7 @@ class TagUserDAO {
     }
   }
 
-  @Cacheable(value = USER)
+  @Cacheable(value = USER, key = "'wallet' + #address")
   public Optional<UserWalletDTO> findOneByWalletAddress(String address) {
     log.debug("[TAG] findOneByPublicKeyHash({})", address);
     Optional<UserWalletDTO> walletOptResult;
@@ -100,16 +101,9 @@ class TagUserDAO {
     return walletOptResult;
   }
 
-  @Cacheable(value = USER)
+  @Cacheable(value = USER, key = "'email' + #userEmail")
   public Optional<UserWalletDTO> findOneByUserEmail(String userEmail) {
     return findOneByUserId(cleanUserService.cleanUserId(userEmail));
-  }
-
-  @Cacheable(value = USER)
-  public String getOrganizationAccountAddress() {
-    return findOneByUserEmail(secureKeyName)
-        .map(UserWalletDTO::getAddress)
-        .orElseThrow(() -> new IllegalStateException("No current organization account found"));
   }
 
   void expectResponseStatusCode(ResponseEntity<?> response,

@@ -3,6 +3,7 @@ package collaborate.api.datasource.passport.transaction;
 import collaborate.api.datasource.multisig.BuildMultiSigHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
+import collaborate.api.transaction.TransactionPersistenceHandler;
 import collaborate.api.transaction.TransactionStateService;
 import collaborate.api.transaction.TransactionWatcher;
 import collaborate.api.transaction.TransactionWatchersProperties;
@@ -21,12 +22,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @ConditionalOnExpression("!'${smartContractAddress.digitalPassportProxyTokenController}'.isEmpty()")
-public class ProxyTokenControllerTransactionWatcherConfig {
+public class ProxyControllerTransactionWatcher {
 
   private final String digitalPassportProxyControllerContractAddress;
   private final BuildMultiSigHandler buildMultiSigHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
+
+  private final TransactionPersistenceHandler transactionPersistenceHandler;
   private final TransactionWatchersProperties watchersProperties;
   private final TransactionStateService transactionStateService;
 
@@ -60,6 +63,7 @@ public class ProxyTokenControllerTransactionWatcherConfig {
     log.info("Initializing block chain transaction event manager");
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(buildMultiSigHandler);
+    transactionEventManager.subscribe(transactionPersistenceHandler);
     return transactionEventManager;
   }
 
