@@ -37,7 +37,9 @@ class TagConfigTest {
     // WHEN
     var actualUrlOpt = expectedTagConfig.findIndexerUrlByName("tzstats");
     // THEN
-    assertThat(actualUrlOpt).hasValue("https://api.ithaca.tzstats.com/");
+    assertThat(actualUrlOpt).hasValue(
+        new TezosIndexer("tzstats", "https://api.ithaca.tzstats.com/")
+    );
   }
 
   @Test

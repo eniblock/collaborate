@@ -17,11 +17,10 @@ public class TagConfig {
   private Set<TezosIndexer> tezosIndexers;
 
   @JsonIgnore
-  public Optional<String> findIndexerUrlByName(String name) {
+  public Optional<TezosIndexer> findIndexerUrlByName(String name) {
     return tezosIndexers.stream()
         .filter(i -> name.equals(i.getName()))
-        .findFirst()
-        .map(TezosIndexer::getUrl);
+        .findFirst();
   }
 
 }

@@ -2,6 +2,7 @@ package collaborate.api.config;
 
 import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.tag.config.TezosApiGatewayConfClient;
+import collaborate.api.tag.config.TezosIndexer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +33,7 @@ public class ConfigController {
 
   @GetMapping("/tzindex-url")
   @Operation(description = "Get the TzIndex URL. TzIndex is an indexer for tezos block chain")
-  public String tzIndexUrl() {
+  public TezosIndexer tzIndexUrl() {
     return tezosApiGatewayConfClient.getConfig()
         .findIndexerUrlByName(TZSTATS)
         .orElseThrow(() -> new ResponseStatusException(
