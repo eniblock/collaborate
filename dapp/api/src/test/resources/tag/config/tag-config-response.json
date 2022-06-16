@@ -1,0 +1,15 @@
+{
+  "tezosNodesURLs": [
+    "https://ithacanet.ecadinfra.com"
+  ],
+  "tezosIndexers": [
+    {
+      "name": "tzstats",
+      "URL": "https://api.ithaca.tzstats.com/"
+    },
+    {
+      "name": "tzkt",
+      "URL": "https://api.ithacanet.tzkt.io/"
+    }
+  ]
+}
