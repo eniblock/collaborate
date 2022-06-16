@@ -41,7 +41,7 @@ class OrganizationServiceTest {
   void getAllDspWallets_shouldIncludeDspRoleAndExcludeDspRole(
       List<OrganizationDTO> organizations, List<String> expectedWalletsResult) {
     // GIVEN
-    when(organizationDAO.getAllOrganizations(any()))
+    when(organizationDAO.getAllOrganizations())
         .thenReturn(organizations);
     // WHEN
     var dspWalletsResult = organizationService.getAllDspWallets();

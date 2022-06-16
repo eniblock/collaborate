@@ -32,7 +32,6 @@ import org.springframework.web.server.ResponseStatusException;
 public class OrganizationController {
 
   private final OrganizationService organizationService;
-  private final String organizationYellowPageContractAddress;
 
   @GetMapping()
   @Operation(
@@ -80,8 +79,7 @@ public class OrganizationController {
   @Cacheable(value = ORGANIZATION)
   @PreAuthorize(HasRoles.ORGANIZATION_READ)
   public OrganizationDTO getByAddress(@PathVariable String walletAddress) {
-    return organizationService.findOrganizationByPublicKeyHash(walletAddress,
-            organizationYellowPageContractAddress)
+    return organizationService.findOrganizationByPublicKeyHash(walletAddress)
         .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
   }
 }

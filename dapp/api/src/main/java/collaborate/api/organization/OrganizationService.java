@@ -31,18 +31,17 @@ public class OrganizationService {
 
   @Cacheable
   public Collection<OrganizationDTO> getAllOrganizations() {
-    return organizationDAO.getAllOrganizations(organizationYellowPageContractAddress);
+    return organizationDAO.getAllOrganizations();
   }
 
   @Cacheable
-  public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String publicKeyHash,
-      String smartContractAddress) {
-    return organizationDAO.findOrganizationByPublicKeyHash(publicKeyHash, smartContractAddress);
+  public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String publicKeyHash) {
+    return organizationDAO.findOrganizationByPublicKeyHash(publicKeyHash);
   }
 
   @Cacheable
   public OrganizationDTO getByWalletAddress(String walletAddress) {
-    return findOrganizationByPublicKeyHash(walletAddress, organizationYellowPageContractAddress)
+    return findOrganizationByPublicKeyHash(walletAddress)
         .orElseGet(() -> {
           log.warn("No organization found for account={}", walletAddress);
           return OrganizationDTO.builder().address(walletAddress).build();

@@ -24,12 +24,13 @@ class OrganizationDAOTest {
 
   @Mock
   private TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
-
+  private static final     String CONTRACT_ADDRESS = "contract-address";
   @BeforeEach
   void setUp() {
     organizationDAO = new OrganizationDAO(
         tezosApiGatewayOrganizationClient,
-        new ModelMapper()
+        new ModelMapper(),
+        CONTRACT_ADDRESS
     );
   }
 
@@ -39,12 +40,11 @@ class OrganizationDAOTest {
     String organizationJson = OrganizationFeature.organizationTagResponseJson;
     var indexerResponse = objectMapper.readValue(organizationJson, OrganizationMap.class);
 
-    String contractAdress = "contract-address";
     when(tezosApiGatewayOrganizationClient
-        .getOrganizations(contractAdress, OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST))
+        .getOrganizations(CONTRACT_ADDRESS, OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST))
         .thenReturn(indexerResponse);
     // WHEN
-    var actualOrganizations = organizationDAO.getAllOrganizations(contractAdress);
+    var actualOrganizations = organizationDAO.getAllOrganizations();
     // THEN
     assertThat(actualOrganizations).containsExactlyInAnyOrder(
         dspConsortium1Organization,

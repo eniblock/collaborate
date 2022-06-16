@@ -23,14 +23,15 @@ public class OrganizationDAO {
 
   private final TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
   private final ModelMapper modelMapper;
+  private final String organizationYellowPageContractAddress;
 
   public static final String ORGANIZATION_FIELD = "organizations";
   static final DataFieldsRequest<String> GET_ALL_ORGANIZATIONS_REQUEST = new DataFieldsRequest<>(
       List.of(ORGANIZATION_FIELD));
 
-  public Collection<OrganizationDTO> getAllOrganizations(String smartContractAddress) {
+  public Collection<OrganizationDTO> getAllOrganizations() {
     var organizations = tezosApiGatewayOrganizationClient.getOrganizations(
-        smartContractAddress,
+        organizationYellowPageContractAddress,
         GET_ALL_ORGANIZATIONS_REQUEST
     );
 
@@ -44,9 +45,8 @@ public class OrganizationDAO {
     }
   }
 
-  public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String address,
-      String smartContractAddress) {
-    return getAllOrganizations(smartContractAddress).stream()
+  public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String address) {
+    return getAllOrganizations().stream()
         .filter(o -> address.equals(o.getAddress()))
         .findFirst();
   }
