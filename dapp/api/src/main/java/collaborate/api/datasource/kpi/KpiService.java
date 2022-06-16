@@ -1,5 +1,6 @@
 package collaborate.api.datasource.kpi;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,11 +16,20 @@ public class KpiService {
     kpiDAO.save(kpi);
   }
 
-  public void saveIfValueMissing(Kpi kpi, KpiSpecification onMissingCondition) {
-    if (kpiDAO.findAll(onMissingCondition).isEmpty()) {
+  public Long count(KpiSpecification kpiSpecification) {
+    return kpiDAO.count(kpiSpecification);
+  }
+
+  public List<Kpi> find(KpiSpecification criteria) {
+    return kpiDAO.findAll(criteria);
+  }
+
+  public void saveIfValueMissing(Kpi kpi, KpiSpecification missingCriteria) {
+    if (kpiDAO.findAll(missingCriteria).isEmpty()) {
       kpiDAO.save(kpi);
     } else {
-      log.info("Kpi already exist with value having {}", onMissingCondition);
+      log.info("Kpi already exists with value having {}", missingCriteria);
     }
   }
+
 }

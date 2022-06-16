@@ -22,11 +22,11 @@ import lombok.NoArgsConstructor;
 public class IndexerTagResponseDTO {
 
   @JsonProperty("nft_indexer")
-  private List<TagEntry<String, Map<String, TokenIndex>>> passportsIndexerByDsp = new ArrayList<>();
+  private List<TagEntry<String, Map<String, TokenIndex>>> nftByDsp = new ArrayList<>();
 
   @JsonIgnore
   public Stream<TokenIndex> streamTokenIndexes() {
-    return passportsIndexerByDsp.stream()
+    return nftByDsp.stream()
         .map(TagEntry::getValue)
         .filter(Objects::nonNull)
         .map(Map::values)
