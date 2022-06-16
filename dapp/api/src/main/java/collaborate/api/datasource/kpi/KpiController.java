@@ -29,7 +29,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class KpiController {
 
   private final FindKpiService findKpiService;
-  private final KpiService kpiService;
 
   @PostMapping
   @Operation(
@@ -38,12 +37,6 @@ public class KpiController {
   @PreAuthorize(HasRoles.KPI_READ)
   public Collection<KpiAggregation> findKpiByQuery(@Valid @RequestBody KpiQuery kpiQuery) {
     return findKpiService.find(kpiQuery);
-  }
-
-  @GetMapping
-  @PreAuthorize(HasRoles.KPI_READ)
-  public List<Kpi> findKpiByQuery(@RequestParam Integer nftId) {
-    return kpiService.find(new KpiSpecification("nft-id", String.valueOf(nftId)));
   }
 
 }

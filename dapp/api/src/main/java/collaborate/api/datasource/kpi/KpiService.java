@@ -24,11 +24,11 @@ public class KpiService {
     return kpiDAO.findAll(criteria);
   }
 
-  public void saveIfValueMissing(Kpi kpi, KpiSpecification criteria) {
-    if (kpiDAO.findAll(criteria).isEmpty()) {
+  public void saveIfValueMissing(Kpi kpi, KpiSpecification missingCriteria) {
+    if (kpiDAO.findAll(missingCriteria).isEmpty()) {
       kpiDAO.save(kpi);
     } else {
-      log.info("Kpi already exists with value having {}", criteria);
+      log.info("Kpi already exists with value having {}", missingCriteria);
     }
   }
 
