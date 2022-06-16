@@ -11,12 +11,12 @@
       }
     },
     {
-      "key": "tz1YEAJSJ7j4HNn9adywXxtwttSSHBgyYbyT",
+      "key": "tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG",
       "value": {
         "0": {
           "asset_id": "dee7329c-545c-48d9-9a7d-a58d6fd28845:workshop-analytics",
           "token_key_ref": "19",
-          "token_owner_address": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"
+          "token_owner_address": "tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG"
         }
       }
     },

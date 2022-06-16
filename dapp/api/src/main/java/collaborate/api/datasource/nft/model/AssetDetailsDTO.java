@@ -4,6 +4,9 @@ import collaborate.api.config.ISO8601JsonStringFormat;
 import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.organization.model.OrganizationDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.ZonedDateTime;
 import javax.validation.Valid;
@@ -34,7 +37,7 @@ public class AssetDetailsDTO {
   @NotNull
   private OrganizationDTO assetOwner;
 
-  @Schema(description = "The status of the the asset", example = "GRANTED")
+  @Schema(description = "The status of the asset", example = "GRANTED")
   private AccessStatus accessStatus;
 
   @Schema(description = "The asset creation datetime (ISO8601 = yyyy-MM-dd'T'HH:mm:ss.SSSXXX)")
@@ -52,5 +55,10 @@ public class AssetDetailsDTO {
 
   @Schema(description = "The token status of the the asset", example = "PENDING_CREATION")
   private TokenStatus tokenStatus;
+
+  @JsonInclude(Include.NON_NULL)
+  @Schema(description = "The number of GrantedAccess on this asset, only available for the asset provider", example = "12")
+  private Long grantedAccess;
+
 
 }

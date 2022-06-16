@@ -16,7 +16,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import javax.servlet.http.HttpServletResponse;
@@ -24,18 +23,20 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -59,12 +60,16 @@ public class BusinessDataController {
       description = "Get the business data catalog (list of scopes)"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public Collection<AssetDetailsDTO> listAssetDetails() {
-    var result = findBusinessDataService.getAll();
-    if (CollectionUtils.isEmpty(result)) {
+  public HttpEntity<Page<AssetDetailsDTO>> listAssetDetails(
+      Pageable pageable,
+      @RequestParam(required = false) Optional<String> query,
+      @RequestParam(required = false) Optional<String> ownerAddress
+  ) {
+    var result = findBusinessDataService.find(pageable, query, ownerAddress);
+    if (result.isEmpty()) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
-    return result;
+    return ResponseEntity.ok(result);
   }
 
   @PostMapping("access-request")
@@ -73,7 +78,7 @@ public class BusinessDataController {
       description = "Make a grant access request for the given tokens"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_GRANT_ACCESS_REQUEST)
-  public Job grantAccessRequest(
+  public Job requestAccess(
       @RequestBody @NotEmpty List<@Valid AccessRequestDTO> accessRequestDTOs) {
     return accessRequestService.requestAccess(accessRequestDTOs);
   }
@@ -81,7 +86,7 @@ public class BusinessDataController {
   @GetMapping("asset/{tokenId}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "See all the Business-data assets (documents) of the specified token scope"
+      description = "See all the Business-data assets (documents) of the specified token id"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public ScopeAssetsDTO listAssetDocuments(@PathVariable Integer tokenId)
