@@ -153,6 +153,12 @@
       <version>${springdoc-openapi-ui.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <!-- Database dependencies-->
     <dependency>
       <groupId>org.postgresql</groupId>
@@ -288,6 +294,7 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-cache</artifactId>
     </dependency>
+
   </dependencies>
 
   <build>

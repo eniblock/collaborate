@@ -2,13 +2,13 @@ package collaborate.api.datasource.passport.transaction;
 
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
-import collaborate.api.transaction.TransactionProperties;
 import collaborate.api.transaction.TransactionStateService;
 import collaborate.api.transaction.TransactionWatcher;
-import collaborate.api.transaction.TransactionWatcherProperty;
+import collaborate.api.transaction.TransactionWatchersProperties;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -20,40 +20,37 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @ConditionalOnExpression("!'${smartContractAddress.digitalPassport}'.isEmpty()")
-public class DigitalPassportTransactionWatcherConfig {
+public class DigitalPassportTransactionWatcher {
 
-  private final String businessDataContractAddress;
+  private final String digitalPassportContractAddress;
   private final MintTokenHandler mintTokenHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
-  private final TransactionProperties transactionProperties;
+  private final TransactionWatchersProperties watchersProperties;
   private final TransactionStateService transactionStateService;
 
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    for (var watcherProperty : transactionProperties.getWatchers()) {
-      if (watcherProperty.isSmartContract(businessDataContractAddress)) {
-        transactionWatcherPoolTaskScheduler.schedule(
-            buildWatcher(watcherProperty),
-            buildPeriodicTrigger(watcherProperty)
-        );
-      }
+    if (StringUtils.isNotBlank(digitalPassportContractAddress)) {
+      transactionWatcherPoolTaskScheduler.schedule(
+          buildWatcher(),
+          buildPeriodicTrigger()
+      );
     }
   }
 
-  private TransactionWatcher buildWatcher(TransactionWatcherProperty watcherProperty) {
+  private TransactionWatcher buildWatcher() {
     return new TransactionWatcher(
-        watcherProperty.getSmartContractAddress(),
+        digitalPassportContractAddress,
         initDigitalPassportEventManager(),
         tezosApiGatewayTransactionClient,
         transactionStateService
     );
   }
 
-  private PeriodicTrigger buildPeriodicTrigger(
-      TransactionWatcherProperty transactionWatcherProperty) {
+  private PeriodicTrigger buildPeriodicTrigger() {
     return new PeriodicTrigger(
-        transactionWatcherProperty.getFixedDelayInMs(),
+        watchersProperties.getFixedDelayInMs(),
         TimeUnit.MILLISECONDS
     );
   }

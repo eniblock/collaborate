@@ -1,8 +1,5 @@
 package collaborate.api.config.api;
 
-import collaborate.api.datasource.DatasourceProperties;
-import collaborate.api.datasource.nft.TokenMetadataProperties;
-import collaborate.api.transaction.TransactionProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;

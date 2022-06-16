@@ -7,11 +7,7 @@ import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.user.UserService;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,10 +18,9 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@CacheConfig(cacheNames={CacheNames.ORGANIZATION})
+@CacheConfig(cacheNames = {CacheNames.ORGANIZATION})
 public class OrganizationService {
 
-  private final String organizationYellowPageContractAddress;
   private final OrganizationDAO organizationDAO;
   private final UserService userService;
 

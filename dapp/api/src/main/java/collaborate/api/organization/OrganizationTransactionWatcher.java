@@ -1,6 +1,5 @@
-package collaborate.api.datasource.passport.transaction;
+package collaborate.api.organization;
 
-import collaborate.api.datasource.multisig.BuildMultiSigHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
 import collaborate.api.transaction.TransactionStateService;
@@ -20,11 +19,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 @Slf4j
 @Component
-@ConditionalOnExpression("!'${smartContractAddress.digitalPassportProxyTokenController}'.isEmpty()")
-public class ProxyTokenControllerTransactionWatcherConfig {
+@ConditionalOnExpression("!'${smartContractAddress.businessData}'.isEmpty()")
+public class OrganizationTransactionWatcher {
 
-  private final String digitalPassportProxyControllerContractAddress;
-  private final BuildMultiSigHandler buildMultiSigHandler;
+  private final String organizationYellowPageContractAddress;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
   private final TransactionWatchersProperties watchersProperties;
@@ -32,7 +30,7 @@ public class ProxyTokenControllerTransactionWatcherConfig {
 
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    if (StringUtils.isNotBlank(digitalPassportProxyControllerContractAddress)) {
+    if (StringUtils.isNotBlank(organizationYellowPageContractAddress)) {
       transactionWatcherPoolTaskScheduler.schedule(
           buildWatcher(),
           buildPeriodicTrigger()
@@ -42,7 +40,7 @@ public class ProxyTokenControllerTransactionWatcherConfig {
 
   private TransactionWatcher buildWatcher() {
     return new TransactionWatcher(
-        digitalPassportProxyControllerContractAddress,
+        organizationYellowPageContractAddress,
         initEventManager(),
         tezosApiGatewayTransactionClient,
         transactionStateService
@@ -59,7 +57,6 @@ public class ProxyTokenControllerTransactionWatcherConfig {
   private TransactionEventManager initEventManager() {
     log.info("Initializing block chain transaction event manager");
     var transactionEventManager = new TransactionEventManager();
-    transactionEventManager.subscribe(buildMultiSigHandler);
     return transactionEventManager;
   }
 

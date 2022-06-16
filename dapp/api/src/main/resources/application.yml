@@ -8,10 +8,10 @@ smart-contract-address:
   businessData:
   organizationYellowPage:
 
-transaction:
+transaction-watchers:
   tag-client-url:
   enabled: true
-  watchers:
+  fixedDelayInMs: 500
 
 datasource:
   root-folder: /data/ipfs/xdev/collaborate/datasource
