@@ -24,10 +24,6 @@ spring:
 tezos-api-gateway:
   url: "127.0.0.1:1084"
 
-transaction:
-  tag-client-url: ""
-  watchers:
-
 traefik:
   certificatesPath: /etc/ssl/certs/xdev/collaborate/
   pfxUnProtectorScriptPath: /etc/ssl/certs/xdev/collaborate/pfx-un-protector.sh

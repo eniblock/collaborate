@@ -203,20 +203,10 @@ spec:
               value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/token"
 
             # Tag Transactions
-            - name: TRANSACTION_TAG_CLIENT_URL
+            - name: TRANSACTION_WATCHERS_TAG_CLIENT_URL
               value: "{{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "nameOverride" }}-api:3333"
-            - name: TRANSACTION_WATCHERS_0_FIXED_DELAY_IN_MS
-              value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
-            - name: TRANSACTION_WATCHERS_0_SMART_CONTRACT_ADDRESS
-              value: {{ .Values.api.smartContractAddress.businessData | quote }}
-            - name: TRANSACTION_WATCHERS_1_FIXED_DELAY_IN_MS
-              value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
-            - name: TRANSACTION_WATCHERS_1_SMART_CONTRACT_ADDRESS
-              value: {{ .Values.api.smartContractAddress.digitalPassport | quote }}
-            - name: TRANSACTION_WATCHERS_2_FIXED_DELAY_IN_MS
-              value: {{ .Values.transaction.watchers.fixedDelayInMs | quote }}
-            - name: TRANSACTION_WATCHERS_2_SMART_CONTRACT_ADDRESS
-              value: {{ .Values.api.smartContractAddress.digitalPassportProxyTokenController | quote }}
+            - name: TRANSACTION_WATCHERS_FIXED_DELAY_IN_MS
+              value: {{ .Values.api.transactionWatchers.fixedDelayInMs | quote }}
           ports:
             - name: http
               containerPort: 7772

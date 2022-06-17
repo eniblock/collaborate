@@ -2,16 +2,12 @@ package collaborate.api.organization;
 
 import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.model.OrganizationRole;
 import java.util.List;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -19,7 +15,6 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class OrganizationServiceTest {
@@ -28,13 +23,6 @@ class OrganizationServiceTest {
   OrganizationDAO organizationDAO;
   @InjectMocks
   OrganizationService organizationService;
-
-  @BeforeEach
-  public void setUp() {
-    ReflectionTestUtils.setField(organizationService, "organizationYellowPageContractAddress",
-        "orgSCAddress");
-  }
-
 
   @ParameterizedTest
   @MethodSource("extractValuePathParameters")

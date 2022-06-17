@@ -6,10 +6,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-@FeignClient(name = "tag-transaction-client", url = "${transaction.tag-client-url}/api")
+@FeignClient(name = "tag-transaction-client", url = "${transaction-watchers.tag-client-url}/api")
 public interface TezosApiGatewayTransactionClient {
 
-  @GetMapping("contract/{contractAddress}/calls")
+  @GetMapping("contract/{contractAddress}/calls?indexer=tzstats")
   List<Transaction> getSmartContractTransactionList(
       @PathVariable String contractAddress,
       @RequestParam(required = false, defaultValue = "0") long offset,

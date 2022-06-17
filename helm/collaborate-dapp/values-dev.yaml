@@ -47,11 +47,6 @@ keycloak:
     - name: IDENTITY_BROKER_ENABLED
       value: "true"
 
-transaction:
-  tagClientUrl: ""
-  watchers:
-    fixedDelayInMs: 2000
-
 tezos-api-gateway:
   vault:
     server:

@@ -13,7 +13,7 @@ api:
     # Overrides the image tag whose default is the chart appVersion.
     # tag:
 
-  imagePullSecrets: []
+  imagePullSecrets: [ ]
 
   replicaCount: 1
 
@@ -21,25 +21,25 @@ api:
     # Specifies whether a service account should be created
     create: true
     # Annotations to add to the service account
-    annotations: {}
+    annotations: { }
     # The name of the service account to use.
     # If not set and create is true, a name is generated using the fullname template
     name: ""
 
-  podAnnotations: {}
+  podAnnotations: { }
 
   networkPolicy:
     enabled: true
 
-  podSecurityContext: {}
+  podSecurityContext: { }
   # fsGroup: 2000
 
-  securityContext: {}
+  securityContext: { }
     # capabilities:
-    #   drop:
-    #   - ALL
-    # readOnlyRootFilesystem: true
-    # runAsNonRoot: true
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
   # runAsUser: 1000
 
   service:
@@ -65,11 +65,11 @@ api:
     targetCPUUtilizationPercentage: 80
     # targetMemoryUtilizationPercentage: 80
 
-  nodeSelector: {}
+  nodeSelector: { }
 
-  tolerations: []
+  tolerations: [ ]
 
-  affinity: {}
+  affinity: { }
 
   traefik:
     image:
@@ -111,6 +111,8 @@ api:
     profiles:
       active:
 
+  transactionWatchers:
+    fixedDelayInMs: 500
 db:
   nameOverride: api-db
   postgresqlDatabase: api
@@ -153,7 +155,7 @@ ingress:
     nginx.ingress.kubernetes.io/proxy-send-timeout: "1800"
   host: ""
   from:
-    - podSelector: {}
+    - podSelector: { }
       namespaceSelector:
         matchLabels:
           name: ingress
@@ -180,7 +182,7 @@ keycloak:
     repository: xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam
     # FIXME
     tag: develop
-    pullSecrets: []
+    pullSecrets: [ ]
   auth:
     adminUser: kcadmin
     existingSecretPerPassword:
@@ -291,3 +293,4 @@ tezos-api-gateway:
     nameOverride: tag-db
   vault:
     nameOverride: tag-vault
+

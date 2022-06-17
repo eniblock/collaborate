@@ -3,13 +3,14 @@ package collaborate.api.datasource.passport.transaction;
 import collaborate.api.datasource.multisig.BuildMultiSigHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
-import collaborate.api.transaction.TransactionProperties;
+import collaborate.api.transaction.TransactionPersistenceHandler;
 import collaborate.api.transaction.TransactionStateService;
 import collaborate.api.transaction.TransactionWatcher;
-import collaborate.api.transaction.TransactionWatcherProperty;
+import collaborate.api.transaction.TransactionWatchersProperties;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -21,40 +22,39 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @ConditionalOnExpression("!'${smartContractAddress.digitalPassportProxyTokenController}'.isEmpty()")
-public class ProxyTokenControllerTransactionWatcherConfig {
+public class ProxyControllerTransactionWatcher {
 
   private final String digitalPassportProxyControllerContractAddress;
   private final BuildMultiSigHandler buildMultiSigHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
-  private final TransactionProperties transactionProperties;
+
+  private final TransactionPersistenceHandler transactionPersistenceHandler;
+  private final TransactionWatchersProperties watchersProperties;
   private final TransactionStateService transactionStateService;
 
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    for (var watcherProperty : transactionProperties.getWatchers()) {
-      if (watcherProperty.isSmartContract(digitalPassportProxyControllerContractAddress)) {
-        transactionWatcherPoolTaskScheduler.schedule(
-            buildWatcher(watcherProperty),
-            buildPeriodicTrigger(watcherProperty)
-        );
-      }
+    if (StringUtils.isNotBlank(digitalPassportProxyControllerContractAddress)) {
+      transactionWatcherPoolTaskScheduler.schedule(
+          buildWatcher(),
+          buildPeriodicTrigger()
+      );
     }
   }
 
-  private TransactionWatcher buildWatcher(TransactionWatcherProperty watcherProperty) {
+  private TransactionWatcher buildWatcher() {
     return new TransactionWatcher(
-        watcherProperty.getSmartContractAddress(),
+        digitalPassportProxyControllerContractAddress,
         initEventManager(),
         tezosApiGatewayTransactionClient,
         transactionStateService
     );
   }
 
-  private PeriodicTrigger buildPeriodicTrigger(
-      TransactionWatcherProperty transactionWatcherProperty) {
+  private PeriodicTrigger buildPeriodicTrigger() {
     return new PeriodicTrigger(
-        transactionWatcherProperty.getFixedDelayInMs(),
+        watchersProperties.getFixedDelayInMs(),
         TimeUnit.MILLISECONDS
     );
   }
@@ -63,6 +63,7 @@ public class ProxyTokenControllerTransactionWatcherConfig {
     log.info("Initializing block chain transaction event manager");
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(buildMultiSigHandler);
+    transactionEventManager.subscribe(transactionPersistenceHandler);
     return transactionEventManager;
   }
 
