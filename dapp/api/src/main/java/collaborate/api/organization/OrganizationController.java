@@ -1,7 +1,5 @@
 package collaborate.api.organization;
 
-import static collaborate.api.cache.CacheConfig.CacheNames.ORGANIZATION;
-import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 import collaborate.api.config.OpenApiConfig;
@@ -17,7 +15,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Collection;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -76,10 +73,10 @@ public class OrganizationController {
           responseCode = "200",
           description = "Organization has been found",
           content = @Content(schema = @Schema(implementation = OrganizationDTO.class)))})
-  @Cacheable(value = ORGANIZATION)
   @PreAuthorize(HasRoles.ORGANIZATION_READ)
   public OrganizationDTO getByAddress(@PathVariable String walletAddress) {
     return organizationService.findOrganizationByPublicKeyHash(walletAddress)
         .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
   }
+
 }

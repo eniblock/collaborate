@@ -1,19 +1,19 @@
 package collaborate.api.datasource.businessdata;
 
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.businessdata.access.GrantAccessTransactionHandler;
 import collaborate.api.datasource.businessdata.access.RequestAccessTransactionHandler;
 import collaborate.api.datasource.businessdata.kpi.CreatedDatasourceTransactionHandler;
 import collaborate.api.datasource.businessdata.kpi.CreatedScopeTransactionHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
-import collaborate.api.transaction.TransactionProperties;
+import collaborate.api.transaction.TransactionPersistenceHandler;
 import collaborate.api.transaction.TransactionStateService;
 import collaborate.api.transaction.TransactionWatcher;
-import collaborate.api.transaction.TransactionWatcherProperty;
+import collaborate.api.transaction.TransactionWatchersProperties;
 import java.util.concurrent.TimeUnit;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
@@ -25,7 +25,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @ConditionalOnExpression("!'${smartContractAddress.businessData}'.isEmpty()")
-public class BusinessDataTransactionWatcherConfig {
+public class BusinessDataTransactionWatcher {
 
   private final String businessDataContractAddress;
   private final CreatedDatasourceTransactionHandler createdDatasourceTransactionHandler;
@@ -34,34 +34,32 @@ public class BusinessDataTransactionWatcherConfig {
   private final RequestAccessTransactionHandler requestAccessTransactionHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
-  private final TransactionProperties transactionProperties;
+  private final TransactionPersistenceHandler transactionPersistenceHandler;
+  private final TransactionWatchersProperties watchersProperties;
   private final TransactionStateService transactionStateService;
 
   @EventListener
   public void onApplicationEvent(ContextRefreshedEvent event) {
-    for (var watcherProperty : transactionProperties.getWatchers()) {
-      if (watcherProperty.isSmartContract(businessDataContractAddress)) {
-        transactionWatcherPoolTaskScheduler.schedule(
-            buildWatcher(watcherProperty),
-            buildPeriodicTrigger(watcherProperty)
-        );
-      }
+    if (StringUtils.isNotBlank(businessDataContractAddress)) {
+      transactionWatcherPoolTaskScheduler.schedule(
+          buildWatcher(),
+          buildPeriodicTrigger()
+      );
     }
   }
 
-  private TransactionWatcher buildWatcher(TransactionWatcherProperty watcherProperty) {
+  private TransactionWatcher buildWatcher() {
     return new TransactionWatcher(
-        watcherProperty.getSmartContractAddress(),
+        businessDataContractAddress,
         initBusinessDataEventManager(),
         tezosApiGatewayTransactionClient,
         transactionStateService
     );
   }
 
-  private PeriodicTrigger buildPeriodicTrigger(
-      TransactionWatcherProperty transactionWatcherProperty) {
+  private PeriodicTrigger buildPeriodicTrigger() {
     return new PeriodicTrigger(
-        transactionWatcherProperty.getFixedDelayInMs(),
+        watchersProperties.getFixedDelayInMs(),
         TimeUnit.MILLISECONDS
     );
   }
@@ -71,6 +69,7 @@ public class BusinessDataTransactionWatcherConfig {
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(createdDatasourceTransactionHandler);
     transactionEventManager.subscribe(createdScopeTransactionHandler);
+    transactionEventManager.subscribe(transactionPersistenceHandler);
     transactionEventManager.subscribe(grantAccessTransactionHandler);
     transactionEventManager.subscribe(requestAccessTransactionHandler);
     return transactionEventManager;
