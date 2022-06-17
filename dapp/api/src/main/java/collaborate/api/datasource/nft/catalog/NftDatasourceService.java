@@ -22,7 +22,6 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class NftDatasourceService {
 
-  private final CatalogService catalogService;
   private final IpfsService ipfsService;
   private final TokenDAO tokenMetadataDAO;
   private final TraefikProviderService traefikProviderService;
@@ -37,7 +36,6 @@ public class NftDatasourceService {
 
   public Stream<Datasource> streamByTokenId(Integer tokenId, String smartContract) {
     var tokenMetadataOpt = tokenMetadataDAO.findById(tokenId, smartContract);
-    catalogService.findCatalogByTokenId(tokenId, smartContract);
     return tokenMetadataOpt
         .map(TokenMetadata::getIpfsUri)
         .map(uri -> ipfsService.cat(uri, TZip21Metadata.class))
