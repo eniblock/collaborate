@@ -4,6 +4,8 @@ import collaborate.api.config.OpenApiConfig;
 import collaborate.api.datasource.businessdata.access.RequestAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.document.AssetsService;
+import collaborate.api.datasource.businessdata.document.model.BusinessDataNFTSummary;
+import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
@@ -26,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -83,26 +86,39 @@ public class BusinessDataController {
     return accessRequestService.requestAccess(accessRequestDTOs);
   }
 
+  private void waitForDatasourceConfiguration(Integer tokenId) throws InterruptedException {
+    if (nftDatasourceService.saveGatewayConfigurationByTokenId(
+        tokenId,
+        businessDataContractAddress)
+    ) {
+      // Wait a while to ensure that traefik has loaded the configuration
+      Thread.sleep(1000);
+    }
+  }
+
+  @GetMapping("asset/{tokenId}/summary")
+  @Operation(
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description = "Get some basics informations for the given NFT"
+  )
+  @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
+  public BusinessDataNFTSummary listAssetDocuments(@PathVariable Integer tokenId)
+      throws InterruptedException {
+    waitForDatasourceConfiguration(tokenId);
+
+    return assetsService.getSummary(tokenId);
+  }
+
   @GetMapping("asset/{tokenId}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "See all the Business-data assets (documents) of the specified token id"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public ScopeAssetsDTO listAssetDocuments(@PathVariable Integer tokenId)
+  public Page<ScopeAssetDTO> listAssetDocuments(@PathVariable Integer tokenId, Pageable pageable)
       throws InterruptedException {
-    if (nftDatasourceService.saveGatewayConfigurationByTokenId(tokenId,
-        businessDataContractAddress)) {
-      // Wait a while to ensure that traefik has loaded the configuration
-      Thread.sleep(1000);
-    }
-
-    var assets = assetsService.listScopeAssets(tokenId);
-    if (assets.isEmpty()) {
-      log.debug("No assets documents for token={}", tokenId);
-      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-    }
-    return assets.get();
+    waitForDatasourceConfiguration(tokenId);
+    return assetsService.listScopeAssets(tokenId, pageable);
   }
 
   @GetMapping(value = {"asset/{tokenId}/test-connection", "asset/{tokenId}/fetch/{assetIdOpt}"})
@@ -120,22 +136,28 @@ public class BusinessDataController {
   public ResponseEntity<String> fetch(@PathVariable Integer tokenId,
       @PathVariable Optional<String> assetIdOpt)
       throws InterruptedException {
-    if (nftDatasourceService.saveGatewayConfigurationByTokenId(tokenId,
-        businessDataContractAddress)) {
-      // Wait a while to ensure that traefik has loaded the configuration
-      Thread.sleep(1000);
-    }
+    waitForDatasourceConfiguration(tokenId);
 
     var assetResponse = assetsService.fetch(tokenId, assetIdOpt);
     var statusCode = assetResponse.getStatusCode();
     if (statusCode == HttpStatus.SERVICE_UNAVAILABLE) {
       statusCode = HttpStatus.BAD_GATEWAY;
     }
-    return new ResponseEntity<>(
-        assetIdOpt.map(o -> assetResponse.getBody())
-            .orElse(null),
-        assetResponse.getHeaders(),
-        statusCode);
+
+    var contentType = assetResponse.getHeaders().getFirst(HttpHeaders.CONTENT_TYPE);
+    if (contentType != null) {
+      HttpHeaders responseHeaders = new HttpHeaders();
+      responseHeaders.put(HttpHeaders.CONTENT_TYPE, List.of(contentType));
+      return new ResponseEntity<>(
+          assetIdOpt.map(o -> assetResponse.getBody()).orElse(null),
+          responseHeaders,
+          statusCode);
+    } else {
+      return new ResponseEntity<>(
+          assetIdOpt.map(o -> assetResponse.getBody()).orElse(null),
+          statusCode);
+
+    }
   }
 
 
