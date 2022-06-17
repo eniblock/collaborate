@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import collaborate.api.datasource.DatasourceMetadataService;
 import collaborate.api.datasource.DatasourceService;
+import collaborate.api.datasource.businessdata.document.model.BusinessDataNFTSummary;
 import collaborate.api.datasource.businessdata.document.model.DownloadDocument;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
@@ -17,7 +18,6 @@ import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCrede
 import collaborate.api.datasource.model.scope.AssetScope;
 import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.datasource.nft.catalog.CatalogService;
-import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.user.metadata.UserMetadataService;
@@ -49,6 +49,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -81,25 +84,49 @@ public class AssetsService {
   private final CatalogService catalogService;
   private final ObjectMapper objectMapper;
 
-  public Optional<ScopeAssetsDTO> listScopeAssets(Integer tokenId) {
-    var catalogOpt = catalogService.findCatalogByTokenId(
-        tokenId,
-        businessDataContractAddress
-    );
-
-    return catalogOpt
-        .map(AssetDataCatalogDTO::getDatasources)
+  public BusinessDataNFTSummary getSummary(Integer tokenId) {
+    var catalog = catalogService.getCatalogByTokenId(tokenId, businessDataContractAddress);
+    return catalog.getDatasources()
         .stream()
-        .flatMap(Collection::stream)
-        .map(this::listScopeAssets)
-        .flatMap(Optional::stream)
-        .findFirst();
+        .map(this::summaryFrom)
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalStateException("No catalog found for tokenId=" + tokenId));
+  }
+
+  public BusinessDataNFTSummary summaryFrom(AssetDetailsDatasourceDTO details) {
+    var datasourceId = details.getId();
+    var resourceAlias = details.getAssetIdForDatasource();
+    return BusinessDataNFTSummary.builder()
+        .accessStatus(assetDetailsService.getAccessStatus(datasourceId, resourceAlias))
+        .datasourceId(datasourceId)
+        .providerAddress(details.getOwnerAddress())
+        .scopeName(resourceAlias)
+        .build();
+  }
+
+  public Page<ScopeAssetDTO> listScopeAssets(Integer tokenId, Pageable pageable) {
+    return catalogService.getCatalogByTokenId(
+            tokenId,
+            businessDataContractAddress
+        ).getDatasources()
+        .stream()
+        .findFirst()
+        .map(this::listFrom)
+        .map(assets -> new PageImpl<>(
+            assets.stream()
+                .skip(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .collect(toList()),
+            pageable,
+            assets.size()))
+        .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
   }
 
   /**
    * @return The datasource response for the given resource
    */
-  public Optional<ScopeAssetsDTO> listScopeAssets(AssetDetailsDatasourceDTO datasourceDTO) {
+  public List<ScopeAssetDTO> listFrom(AssetDetailsDatasourceDTO datasourceDTO) {
     var datasourceId = datasourceDTO.getId();
     var resourceAlias = datasourceDTO.getAssetIdForDatasource();
     var resourceResponse = getAssetListResponse(datasourceId, resourceAlias);
@@ -111,14 +138,10 @@ public class AssetsService {
 
     return Optional.ofNullable(resourceResponse.getBody())
         .map(JsonNode::toString)
-        .map(assetListJsonString -> ScopeAssetsDTO.builder()
-            .accessStatus(assetDetailsService.getAccessStatus(datasourceId, resourceAlias))
-            .datasourceId(datasourceId)
-            .providerAddress(datasourceDTO.getOwnerAddress())
-            .scopeName(resourceAlias)
-            .assets(convertJsonToScopeAssetDTOs(assetListJsonString, datasourceId,
-                resourceAlias).collect(toList()))
-            .build());
+        .map(assetListJsonString ->
+            convertJsonToScopeAssetDTOs(assetListJsonString, datasourceId, resourceAlias)
+                .collect(toList())
+        ).orElse(Collections.emptyList());
   }
 
   ResponseEntity<JsonNode> getAssetListResponse(String datasourceId, String alias) {
@@ -278,19 +301,24 @@ public class AssetsService {
   }
 
   public ResponseEntity<String> fetch(Integer tokenId, Optional<String> assetIdOpt) {
-    var assetsDTO = listScopeAssets(tokenId)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    var summary = getSummary(tokenId);
+    var assetDTOs = catalogService.getCatalogByTokenId(
+            tokenId,
+            businessDataContractAddress
+        ).getDatasources().stream().findFirst()
+        .map(this::listFrom)
+        .orElseThrow(() -> new IllegalStateException("No datasource for tokenId=" + tokenId));
 
     var downloadLink = assetIdOpt.map(
-            assetId -> assetsDTO.getAssets().stream()
+            assetId -> assetDTOs.stream()
                 .filter(assetDTO -> StringUtils.equals(assetDTO.getName(), assetId))
                 .findFirst()
-        ).orElse(assetsDTO.getAssets().stream().findFirst())
+        ).orElse(assetDTOs.stream().findFirst())
         .map(ScopeAssetDTO::getDownloadLink)
         .map(URI::toString)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-    var accessTokenResponse = getJwt(assetsDTO.getDatasourceId(), assetsDTO.getScopeName())
+    var accessTokenResponse = getJwt(summary.getDatasourceId(), summary.getScopeName())
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
 
     RestTemplate restTemplate = buildRestTemplate();
@@ -303,5 +331,6 @@ public class AssetsService {
         new HttpEntity<String>(null, headers),
         String.class);
   }
+
 
 }

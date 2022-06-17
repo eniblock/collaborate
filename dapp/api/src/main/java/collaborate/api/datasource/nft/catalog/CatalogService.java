@@ -1,5 +1,7 @@
 package collaborate.api.datasource.nft.catalog;
 
+import static java.lang.String.format;
+
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.Datasource;
@@ -28,11 +30,15 @@ public class CatalogService {
   private final TokenDAO tokenMetadataDAO;
   private final TraefikProviderService traefikProviderService;
 
-  public Optional<AssetDataCatalogDTO> findCatalogByTokenId(Integer tokenId, String smartContract) {
+
+  public AssetDataCatalogDTO getCatalogByTokenId(Integer tokenId, String smartContract) {
     var tokenMedataOpt = tokenMetadataDAO.findById(tokenId, smartContract);
     return tokenMedataOpt
         .map(TokenMetadata::getIpfsUri)
-        .flatMap(this::findByIpfsLink);
+        .flatMap(this::findByIpfsLink)
+        .orElseThrow(() -> new IllegalStateException(
+            format("No catalog found for nftId=%d, smartContract=%s", tokenId, smartContract)
+        ));
   }
 
   public Optional<AssetDataCatalogDTO> findByIpfsLink(String tZip21Url) {
@@ -74,6 +80,5 @@ public class CatalogService {
                 })
         ).build();
   }
-
 
 }
