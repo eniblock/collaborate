@@ -1,6 +1,5 @@
 package collaborate.api.datasource.passport.consent;
 
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.job.Job;

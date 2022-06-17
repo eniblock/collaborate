@@ -8,7 +8,6 @@ import collaborate.api.datasource.businessdata.document.model.DownloadDocument;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.datasource.businessdata.find.AssetDetailsService;
-import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.gateway.GatewayResourceDTO;
 import collaborate.api.datasource.gateway.GatewayUrlService;
@@ -282,7 +281,6 @@ public class AssetsService {
     var assetsDTO = listScopeAssets(tokenId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-
     var downloadLink = assetIdOpt.map(
             assetId -> assetsDTO.getAssets().stream()
                 .filter(assetDTO -> StringUtils.equals(assetDTO.getName(), assetId))
@@ -297,8 +295,7 @@ public class AssetsService {
 
     RestTemplate restTemplate = buildRestTemplate();
     HttpHeaders headers = new HttpHeaders();
-    headers.set("Authorization", "Bearer "+accessTokenResponse.getAccessToken());
-    //headers.setBearerAuth(accessTokenResponse.getAccessToken());
+    headers.set("Authorization", "Bearer " + accessTokenResponse.getAccessToken());
 
     return restTemplate.exchange(
         downloadLink,

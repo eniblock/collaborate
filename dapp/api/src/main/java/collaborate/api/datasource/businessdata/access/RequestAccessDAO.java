@@ -3,9 +3,9 @@ package collaborate.api.datasource.businessdata.access;
 import static collaborate.api.tag.TezosApiGatewayJobClient.ORGANIZATION_SECURE_KEY_NAME;
 import static java.util.stream.Collectors.toList;
 
+import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestParams;
-import collaborate.api.config.UUIDGenerator;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.job.Transaction;

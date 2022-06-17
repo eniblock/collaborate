@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
@@ -44,19 +45,18 @@ public class PfxUnProtector {
   private Process buildProcess(CertificateBasedBasicAuth certificateBasedBasicAuth,
       Path pfxFilePath)
       throws IOException {
-    String executeScriptCommand = String.format("/bin/bash %s %s %s %s",
+    String[] executeScriptCommand = new String[]{
+        "/bin/bash",
         traefikProperties.getPfxUnProtectorScriptPath(),
-        pfxFilePath,
+        pfxFilePath.toString(),
         certificateBasedBasicAuth.getPassphrase(),
         Paths.get(
             traefikProperties.getCertificatesPath(),
-            certificateBasedBasicAuth.getDatasource().getId().toString()
-        ));
-    log.info("Executing " + executeScriptCommand);
+            certificateBasedBasicAuth.getDatasource().getId().toString()).toString()
+    };
+    log.info("Executing " + Arrays.toString(executeScriptCommand));
     return Runtime.getRuntime()
-        .exec(
-            executeScriptCommand
-        );
+        .exec(executeScriptCommand);
   }
 
   private Path writePfxFile(CertificateBasedBasicAuth certificateBasedBasicAuth)

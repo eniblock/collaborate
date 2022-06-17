@@ -31,17 +31,26 @@ public class Job {
     PUBLISHED
   }
 
+  @Getter
+  @JsonFormat(shape = JsonFormat.Shape.OBJECT)
+  public enum Type {
+    @JsonProperty("transaction")
+    TRANSACTION,
+    @JsonProperty("revealed")
+    REVEALEAD
+  }
+
   @Schema(description = "The job identifier", example = "374")
   private Integer id;
   @Schema(description = "The execution status of this job", example = "created")
   private Status status;
-  // TODO: openapi description
+  @Schema(description = "the raw forged operation corresponding to the job")
   private String forgedOperation;
-  // TODO: openapi description
+  @Schema(description = "The unique identifier of the transaction on the block chain", example = "opGz2Sg1QiXchJMyz9v1rV9VN7mQadmkL81KVwteANQWZpgV5ew")
   private String operationHash;
-  // TODO: openapi description
+  @Schema(description = "Error message", example = "Bad Request")
   private String errorMessage;
-  // TODO: openapi description
-  private String operationKind;
+  @Schema(description = "the operation type")
+  private Type operationKind;
 
 }

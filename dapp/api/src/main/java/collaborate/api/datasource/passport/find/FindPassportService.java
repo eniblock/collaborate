@@ -2,8 +2,6 @@ package collaborate.api.datasource.passport.find;
 
 import static collaborate.api.user.security.Authorizations.Roles.ASSET_OWNER;
 
-import collaborate.api.config.api.ApiProperties;
-import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.datasource.multisig.ProxyTokenControllerTransactionService;
 import collaborate.api.datasource.multisig.model.ProxyTokenControllerTransaction;
 import collaborate.api.datasource.passport.model.DigitalPassportDetailsDTO;

@@ -212,8 +212,8 @@ public class UserService {
         });
   }
 
-  public void createActiveUser(String userId) {
-    tagUserDAO.createActiveUser(userId).orElseThrow(
+  public UserWalletDTO createActiveUser(String userId) {
+    return tagUserDAO.createActiveUser(userId).orElseThrow(
         () -> {
           log.error("Can't create userId={} wallet", userId);
           throw new ResponseStatusException(

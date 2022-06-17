@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.UUID;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -24,7 +25,9 @@ import org.apache.commons.lang3.StringUtils;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class AccessRequestParams implements Serializable {
 
+  @NoArgsConstructor(access = AccessLevel.PRIVATE)
   public static final class AttributeName {
+
     public static final String PROVIDER_ADDRESS = "provider_address";
   }
 
@@ -32,7 +35,12 @@ public class AccessRequestParams implements Serializable {
   private Integer nftId;
 
 
-  @Deprecated // FIXME rename to alias ?
+  /**
+   * @deprecated see:
+   * <a
+   * href="https://xdevtechnologies.atlassian.net/wiki/spaces/DA/pages/667549717/Request+access+no+storage+required">...</a>
+   */
+  @Deprecated(forRemoval = true)
   @NotEmpty
   private List<String> scopes;
 

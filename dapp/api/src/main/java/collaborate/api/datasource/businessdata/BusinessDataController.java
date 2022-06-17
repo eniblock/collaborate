@@ -128,12 +128,8 @@ public class BusinessDataController {
 
     var assetResponse = assetsService.fetch(tokenId, assetIdOpt);
     var statusCode = assetResponse.getStatusCode();
-    switch (statusCode) {
-      case SERVICE_UNAVAILABLE:
-        statusCode = HttpStatus.BAD_GATEWAY;
-        break;
-      default:
-        break;
+    if (statusCode == HttpStatus.SERVICE_UNAVAILABLE) {
+      statusCode = HttpStatus.BAD_GATEWAY;
     }
     return new ResponseEntity<>(
         assetIdOpt.map(o -> assetResponse.getBody())

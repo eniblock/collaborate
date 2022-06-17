@@ -1,12 +1,9 @@
 package collaborate.api.datasource.gateway.traefik.routing;
 
-import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_SCOPE;
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
 
 import collaborate.api.datasource.model.dto.web.Attribute;
 import java.util.Collection;
-import java.util.Set;
-import java.util.UUID;
 import java.util.function.Supplier;
 
 /**
