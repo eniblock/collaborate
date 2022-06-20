@@ -16,19 +16,19 @@ import smartpy as sp
 
 class FA2_config:
     def __init__(self,
-        debug_mode                         = False,
-        single_asset                       = False,
-        non_fungible                       = False,
-        add_mutez_transfer                 = False,
-        readable                           = True,
-        force_layouts                      = True,
-        support_operator                   = True,
-        assume_consecutive_token_ids       = True,
-        store_total_supply                 = True,
-        lazy_entry_points                  = False,
-        allow_self_transfer                = False,
-        use_token_metadata_offchain_view   = False
-    ):
+                 debug_mode                         = False,
+                 single_asset                       = False,
+                 non_fungible                       = False,
+                 add_mutez_transfer                 = False,
+                 readable                           = True,
+                 force_layouts                      = True,
+                 support_operator                   = True,
+                 assume_consecutive_token_ids       = True,
+                 store_total_supply                 = True,
+                 lazy_entry_points                  = False,
+                 allow_self_transfer                = False,
+                 use_token_metadata_offchain_view   = False
+                 ):
 
         if debug_mode:
             self.my_map = sp.map
@@ -168,7 +168,7 @@ class Batch_transfer:
             )
         transfer_type = sp.TRecord(from_ = sp.TAddress,
                                    txs = sp.TList(tx_type)).layout(
-            ("from_", "txs"))
+                                       ("from_", "txs"))
         return transfer_type
     def get_type(self):
         return sp.TList(self.get_transfer_type())
@@ -373,13 +373,13 @@ class FA2_core(sp.Contract):
         sp.verify( ~self.is_paused(), message = self.error_message.paused() )
         sp.set_type(params, self.batch_transfer.get_type())
         sp.for transfer in params:
-            current_from = transfer.from_
-            sp.for tx in transfer.txs:
+           current_from = transfer.from_
+           sp.for tx in transfer.txs:
                 if self.config.single_asset:
                     sp.verify(tx.token_id == 0, message = "single-asset: token-id <> 0")
 
                 sender_verify = ((self.is_administrator(sp.sender)) |
-                                 (current_from == sp.sender))
+                                (current_from == sp.sender))
                 message = self.error_message.not_owner()
                 if self.config.support_operator:
                     message = self.error_message.not_operator()
@@ -406,89 +406,89 @@ class FA2_core(sp.Contract):
                     sp.if self.data.ledger.contains(to_user):
                         self.data.ledger[to_user].balance += tx.amount
                     sp.else:
-                    self.data.ledger[to_user] = Ledger_value.make(tx.amount)
-            sp.else:
-            pass
+                         self.data.ledger[to_user] = Ledger_value.make(tx.amount)
+                sp.else:
+                    pass
 
-#@sp.entry_point
-def balance_of(self, params):
-    # paused may mean that balances are meaningless:
-    sp.verify( ~self.is_paused(), message = self.error_message.paused())
-    sp.set_type(params, Balance_of.entry_point_type())
-    def f_process_request(req):
+    #@sp.entry_point
+    def balance_of(self, params):
+        # paused may mean that balances are meaningless:
+        sp.verify( ~self.is_paused(), message = self.error_message.paused())
+        sp.set_type(params, Balance_of.entry_point_type())
+        def f_process_request(req):
+            user = self.ledger_key.make(req.owner, req.token_id)
+            sp.verify(self.data.token_metadata.contains(req.token_id), message = self.error_message.token_undefined())
+            sp.if self.data.ledger.contains(user):
+                balance = self.data.ledger[user].balance
+                sp.result(
+                    sp.record(
+                        request = sp.record(
+                            owner = sp.set_type_expr(req.owner, sp.TAddress),
+                            token_id = sp.set_type_expr(req.token_id, sp.TNat)),
+                        balance = balance))
+            sp.else:
+                sp.result(
+                    sp.record(
+                        request = sp.record(
+                            owner = sp.set_type_expr(req.owner, sp.TAddress),
+                            token_id = sp.set_type_expr(req.token_id, token_id_type)),
+                        balance = 0))
+        res = sp.local("responses", params.requests.map(f_process_request))
+        destination = sp.set_type_expr(params.callback, sp.TContract(Balance_of.response_type()))
+        sp.transfer(res.value, sp.mutez(0), destination)
+
+    @sp.offchain_view(pure = True)
+    def get_balance(self, req):
+        """This is the `get_balance` view defined in TZIP-12."""
+        sp.set_type(
+            req, sp.TRecord(
+                owner = sp.TAddress,
+                token_id = token_id_type
+            ).layout(("owner", "token_id")))
         user = self.ledger_key.make(req.owner, req.token_id)
         sp.verify(self.data.token_metadata.contains(req.token_id), message = self.error_message.token_undefined())
-        sp.if self.data.ledger.contains(user):
-            balance = self.data.ledger[user].balance
-            sp.result(
-                sp.record(
-                    request = sp.record(
-                        owner = sp.set_type_expr(req.owner, sp.TAddress),
-                        token_id = sp.set_type_expr(req.token_id, sp.TNat)),
-                    balance = balance))
-        sp.else:
-        sp.result(
-            sp.record(
-                request = sp.record(
-                    owner = sp.set_type_expr(req.owner, sp.TAddress),
-                    token_id = sp.set_type_expr(req.token_id, token_id_type)),
-                balance = 0))
-res = sp.local("responses", params.requests.map(f_process_request))
-destination = sp.set_type_expr(params.callback, sp.TContract(Balance_of.response_type()))
-sp.transfer(res.value, sp.mutez(0), destination)
-
-@sp.offchain_view(pure = True)
-def get_balance(self, req):
-    """This is the `get_balance` view defined in TZIP-12."""
-    sp.set_type(
-        req, sp.TRecord(
-            owner = sp.TAddress,
-            token_id = token_id_type
-        ).layout(("owner", "token_id")))
-    user = self.ledger_key.make(req.owner, req.token_id)
-    sp.verify(self.data.token_metadata.contains(req.token_id), message = self.error_message.token_undefined())
-    sp.result(self.data.ledger[user].balance)
+        sp.result(self.data.ledger[user].balance)
 
 
-#@sp.entry_point
-def update_operators(self, params):
-    sp.set_type(params, sp.TList(
-        sp.TVariant(
-            add_operator = self.operator_param.get_type(),
-            remove_operator = self.operator_param.get_type()
-        )
-    ))
-    if self.config.support_operator:
-        sp.for update in params:
-            with update.match_cases() as arg:
-                with arg.match("add_operator") as upd:
-                    #sp.verify(
-                    #    (upd.owner == sp.sender) | self.is_administrator(sp.sender),
-                    #    message = self.error_message.not_admin_or_operator()
-                    #)
-                    self.operator_set.add(self.data.operators,
-                                          upd.owner,
-                                          upd.operator,
-                                          upd.token_id)
-                with arg.match("remove_operator") as upd:
-                    sp.verify(
-                        (upd.owner == sp.sender) | self.is_administrator(sp.sender),
-                        message = self.error_message.not_admin_or_operator()
-                    )
-                    self.operator_set.remove(self.data.operators,
-                                             upd.owner,
-                                             upd.operator,
-                                             upd.token_id)
-    else:
-        sp.failwith(self.error_message.operators_unsupported())
+    #@sp.entry_point
+    def update_operators(self, params):
+        sp.set_type(params, sp.TList(
+            sp.TVariant(
+                add_operator = self.operator_param.get_type(),
+                remove_operator = self.operator_param.get_type()
+            )
+        ))
+        if self.config.support_operator:
+            sp.for update in params:
+                with update.match_cases() as arg:
+                    with arg.match("add_operator") as upd:
+                        #sp.verify(
+                        #    (upd.owner == sp.sender) | self.is_administrator(sp.sender),
+                        #    message = self.error_message.not_admin_or_operator()
+                        #)
+                        self.operator_set.add(self.data.operators,
+                                              upd.owner,
+                                              upd.operator,
+                                              upd.token_id)
+                    with arg.match("remove_operator") as upd:
+                        sp.verify(
+                            (upd.owner == sp.sender) | self.is_administrator(sp.sender),
+                            message = self.error_message.not_admin_or_operator()
+                        )
+                        self.operator_set.remove(self.data.operators,
+                                                 upd.owner,
+                                                 upd.operator,
+                                                 upd.token_id)
+        else:
+            sp.failwith(self.error_message.operators_unsupported())
 
-# this is not part of the standard but can be supported through inheritance.
-def is_paused(self):
-    return sp.bool(False)
+    # this is not part of the standard but can be supported through inheritance.
+    def is_paused(self):
+        return sp.bool(False)
 
-# this is not part of the standard but can be supported through inheritance.
-def is_administrator(self, sender):
-    return sp.bool(False)
+    # this is not part of the standard but can be supported through inheritance.
+    def is_administrator(self, sender):
+        return sp.bool(False)
 
 class FA2_administrator(FA2_core):
     def is_administrator(self, sender):
@@ -535,17 +535,17 @@ class FA2_mint(FA2_core):
         sp.if self.data.ledger.contains(user):
             self.data.ledger[user].balance += params.amount
         sp.else:
-        self.data.ledger[user] = Ledger_value.make(params.amount)
-    sp.if self.data.token_metadata.contains(params.token_id):
-        if self.config.store_total_supply:
-            self.data.total_supply[params.token_id] = params.amount
-    sp.else:
-    self.data.token_metadata[params.token_id] = sp.record(
-        token_id    = params.token_id,
-        token_info  = params.metadata
-    )
-    if self.config.store_total_supply:
-        self.data.total_supply[params.token_id] = params.amount
+            self.data.ledger[user] = Ledger_value.make(params.amount)
+        sp.if self.data.token_metadata.contains(params.token_id):
+            if self.config.store_total_supply:
+                self.data.total_supply[params.token_id] = params.amount
+        sp.else:
+            self.data.token_metadata[params.token_id] = sp.record(
+                token_id    = params.token_id,
+                token_info  = params.metadata
+            )
+            if self.config.store_total_supply:
+                self.data.total_supply[params.token_id] = params.amount
 
 class FA2_token_metadata(FA2_core):
     def set_token_metadata_view(self):
@@ -611,7 +611,7 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
                     sp.TRecord(token_id = token_id_type,
                                owner = sp.TAddress,
                                operator = sp.TAddress).layout(
-                        ("owner", ("operator", "token_id"))))
+                                   ("owner", ("operator", "token_id"))))
         sp.result(
             self.operator_set.is_member(self.data.operators,
                                         query.owner,
@@ -668,13 +668,13 @@ class FA2(FA2_change_metadata, FA2_token_metadata, FA2_mint, FA2_administrator, 
             }
             , "permissions": {
                 "operator":
-                    "owner-or-operator-transfer" if config.support_operator else "owner-transfer"
+                "owner-or-operator-transfer" if config.support_operator else "owner-transfer"
                 , "receiver": "owner-no-hook"
                 , "sender": "owner-no-hook"
             }
             , "fa2-smartpy": {
                 "configuration" :
-                    dict([(k, getattr(config, k)) for k in dir(config) if "__" not in k and k != 'my_map'])
+                dict([(k, getattr(config, k)) for k in dir(config) if "__" not in k and k != 'my_map'])
             }
         }
         self.init_metadata("metadata_base", metadata_base)
@@ -752,56 +752,56 @@ class NFT_Creation_Management(FA2, sp.Contract):
             sp.if sp.len(self.data.nft_indexer[adr].tokens.elements()) != 0:
                 self.data.nft_indexer[adr].tokens.add(token_info)
             sp.else:
-            self.data.nft_indexer[adr].tokens = sp.set([token_info])
-    sp.else:
-    self.data.nft_indexer[adr] = sp.record(
-        tokens = sp.set(l = [token_info], t = nft_indexer_token_type)
-    )
+                self.data.nft_indexer[adr].tokens = sp.set([token_info])
+        sp.else:
+            self.data.nft_indexer[adr] = sp.record(
+                tokens = sp.set(l = [token_info], t = nft_indexer_token_type)
+            )
 
 
-@sp.entry_point
-def update_organizations(self, params: update_org_type):
-    sp.verify(self.data.administrator == sp.sender,
-              message="403 - Sender not allowed")
-    sp.for updates in params:
-        with updates.match_cases() as arg:
-            with arg.match("update") as upd:
-                self.data.organizations[upd.address] = upd
-            with arg.match("remove") as upd:
-                del self.data.organizations[upd]
+    @sp.entry_point
+    def update_organizations(self, params: update_org_type):
+        sp.verify(self.data.administrator == sp.sender,
+                  message="403 - Sender not allowed")
+        sp.for updates in params:
+            with updates.match_cases() as arg:
+                with arg.match("update") as upd:
+                    self.data.organizations[upd.address] = upd
+                with arg.match("remove") as upd:
+                    del self.data.organizations[upd]
 
 
-@sp.entry_point
-def create_business_datasource(self, params: nft_creation_type):
-    sp.verify(self.data.organizations.contains(sp.sender),
-              message = "403 - Sender not allowed")
-    sp.verify(self.data.organizations[sp.sender].roles.contains(OrganizationRoles.DSP),
-              message = "403 - Sender not allowed")
-    sp.verify(~ self.data.token_id_by_asset_id.contains(params.asset_id),
-              message = "400 - EXISTING_TOKEN_WITH_THE_SAME_ASSET_ID")
+    @sp.entry_point
+    def create_business_datasource(self, params: nft_creation_type):
+        sp.verify(self.data.organizations.contains(sp.sender),
+                  message = "403 - Sender not allowed")
+        sp.verify(self.data.organizations[sp.sender].roles.contains(OrganizationRoles.DSP),
+                  message = "403 - Sender not allowed")
+        sp.verify(~ self.data.token_id_by_asset_id.contains(params.asset_id),
+                  message = "400 - EXISTING_TOKEN_WITH_THE_SAME_ASSET_ID")
 
-    ### Mint token
-    metadata = DATA_CATALOG.make_uri_metadata(params.metadata_uri)
-    self.private_mint(sp.record(
-        address = sp.sender,
-        amount = 1,
-        metadata = metadata,
-        token_id = self.data.all_tokens
-    ))
-    created_token_id = self.data.all_tokens
-    ### Operator
-    self.update_operators([
-        sp.variant("add_operator", self.operator_param.make(
-            owner = sp.sender,
-            operator = params.nft_operator_address,
-            token_id = created_token_id
+        ### Mint token
+        metadata = DATA_CATALOG.make_uri_metadata(params.metadata_uri)
+        self.private_mint(sp.record(
+            address = sp.sender,
+            amount = 1,
+            metadata = metadata,
+            token_id = self.data.all_tokens
         ))
-    ])
-    ### Update indexers
-    #index token_id by asset_id
-    self.data.token_id_by_asset_id[params.asset_id] = created_token_id
-    #index NFT
-    self.add_token_in_nft_indexer(params.nft_operator_address, created_token_id, params.asset_id, sp.sender)
+        created_token_id = self.data.all_tokens
+        ### Operator
+        self.update_operators([
+                sp.variant("add_operator", self.operator_param.make(
+                    owner = sp.sender,
+                    operator = params.nft_operator_address,
+                    token_id = created_token_id
+                ))
+            ])
+        ### Update indexers
+        #index token_id by asset_id
+        self.data.token_id_by_asset_id[params.asset_id] = created_token_id
+        #index NFT
+        self.add_token_in_nft_indexer(params.nft_operator_address, created_token_id, params.asset_id, sp.sender)
 
 
 
@@ -955,9 +955,9 @@ def add_test(config, is_default = True):
 
         admin = dsp_org_1.address
         contract1 = DATA_CATALOG(config = config,
-                                 metadata = sp.utils.metadata_of_url("https://example.com"),
-                                 admin = admin,
-                                 orgs = organizations)
+                          metadata = sp.utils.metadata_of_url("https://example.com"),
+                          admin = admin,
+                          orgs = organizations)
 
 
         ###########################
@@ -1091,8 +1091,8 @@ def add_test(config, is_default = True):
             provider_address = expected_access_requests_1.provider_address,
             scopes = expected_access_requests_1.scopes
         )).run(sender = bsp_org_2.address,
-               #Then
-               valid = False)
+                #Then
+                valid = False)
 
         ## Given
         scenario.h2("Can't request access on un-existing provider")
@@ -1157,7 +1157,7 @@ def environment_config():
         force_layouts = global_parameter("force_layouts", True),
         support_operator = global_parameter("support_operator", True),
         assume_consecutive_token_ids =
-        global_parameter("assume_consecutive_token_ids", True),
+            global_parameter("assume_consecutive_token_ids", True),
         store_total_supply = global_parameter("store_total_supply", False),
         lazy_entry_points = global_parameter("lazy_entry_points", False),
         allow_self_transfer = global_parameter("allow_self_transfer", False),
