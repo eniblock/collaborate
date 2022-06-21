@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -28,12 +29,11 @@ public class TransactionController {
   @GetMapping()
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "Get the block-chain transaction made by the current organization on the platform smart-contracts",
-      tags = {"organization"}
+      description = "Get the block-chain transaction made by the current organization on the platform smart-contracts"
   )
   @PreAuthorize(HasRoles.ORGANIZATION_READ)
   public Page<Transaction> currentOrganizationActivities(
-      @SortDefault(sort = "timestamp", direction = Sort.Direction.DESC) Pageable pageable,
+      @SortDefault(sort = "timestamp", direction = Sort.Direction.DESC) @ParameterObject Pageable pageable,
       @RequestParam(required = false) Optional<String> senderAddress
   ) {
     return transactionService.findAllOnKnownSmartContracts(senderAddress, pageable);

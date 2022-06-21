@@ -25,6 +25,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpEntity;
@@ -63,7 +64,7 @@ public class BusinessDataController {
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public HttpEntity<Page<AssetDetailsDTO>> listAssetDetails(
-      Pageable pageable,
+      @ParameterObject Pageable pageable,
       @RequestParam(required = false) Optional<String> query,
       @RequestParam(required = false) Optional<String> ownerAddress
   ) {
@@ -111,7 +112,8 @@ public class BusinessDataController {
       description = "See all the Business-data assets (documents) of the specified token id"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public Page<ScopeAssetDTO> listAssetDocuments(@PathVariable Integer tokenId, Pageable pageable)
+  public Page<ScopeAssetDTO> listAssetDocuments(@PathVariable Integer tokenId,
+      @ParameterObject Pageable pageable)
       throws InterruptedException {
     waitForDatasourceConfiguration(tokenId);
     return assetsService.listScopeAssets(tokenId, pageable);

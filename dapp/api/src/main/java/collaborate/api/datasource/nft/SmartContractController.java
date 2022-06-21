@@ -16,19 +16,13 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @Slf4j
-@Tag(name = "config", description = "The smart-contract API")
+@Tag(name = "smart-contract", description = "The smart-contract API")
 @RequestMapping("/api/v1/smart-contract")
 @RequiredArgsConstructor
 public class SmartContractController {
 
   private final SmartContractAddressProperties smartContractAddress;
   private final TokenService tokenService;
-
-  @GetMapping("/address")
-  @Operation(description = "Get the smart-contract addresses")
-  public SmartContractAddressProperties getAddress() {
-    return smartContractAddress;
-  }
 
   @GetMapping("/{contractAddress}/token/{tokenId}/on-chain-metadata")
   @Operation(description = "Get the given token on-chain metadata")

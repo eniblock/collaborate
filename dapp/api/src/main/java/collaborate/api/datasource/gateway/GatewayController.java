@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@Tag(name = "gateway", description =
+@Tag(name = "data", description =
     "The data Gateway API. Used as a Facade to communicate with external datasources")
 @RestController
 @Slf4j

@@ -21,6 +21,7 @@ import javax.validation.ConstraintViolationException;
 import javax.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -93,7 +94,7 @@ public class DatasourceController {
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
   public HttpEntity<Page<ListDatasourceDTO>> listDatasources(
-      @SortDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
+      @ParameterObject @SortDefault(sort = "name", direction = Sort.Direction.ASC) Pageable pageable,
       @RequestParam(required = false, defaultValue = "") String query) {
     Page<ListDatasourceDTO> datasourcePage = datasourceService.findAll(pageable, query);
     return ResponseEntity.ok(datasourcePage);

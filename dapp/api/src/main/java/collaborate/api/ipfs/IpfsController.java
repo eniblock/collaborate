@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @Slf4j
-@Tag(name = "config", description = "The IPFS API")
+@Tag(name = "data", description = "The IPFS API")
 @RequestMapping("/api/v1/ipfs")
 @RequiredArgsConstructor
 public class IpfsController {

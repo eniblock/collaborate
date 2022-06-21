@@ -1,7 +1,6 @@
 package collaborate.api.datasource.passport;
 
 import collaborate.api.config.OpenApiConfig;
-import collaborate.api.config.api.ApiProperties;
 import collaborate.api.datasource.passport.consent.ConsentService;
 import collaborate.api.datasource.passport.create.CreateMultisigPassportDTO;
 import collaborate.api.datasource.passport.create.CreatePassportService;
@@ -20,6 +19,7 @@ import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -41,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/digital-passport")
 public class DigitalPassportController {
 
-  private final ApiProperties apiProperties;
   private final ConsentService consentService;
   private final CreatePassportService createPassportService;
   private final FindPassportService findPassportService;
@@ -74,8 +73,7 @@ public class DigitalPassportController {
       description =
           "Create a multi-signature entry in the Smart-Contract:"
               + "used as a \"pending\" digital-passport<br>"
-              + "NB: The current organization signature is automatically added",
-      tags = {"multi-signature"})
+              + "NB: The current organization signature is automatically added")
   @PreAuthorize(HasRoles.DSP)
   public Job create(@RequestBody @Valid CreateMultisigPassportDTO createMultisigPassportDTO)
       throws IOException {
@@ -110,7 +108,7 @@ public class DigitalPassportController {
       description = "Get metrics events about the given passport identified by its token id")
   @PreAuthorize(HasRoles.DIGITAL_PASSPORT_READ)
   public ResponseEntity<Page<Metric>> getMetrics(@PathVariable Integer tokenId,
-      @SortDefault(sort = "scope", direction = Sort.Direction.ASC) Pageable pageable,
+      @SortDefault(sort = "scope", direction = Sort.Direction.ASC) @ParameterObject Pageable pageable,
       @RequestParam(required = false, defaultValue = "") String query) {
     return metricService.findAll(tokenId, pageable, query)
         .map(ResponseEntity::ok)

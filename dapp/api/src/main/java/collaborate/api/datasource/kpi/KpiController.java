@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 @RequestMapping("/api/v1/kpi")
-@Tag(name = "kpi", description = "The analytics API")
+@Tag(name = "activities", description = "The analytics API")
 @RequiredArgsConstructor
 public class KpiController {
 
