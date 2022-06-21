@@ -60,7 +60,6 @@ logging:
     collaborate.api.ipfs: ERROR
     collaborate.api.organization.tag.TezosApiGatewayOrganizationClient: ERROR
     collaborate.api.user.tag.TezosApiGatewayUserClient: DEBUG
-    collaborate.api.tag.TezosApiGatewayJobClient: DEBUG
     collaborate.api.transaction.TezosApiGatewayTransactionClient: ERROR
     collaborate.api.user.TagUserClient: ERROR
     org.hibernate:
@@ -164,7 +163,7 @@ feign:
   client:
     config:
       default:
-        loggerLevel: full
+        loggerLevel: none
       ipfs-client:
         connectTimeout: 10000
         readTimeout: 10000
@@ -174,3 +173,7 @@ feign:
       tag-user-client:
         connectTimeout: 10000
         readTimeout: 240000
+      tag-job-client:
+        errorDecoder: collaborate.api.tag.TagClientErrorDecoder
+      tag-user-metadata-client:
+        errorDecoder: collaborate.api.tag.TagClientErrorDecoder

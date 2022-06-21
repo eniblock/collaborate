@@ -7,15 +7,12 @@ import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.job.Transaction;
 import collaborate.api.user.UserService;
-import feign.FeignException;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 @Service
 @RequiredArgsConstructor
@@ -50,14 +47,6 @@ public class CreateBusinessDataNftDAO {
         Optional.empty()
     );
 
-    try {
-      return tezosApiGatewayJobClient.sendTransactionBatch(transactionBatch, false);
-    } catch (FeignException e) {
-      log.error("While minting business-data nft with TAG", e);
-      throw new ResponseStatusException(
-          HttpStatus.BAD_GATEWAY,
-          "Can't send request to Tezos-API-Gateway"
-      );
-    }
+    return tezosApiGatewayJobClient.sendTransactionBatch(transactionBatch, false);
   }
 }
