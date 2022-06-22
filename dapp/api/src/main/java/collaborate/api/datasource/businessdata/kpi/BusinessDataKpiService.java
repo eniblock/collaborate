@@ -19,21 +19,26 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class BusinessDataKpiService {
 
+  public static final String DATASOURCE_ID = "datasourceId";
   private final ObjectMapper objectMapper;
   private final String businessDataContractAddress;
   private final KpiService kpiService;
 
   public void onDatasourceCreated(Transaction transaction) {
-    String datasourceId = getDatasourceId(transaction);
+    var creationParams = getDataCatalogCreationDTOParams(transaction);
+    String datasourceId = getDatasourceId(creationParams);
     var kpi = buildDatasourceCreatedKpi(transaction, datasourceId);
 
-    var onMissingCondition = new KpiSpecification("datasourceId", datasourceId);
+    var onMissingCondition = new KpiSpecification(DATASOURCE_ID, datasourceId);
     kpiService.saveIfValueMissing(kpi, onMissingCondition);
   }
 
-  private String getDatasourceId(Transaction transaction) {
-    var dataCatalog = getDataCatalogCreationDTOParams(transaction);
-    return StringUtils.substringBefore(dataCatalog.getAssetId(), ":");
+  private String getDatasourceId(DataCatalogCreationDTO creationDTO) {
+    return StringUtils.substringBefore(creationDTO.getAssetId(), ":");
+  }
+
+  private String getNftAlias(DataCatalogCreationDTO creationDTO) {
+    return StringUtils.substringAfter(creationDTO.getAssetId(), ":");
   }
 
   private DataCatalogCreationDTO getDataCatalogCreationDTOParams(Transaction transaction) {
@@ -56,16 +61,30 @@ public class BusinessDataKpiService {
         .kpiKey("datasource.created")
         .organizationWallet(transaction.getSource())
         .values(objectMapper.convertValue(Map.of(
-            "datasourceId", datasourceId,
+            DATASOURCE_ID, datasourceId,
             "contract", businessDataContractAddress
         ), JsonNode.class))
         .build();
   }
 
   public void onScopeCreated(Transaction transaction) {
-    String datasourceId = getDatasourceId(transaction);
-    var kpi = buildDatasourceCreatedKpi(transaction, datasourceId);
+    var kpi = buildNFTKpi(transaction);
     kpiService.save(kpi);
+  }
+
+  private Kpi buildNFTKpi(Transaction transaction) {
+    var creationParams = getDataCatalogCreationDTOParams(transaction);
+
+    return Kpi.builder()
+        .createdAt(transaction.getTimestamp())
+        .kpiKey("nft.created")
+        .organizationWallet(transaction.getSource())
+        .values(objectMapper.convertValue(Map.of(
+            DATASOURCE_ID, getDatasourceId(creationParams),
+            "contract", businessDataContractAddress,
+            "scope", getNftAlias(creationParams)
+        ), JsonNode.class))
+        .build();
   }
 
 }

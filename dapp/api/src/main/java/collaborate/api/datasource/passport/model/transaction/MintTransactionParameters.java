@@ -1,6 +1,7 @@
 package collaborate.api.datasource.passport.model.transaction;
 
 import collaborate.api.tag.model.Bytes;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import java.util.Map;
@@ -13,12 +14,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-
-public class Fa2TransactionParameters {
+public class MintTransactionParameters {
 
   private Long amount;
-
-  private String address;
+  @JsonProperty("address")
+  private String owner;
 
   private Map<String, Bytes> metadata;
 
