@@ -20,11 +20,12 @@ import org.springframework.stereotype.Service;
 public class BusinessDataKpiService {
 
   private final ObjectMapper objectMapper;
+  private final String businessDataContractAddress;
   private final KpiService kpiService;
 
   public void onDatasourceCreated(Transaction transaction) {
     String datasourceId = getDatasourceId(transaction);
-    var kpi = buildKpi(transaction, datasourceId);
+    var kpi = buildDatasourceCreatedKpi(transaction, datasourceId);
 
     var onMissingCondition = new KpiSpecification("datasourceId", datasourceId);
     kpiService.saveIfValueMissing(kpi, onMissingCondition);
@@ -49,18 +50,21 @@ public class BusinessDataKpiService {
     }
   }
 
-  private Kpi buildKpi(Transaction transaction, String datasourceId) {
+  private Kpi buildDatasourceCreatedKpi(Transaction transaction, String datasourceId) {
     return Kpi.builder()
         .createdAt(transaction.getTimestamp())
-        .kpiKey("business-data.scope")
+        .kpiKey("datasource.created")
         .organizationWallet(transaction.getSource())
-        .values(objectMapper.convertValue(Map.of("datasourceId", datasourceId), JsonNode.class))
+        .values(objectMapper.convertValue(Map.of(
+            "datasourceId", datasourceId,
+            "contract", businessDataContractAddress
+        ), JsonNode.class))
         .build();
   }
 
   public void onScopeCreated(Transaction transaction) {
     String datasourceId = getDatasourceId(transaction);
-    var kpi = buildKpi(transaction, datasourceId);
+    var kpi = buildDatasourceCreatedKpi(transaction, datasourceId);
     kpiService.save(kpi);
   }
 

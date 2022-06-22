@@ -20,11 +20,11 @@ public class KpiQuery {
       , example = "YYYY-MM")
   private String labelFormat;
 
-  @Schema(description = "First Kpi aggregation field", example = "createdAt", required = true)
+  @Schema(description = "First Kpi aggregation field", example = "organizationWallet", required = true)
   @NotEmpty
   private String dataSetsGroup;
 
-  @Schema(description = "Second Kpi aggregation field", example = "organizationWallet", required = true)
+  @Schema(description = "Second Kpi aggregation field", example = "createdAt", required = true)
   @NotEmpty
   private String labelGroup;
 
