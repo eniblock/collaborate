@@ -1,13 +1,16 @@
 package collaborate.api.datasource.businessdata.kpi;
 
+import collaborate.api.datasource.businessdata.access.GrantedAccessService;
 import collaborate.api.datasource.create.DataCatalogCreationDTO;
 import collaborate.api.datasource.kpi.Kpi;
 import collaborate.api.datasource.kpi.KpiService;
 import collaborate.api.datasource.kpi.KpiSpecification;
+import collaborate.api.datasource.kpi.find.SearchCriteria;
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +23,10 @@ import org.springframework.stereotype.Service;
 public class BusinessDataKpiService {
 
   public static final String DATASOURCE_ID = "datasourceId";
-  private final ObjectMapper objectMapper;
   private final String businessDataContractAddress;
+  private final GrantedAccessService grantedAccessService;
   private final KpiService kpiService;
+  private final ObjectMapper objectMapper;
 
   public void onDatasourceCreated(Transaction transaction) {
     var creationParams = getDataCatalogCreationDTOParams(transaction);
@@ -87,4 +91,24 @@ public class BusinessDataKpiService {
         .build();
   }
 
+  public void onGrantedAccess(Transaction transaction) {
+    var kpi = buildGrantedAccessKpi(transaction);
+    kpiService.save(kpi);
+  }
+
+  private Kpi buildGrantedAccessKpi(Transaction transaction) {
+    var grantAccessParam = grantedAccessService.getAccessGrantParams(transaction);
+    kpiService.find(List.of(
+        new SearchCriteria("values.")
+    ))
+    return Kpi.builder()
+        .createdAt(transaction.getTimestamp())
+        .kpiKey("granted.access")
+        .organizationWallet(transaction.getSource())
+        .values(objectMapper.convertValue(Map.of(
+            "contract", businessDataContractAddress,
+            "requester", grantAccessParam.getRequesterAddress()
+        ), JsonNode.class))
+        .build();
+  }
 }

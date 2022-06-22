@@ -72,6 +72,7 @@ public class BusinessDataTransactionWatcher {
     transactionEventManager.subscribe(transactionPersistenceHandler);
     transactionEventManager.subscribe(grantAccessTransactionHandler);
     transactionEventManager.subscribe(requestAccessTransactionHandler);
+    transactionEventManager.subscribe(requestAccessTransactionHandler);
     return transactionEventManager;
   }
 

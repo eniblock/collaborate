@@ -56,7 +56,7 @@ public class GrantedAccessService {
     );
   }
 
-  AccessGrantParams getAccessGrantParams(Transaction transaction) {
+  public AccessGrantParams getAccessGrantParams(Transaction transaction) {
     try {
       return objectMapper.treeToValue(transaction.getParameters(), AccessGrantParams.class);
     } catch (JsonProcessingException e) {
