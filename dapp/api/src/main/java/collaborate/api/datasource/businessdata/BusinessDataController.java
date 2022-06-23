@@ -68,9 +68,9 @@ public class BusinessDataController {
   public Page<AssetDetailsDTO> listAssetDetails(
       @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
       @RequestParam(required = false) Optional<String> query,
-      @RequestParam(required = false) Optional<String> ownerAddress
+      @RequestParam(required = false) Optional<String> assetOwner
   ) {
-    return findBusinessDataService.find(pageable, query, ownerAddress);
+    return findBusinessDataService.find(pageable, query, assetOwner);
   }
 
   @PostMapping("access-request")
