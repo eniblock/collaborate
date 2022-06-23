@@ -134,6 +134,39 @@
       "groups": []
     },
     {
+      "id": "8b66e85e-10ae-4535-9191-b437993eb8c7",
+      "createdTimestamp": 1606743707654,
+      "username": "paul",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": true,
+      "email": "paul@bsp-admin.com",
+      "credentials": [
+        {
+          "id": "19c296b8-b763-4ad0-916f-aba75341bfdd",
+          "type": "password",
+          "createdDate": 1606743724645,
+          "secretData": "{\"value\":\"PeQn1mTq+5n3+GzeayoGxIZR7qMho+SNSHG/JinhTOetYjDy7hhGv3e1E1Shc9JUJq+HqLpruZhisGk9XmrDwg==\",\"salt\":\"42CmdpV4sAwPLzsDyWD+ww==\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "business_service_provider_administrator",
+        "uma_authorization",
+        "offline_access"
+      ],
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    },
+    {
       "id": "03ac730e-63e6-495d-8cf2-584c16f0c95e",
       "createdTimestamp": 1607426427730,
       "username": "service-account-backend",
