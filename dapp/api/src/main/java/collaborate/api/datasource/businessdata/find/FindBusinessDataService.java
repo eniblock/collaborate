@@ -1,8 +1,8 @@
 package collaborate.api.datasource.businessdata.find;
 
+import collaborate.api.comparator.SortComparison;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.organization.OrganizationService;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -16,11 +16,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class FindBusinessDataService {
 
-
   private final AssetDetailsService assetDetailsService;
   private final FindBusinessDataDAO findBusinessDataDAO;
   private final OrganizationService organizationService;
-
+  private final SortComparison sortComparison;
 
   public Page<AssetDetailsDTO> find(Pageable pageable, Optional<String> query,
       Optional<String> ownerAddress) {
@@ -29,16 +28,19 @@ public class FindBusinessDataService {
 
     var assetByDsp = findBusinessDataDAO.findNftIndexersByDsps(dspWallets);
 
-    var assetDetails = assetByDsp.streamTokenIndexes()
+    var filteredAssetDetails = assetByDsp.streamTokenIndexes()
         .filter(tokenIndex ->
             query.map(q -> tokenIndex.getAssetId().contains(q))
                 .orElse(true)
-        ).skip(pageable.getOffset())
+        )
+        .map(assetDetailsService::toAssetDetails).collect(Collectors.toList());
+
+    var assetDetails = sortComparison.sorted(
+            filteredAssetDetails.stream(), pageable.getSort(), AssetDetailsDTO.class)
+        .skip(pageable.getOffset())
         .limit(pageable.getPageSize())
-        .map(assetDetailsService::toAssetDetails)
-        .sorted(Comparator.comparingInt(AssetDetailsDTO::getTokenId))
         .collect(Collectors.toList());
-    return new PageImpl<>(assetDetails, pageable, assetByDsp.streamTokenIndexes().count());
+    return new PageImpl<>(assetDetails, pageable, filteredAssetDetails.size());
   }
 
 

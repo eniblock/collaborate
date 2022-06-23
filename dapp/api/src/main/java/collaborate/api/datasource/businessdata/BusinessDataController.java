@@ -1,5 +1,7 @@
 package collaborate.api.datasource.businessdata;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.datasource.businessdata.access.RequestAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
@@ -28,7 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpEntity;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -63,13 +65,12 @@ public class BusinessDataController {
       description = "Get the business data catalog (list of scopes)"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public HttpEntity<Page<AssetDetailsDTO>> listAssetDetails(
-      @ParameterObject Pageable pageable,
+  public Page<AssetDetailsDTO> listAssetDetails(
+      @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
       @RequestParam(required = false) Optional<String> query,
       @RequestParam(required = false) Optional<String> ownerAddress
   ) {
-    var result = findBusinessDataService.find(pageable, query, ownerAddress);
-    return ResponseEntity.ok(result);
+    return findBusinessDataService.find(pageable, query, ownerAddress);
   }
 
   @PostMapping("access-request")
