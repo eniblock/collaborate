@@ -17,7 +17,6 @@ import collaborate.api.datasource.model.scope.AssetScope;
 import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.http.HttpClientFactory;
-import collaborate.api.ipfs.domain.dto.ContentWithCid;
 import collaborate.api.test.TestResources;
 import collaborate.api.user.metadata.UserMetadataService;
 import java.net.URI;
@@ -168,12 +167,11 @@ class AssetsServiceTest {
     // GIVEN
     var assetListJsonString = TestResources.readContent(
         "/datasource/businessdata/document/asset-list.json");
-    var scope = "customers-analytics";
     var datasourceId = "datasourceId";
     var mockDatasource = Mockito.mock(Datasource.class);
     var resourceAlias = "resourceAlias";
     when(datasourceService.findById(datasourceId))
-        .thenReturn(Optional.of(new ContentWithCid<>("cid", mockDatasource)));
+        .thenReturn(Optional.of(mockDatasource));
     when(datasourceMetadataService.findByAlias(mockDatasource, resourceAlias)).thenReturn(
         new HashMap<>());
     // WHEN
@@ -197,12 +195,11 @@ class AssetsServiceTest {
     // GIVEN
     var assetListJsonString = TestResources.readContent(
         "/datasource/businessdata/document/asset-list.custom-structure.json");
-    var scope = "customers-analytics";
     var datasourceId = "datasourceId";
     var mockDatasource = Mockito.mock(Datasource.class);
     var resourceAlias = "resourceAlias";
     when(datasourceService.findById(datasourceId))
-        .thenReturn(Optional.of(new ContentWithCid<>("cid", mockDatasource)));
+        .thenReturn(Optional.of(mockDatasource));
     when(datasourceMetadataService.findByAlias(mockDatasource, resourceAlias)).thenReturn(
         Map.of("id.jsonPath", "$['key']",
             "downloadLink", "https://custom.api/$id"

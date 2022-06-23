@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceDAO;
+import collaborate.api.datasource.DatasourceProperties;
 import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.businessdata.create.MintBusinessDataService;
 import collaborate.api.datasource.gateway.SaveAuthenticationVisitor;
@@ -17,6 +18,8 @@ import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
+import collaborate.api.date.DateFormatterFactory;
+import collaborate.api.ipfs.IpfsDAO;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,7 +27,6 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.LinkedHashMap;
 import java.util.Objects;
 import java.util.stream.Stream;
 import org.apache.commons.io.IOUtils;
@@ -56,6 +58,12 @@ class CreateDatasourceServiceTest {
   TestConnectionVisitor testConnectionVisitor;
   @Mock
   TraefikProviderService traefikProviderService;
+  @Mock
+  DatasourceProperties datasourceProperties;
+  @Mock
+  DateFormatterFactory dateFormatterFactory;
+  @Mock
+  IpfsDAO ipfsDAO;
   @InjectMocks
   CreateDatasourceService createDatasourceService;
 
@@ -65,8 +73,8 @@ class CreateDatasourceServiceTest {
     createDatasourceService =
         new CreateDatasourceService(
             authenticationMetadataVisitor,
-            datasourceDAO,
             datasourceDTOMetadataVisitor,
+            datasourceDAO,
             objectMapper,
             organizationService,
             mintBusinessDataService,
@@ -74,7 +82,10 @@ class CreateDatasourceServiceTest {
             testConnectionVisitor,
             traefikProviderService,
             uuidGenerator,
-            clock);
+            clock,
+            datasourceProperties,
+            dateFormatterFactory,
+            ipfsDAO);
   }
 
   @Test
@@ -107,7 +118,7 @@ class CreateDatasourceServiceTest {
             traefikConfiguration);
     // THEN
     var middlewareResult =
-        (LinkedHashMap<?, ?>) datasourceResult.getProviderConfiguration().get("middlewares");
+        datasourceResult.getProviderConfiguration().get("middlewares");
     var serializedDatasourceResult = objectMapper.writeValueAsString(middlewareResult);
     assertThat(serializedDatasourceResult).doesNotContain(datasourceId + "-auth-headers");
   }

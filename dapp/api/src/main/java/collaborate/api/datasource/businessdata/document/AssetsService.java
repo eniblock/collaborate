@@ -182,7 +182,7 @@ public class AssetsService {
   Stream<ScopeAssetDTO> convertJsonToScopeAssetDTOs(String jsonResponse, String datasourceId,
       String resourceAlias) {
     var metadata = datasourceService.findById(datasourceId)
-        .map(d -> datasourceMetadataService.findByAlias(d.getContent(), resourceAlias))
+        .map(d -> datasourceMetadataService.findByAlias(d, resourceAlias))
         .orElse(Collections.emptyMap());
 
     var idPath = Optional.ofNullable(metadata.get("id.jsonPath"))

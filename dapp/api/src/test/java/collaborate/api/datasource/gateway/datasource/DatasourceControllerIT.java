@@ -13,7 +13,6 @@ import collaborate.api.datasource.DatasourceController;
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.create.CreateDatasourceService;
-import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
 import collaborate.api.datasource.model.dto.web.OAuth2DatasourceFeatures;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
@@ -154,7 +153,7 @@ class DatasourceControllerIT {
     );
     when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
-    var mvcResult = mockMvc.perform(
+    mockMvc.perform(
             multipart(API_V1_DATASOURCES)
                 .file(pfxFile)
                 .file(basicAuthDatasource)
@@ -191,7 +190,7 @@ class DatasourceControllerIT {
       throws Exception {
     // GIVEN
     when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
-    when(createDatasourceService.create(any(), any())).thenReturn(new Datasource());
+    when(createDatasourceService.create(any(), any())).thenReturn(null);
 
     // WHEN
     var mvcResult = mockMvc.perform(
