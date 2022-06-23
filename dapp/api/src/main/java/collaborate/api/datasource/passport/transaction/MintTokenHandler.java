@@ -15,8 +15,9 @@ public class MintTokenHandler implements TransactionHandler {
 
   @Override
   public void handle(Transaction transaction) {
-    if (transaction.getEntrypoint().equals("mint")){
+    if (transaction.getEntrypoint().equals("mint")) {
       digitalPassportTransactionService.saveFa2Transaction(transaction);
+      digitalPassportTransactionService.saveNftCreated(transaction);
     }
 
   }

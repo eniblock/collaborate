@@ -35,10 +35,10 @@ public class CreateBusinessDataNftDAO {
                 .metadataUri(new Bytes(asset.getUri()))
                 .build()
         ).map(
-            catalogDTO -> Transaction.builder()
+            catalogCreationDTO -> Transaction.builder()
                 .entryPoint(CREATE_DATASOURCE_ENTRYPOINT)
                 .contractAddress(businessDataContractAddress)
-                .entryPointParams(catalogDTO)
+                .entryPointParams(catalogCreationDTO)
                 .build()
         ).collect(Collectors.toList());
 
