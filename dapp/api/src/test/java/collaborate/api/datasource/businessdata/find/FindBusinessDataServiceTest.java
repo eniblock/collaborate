@@ -7,10 +7,12 @@ import static org.mockito.Mockito.when;
 
 import collaborate.api.comparator.SortComparison;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
+import collaborate.api.datasource.nft.model.storage.TokenIndex;
 import collaborate.api.organization.OrganizationFeature;
 import collaborate.api.organization.OrganizationService;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -55,18 +57,16 @@ class FindBusinessDataServiceTest {
     int size = Integer.MAX_VALUE;
     Pageable pageable = PageRequest.of(page, size, Sort.unsorted());
 
-    var query = Optional.<String>empty();
+    var query = Optional.<Predicate<TokenIndex>>empty();
     var ownerAddress = Optional.<String>empty();
 
     IndexerTagResponseDTO nftsByDsp = mockFindByDsp();
     nftsByDsp.streamTokenIndexes()
-        .forEach(tokenIndex -> {
-          when(assetDetailsService.toAssetDetails(tokenIndex))
-              .thenReturn(AssetDetailsDTO.builder()
-                  .tokenId(tokenIndex.getTokenId())
-                  .build()
-              );
-        });
+        .forEach(tokenIndex -> when(assetDetailsService.toAssetDetails(tokenIndex))
+            .thenReturn(AssetDetailsDTO.builder()
+                .tokenId(tokenIndex.getTokenId())
+                .build()
+            ));
 
     // WHEN
 
@@ -88,7 +88,7 @@ class FindBusinessDataServiceTest {
     int size = 1;
     Pageable pageable = PageRequest.of(page, size, Sort.unsorted());
 
-    var query = Optional.<String>empty();
+    var query = Optional.<Predicate<TokenIndex>>empty();
     var ownerAddress = Optional.<String>empty();
 
     int expectedTokenId = 4;
@@ -117,19 +117,17 @@ class FindBusinessDataServiceTest {
     int size = 1;
     Pageable pageable = PageRequest.of(page, size, Sort.unsorted());
 
-    var query = Optional.<String>empty();
+    var query = Optional.<Predicate<TokenIndex>>empty();
     var ownerAddress = Optional.<String>empty();
 
     int expectedTokenId = 19;
     IndexerTagResponseDTO nftsByDsp = mockFindByDsp();
     nftsByDsp.streamTokenIndexes()
-        .forEach(tokenIndex -> {
-          when(assetDetailsService.toAssetDetails(tokenIndex))
-              .thenReturn(AssetDetailsDTO.builder()
-                  .tokenId(tokenIndex.getTokenId())
-                  .build()
-              );
-        });
+        .forEach(tokenIndex -> when(assetDetailsService.toAssetDetails(tokenIndex))
+            .thenReturn(AssetDetailsDTO.builder()
+                .tokenId(tokenIndex.getTokenId())
+                .build()
+            ));
 
     // WHEN
     var assetDetails = findBusinessDataService.find(pageable, query, ownerAddress);
@@ -150,7 +148,8 @@ class FindBusinessDataServiceTest {
     Pageable pageable = PageRequest.of(page, size, Sort.unsorted());
 
     int expectedTokenId = 19;
-    var query = Optional.of("workshop-analytics");
+    var query = Optional.of(
+        (Predicate<TokenIndex>) t -> t.getAssetId().contains("workshop-analytics"));
     var ownerAddress = Optional.<String>empty();
 
     mockFindByDsp();

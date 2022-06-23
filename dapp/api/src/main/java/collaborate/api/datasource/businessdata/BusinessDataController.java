@@ -12,6 +12,7 @@ import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
+import collaborate.api.datasource.nft.model.storage.TokenIndex;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
@@ -22,6 +23,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -70,7 +72,20 @@ public class BusinessDataController {
       @RequestParam(required = false) Optional<String> query,
       @RequestParam(required = false) Optional<String> assetOwner
   ) {
-    return findBusinessDataService.find(pageable, query, assetOwner);
+    var predicate = query.map(q -> (Predicate<TokenIndex>) t -> t.getAssetId().contains(q));
+    return findBusinessDataService.find(pageable, predicate, assetOwner);
+  }
+
+  @GetMapping("market-place")
+  @Operation(
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description = "Get the business data catalog with assets are not owned by the current organization"
+  )
+  @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
+  public Page<AssetDetailsDTO> marketPlace(
+      @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable
+  ) {
+    return findBusinessDataService.marketPlace(pageable);
   }
 
   @PostMapping("access-request")
