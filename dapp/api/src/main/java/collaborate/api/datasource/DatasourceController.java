@@ -90,13 +90,13 @@ public class DatasourceController {
 
   @GetMapping
   @Operation(
-      description = "Get the list of created datasources",
+      description = "Get the list of datasources created by the current organization",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DATASOURCE_READ)
   public HttpEntity<Page<ListDatasourceDTO>> listDatasources(
       @ParameterObject @SortDefault(sort = "id", direction = DESC) Pageable pageable,
       @RequestParam(required = false, defaultValue = "") String query) {
-    Page<ListDatasourceDTO> datasourcePage = datasourceService.findAll(pageable, query);
+    Page<ListDatasourceDTO> datasourcePage = datasourceService.findAllByCurrentOrg(pageable, query);
     return ResponseEntity.ok(datasourcePage);
   }
 

@@ -42,11 +42,11 @@ class DatasourceControllerTest {
     Pageable pageable = PageRequest.of(0, 20);
     String query = "";
 
-    when(datasourceService.findAll(pageable, query)).thenReturn(null);
+    when(datasourceService.findAllByCurrentOrg(pageable, query)).thenReturn(null);
     // WHEN
     datasourceController.listDatasources(pageable, query);
     // THEN
-    verify(datasourceService, times(1)).findAll(any(Pageable.class), anyString());
+    verify(datasourceService, times(1)).findAllByCurrentOrg(any(Pageable.class), anyString());
   }
 
   @Test

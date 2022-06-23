@@ -9,6 +9,7 @@ import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
 import collaborate.api.datasource.model.dto.enumeration.DatasourceStatus;
+import collaborate.api.organization.OrganizationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -28,14 +29,15 @@ public class DatasourceService {
 
   private final DatasourceDAO datasourceDAO;
   private final DatasourceMetadataService datasourceMetadataService;
-
   private final ObjectMapper objectMapper;
+  private final OrganizationService organizationService;
   private final TraefikProviderService traefikProviderService;
 
 
-  public Page<ListDatasourceDTO> findAll(Pageable pageable, String query) {
-    log.warn("query={} and sort not implemented", query);
-    return datasourceDAO.findAll(pageable)
+  public Page<ListDatasourceDTO> findAllByCurrentOrg(Pageable pageable, String query) {
+    log.warn("query={} not implemented", query);
+    var currentOrgAddress = organizationService.getCurrentOrganization().getAddress();
+    return datasourceDAO.findAllByOwner(currentOrgAddress, pageable)
         .map(d -> ListDatasourceDTO.builder()
             .creationDateTime(d.getCreationDatetime())
             .datasourceType(d.findMetadataByName(DATASOURCE_TYPE).orElse(""))

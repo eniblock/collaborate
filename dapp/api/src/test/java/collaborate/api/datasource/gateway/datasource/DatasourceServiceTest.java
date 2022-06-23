@@ -13,6 +13,7 @@ import collaborate.api.datasource.gateway.traefik.model.Router;
 import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.Metadata;
+import collaborate.api.organization.OrganizationService;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Map;
 import java.util.Optional;
@@ -32,6 +33,8 @@ class DatasourceServiceTest {
   @Mock
   DatasourceMetadataService datasourceMetadataService;
   @Mock
+  OrganizationService organizationService;
+  @Mock
   TraefikProviderService traefikProviderService;
 
   @InjectMocks
@@ -43,6 +46,7 @@ class DatasourceServiceTest {
         datasourceDAO,
         datasourceMetadataService,
         objectMapper,
+        organizationService,
         traefikProviderService
     );
   }
