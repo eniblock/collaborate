@@ -1,5 +1,6 @@
 package collaborate.api.datasource;
 
+import static collaborate.api.datasource.create.DatasourceDTOMetadataVisitor.Keys.DATASOURCE_TYPE;
 import static java.util.Collections.emptySet;
 
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
@@ -7,13 +8,13 @@ import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
-import collaborate.api.ipfs.domain.dto.ContentWithCid;
+import collaborate.api.datasource.model.dto.enumeration.DatasourceStatus;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -27,20 +28,33 @@ public class DatasourceService {
 
   private final DatasourceDAO datasourceDAO;
   private final DatasourceMetadataService datasourceMetadataService;
+
+  private final ObjectMapper objectMapper;
   private final TraefikProviderService traefikProviderService;
+
 
   public Page<ListDatasourceDTO> findAll(Pageable pageable, String query) {
     log.warn("query={} and sort not implemented", query);
-    return datasourceDAO.findAll(pageable);
+    return datasourceDAO.findAll(pageable)
+        .map(d -> ListDatasourceDTO.builder()
+            .creationDateTime(d.getCreationDatetime())
+            .datasourceType(d.findMetadataByName(DATASOURCE_TYPE).orElse(""))
+            .id(d.getId())
+            .name(d.getName())
+            .purpose(d.getPurpose(objectMapper))
+            // FIXME
+            .nbGrantedAccess(0)
+            .status(DatasourceStatus.CREATED)
+            .build())
+        ;
   }
 
-  public Optional<ContentWithCid<Datasource>> findById(String id) {
+  public Optional<Datasource> findById(String id) {
     return datasourceDAO.findById(id);
   }
 
   public Optional<DatasourceDetailsDto> findDetailsById(String id) {
     return datasourceDAO.findById(id)
-        .map(ContentWithCid::getContent)
         .map(this::buildDatasourceDetailsDto);
   }
 
@@ -73,8 +87,11 @@ public class DatasourceService {
 
   public Optional<Set<Metadata>> getMetadata(String datasourceId) {
     return datasourceDAO.findById(datasourceId)
-        .map(ContentWithCid::getContent)
         .map(Datasource::getProviderMetadata);
   }
 
+  public Datasource saveIfNotExists(Datasource d) {
+    return datasourceDAO.findById(d.getId())
+        .orElseGet(() -> datasourceDAO.save(d));
+  }
 }

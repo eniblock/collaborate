@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toSet;
 
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.DatasourceDAO;
+import collaborate.api.datasource.DatasourceProperties;
 import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.businessdata.create.MintBusinessDataService;
 import collaborate.api.datasource.gateway.SaveAuthenticationVisitor;
@@ -18,12 +19,15 @@ import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourcePurpose;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
+import collaborate.api.date.DateFormatterFactory;
+import collaborate.api.ipfs.IpfsDAO;
 import collaborate.api.organization.OrganizationService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.ZonedDateTime;
-import java.util.LinkedHashMap;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
@@ -37,8 +41,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class CreateDatasourceService {
 
   private final AuthenticationMetadataVisitor authenticationMetadataVisitor;
-  private final DatasourceDAO datasourceDAO;
   private final DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
+
+  private final DatasourceDAO datasourceDAO;
   private final ObjectMapper objectMapper;
   private final OrganizationService organizationService;
   private final MintBusinessDataService mintBusinessDataService;
@@ -47,6 +52,10 @@ public class CreateDatasourceService {
   private final TraefikProviderService traefikProviderService;
   private final UUIDGenerator uuidGenerator;
   private final Clock clock;
+
+  private final DatasourceProperties datasourceProperties;
+  private final DateFormatterFactory dateFormatterFactory;
+  private final IpfsDAO ipfsDAO;
 
   public Datasource create(DatasourceDTO datasourceDTO, Optional<MultipartFile> pfxFile)
       throws DatasourceVisitorException, IOException {
@@ -58,11 +67,11 @@ public class CreateDatasourceService {
     var providerConfiguration = traefikProviderService.save(datasourceDTO);
     var datasource = buildDatasource(datasourceDTO, providerConfiguration);
 
-    var datasourceWithCid = datasourceDAO.save(datasource);
+    var savedDatasource = save(datasource);
     if (DatasourcePurpose.BUSINESS_DATA.match(datasourceDTO)) {
       mintBusinessDataService.mint(datasourceDTO);
     }
-    return datasourceWithCid.getContent();
+    return savedDatasource;
   }
 
   Datasource buildDatasource(DatasourceDTO datasourceDTO,
@@ -77,7 +86,7 @@ public class CreateDatasourceService {
         .creationDatetime(ZonedDateTime.now(clock))
         .owner(organizationService.getCurrentOrganization().getAddress())
         .providerConfiguration(
-            objectMapper.convertValue(providerConfiguration, LinkedHashMap.class)
+            objectMapper.convertValue(providerConfiguration, JsonNode.class)
         ).provider(TraefikProviderConfiguration.class.getName())
         .providerMetadata(buildMetadata(datasourceDTO))
         .build();
@@ -90,6 +99,17 @@ public class CreateDatasourceService {
             datasourceDTO.accept(datasourceDTOMetadataVisitor)
         ).flatMap(identity())
         .collect(toSet());
+  }
+
+  public Datasource save(Datasource datasource) throws IOException {
+    var datasourcePath = Path.of(datasourceProperties.getRootFolder(),
+        dateFormatterFactory.forPattern(datasourceProperties.getPartitionDatePattern()),
+        datasource.getId()
+    );
+    var cid = ipfsDAO.add(datasourcePath, datasource);
+    datasource.setCid(cid);
+    datasourceDAO.save(datasource);
+    return datasource;
   }
 
   public boolean testConnection(DatasourceDTO datasource, Optional<MultipartFile> pfxFile)
