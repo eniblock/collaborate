@@ -84,7 +84,7 @@ public class BusinessDataController {
   }
 
   private void waitForDatasourceConfiguration(Integer tokenId) throws InterruptedException {
-    if (nftDatasourceService.saveGatewayConfigurationByTokenId(
+    if (nftDatasourceService.saveConfigurationByTokenId(
         tokenId,
         businessDataContractAddress)
     ) {
@@ -157,7 +157,6 @@ public class BusinessDataController {
 
     }
   }
-
 
   @PostMapping("asset/download")
   @Operation(

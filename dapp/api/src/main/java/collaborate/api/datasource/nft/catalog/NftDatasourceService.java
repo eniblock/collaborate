@@ -1,5 +1,6 @@
 package collaborate.api.datasource.nft.catalog;
 
+import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.nft.TokenDAO;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class NftDatasourceService {
 
+  private final DatasourceService datasourceService;
   private final IpfsService ipfsService;
   private final TokenDAO tokenMetadataDAO;
   private final TraefikProviderService traefikProviderService;
@@ -29,8 +31,9 @@ public class NftDatasourceService {
   /**
    * @return true if at least one configuration has been saved
    */
-  public boolean saveGatewayConfigurationByTokenId(Integer tokenId, String smartContract) {
+  public boolean saveConfigurationByTokenId(Integer tokenId, String smartContract) {
     return streamByTokenId(tokenId, smartContract)
+        .map(datasourceService::saveIfNotExists)
         .anyMatch(traefikProviderService::save);
   }
 

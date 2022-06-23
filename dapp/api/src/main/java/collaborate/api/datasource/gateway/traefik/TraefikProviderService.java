@@ -64,7 +64,9 @@ public class TraefikProviderService {
     return toTraefikProviderConfiguration(datasource)
         .map(conf -> conf.getHttp().findFirstServiceLoadBalancerUri())
         .flatMap(identity())
-        .orElse("");
+        .orElseThrow(() ->
+            new IllegalStateException("No base uri found for datasourceId=" + datasource.getId())
+        );
   }
 
   public Optional<TraefikProviderConfiguration> toTraefikProviderConfiguration(

@@ -37,7 +37,7 @@ public class GrantedAccessService {
     String decipheredJWT = cipherService.decipher(accessGrantParams.getCipheredToken());
     storeJWT(accessRequest, decipheredJWT);
 
-    nftDatasourceService.saveGatewayConfigurationByTokenId(
+    nftDatasourceService.saveConfigurationByTokenId(
         accessRequest.getTokenId(),
         businessDataContractAddress
     );
