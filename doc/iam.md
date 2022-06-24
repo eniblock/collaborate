@@ -7,7 +7,10 @@ see: [User identity federation](https://xdevtechnologies.atlassian.net/wiki/spac
 users able to work with identity providers from which he can authenticate using his organization
 credentials.
 
-> _An **Identity Broker** is an intermediary service that connects multiple service providers with different identity providers. As an intermediary service, the identity broker is responsible for creating a trust relationship with an external identity provider in order to use its identities to access internal services exposed by service providers._
+> _An **Identity Broker** is an intermediary service that connects multiple service providers with
+different identity providers. As an intermediary service, the identity broker is responsible for
+creating a trust relationship with an external identity provider in order to use its identities to
+access internal services exposed by service providers._
 
 ![Identity broker flow](images/identity-broker-flow.png)
 
@@ -115,11 +118,12 @@ The initial user configuration is made by customizing
 the [Keycloak user configuration file](../dapp/iam/realm-config/users-0.json). Pre-configured users
 and roles are available:
 
-| username | e-mail | password |  roles |
-| -------- | ------- | ------- | -------- |
-| Eric | eric@idp-admin.com | admin | service_identity_provider_administrator |
-| Sam  | sam@dsp-admin.com | admin | data_service_provider_administrator |
-| David | david@bsp-operator.com | admin | business_service_provider_operator |
+| username | e-mail                 | password | roles                                   |
+|---------|------------------------| ------- |-----------------------------------------|
+| Eric    | eric@idp-admin.com     | admin | service_identity_provider_administrator |
+| Sam     | sam@dsp-admin.com      | admin | data_service_provider_administrator     |
+| David   | david@bsp-operator.com | admin | business_service_provider_operator      |
+| Paul    | paul@bsp-admin.com     | admin | business_service_provider_administraotr |
 
 Collaborate define a pre-configured `frontend` **OpenID Connect Client** using `openid-connect`
 protocol for single-sign-on.
