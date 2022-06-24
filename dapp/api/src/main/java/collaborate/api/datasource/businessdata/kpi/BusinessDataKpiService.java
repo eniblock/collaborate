@@ -5,12 +5,10 @@ import collaborate.api.datasource.create.DataCatalogCreationDTO;
 import collaborate.api.datasource.kpi.Kpi;
 import collaborate.api.datasource.kpi.KpiService;
 import collaborate.api.datasource.kpi.KpiSpecification;
-import collaborate.api.datasource.kpi.find.SearchCriteria;
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.List;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -97,17 +95,15 @@ public class BusinessDataKpiService {
   }
 
   private Kpi buildGrantedAccessKpi(Transaction transaction) {
-    var grantAccessParam = grantedAccessService.getAccessGrantParams(transaction);
-    kpiService.find(List.of(
-        new SearchCriteria("values.")
-    ))
+    var grantedAccessParam = grantedAccessService.getAccessGrantParams(transaction);
     return Kpi.builder()
         .createdAt(transaction.getTimestamp())
         .kpiKey("granted.access")
         .organizationWallet(transaction.getSource())
         .values(objectMapper.convertValue(Map.of(
             "contract", businessDataContractAddress,
-            "requester", grantAccessParam.getRequesterAddress()
+            "requester", grantedAccessParam.getRequesterAddress(),
+            "provider", transaction.getSource()
         ), JsonNode.class))
         .build();
   }

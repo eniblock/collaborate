@@ -33,12 +33,12 @@ public class TransactionCustomDAO {
   }
 
   private <T> Predicate buildPredicate(Collection<SearchCriteria> search, CriteriaBuilder builder,
-      Root<T> kpiRoot) {
+      Root<T> rootEntity) {
     Predicate predicate = builder.conjunction();
     SearchCriteriaConsumer searchConsumer = new SearchCriteriaConsumer(
         predicate,
         builder,
-        kpiRoot);
+        rootEntity);
     search.forEach(searchConsumer);
     return searchConsumer.getPredicate();
   }
