@@ -11,13 +11,16 @@ from pathlib import Path
 from os.path import exists
 from shlex import split
 import rich
+from rich import print_json
 import yaml
 from clk.decorators import (
+    argument,
     option,
     group,
 )
 from clk.lib import (
     call,
+    check_output,
     safe_check_output,
     read
 )
@@ -137,16 +140,19 @@ def rsa():
     """Commands to play with rsa"""
 
 
-
 @collaborate.command(name="activate")
-@option("--activation-key", type=click.Path(exists=True), help="The faucet activation key JSON file")
-@option("--alias", prompt=True, help="The alias to for later reference to the activated account")
-@option("--reveal", is_flag=True, help="Make the reveal transaction for the created account")
+@option("--activation-key", type=click.Path(exists=True),
+        help="The faucet activation key JSON file")
+@option("--alias", prompt=True,
+        help="The alias to for later reference to the activated account")
+@option("--reveal", is_flag=True,
+        help="Make the reveal transaction for the created account")
 def account_activate(activation_key, alias, reveal):
     """Activate an account from a faucet activation key JSON file"""
     if not activation_key:
         activation_key = prompt_path_autocomplete('JSON activation key file')
-    stream_command(split(f'tezos-client activate account {alias} with {activation_key}'))
+    stream_command(
+        split(f'tezos-client activate account {alias} with {activation_key}'))
 
     if reveal:
         click.get_current_context().invoke(account_reveal, alias=alias)
@@ -172,11 +178,11 @@ def account_reveal(alias):
 @option("--force", is_flag=True, help="Overwrite the account if exists")
 def init_organization(from_alias, force):
     """Initialize a new organization config
-    [ ] Wallet activation (from faucet)
-    - Access request private and public keys
-    - Roles
-    - Name
-    """
+  [ ] Wallet activation (from faucet)
+  - Access request private and public keys
+  - Roles
+  - Name
+  """
     # TODO
     pass
 
@@ -223,6 +229,7 @@ def generate_rsa():
 def bd():
     """Commands to play with business-data smart-contracts"""
 
+
 @collaborate.command()
 def hexencode(str):
     res = str.encode('utf-8').hex()
@@ -232,9 +239,12 @@ def hexencode(str):
 @bd.command(name="update-organization")
 @option('--contract', help='The contract alias or address to call')
 @option('--sender', help='The account alias to use as transaction sender')
-@option('--organizations-path', help='The file containing the organization configurations')
-@option('--organization-id', help='The id of the organization to import from the organizations-path')
-def bd_update_organization(contract, sender, organizations_path, organization_id):
+@option('--organizations-path',
+        help='The file containing the organization configurations')
+@option('--organization-id',
+        help='The id of the organization to import from the organizations-path')
+def bd_update_organization(contract, sender, organizations_path,
+                           organization_id):
     """Add or update (when the wallet address is already known) an organization"""
     contract_names = TezosClient.get_contract_names()
     if not contract:
@@ -254,13 +264,19 @@ def bd_update_organization(contract, sender, organizations_path, organization_id
     if not organization_id:
         organizations_ids = list(map(lambda x: x['id'], organizations))
         organization_id = tzc_prompt('Organization Id > ', organizations_ids)
-    organization = next(filter(lambda x: x['id'] == organization_id, organizations))
+    organization = next(
+        filter(lambda x: x['id'] == organization_id, organizations))
 
     entry_point_params = '{Right (Pair (Pair "<address>" "<encryption_key>") (Pair "<name>" {<roles>}))}'
-    entry_point_params = entry_point_params.replace('<address>', organization['address'])
-    entry_point_params = entry_point_params.replace('<encryption_key>', organization['encryption_key'])
-    entry_point_params = entry_point_params.replace('<name>', organization['legal_name'])
-    entry_point_params = entry_point_params.replace('<roles>', '; '.join(organization['roles']))
+    entry_point_params = entry_point_params.replace('<address>',
+                                                    organization['address'])
+    entry_point_params = entry_point_params.replace('<encryption_key>',
+                                                    organization[
+                                                        'encryption_key'])
+    entry_point_params = entry_point_params.replace('<name>',
+                                                    organization['legal_name'])
+    entry_point_params = entry_point_params.replace('<roles>', '; '.join(
+        organization['roles']))
 
     stream_command([
         "tezos-client",
@@ -321,7 +337,8 @@ def bd_set_administrator(contract, sender, administrator_address):
         administrator_address = TezosClient.find_first_account_address_by_name(name)
 
     entry_point_params = '"<address>"'
-    entry_point_params = entry_point_params.replace('<address>', administrator_address)
+    entry_point_params = entry_point_params.replace('<address>',
+                                                    administrator_address)
 
     stream_command([
         "tezos-client",
@@ -331,3 +348,33 @@ def bd_set_administrator(contract, sender, administrator_address):
         "--arg", entry_point_params,
         "--burn-cap", "0.5"
     ])
+
+
+@collaborate.group(name='test')
+def test():
+    """Commands to test deployments state"""
+
+
+def get_access_token(dappBaseURL):
+    raw_result = check_output(["curl", "-k", "--location", "--request", "POST",
+                               f"{dappBaseURL}/auth/realms/collaborate-dapp/protocol/openid-connect/token",
+                               "--header",
+                               "'Content-Type: application/x-www-form-urlencoded",
+                               "--data-urlencode", "grant_type=password",
+                               "--data-urlencode", "username=sam",
+                               "--data-urlencode", "password=admin",
+                               "--data-urlencode", "client_id=frontend"])
+    json_result = json.loads(raw_result)
+    return json_result['access_token']
+
+
+@test.command(name="organization")
+@argument('dapp-url', help='The URL of the Collaborate instance to check')
+def test_organization(dapp_url):
+    access_token = get_access_token(dapp_url)
+    raw_organization = check_output(["curl", "-k", "--location", "--request", "GET",
+                                     f"{dapp_url}/api/v1/organizations/current",
+                                     "--header", f"Authorization: Bearer {access_token}"])
+    organization = json.loads(raw_organization)
+    print(raw_organization)
+    print('address' in organization)
