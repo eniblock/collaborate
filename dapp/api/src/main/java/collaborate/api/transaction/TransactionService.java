@@ -1,5 +1,6 @@
 package collaborate.api.transaction;
 
+import collaborate.api.datasource.kpi.find.SearchCriteria;
 import java.util.Collection;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class TransactionService {
 
   private final TransactionDAO transactionDAO;
+  private final TransactionCustomDAO transactionCustomDAO;
   private final Collection<String> allSmartContracts;
 
   public Page<Transaction> findAllOnKnownSmartContracts(Optional<String> senderAddress,
@@ -21,4 +23,7 @@ public class TransactionService {
     ).orElse(transactionDAO.findByDestinationIn(allSmartContracts, pageable));
   }
 
+  public Collection<Transaction> find(Collection<SearchCriteria> searchCriteria) {
+    return transactionCustomDAO.find(searchCriteria);
+  }
 }

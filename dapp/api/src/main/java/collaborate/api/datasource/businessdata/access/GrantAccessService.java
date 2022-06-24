@@ -91,7 +91,7 @@ public class GrantAccessService {
     }
   }
 
-  AccessRequestParams getAccessRequestParams(Transaction transaction) {
+  public AccessRequestParams getAccessRequestParams(Transaction transaction) {
     try {
       return objectMapper.treeToValue(
           transaction.getParameters(),
@@ -111,7 +111,8 @@ public class GrantAccessService {
         .createdAt(transaction.getTimestamp())
         .kpiKey("business-data.grant")
         .organizationWallet(transaction.getSource())
-        .values(objectMapper.convertValue(Map.of("nft-id", accessRequestParams.getNftId()), JsonNode.class))
+        .values(objectMapper.convertValue(Map.of("nft-id", accessRequestParams.getNftId()),
+            JsonNode.class))
         .build();
   }
 }
