@@ -119,6 +119,13 @@ public final class Authorizations {
             + "OR " + BSP_ADMIN
             + "OR " + DSP_OPERATOR
             + "OR " + ASSET_OWNER;
+
+    public static final String USER_READ =
+        IDENTITY_ADMIN
+            + "OR " + DSP_ADMIN
+            + "OR " + BSP_ADMIN
+            + "OR " + DSP_OPERATOR
+            + "OR " + BSP_OPERATOR;
   }
 
 }

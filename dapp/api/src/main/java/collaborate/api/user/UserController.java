@@ -51,7 +51,7 @@ public class UserController {
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK)
   )
-  @PreAuthorize(HasRoles.IDENTITY_ADMIN)
+  @PreAuthorize(HasRoles.USER_READ)
   public Page<UserDTO> listUsersByPage(
       @ParameterObject @PageableDefault(size = 20, sort = "email") Pageable pageable) {
     return userService.listUsers(pageable);
