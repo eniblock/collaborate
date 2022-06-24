@@ -8,6 +8,8 @@ import java.time.ZonedDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -22,6 +24,11 @@ import org.hibernate.annotations.TypeDef;
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @TypeDef(name = "jsonb", typeClass = JsonBinaryType.class)
+@Table(indexes = {
+    @Index(columnList = "destination"),
+    @Index(columnList = "source"),
+    @Index(columnList = "entrypoint")
+})
 @Entity
 public class Transaction {
 

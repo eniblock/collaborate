@@ -40,6 +40,20 @@ public class FindKpiCustomDAO {
     return entityManager.createQuery(query).getResultList();
   }
 
+  public List<Kpi> find(Collection<SearchCriteria> searchCriteria) {
+    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Kpi> query = builder.createQuery(Kpi.class);
+    Root<Kpi> kpiRoot = query.from(Kpi.class);
+
+    query = query
+        .select(
+            kpiRoot.alias("dataSetGroup")
+        )
+        .where(buildPredicate(searchCriteria, builder, kpiRoot));
+
+    return entityManager.createQuery(query).getResultList();
+  }
+
   private Expression<String> buildExtractDateExpression(String dateField, String dateFormat,
       Root<Kpi> kpiRoot) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();

@@ -8,12 +8,12 @@ import collaborate.api.datasource.kpi.find.KpiAggregation;
 import collaborate.api.datasource.kpi.find.KpiQuery;
 import collaborate.api.datasource.kpi.find.SearchCriteria;
 import collaborate.api.test.SharedDatabaseTest;
-import collaborate.api.test.TestResources;
 import collaborate.api.test.database.PostgresqlSharedTestContainer;
-import com.fasterxml.jackson.core.type.TypeReference;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
@@ -42,14 +42,10 @@ class KpiCustomDaoIT {
 
   @ParameterizedTest
   @MethodSource("getSearchParameters")
-  void search(String testMessage,
+  void findByKpiQuery(String testMessage,
       List<SearchCriteria> search, List<KpiAggregation> expectedResult) {
     // GIVEN
-    var kpis = TestResources.readContent(
-        "/datasource/kpi/kpis.json",
-        new TypeReference<List<Kpi>>() {
-        });
-    kpiDAO.saveAll(kpis);
+    kpiDAO.saveAll(KpiFeatures.kpis);
 
     var kpiQuery = buildQuery();
     kpiQuery.getSearch().addAll(search);
@@ -136,5 +132,25 @@ class KpiCustomDaoIT {
         .build();
   }
 
+  @Test
+  void findByCriteria() {
+    // GIVEN
+    kpiDAO.saveAll(KpiFeatures.kpis);
 
+    // WHEN
+    var searchCriteria = List.of(
+        new SearchCriteria("values.requester", "=", "orgA")
+    );
+    var aggregationResult = findKpiCustomDAO.find(searchCriteria);
+    // THEN
+    var expectedKpis = KpiFeatures.filter(
+        kpi ->
+            Optional.ofNullable(kpi.getValues())
+                .map(values -> values.get("requester"))
+                .map(requester -> requester.asText().equals("orgA"))
+                .orElse(false));
+
+    assertThat(aggregationResult)
+        .containsExactlyElementsOf(expectedKpis);
+  }
 }
