@@ -1,7 +1,6 @@
 package collaborate.api.datasource.kpi;
 
 import collaborate.api.config.OpenApiConfig;
-import collaborate.api.datasource.kpi.find.FindKpiService;
 import collaborate.api.datasource.kpi.find.KpiAggregation;
 import collaborate.api.datasource.kpi.find.KpiQuery;
 import collaborate.api.user.security.Authorizations.HasRoles;
@@ -25,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class KpiController {
 
-  private final FindKpiService findKpiService;
+  private final KpiService kpiService;
 
   @PostMapping
   @Operation(
@@ -33,7 +32,7 @@ public class KpiController {
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.KPI_READ)
   public Collection<KpiAggregation> findKpiByQuery(@Valid @RequestBody KpiQuery kpiQuery) {
-    return findKpiService.find(kpiQuery);
+    return kpiService.find(kpiQuery);
   }
 
 }
