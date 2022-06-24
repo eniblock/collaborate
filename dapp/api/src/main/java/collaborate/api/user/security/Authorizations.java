@@ -92,8 +92,7 @@ public final class Authorizations {
         HasRoles.BSP + " OR " + HasRoles.DSP;
 
     public static final String KPI_READ =
-        HasRoles.DSP_ADMIN
-            + " OR " + HasRoles.BSP_OPERATOR;
+        HasRoles.BSP + " OR " + HasRoles.DSP;
 
     public static final String DATASOURCE_READ =
         HasRoles.DSP_ADMIN
