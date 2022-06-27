@@ -287,5 +287,6 @@ Detailed usage about:
 see also:
 
 * [Accessing and testing the Collaborate application with Postman](doc/postman.md)
+* [Run your environment](doc/setup-dev-env.md)
+* [Contract and wallet deployment](doc/contract-and-wallet-deployment.md)
 
-## [Run your environment](doc/setup-dev-env.md)
