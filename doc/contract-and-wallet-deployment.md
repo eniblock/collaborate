@@ -193,9 +193,11 @@ cf. [example](https://gitlab.com/xdev-tech/xdev-enterprise-business-network/coll
 . The following properties has to be replaced by your organization values:
 
 * `api.platform`: _**Deprecated**_ The application displayable name used when sending e-mails.
-* `api.privateKey`: The organization private encryption key.
-* `smartContractAddress.businessData`: The business data smart contract address.
-* `smartContractAddress.organizationYellowPage`: The yellow page smart contract address.
+* `api.privateKey`: The organization private **encryption key**.
+* `api.smartContractAddress.businessData`: The business data smart contract address.
+* `api.smartContractAddress.organizationYellowPage`: The yellow page smart contract address.
+* `tezos-api-gateway.vault.customInitScript`: [The encrypted organization wallet](#import-the-organization-wallet-in-the-secured-tag-vault)
+  .
 
 __Sample__:
 
@@ -207,4 +209,30 @@ api:
   smartContractAddress:
     businessData: KT1E5gqPrNTVZ1f8mxXhxfSNhR1Hn5iuEYVC
     organizationYellowPage: KT1Ls2zyZDWhEHVbS6y4SjAx3MWCCrnv7sCz
+tezos-api-gateway:
+  vault:
+    customInitScript: vault write transit/restore/admin backup=eyJ.....
 ```
+
+#### Import the organization wallet in the secured TAG Vault
+
+TAG ([Tezos Api Gateway](https://gitlab.com/xdev-tech/xdev-enterprise-business-network/tezos-api-gateway/-/blob/develop/README.md))
+is the embedded Collaborate component in charge of interacting with the Tezos blockchain. To do so,
+TAG stored the organization wallet (private and public key) in a
+secured [Vault](https://www.vaultproject.io/).
+
+The following steps explains how to generate a ciphered Vault backup script:
+
+* Open a terminal
+* Update and execute the following commands with the organization `XXX_PUBLIC_KEY`
+  and `XXX_PRIVATE_KEY` keys (_
+  cf. [Get the wallet private and public keys](#get-the-wallet-private-and-public-keys)_):
+     ```shell
+    export PUBLIC_KEY=`echo "XXX_PUBLIC_KEY" | base58 -d -c | xxd -p -c 1000 | sed 's/^.\{8\}//g' | xxd -r -p | base64 | tr -d '\n'`
+    export PRIVATE_KEY=`echo "XXX_PRIVATE_KEY" | base58 -c -d | xxd -p -c 1000 | sed 's/^.\{8\}//g' | xxd -r -p | base64 | tr -d '\n'`
+    export BACKUP=`echo "{\"policy\":{\"name\":\"admin\",\"keys\":{\"1\":{\"key\":\""$PRIVATE_KEY"\",\"hmac_key\":\"vIeCF/XQkefiuNXKtmBKAQRjLwbkIiQyw21n9w3pBAI=\",\"time\":\"2021-04-26T14:01:57.185354936Z\",\"ec_x\":null,\"ec_y\":null,\"ec_d\":null,\"rsa_key\":null,\"public_key\":\""$PUBLIC_KEY"\",\"convergent_version\":0,\"creation_time\":1619445717}},\"derived\":false,\"kdf\":0,\"convergent_encryption\":false,\"exportable\":true,\"min_decryption_version\":1,\"min_encryption_version\":0,\"latest_version\":1,\"archive_version\":1,\"archive_min_version\":0,\"min_available_version\":0,\"deletion_allowed\":false,\"convergent_version\":0,\"type\":2,\"backup_info\":{\"time\":\"2021-04-26T14:02:23.688590588Z\",\"version\":1},\"restore_info\":null,\"allow_plaintext_backup\":true,\"version_template\":\"\",\"storage_prefix\":\"\"},\"archived_keys\":{\"keys\":[{\"key\":null,\"hmac_key\":null,\"time\":\"0001-01-01T00:00:00Z\",\"ec_x\":null,\"ec_y\":null,\"ec_d\":null,\"rsa_key\":null,\"public_key\":\"\",\"convergent_version\":0,\"creation_time\":0},{\"key\":\""$PRIVATE_KEY"\",\"hmac_key\":\"vIeCF/XQkefiuNXKtmBKAQRjLwbkIiQyw21n9w3pBAI=\",\"time\":\"2021-04-26T14:01:57.185354936Z\",\"ec_x\":null,\"ec_y\":null,\"ec_d\":null,\"rsa_key\":null,\"public_key\":\""$PUBLIC_KEY"\",\"convergent_version\":0,\"creation_time\":1619445717}]}}" | base64 | tr -d '\n'`
+    echo "vault write transit/restore/admin backup=$BACKUP"
+    ```
+* Use the printed `vault write vault write transit/restore/admin backup=ey...`
+  as `tezos-api-gateway.vault.customInitScript` value 
+  
