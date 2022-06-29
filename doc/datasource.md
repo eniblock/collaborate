@@ -28,7 +28,7 @@ and `clientSecret` fields. Authentication information is cyphered and stored in 
 it will be used to generate access token when another partner would like to request access to this
 datasource[^1]. The `partnerTransferMethod` field define the strategy to use in a such process
 
-#### Future orientations
+#### Future orientations :rocket:
 
 Currently  [OAuth 2.0 Client Credentials Grant](https://oauth.net/2/grant-types/client-credentials/)
 is the only implemented authentication mechanisms.

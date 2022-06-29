@@ -1,0 +1,14 @@
+{
+  "token_id_by_asset_id": {
+    "type": "big_map",
+    "value": "21736"
+  },
+  "token_metadata": {
+    "type": "big_map",
+    "value": "21735"
+  },
+  "all_tokens": 18,
+  "not_existing": {
+    "error": "This data field does not exist in the contract storage"
+  }
+}
