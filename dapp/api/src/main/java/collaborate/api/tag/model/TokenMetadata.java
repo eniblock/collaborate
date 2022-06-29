@@ -1,7 +1,5 @@
-package collaborate.api.datasource.nft.model.storage;
+package collaborate.api.tag.model;
 
-import collaborate.api.tag.model.Bytes;
-import collaborate.api.tag.model.TagEntry;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

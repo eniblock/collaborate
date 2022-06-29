@@ -3,6 +3,7 @@ package collaborate.api.datasource.gateway.datasource;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -13,6 +14,7 @@ import collaborate.api.datasource.create.CreateDatasourceService;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.web.OAuth2DatasourceFeatures;
+import collaborate.api.validation.ValidationService;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -33,6 +35,8 @@ class DatasourceControllerTest {
   private DatasourceService datasourceService;
   @Mock
   private CreateDatasourceService createDatasourceService;
+  @Mock
+  private ValidationService validationService;
   @InjectMocks
   private DatasourceController datasourceController;
 
@@ -72,6 +76,8 @@ class DatasourceControllerTest {
   void create_shouldCallExpectedService_withOAuth2() throws Exception {
     // GIVEN
     DatasourceDTO datasource = OAuth2DatasourceFeatures.datasource;
+    doNothing().when(validationService)
+        .validateOrThrowResponseStatus(datasource, HttpStatus.BAD_REQUEST);
     when(createDatasourceService.create(datasource, Optional.empty())).thenReturn(null);
     when(createDatasourceService.testConnection(datasource, Optional.empty())).thenReturn(true);
     // WHEN

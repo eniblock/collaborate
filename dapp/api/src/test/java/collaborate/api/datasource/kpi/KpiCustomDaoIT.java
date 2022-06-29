@@ -12,6 +12,7 @@ import collaborate.api.test.database.PostgresqlSharedTestContainer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -135,6 +136,7 @@ class KpiCustomDaoIT {
   @Test
   void findByCriteria() {
     // GIVEN
+    kpiDAO.deleteAll();
     kpiDAO.saveAll(KpiFeatures.kpis);
 
     // WHEN
@@ -143,12 +145,13 @@ class KpiCustomDaoIT {
     );
     var aggregationResult = findKpiCustomDAO.find(searchCriteria);
     // THEN
-    var expectedKpis = KpiFeatures.filter(
-        kpi ->
-            Optional.ofNullable(kpi.getValues())
-                .map(values -> values.get("requester"))
-                .map(requester -> requester.asText().equals("orgA"))
-                .orElse(false));
+    var expectedKpis = kpiDAO.findAll().stream().filter(
+            kpi ->
+                Optional.ofNullable(kpi.getValues())
+                    .map(values -> values.get("requester"))
+                    .map(requester -> requester.asText().equals("orgA"))
+                    .orElse(false))
+        .collect(Collectors.toList());
 
     assertThat(aggregationResult)
         .containsExactlyElementsOf(expectedKpis);

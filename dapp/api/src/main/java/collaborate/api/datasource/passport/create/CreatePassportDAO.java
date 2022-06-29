@@ -1,6 +1,6 @@
 package collaborate.api.datasource.passport.create;
 
-import static collaborate.api.datasource.nft.model.storage.TokenMetadata.TOKEN_METADATA_FIELD;
+import static collaborate.api.tag.model.TokenMetadata.TOKEN_METADATA_FIELD;
 
 import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.tag.TezosApiGatewayJobClient;

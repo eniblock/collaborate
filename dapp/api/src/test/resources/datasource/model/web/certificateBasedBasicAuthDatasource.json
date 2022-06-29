@@ -39,7 +39,7 @@
       "description": "Last odometer values",
       "keywords": [
         {
-          "name": "alias",
+          "name": "provider:routing:alias",
           "value": "metric:odometer"
         },
         {

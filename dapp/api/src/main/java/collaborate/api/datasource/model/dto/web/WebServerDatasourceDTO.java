@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import lombok.Builder;
@@ -25,6 +26,7 @@ public class WebServerDatasourceDTO extends DatasourceDTO {
 
   @NotEmpty
   @HasAssetListConstraint
+  @Valid
   @Schema(description = "The resources definition this datasource exposes")
   private List<WebServerResource> resources;
 
