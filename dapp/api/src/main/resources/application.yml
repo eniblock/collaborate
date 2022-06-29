@@ -177,3 +177,5 @@ feign:
         errorDecoder: collaborate.api.tag.TagClientErrorDecoder
       tag-user-metadata-client:
         errorDecoder: collaborate.api.tag.TagClientErrorDecoder
+      tag-tezos-storage-client:
+        errorDecoder: collaborate.api.tag.TagClientErrorDecoder

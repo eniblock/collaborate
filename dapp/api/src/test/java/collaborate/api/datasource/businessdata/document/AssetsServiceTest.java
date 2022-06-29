@@ -17,6 +17,7 @@ import collaborate.api.datasource.model.scope.AssetScope;
 import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.http.HttpClientFactory;
+import collaborate.api.tag.TagService;
 import collaborate.api.test.TestResources;
 import collaborate.api.user.metadata.UserMetadataService;
 import java.net.URI;
@@ -63,6 +64,8 @@ class AssetsServiceTest {
   CatalogService catalogService;
   @Mock
   AssetScopeDAO assetScopeDAO;
+  @Mock
+  TagService tagService;
   @InjectMocks
   AssetsService assetsService;
 
@@ -73,14 +76,16 @@ class AssetsServiceTest {
         assetDetailsService,
         assetScopeDAO,
         businessDataContractAddress,
+        catalogService,
         clock,
         datasourceService,
         datasourceMetadataService,
         gatewayUrlService,
         httpClientFactory,
-        userMetadataService,
-        catalogService,
-        TestResources.objectMapper);
+        TestResources.objectMapper,
+        tagService,
+        userMetadataService
+    );
   }
 
 

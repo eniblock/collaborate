@@ -11,6 +11,7 @@ import collaborate.api.datasource.model.dto.DatasourceDetailsDto;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.ListDatasourceDTO;
 import collaborate.api.user.security.Authorizations.HasRoles;
+import collaborate.api.validation.ValidationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,8 +19,6 @@ import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import javax.validation.ConstraintViolationException;
-import javax.validation.Validation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.api.annotations.ParameterObject;
@@ -31,7 +30,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -53,6 +51,7 @@ public class DatasourceController {
 
   private final DatasourceService datasourceService;
   private final CreateDatasourceService createDatasourceService;
+  private final ValidationService validationService;
 
   @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @Operation(
@@ -64,13 +63,7 @@ public class DatasourceController {
       @RequestPart("datasource") DatasourceDTO datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
       throws IOException, DatasourceVisitorException {
-    var violations = Validation.buildDefaultValidatorFactory()
-        .getValidator()
-        .validate(datasource);
-    if (!CollectionUtils.isEmpty(violations)) {
-      throw new ResponseStatusException(BAD_REQUEST, "",
-          new ConstraintViolationException(violations));
-    }
+    validationService.validateOrThrowResponseStatus(datasource, BAD_REQUEST);
     testDatasourceConnection(datasource, pfxFile);
     var datasourceResult = createDatasourceService.create(datasource, pfxFile);
     return new ResponseEntity<>(datasourceResult, HttpStatus.CREATED);
@@ -120,6 +113,7 @@ public class DatasourceController {
       @RequestPart("datasource") DatasourceDTO datasource,
       @RequestPart("pfxFile") Optional<MultipartFile> pfxFile)
       throws IOException, DatasourceVisitorException {
+    validationService.validateOrThrowResponseStatus(datasource, BAD_REQUEST);
     if (createDatasourceService.testConnection(datasource, pfxFile)) {
       return ResponseEntity.ok().build();
     } else {

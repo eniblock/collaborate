@@ -187,11 +187,4 @@ public class BusinessDataController {
     assetsService.download(scopeAssets, response.getOutputStream());
   }
 
-  @GetMapping("/smart-contract")
-  @Operation(
-      description = "Get the business data catalog smart contract address"
-  )
-  public String getBusinessDataSmartContractAddress() {
-    return businessDataContractAddress;
-  }
 }

@@ -20,6 +20,7 @@ import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.http.HttpClientFactory;
+import collaborate.api.tag.TagService;
 import collaborate.api.user.metadata.UserMetadataService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
@@ -75,34 +76,40 @@ public class AssetsService {
   private final AssetDetailsService assetDetailsService;
   private final AssetScopeDAO assetScopeDAO;
   private final String businessDataContractAddress;
+  private final CatalogService catalogService;
   private final Clock clock;
   private final DatasourceService datasourceService;
   private final DatasourceMetadataService datasourceMetadataService;
   private final GatewayUrlService gatewayUrlService;
   private final HttpClientFactory httpClientFactory;
-  private final UserMetadataService userMetadataService;
-  private final CatalogService catalogService;
   private final ObjectMapper objectMapper;
+  private final TagService tagService;
+  private final UserMetadataService userMetadataService;
 
   public BusinessDataNFTSummary getSummary(Integer tokenId) {
     var catalog = catalogService.getCatalogByTokenId(tokenId, businessDataContractAddress);
     return catalog.getDatasources()
         .stream()
-        .map(this::summaryFrom)
+        .map(this::buildSummary)
         .findFirst()
         .orElseThrow(
             () -> new IllegalStateException("No catalog found for tokenId=" + tokenId));
   }
 
-  public BusinessDataNFTSummary summaryFrom(AssetDetailsDatasourceDTO details) {
+  public BusinessDataNFTSummary buildSummary(AssetDetailsDatasourceDTO details) {
     var datasourceId = details.getId();
     var resourceAlias = details.getAssetIdForDatasource();
-    return BusinessDataNFTSummary.builder()
+
+    var summaryBuilder = BusinessDataNFTSummary.builder()
         .accessStatus(assetDetailsService.getAccessStatus(datasourceId, resourceAlias))
         .datasourceId(datasourceId)
         .providerAddress(details.getOwnerAddress())
-        .scopeName(resourceAlias)
-        .build();
+        .scopeName(resourceAlias);
+
+    tagService.findTokenMetadataTzktUrl(businessDataContractAddress)
+        .ifPresent(summaryBuilder::blockchainExplorerPreview);
+
+    return summaryBuilder.build();
   }
 
   public Page<ScopeAssetDTO> listScopeAssets(Integer tokenId, Pageable pageable) {

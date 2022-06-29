@@ -19,6 +19,7 @@ import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.test.config.KeycloakTestConfig;
 import collaborate.api.test.config.NoSecurityTestConfig;
+import collaborate.api.validation.ValidationService;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -39,7 +40,8 @@ import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 @ContextConfiguration(classes = {
     DatasourceController.class,
     KeycloakTestConfig.class,
-    NoSecurityTestConfig.class})
+    NoSecurityTestConfig.class,
+    ValidationService.class})
 @AutoConfigureMockMvc
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles({"default", "test"})
@@ -80,7 +82,7 @@ class DatasourceControllerIT {
     // GIVEN
     when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
-    var mvcResult = mockMvc.perform(
+    mockMvc.perform(
             multipart(API_V1_DATASOURCES)
                 .file(oAuth2Datasource)
         )
@@ -177,7 +179,7 @@ class DatasourceControllerIT {
     );
     when(createDatasourceService.testConnection(any(), any())).thenReturn(true);
     // WHEN
-    var mvcResult = mockMvc.perform(
+    mockMvc.perform(
             multipart(API_V1_DATASOURCES)
                 .file(pfxFile)
                 .file(basicAuthDatasource)
@@ -193,7 +195,7 @@ class DatasourceControllerIT {
     when(createDatasourceService.create(any(), any())).thenReturn(null);
 
     // WHEN
-    var mvcResult = mockMvc.perform(
+    mockMvc.perform(
             multipart(API_V1_DATASOURCES)
                 .file(pfxFile)
                 .file(basicAuthDatasource)

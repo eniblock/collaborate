@@ -21,7 +21,7 @@
       "description": "Datasource documents",
       "keywords": [
         {
-          "name": "alias",
+          "name": "provider:routing:alias",
           "value": "documents"
         },
         {
