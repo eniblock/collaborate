@@ -97,8 +97,8 @@ k8s_resource('col-collaborate-dapp-ipfs', port_forwards=['5010:5001'])
 k8s_resource('col-tag-rabbitmq', port_forwards=['15672:15672'])
 
 local_resource('helm lint',
-               'docker run --rm -t -v $PWD:/app registry.gitlab.com/xdev-tech/build/helm:2.0' +
-               ' lint helm/collaborate-dapp --values helm/collaborate-dapp/values-dev.yaml',
+               'docker run --rm -t -v $PWD:/app registry.gitlab.com/xdev-tech/build/helm:3.2' +
+               ' lint col helm/collaborate-dapp --values helm/collaborate-dapp/values-dev.yaml',
                'helm/collaborate-dapp/', allow_parallel=True)
 
 if config.tilt_subcommand == 'down' and cfg.get("delete-volumes"):

@@ -125,14 +125,14 @@ spec:
 
             # db config
             - name: SPRING_DATASOURCE_URL
-              value: "jdbc:postgresql://{{ .Release.Name }}-{{ .Values.db.nameOverride }}:5432/{{ .Values.db.postgresqlDatabase }}"
+              value: "jdbc:postgresql://{{ .Release.Name }}-{{ .Values.db.nameOverride }}:5432/{{ .Values.db.auth.database }}"
             - name: SPRING_DATASOURCE_USERNAME
-              value: {{ .Values.db.postgresqlUsername | quote }}
+              value: {{ .Values.db.auth.username | quote }}
             - name: SPRING_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: "{{ .Release.Name }}-{{ .Values.db.nameOverride }}"
-                  key: postgresql-password
+                  key: password
 
             # mail config
             - name: spring.mail.host

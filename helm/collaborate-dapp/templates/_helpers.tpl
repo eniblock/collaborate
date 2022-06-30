@@ -63,25 +63,22 @@ Create the name of the service account to use
 
 {{/*
 Create secret data with automatic initialization
-Parameter: [$, Secret name, [Secret key 1, Secret key 2, ...]]
+Parameter: [$, Secret name, key, length, user value path]
 */}}
 {{- define "collaborate-dapp.automaticSecret" -}}
 {{- $ := index . 0 -}}
 {{- $name := index . 1 -}}
-{{- $keys := index . 2 -}}
-{{- $secretLength := 20 }}
-{{- if ($.Values.global).dev }}
-{{- range $keys }}
-{{ . }}: {{ printf "%s-%s" $name . | sha256sum | trunc $secretLength | b64enc | quote }}
-{{- end }}
+{{- $key := index . 2 -}}
+{{- $secretLength := int (index . 3) }}
+{{- $userValue := index . 4 }}
+{{- if $userValue }}
+  {{ $key }}: {{ $userValue | b64enc | quote }}
+{{- else if ($.Values.global).dev }}
+  {{ $key }}: {{ printf "%s-%s" $name $key | sha256sum | trunc $secretLength | b64enc | quote }}
 {{- else if and ($.Release.IsUpgrade) (lookup "v1" "Secret" $.Release.Namespace $name) }}
-{{- range $keys }}
-{{ . }}: {{ index (lookup "v1" "Secret" $.Release.Namespace $name).data . }}
-{{- end }}
+  {{ $key }}: {{ index (lookup "v1" "Secret" $.Release.Namespace $name).data $key }}
 {{- else }}
-{{- range $keys }}
-{{ . }}: {{ randAlphaNum $secretLength | b64enc | quote }}
-{{- end }}
+  {{ $key }}: {{ randAlphaNum $secretLength | b64enc | quote }}
 {{- end }}
 {{- end }}
 
