@@ -16,7 +16,7 @@
 
   <properties>
     <spring.version>5.2.3.RELEASE</spring.version>
-    <springdoc.version>1.6.8</springdoc.version>
+    <springdoc.version>1.6.9</springdoc.version>
     <parent.version>2.0.0-SNAPSHOT</parent.version>
     <maven.compiler.source>11</maven.compiler.source>
     <maven.compiler.target>11</maven.compiler.target>
