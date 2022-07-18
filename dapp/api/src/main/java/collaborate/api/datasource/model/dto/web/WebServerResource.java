@@ -42,7 +42,8 @@ public class WebServerResource implements Keywords<Attribute>, Serializable {
   private String description;
 
   @NotEmpty
-  @ResourceKeywordConstraint
+  @HasAliasKeywordConstraint
+  @AliasIsUrlEncodedKeywordConstraint
   @ArraySchema(schema = @Schema(description =
       "Keyword can be used to extend feature about a resource."
           + "For an example, integrated to an API Gateway, can be used to defined the routing path for this resource",
