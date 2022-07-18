@@ -28,7 +28,7 @@ class WebServerResourceTest {
         .keywords(Set.of(
             Attribute.builder()
                 .name("provider:routing:alias")
-                .value("metric:odometer")
+                .value("metric-odometer")
                 .build(),
             Attribute.builder()
                 .name("scope")
@@ -72,8 +72,8 @@ class WebServerResourceTest {
   void validate_keywords_shouldReturnViolations_withMissingScopeKeywords() {
     // GIVEN
     webResource.setKeywords(Set.of(Attribute.builder()
-            .name("resource")
-            .build()));
+        .name("resource")
+        .build()));
     // WHEN
     var actualViolations = validator.validate(webResource);
     // THEN
@@ -97,7 +97,7 @@ class WebServerResourceTest {
     // WHEN
     var actualViolations = validator.validate(webResource);
     // THEN
-      assertThat(actualViolations).hasSize(1);
+    assertThat(actualViolations).hasSize(1);
     assertThat(actualViolations.iterator().next().getPropertyPath()).hasToString("url");
   }
 
