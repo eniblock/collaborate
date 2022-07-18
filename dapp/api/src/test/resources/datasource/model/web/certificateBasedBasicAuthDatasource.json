@@ -40,7 +40,7 @@
       "keywords": [
         {
           "name": "provider:routing:alias",
-          "value": "metric:odometer"
+          "value": "metric-odometer"
         },
         {
           "name": "scope",

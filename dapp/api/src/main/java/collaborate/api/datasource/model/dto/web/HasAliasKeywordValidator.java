@@ -8,8 +8,11 @@ import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import org.apache.commons.lang3.StringUtils;
 
-public class ResourceKeywordValidator implements
-    ConstraintValidator<ResourceKeywordConstraint, Collection<Attribute>> {
+/**
+ * Ensure that at least one Attribute has the expected name
+ */
+public class HasAliasKeywordValidator implements
+    ConstraintValidator<HasAliasKeywordConstraint, Collection<Attribute>> {
 
   @Override
   public boolean isValid(Collection<Attribute> attributes,
@@ -20,7 +23,7 @@ public class ResourceKeywordValidator implements
         .stream()
         .anyMatch(
             keyword ->
-                StringUtils.startsWith(keyword.getName(), ATTR_NAME_ALIAS)
+                StringUtils.equals(keyword.getName(), ATTR_NAME_ALIAS)
                     || keyword.getName().equals(ATTR_NAME_TEST_CONNECTION)
         );
   }

@@ -11,12 +11,13 @@ import javax.validation.Constraint;
 import javax.validation.Payload;
 
 @Documented
-@Constraint(validatedBy = ResourceKeywordValidator.class)
+@Constraint(validatedBy = AliasIsUrlEncodedKeywordValidator.class)
 @Target({ElementType.METHOD, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ResourceKeywordConstraint {
+public @interface AliasIsUrlEncodedKeywordConstraint {
 
-  String message() default "Resource keyword should contain a keyword with name '" + ATTR_NAME_ALIAS
+  String message() default "The resource keyword '" + ATTR_NAME_ALIAS
+      + " should be a valid URL encoded string"
       + "'";
 
   Class<?>[] groups() default {};
