@@ -60,7 +60,7 @@ if "templates" not in __name__:
         ### Origination - deployment target
         origination = OrganizationsYellowPages(
             organizations = sp.map(tkey=sp.TAddress, tvalue=organization_value_type),
-            administrator = sp.address("tz1SDYtreHuKGe7QNcZTjKQwfSreLR8JYW6c")
+            administrator = sp.address("tz1UeuazWZL3HKF8qoa7qBT1h91Vy5Le5akc")
         )
 
         sp.add_compilation_target(
