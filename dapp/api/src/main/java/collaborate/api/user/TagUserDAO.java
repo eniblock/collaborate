@@ -1,6 +1,5 @@
 package collaborate.api.user;
 
-import static collaborate.api.cache.CacheConfig.CacheNames.USER;
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
@@ -17,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -38,7 +35,6 @@ class TagUserDAO {
   @Value("${tezos-api-gateway.secureKeyname}")
   private String secureKeyName;
 
-  @CachePut(value = USER)
   public Optional<UserWalletDTO> createActiveUser(String userEmail) {
     UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)
@@ -59,7 +55,6 @@ class TagUserDAO {
     }
   }
 
-  @CachePut(value = USER)
   public Optional<UserWalletDTO> createUser(String userEmail) {
     TagUserListDTO createUsersDTO = TagUserListDTO.builder()
         .userIdList(Set.of(cleanUserService.cleanUserId(userEmail)))
@@ -78,7 +73,6 @@ class TagUserDAO {
     }
   }
 
-  @Cacheable(value = USER, key = "'wallet' + #address")
   public Optional<UserWalletDTO> findOneByWalletAddress(String address) {
     log.debug("[TAG] findOneByPublicKeyHash({})", address);
     Optional<UserWalletDTO> walletOptResult;
@@ -101,7 +95,6 @@ class TagUserDAO {
     return walletOptResult;
   }
 
-  @Cacheable(value = USER, key = "'email' + #userEmail")
   public Optional<UserWalletDTO> findOneByUserEmail(String userEmail) {
     return findOneByUserId(cleanUserService.cleanUserId(userEmail));
   }
@@ -141,7 +134,6 @@ class TagUserDAO {
     return walletOptResult;
   }
 
-  @Cacheable(value = USER)
   public Optional<UserWalletDTO> findOneByUserId(String userid) {
     log.debug("[TAG] findOneByUserId({})", userid);
     Optional<UserWalletDTO> walletOptResult;
