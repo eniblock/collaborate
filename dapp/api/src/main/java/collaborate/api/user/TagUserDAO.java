@@ -35,6 +35,10 @@ class TagUserDAO {
   @Value("${tezos-api-gateway.secureKeyname}")
   private String secureKeyName;
 
+  /**
+   * @deprecated Since 0.5, use {@link #createUser(String)}
+   */
+  @Deprecated(since = "0.5")
   public Optional<UserWalletDTO> createActiveUser(String userEmail) {
     UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)

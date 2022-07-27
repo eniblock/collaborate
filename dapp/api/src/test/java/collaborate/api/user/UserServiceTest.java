@@ -19,19 +19,24 @@ import static org.mockito.Mockito.when;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.mail.MailDTO;
 import collaborate.api.mail.MailService;
+import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.security.KeycloakUserService;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 import javax.mail.MessagingException;
 import javax.ws.rs.NotFoundException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.jetbrains.annotations.NotNull;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.runner.RunWith;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleResource;
@@ -40,6 +45,7 @@ import org.keycloak.admin.client.resource.RolesResource;
 import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -48,50 +54,42 @@ import org.springframework.boot.autoconfigure.mail.MailProperties;
 
 @RunWith(MockitoJUnitRunner.class)
 @ExtendWith(MockitoExtension.class)
-public class UserServiceTest {
+class UserServiceTest {
 
+  public static final String ADMIN_USER_ID = "admin";
+  public static final String IDP_ADMIN_ROLE = "service_identity_provider_administrator";
   @InjectMocks
   UserService userService;
-
   @Mock
-  RolesResource mockRolesResource;
-
+  RolesResource rolesResource;
   @Mock
-  RealmResource mockRealmResource;
-
+  RealmResource realmResource;
   @Mock
-  KeycloakUserService mockKeycloakUserService;
-
+  KeycloakUserService keycloakUserService;
   @Mock
-  MailService mockMailService;
-
+  MailService mailService;
   @Mock
   ApiProperties apiProperties;
-
   @Mock
   MailProperties mailProperties;
+  @Captor
+  ArgumentCaptor<List<RoleRepresentation>> addFunctionArgumentCaptor;
+  @Captor
+  ArgumentCaptor<List<RoleRepresentation>> removeFunctionArgumentCaptor;
 
-  @Before
-  public void beforeEach() {
-    Map<String, String> fakeProperties = new HashMap<>();
-    String FAKE_ADDRESS_FROM = "from@gmail.com";
-    fakeProperties.put("addressFrom", FAKE_ADDRESS_FROM);
+  @Mock
+  TagUserDAO tagUserDAO;
 
-    when(mockRealmResource.roles()).thenReturn(mockRolesResource);
-    String IDP_ADMIN_ROLE = "service_identity_provider_administrator";
-    when(apiProperties.getIdpAdminRole()).thenReturn(IDP_ADMIN_ROLE);
-    when(mailProperties.getProperties()).thenReturn(fakeProperties);
-  }
-
-  @After
+  @AfterEach
   public void afterEach() {
-    reset(mockRolesResource);
-    reset(mockRealmResource);
-    reset(mockKeycloakUserService);
+    reset(rolesResource);
+    reset(realmResource);
+    reset(keycloakUserService);
   }
 
   @Test
-  public void testGetRolesRepresentations() {
+  void testGetRolesRepresentations() {
+    // GIVEN
     Set<String> fakeRolesNames = new HashSet<>();
     String fakeRole1 = "role_1";
     String fakeRole2 = "role_2";
@@ -101,86 +99,80 @@ public class UserServiceTest {
     RoleResource fakeRoleResource = mock(RoleResource.class);
     RoleRepresentation fakeRoleRepresentation = mock(RoleRepresentation.class);
 
-    when(mockRolesResource.get(fakeRole1)).thenReturn(fakeRoleResource);
-    when(mockRolesResource.get(fakeRole2)).thenThrow(new NotFoundException());
+    when(rolesResource.get(fakeRole1)).thenReturn(fakeRoleResource);
+    when(rolesResource.get(fakeRole2)).thenThrow(new NotFoundException());
     when(fakeRoleResource.toRepresentation()).thenReturn(fakeRoleRepresentation);
 
+    when(realmResource.roles()).thenReturn(rolesResource);
+    // WHEN
     List<RoleRepresentation> result = userService.getRolesRepresentations(fakeRolesNames);
-
+    // THEN
     assertThat(result).hasSize(1);
     assertEquals(result.get(0), fakeRoleRepresentation);
   }
 
   @Test
-  public void testSetUserRoles() {
-    UserService spyUserService = spy(userService);
+  void testSetUserRoles() {
+    // GIVEN
+    UserService userService = spy(this.userService);
 
-    // Set up a set of roles which are going to be updated for user
-    Set<String> fakeRolesNames = new HashSet<>();
-    String fakeRole1 = "role_1";
-    String fakeRole2 = "role_2";
-    String fakeRole3 = "role_3";
-    fakeRolesNames.add(fakeRole1);
-    fakeRolesNames.add(fakeRole2);
+    String role1 = "role_1";
+    String role2 = "role_2";
+    String role3 = "role_3";
 
-    //Set up all the RoleRepresentation and RoleResource needed for the test
-    RoleResource fakeRoleResourceToAdd = mock(RoleResource.class);
     RoleRepresentation roleRepresentationToAdd = new RoleRepresentation();
-    roleRepresentationToAdd.setName(fakeRole1);
+    roleRepresentationToAdd.setName(role1);
+    var roleResourceToAdd = mockRoleResourceRepresentation(roleRepresentationToAdd);
+    when(rolesResource.get(role1)).thenReturn(roleResourceToAdd);
 
-    RoleResource fakeRoleResourceToRemove = mock(RoleResource.class);
     RoleRepresentation roleRepresentationToRemove = new RoleRepresentation();
-    roleRepresentationToRemove.setName(fakeRole3);
+    roleRepresentationToRemove.setName(role3);
+    var roleResourceToRemove = mockRoleResourceRepresentation(roleRepresentationToRemove);
+    when(rolesResource.get(role3)).thenReturn(roleResourceToRemove);
 
     RoleRepresentation roleRepresentation = new RoleRepresentation();
-    roleRepresentation.setName(fakeRole2);
+    roleRepresentation.setName(role2);
 
-    RoleScopeResource mockRoleScopeResource = mock(RoleScopeResource.class);
-    List<RoleRepresentation> effectiveRoles = new ArrayList<>();
-    effectiveRoles.add(roleRepresentationToRemove);
-    effectiveRoles.add(roleRepresentation);
+    when(realmResource.roles()).thenReturn(rolesResource);
 
-    //Set up UserRepresentation
-    UserRepresentation userRepresentation = mock(UserRepresentation.class);
+    RoleScopeResource roleScopeResource = mock(RoleScopeResource.class);
+    when(roleScopeResource.listEffective())
+        .thenReturn(List.of(
+            roleRepresentationToRemove,
+            roleRepresentation)
+        );
 
-    // GIVEN
-    when(mockRolesResource.get(fakeRole1)).thenReturn(fakeRoleResourceToAdd);
-    when(mockRolesResource.get(fakeRole3)).thenReturn(fakeRoleResourceToRemove);
-    when(fakeRoleResourceToAdd.toRepresentation()).thenReturn(roleRepresentationToAdd);
-    when(fakeRoleResourceToRemove.toRepresentation()).thenReturn(roleRepresentationToRemove);
-    when(mockRoleScopeResource.listEffective()).thenReturn(effectiveRoles);
-    doNothing().when(mockRoleScopeResource).add(anyList());
-    doNothing().when(mockRoleScopeResource).remove(anyList());
-    // Do not check the sending email process
-    doNothing().when(spyUserService).sendNotificationEmail(anyList(), anyList(), any(), anySet());
+    doNothing().when(roleScopeResource).add(anyList());
+    doNothing().when(roleScopeResource).remove(anyList());
+
+    doNothing().when(userService).sendNotificationEmail(anyList(), anyList(), any(), anySet());
 
     // WHEN
-    spyUserService.updateUserRoles(mockRoleScopeResource, fakeRolesNames, userRepresentation);
-
-    ArgumentCaptor<List<RoleRepresentation>> addFunctionArgumentCaptor = ArgumentCaptor
-        .forClass(List.class);
-    ArgumentCaptor<List<RoleRepresentation>> removeFunctionArgumentCaptor = ArgumentCaptor
-        .forClass(List.class);
-
-    verify(mockRoleScopeResource, times(1)).add(addFunctionArgumentCaptor.capture());
-    verify(mockRoleScopeResource, times(1)).remove(removeFunctionArgumentCaptor.capture());
-
-    List<RoleRepresentation> addRoles = new ArrayList<>();
-    addRoles.add(roleRepresentationToAdd);
-
-    List<RoleRepresentation> removeRoles = new ArrayList<>();
-    removeRoles.add(roleRepresentationToRemove);
+    userService.updateUserRoles(roleScopeResource, Set.of(role1, role2),
+        mock(UserRepresentation.class));
 
     // THEN
+    List<RoleRepresentation> addRoles = List.of(roleRepresentationToAdd);
+    verify(roleScopeResource, times(1)).add(addFunctionArgumentCaptor.capture());
     assertEquals(1, addFunctionArgumentCaptor.getAllValues().size());
     assertEquals(addRoles, addFunctionArgumentCaptor.getAllValues().get(0));
 
+    List<RoleRepresentation> removeRoles = List.of(roleRepresentationToRemove);
+    verify(roleScopeResource, times(1)).remove(removeFunctionArgumentCaptor.capture());
     assertEquals(1, removeFunctionArgumentCaptor.getAllValues().size());
     assertEquals(removeRoles, removeFunctionArgumentCaptor.getAllValues().get(0));
   }
 
+  @NotNull
+  private RoleResource mockRoleResourceRepresentation(
+      RoleRepresentation roleRepresentation) {
+    RoleResource roleResource = mock(RoleResource.class);
+    when(roleResource.toRepresentation()).thenReturn(roleRepresentation);
+    return roleResource;
+  }
+
   @Test
-  public void testSendNotificationEmail() {
+  void testSendNotificationEmail() {
     UserRepresentation mockUserRepresentation = mock(UserRepresentation.class);
 
     List<RoleRepresentation> toAdd = new ArrayList<>();
@@ -188,27 +180,66 @@ public class UserServiceTest {
 
     Set<String> rolesNames = new HashSet<>();
 
+    when(apiProperties.getIdpAdminRole()).thenReturn(IDP_ADMIN_ROLE);
+    when(mailProperties.getProperties()).thenReturn(Map.of("addressFrom", "from@gmail.com"));
+
     //WHEN
     try {
-      doNothing().when(mockMailService).sendMail(any(MailDTO.class), anyString(), anyString());
+      doNothing().when(mailService).sendMail(any(MailDTO.class), anyString(), anyString());
       // Both lists does not have any values
       userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
-      verify(mockMailService, times(0)).sendMail(any(MailDTO.class), anyString(), anyString());
+      verify(mailService, times(0)).sendMail(any(MailDTO.class), anyString(), anyString());
 
       // when one of the list have a value
       when(mockUserRepresentation.getEmail()).thenReturn("user@gmail.com");
       toAdd.add(mock(RoleRepresentation.class));
       userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
-      verify(mockMailService, times(1))
+      verify(mailService, times(1))
           .sendMail(any(MailDTO.class), eq("UTF-8"), eq("html/contactEmail.html"));
 
       // when email is null
       when(mockUserRepresentation.getEmail()).thenReturn(null);
       toAdd.add(mock(RoleRepresentation.class));
       userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
-      verifyNoMoreInteractions(mockMailService);
+      verifyNoMoreInteractions(mailService);
     } catch (MessagingException e) {
       e.printStackTrace();
     }
   }
+
+
+  @ParameterizedTest
+  @MethodSource("ensureAdminWalletExistsParams")
+  void ensureAdminWalletExists_shouldCreateUser(String walletAddress,
+      int expectedInvocationNb) {
+    // GIVEN
+    when(tagUserDAO.findOneByUserId(ADMIN_USER_ID))
+        .thenReturn(Optional.of(UserWalletDTO.builder()
+            .address(walletAddress)
+            .build()));
+    // WHEN
+    userService.ensureAdminWalletExists();
+    // THEN
+    verify(tagUserDAO, times(expectedInvocationNb)).createActiveUser(ADMIN_USER_ID);
+  }
+
+  private static Stream<Arguments> ensureAdminWalletExistsParams() {
+    return Stream.of(
+        Arguments.of(null, 1),
+        Arguments.of("  ", 1),
+        Arguments.of("aWalletAddress", 0)
+    );
+  }
+
+  @Test
+  void ensureAdminWalletExists_shouldCreateUser_withAdminWalletNotExists() {
+    // GIVEN
+    when(tagUserDAO.findOneByUserId(ADMIN_USER_ID))
+        .thenReturn(Optional.empty());
+    // WHEN
+    userService.ensureAdminWalletExists();
+    // THEN
+    verify(tagUserDAO, times(1)).createActiveUser(ADMIN_USER_ID);
+  }
+
 }

@@ -21,6 +21,7 @@ import javax.mail.MessagingException;
 import javax.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.admin.client.resource.RoleScopeResource;
@@ -48,6 +49,7 @@ public class UserService {
       "uma_authorization",
       "offline_access"
   );
+  public static final String ORGANIZATION_USER_ID = "admin";
 
   private final ApiProperties apiProperties;
   private final KeycloakUserService keycloakUserService;
@@ -212,6 +214,10 @@ public class UserService {
         });
   }
 
+  /**
+   * @deprecated Use {@link #createUser(String)} instead
+   */
+  @Deprecated(since = "0.5")
   public UserWalletDTO createActiveUser(String userId) {
     return tagUserDAO.createActiveUser(userId).orElseThrow(
         () -> {
@@ -246,7 +252,7 @@ public class UserService {
 
   public UserWalletDTO getAdminUser() {
     return tagUserDAO
-        .findOneByUserId("admin")
+        .findOneByUserId(ORGANIZATION_USER_ID)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, (
             "No admin user"
         )));
@@ -257,5 +263,16 @@ public class UserService {
     userRepresentation.setEnabled(enabled);
     realmResource.users().get(userId)
         .update(userRepresentation);
+  }
+
+  public void ensureAdminWalletExists() {
+    var adminIsMissing = tagUserDAO.findOneByUserId(ORGANIZATION_USER_ID)
+        .map(UserWalletDTO::getAddress)
+        .filter(StringUtils::isNotBlank)
+        .isEmpty();
+    if (adminIsMissing) {
+      log.info("No wallet found for the organization, creating one...");
+      tagUserDAO.createUser(ORGANIZATION_USER_ID);
+    }
   }
 }

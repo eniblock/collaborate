@@ -1,13 +1,11 @@
 package collaborate.api.datasource.businessdata.access;
 
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.datasource.businessdata.access.AccessRequestTransactionHandlerIT.TestConfig;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,15 +51,6 @@ class AccessRequestTransactionHandlerIT {
           );
       return organizationService;
     }
-  }
-
-  @Test
-  void organizationWallet_shouldBeInitializedOnStartup() {
-    // GIVEN
-    // WHEN
-    var currentResult = accessRequestTransactionHandler.organizationAccountAddress;
-    // THEN
-    assertThat(currentResult).isEqualTo(PROVIDER_ADDRESS);
   }
 
 }

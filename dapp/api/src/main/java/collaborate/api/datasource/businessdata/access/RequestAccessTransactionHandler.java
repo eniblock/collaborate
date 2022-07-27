@@ -6,7 +6,6 @@ import static collaborate.api.datasource.businessdata.access.model.AccessRequest
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.transaction.Transaction;
 import collaborate.api.transaction.TransactionHandler;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -22,12 +21,6 @@ public class RequestAccessTransactionHandler implements TransactionHandler {
 
   private final GrantAccessService accessGrantService;
   private final OrganizationService organizationService;
-  String organizationAccountAddress = "";
-
-  @PostConstruct
-  public void init() {
-    this.organizationAccountAddress = organizationService.getCurrentOrganization().getAddress();
-  }
 
   @Override
   public void handle(Transaction transaction) {
@@ -38,7 +31,10 @@ public class RequestAccessTransactionHandler implements TransactionHandler {
   }
 
   boolean isRequestAccessForCurrentOrganisation(Transaction transaction) {
-    return transaction.isEntryPoint(REQUEST_ACCESS_ENTRY_POINT)
-        && transaction.hasParameterValue(PROVIDER_ADDRESS, organizationAccountAddress);
+    return transaction.isEntryPoint(REQUEST_ACCESS_ENTRY_POINT) &&
+        transaction.hasParameterValue(
+            PROVIDER_ADDRESS,
+            organizationService.getCurrentOrganization().getAddress()
+        );
   }
 }
