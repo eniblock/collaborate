@@ -2,8 +2,12 @@ package collaborate.api.organization;
 
 import static java.util.stream.Collectors.toList;
 
+import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.tag.TezosApiGatewayOrganizationClient;
+import collaborate.api.organization.tag.UpdateOrganisationFactory;
+import collaborate.api.tag.TezosApiGatewayJobClient;
+import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.TagEntry;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import java.util.Arrays;
@@ -21,9 +25,13 @@ import org.springframework.stereotype.Repository;
 @Slf4j
 public class OrganizationDAO {
 
-  private final TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
+  private static final String UPDATE_ORGANIZATIONS_ENTRYPOINT = "update_organizations";
   private final ModelMapper modelMapper;
-  private final String organizationYellowPageContractAddress;
+  private final SmartContractAddressProperties smartContractAddressProperties;
+  private final TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
+  private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
+  private final TransactionBatchFactory transactionBatchFactory;
+  private final UpdateOrganisationFactory updateOrganisationFactory;
 
   public static final String ORGANIZATION_FIELD = "organizations";
   static final DataFieldsRequest<String> GET_ALL_ORGANIZATIONS_REQUEST = new DataFieldsRequest<>(
@@ -31,7 +39,7 @@ public class OrganizationDAO {
 
   public Collection<OrganizationDTO> getAllOrganizations() {
     var organizations = tezosApiGatewayOrganizationClient.getOrganizations(
-        organizationYellowPageContractAddress,
+        smartContractAddressProperties.getOrganizationYellowPage(),
         GET_ALL_ORGANIZATIONS_REQUEST
     );
 
@@ -50,4 +58,23 @@ public class OrganizationDAO {
         .filter(o -> address.equals(o.getAddress()))
         .findFirst();
   }
+
+  public void upsert(OrganizationDTO organization) {
+    var transactionBatch = transactionBatchFactory.createEntryPointJob(
+        UPDATE_ORGANIZATIONS_ENTRYPOINT,
+        List.of(updateOrganisationFactory.update(organization)),
+        Optional.empty(),
+        smartContractAddressProperties.getOrganizationYellowPage()
+    );
+    tezosApiGatewayJobClient.sendTransactionBatch(transactionBatch, false);
+
+    transactionBatch = transactionBatchFactory.createEntryPointJob(
+        UPDATE_ORGANIZATIONS_ENTRYPOINT,
+        List.of(updateOrganisationFactory.update(organization)),
+        Optional.empty(),
+        smartContractAddressProperties.getBusinessData()
+    );
+    tezosApiGatewayJobClient.sendTransactionBatch(transactionBatch, false);
+  }
 }
+

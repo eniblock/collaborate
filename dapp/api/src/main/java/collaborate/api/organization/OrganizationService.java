@@ -11,6 +11,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -57,5 +58,19 @@ public class OrganizationService {
         .filter(o -> o.getRoles().contains(DSP))
         .map(OrganizationDTO::getAddress)
         .collect(Collectors.toList());
+  }
+
+  public Optional<OrganizationDTO> findByLegalName(String legalName) {
+    return getAllOrganizations().stream()
+        .filter(o -> StringUtils.equals(o.getLegalName(), legalName))
+        .findFirst();
+  }
+
+  /**
+   * Add an organization if the address it not already known<br>
+   * Otherwise the organization is updated
+   */
+  public void upsertOrganization(OrganizationDTO organization) {
+    organizationDAO.upsert(organization);
   }
 }

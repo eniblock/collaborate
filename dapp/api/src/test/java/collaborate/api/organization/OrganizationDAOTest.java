@@ -6,8 +6,12 @@ import static collaborate.api.test.TestResources.objectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.organization.tag.OrganizationMap;
 import collaborate.api.organization.tag.TezosApiGatewayOrganizationClient;
+import collaborate.api.organization.tag.UpdateOrganisationFactory;
+import collaborate.api.tag.TezosApiGatewayJobClient;
+import collaborate.api.tag.TransactionBatchFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,13 +28,26 @@ class OrganizationDAOTest {
 
   @Mock
   private TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
+  @Mock
+  private SmartContractAddressProperties smartContractAddressProperties;
+
+  @Mock
+  private TezosApiGatewayJobClient tezosApiGatewayJobClient;
+  @Mock
+  private  TransactionBatchFactory transactionBatchFactory;
+
+  private final UpdateOrganisationFactory updateOrganisationFactory = new UpdateOrganisationFactory();
+
   private static final     String CONTRACT_ADDRESS = "contract-address";
   @BeforeEach
   void setUp() {
     organizationDAO = new OrganizationDAO(
-        tezosApiGatewayOrganizationClient,
         new ModelMapper(),
-        CONTRACT_ADDRESS
+        smartContractAddressProperties,
+        tezosApiGatewayOrganizationClient,
+        tezosApiGatewayJobClient,
+        transactionBatchFactory,
+        updateOrganisationFactory
     );
   }
 
