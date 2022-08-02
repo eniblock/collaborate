@@ -1,5 +1,6 @@
 package collaborate.api.organization;
 
+import static collaborate.api.tag.TezosApiGatewayJobClient.ORGANIZATION_SECURE_KEY_NAME;
 import static java.util.stream.Collectors.toList;
 
 import collaborate.api.config.api.SmartContractAddressProperties;
@@ -7,8 +8,9 @@ import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.tag.TezosApiGatewayOrganizationClient;
 import collaborate.api.organization.tag.UpdateOrganisationFactory;
 import collaborate.api.tag.TezosApiGatewayJobClient;
-import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.TagEntry;
+import collaborate.api.tag.model.job.Transaction;
+import collaborate.api.tag.model.job.TransactionBatch;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,7 +32,6 @@ public class OrganizationDAO {
   private final SmartContractAddressProperties smartContractAddressProperties;
   private final TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
-  private final TransactionBatchFactory transactionBatchFactory;
   private final UpdateOrganisationFactory updateOrganisationFactory;
 
   public static final String ORGANIZATION_FIELD = "organizations";
@@ -60,19 +61,20 @@ public class OrganizationDAO {
   }
 
   public void upsert(OrganizationDTO organization) {
-    var transactionBatch = transactionBatchFactory.createEntryPointJob(
-        UPDATE_ORGANIZATIONS_ENTRYPOINT,
-        List.of(updateOrganisationFactory.update(organization)),
-        Optional.empty(),
-        smartContractAddressProperties.getOrganizationYellowPage()
-    );
-    tezosApiGatewayJobClient.sendTransactionBatch(transactionBatch, false);
-
-    transactionBatch = transactionBatchFactory.createEntryPointJob(
-        UPDATE_ORGANIZATIONS_ENTRYPOINT,
-        List.of(updateOrganisationFactory.update(organization)),
-        Optional.empty(),
-        smartContractAddressProperties.getBusinessData()
+    var updateOrgType = List.of(updateOrganisationFactory.update(organization));
+    var updateYellowPage = Transaction.builder()
+        .contractAddress(smartContractAddressProperties.getOrganizationYellowPage())
+        .entryPoint(UPDATE_ORGANIZATIONS_ENTRYPOINT)
+        .entryPointParams(updateOrgType)
+        .build();
+    var updateBusinessData = Transaction.builder()
+        .contractAddress(smartContractAddressProperties.getBusinessData())
+        .entryPoint(UPDATE_ORGANIZATIONS_ENTRYPOINT)
+        .entryPointParams(updateOrgType)
+        .build();
+    var transactionBatch = new TransactionBatch<>(
+        List.of(updateYellowPage, updateBusinessData),
+        ORGANIZATION_SECURE_KEY_NAME
     );
     tezosApiGatewayJobClient.sendTransactionBatch(transactionBatch, false);
   }

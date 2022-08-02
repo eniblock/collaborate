@@ -11,7 +11,6 @@ import collaborate.api.organization.tag.OrganizationMap;
 import collaborate.api.organization.tag.TezosApiGatewayOrganizationClient;
 import collaborate.api.organization.tag.UpdateOrganisationFactory;
 import collaborate.api.tag.TezosApiGatewayJobClient;
-import collaborate.api.tag.TransactionBatchFactory;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,8 +32,6 @@ class OrganizationDAOTest {
 
   @Mock
   private TezosApiGatewayJobClient tezosApiGatewayJobClient;
-  @Mock
-  private  TransactionBatchFactory transactionBatchFactory;
 
   private final UpdateOrganisationFactory updateOrganisationFactory = new UpdateOrganisationFactory();
 
@@ -46,7 +43,6 @@ class OrganizationDAOTest {
         smartContractAddressProperties,
         tezosApiGatewayOrganizationClient,
         tezosApiGatewayJobClient,
-        transactionBatchFactory,
         updateOrganisationFactory
     );
   }
