@@ -6,6 +6,7 @@ import lombok.Getter;
 
 @Getter
 public enum OrganizationRole {
+  BNO(0),
   DSP(1),
   BSP(2);
 

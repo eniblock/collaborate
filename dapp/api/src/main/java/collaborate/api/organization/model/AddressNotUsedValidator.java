@@ -12,6 +12,7 @@ public class AddressNotUsedValidator implements ConstraintValidator<AddressNotUs
     @Override
     public boolean isValid(String organizationAddress, ConstraintValidatorContext context) {
         return organizationService.findOrganizationByPublicKeyHash(organizationAddress)
+            .filter(OrganizationDTO::isActive)
                 .isEmpty();
     }
 }

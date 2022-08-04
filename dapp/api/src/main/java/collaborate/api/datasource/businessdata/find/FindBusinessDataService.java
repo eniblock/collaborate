@@ -26,7 +26,7 @@ public class FindBusinessDataService {
   public Page<AssetDetailsDTO> find(Pageable pageable, Optional<Predicate<TokenIndex>> filter,
       Optional<String> ownerAddress) {
     var dspWallets = ownerAddress.map(List::of)
-        .orElse(organizationService.getAllDspWallets());
+        .orElseGet(organizationService::getAllDspWallets);
 
     var assetByDsp = findBusinessDataDAO.findNftIndexersByDsps(dspWallets);
 

@@ -16,6 +16,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.cache.CacheConfig.CacheNames;
+import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.mail.MailDTO;
 import collaborate.api.mail.MailService;
@@ -72,6 +74,8 @@ class UserServiceTest {
   ApiProperties apiProperties;
   @Mock
   MailProperties mailProperties;
+  @Mock
+  CacheService cacheService;
   @Captor
   ArgumentCaptor<List<RoleRepresentation>> addFunctionArgumentCaptor;
   @Captor
@@ -210,7 +214,7 @@ class UserServiceTest {
 
   @ParameterizedTest
   @MethodSource("ensureAdminWalletExistsParams")
-  void ensureAdminWalletExists_shouldCreateUser(String walletAddress,
+  void ensureAdminWalletExists_shouldCreateUserAndClearOrganizationCache(String walletAddress,
       int expectedInvocationNb) {
     // GIVEN
     when(tagUserDAO.findOneByUserId(ADMIN_USER_ID))
@@ -220,7 +224,8 @@ class UserServiceTest {
     // WHEN
     userService.ensureAdminWalletExists();
     // THEN
-    verify(tagUserDAO, times(expectedInvocationNb)).createActiveUser(ADMIN_USER_ID);
+    verify(tagUserDAO, times(expectedInvocationNb)).createUser(ADMIN_USER_ID);
+    verify(cacheService, times(expectedInvocationNb)).clearOrThrow(CacheNames.ORGANIZATION);
   }
 
   private static Stream<Arguments> ensureAdminWalletExistsParams() {
@@ -239,7 +244,8 @@ class UserServiceTest {
     // WHEN
     userService.ensureAdminWalletExists();
     // THEN
-    verify(tagUserDAO, times(1)).createActiveUser(ADMIN_USER_ID);
+    verify(tagUserDAO, times(1)).createUser(ADMIN_USER_ID);
+    verify(cacheService, times(1)).clearOrThrow(CacheNames.ORGANIZATION);
   }
 
 }

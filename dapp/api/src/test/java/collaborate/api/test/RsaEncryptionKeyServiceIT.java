@@ -3,6 +3,8 @@ package collaborate.api.test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import collaborate.api.cache.CacheConfig;
+import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.security.CipherConfig;
 import collaborate.api.security.RsaCipherService;
@@ -20,6 +22,8 @@ import org.springframework.test.context.ContextConfiguration;
 @ActiveProfiles({"default", "test"})
 @ContextConfiguration(
     classes = {
+        CacheConfig.class,
+        CacheService.class,
         KeycloakTestConfig.class,
         NoSecurityTestConfig.class,
         ApiProperties.class,
@@ -28,8 +32,6 @@ import org.springframework.test.context.ContextConfiguration;
         RsaEncryptionKeyService.class})
 class RsaEncryptionKeyServiceIT {
 
-  @Autowired
-  RsaCipherService rsaCipherService;
   @Autowired
   RsaEncryptionKeyService rsaEncryptionKeyService;
   @Autowired
@@ -40,7 +42,7 @@ class RsaEncryptionKeyServiceIT {
       throws NoSuchAlgorithmException {
     // GIVEN
     apiProperties.setPublicEncryptionKey(null);
-    apiProperties.setPrivateEncryptionKey(null);
+    apiProperties.setPrivateKey(null);
     // WHEN
     rsaEncryptionKeyService.ensureEncryptionKeyExists();
 
@@ -48,7 +50,7 @@ class RsaEncryptionKeyServiceIT {
     var cipherService = new RsaCipherService();
     String expectedSecret = "secret";
     var ciphered = cipherService.cipher(expectedSecret, apiProperties.getPublicEncryptionKey());
-    var unciphered = cipherService.decipher(ciphered, apiProperties.getPrivateEncryptionKey());
+    var unciphered = cipherService.decipher(ciphered, apiProperties.getPrivateKey());
     assertThat(unciphered).isEqualTo(expectedSecret);
   }
 }

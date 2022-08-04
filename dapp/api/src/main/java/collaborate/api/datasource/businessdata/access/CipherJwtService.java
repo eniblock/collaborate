@@ -51,7 +51,7 @@ public class CipherJwtService {
 
     var encodedKeyAndIv = rsaCipherService.decipher(
         keyAndToken[KEY_AND_SPEC_INDEX],
-        apiProperties.getPrivateEncryptionKey()
+        apiProperties.getPrivateKey()
     ).split(CIPHER_SEPARATOR);
 
     SecretKey decipheredKey = getSecretKey(encodedKeyAndIv);

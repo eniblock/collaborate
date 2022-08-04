@@ -2,7 +2,6 @@ package collaborate.api.config;
 
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.config.api.SmartContractAddressProperties;
-import collaborate.api.config.model.Onboarding;
 import collaborate.api.tag.TagService;
 import collaborate.api.tag.config.TagConfig;
 import collaborate.api.user.UserService;
@@ -23,9 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ConfigController {
 
   private final SmartContractAddressProperties smartContractAddressProperties;
-  private final ApiProperties apiProperties;
   private final TagService tagService;
-  private final UserService userService;
 
   @GetMapping("/smart-contract")
   @Operation(description = "Get the underlying block chain smart-contracts")
@@ -39,12 +36,4 @@ public class ConfigController {
     return tagService.getConfig();
   }
 
-  @GetMapping("/onboarding")
-  @Operation(description = "Get the organization onboarding informartion")
-  public Onboarding onboarding() {
-    return Onboarding.builder()
-        .publicEncryptionKey(apiProperties.getPublicEncryptionKey())
-        .walletAddress(userService.getAdminUser().getAddress())
-        .build();
-  }
 }

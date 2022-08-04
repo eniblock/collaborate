@@ -3,6 +3,8 @@ package collaborate.api.user;
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
+import collaborate.api.cache.CacheConfig.CacheNames;
+import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.mail.MailService;
 import collaborate.api.tag.model.user.UserWalletDTO;
@@ -52,6 +54,7 @@ public class UserService {
   public static final String ORGANIZATION_USER_ID = "admin";
 
   private final ApiProperties apiProperties;
+  private final CacheService cacheService;
   private final KeycloakUserService keycloakUserService;
   private final MailProperties mailProperties;
   private final MailService mailService;
@@ -273,6 +276,7 @@ public class UserService {
     if (adminIsMissing) {
       log.info("No wallet found for the organization, creating one...");
       tagUserDAO.createUser(ORGANIZATION_USER_ID);
+      cacheService.clearOrThrow(CacheNames.ORGANIZATION);
     }
   }
 }

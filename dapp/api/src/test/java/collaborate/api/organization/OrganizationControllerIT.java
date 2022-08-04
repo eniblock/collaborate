@@ -1,13 +1,18 @@
 package collaborate.api.organization;
 
-import collaborate.api.config.exception.ControllerExceptionHandler;
+import static collaborate.api.test.TestResources.asJsonString;
+import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.config.api.SmartContractConfig;
+import collaborate.api.config.exception.ControllerExceptionHandler;
 import collaborate.api.datasource.businessdata.BusinessDataController;
-import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
-import collaborate.api.datasource.nft.model.AssetDetailsDTO;
-import collaborate.api.organization.model.OrganizationDTO;
-import collaborate.api.organization.model.OrganizationRole;
 import collaborate.api.test.config.KeycloakTestConfig;
 import collaborate.api.test.config.NoSecurityTestConfig;
 import java.util.Optional;
@@ -25,19 +30,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-
-import java.util.List;
-
-import static collaborate.api.test.TestResources.asJsonString;
-import static collaborate.api.test.TestResources.readContent;
-import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(BusinessDataController.class)
 @ActiveProfiles({"default", "test"})
@@ -100,9 +92,13 @@ class OrganizationControllerIT {
   }
 
   @Test
-  void addOrganization_shouldResultInBadRequestAndExpectedMessage_withAddressAlredyUsed() throws Exception {
+  void addOrganization_shouldResultInBadRequestAndExpectedMessage_withAddressAlreadyUsed() throws Exception {
     // GIVEN
-    var organization = OrganizationFeature.validOrganization;
+    var organization = OrganizationFeature.validOrganization
+        .toBuilder()
+        .active(true)
+        .build();
+
     when(organizationService.findOrganizationByPublicKeyHash(organization.getAddress()))
         .thenReturn(Optional.of(organization));
     // WHEN
@@ -123,7 +119,10 @@ class OrganizationControllerIT {
   @Test
   void addOrganization_shouldResultInBadRequestAndExpectedMessage_withLegalNameAlreadyUsed() throws Exception {
     // GIVEN
-    var organization = OrganizationFeature.validOrganization;
+    var organization = OrganizationFeature.validOrganization
+        .toBuilder()
+        .active(true)
+        .build();
     when(organizationService.findByLegalName(organization.getLegalName()))
         .thenReturn(Optional.of(organization));
     // WHEN

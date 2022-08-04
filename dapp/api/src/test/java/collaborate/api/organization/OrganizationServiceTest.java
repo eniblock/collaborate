@@ -6,7 +6,10 @@ import static org.mockito.Mockito.when;
 
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.model.OrganizationRole;
+import collaborate.api.tag.model.user.UserWalletDTO;
+import collaborate.api.user.UserService;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -21,6 +24,8 @@ class OrganizationServiceTest {
 
   @Mock
   OrganizationDAO organizationDAO;
+  @Mock
+  UserService userService;
   @InjectMocks
   OrganizationService organizationService;
 
@@ -31,6 +36,16 @@ class OrganizationServiceTest {
     // GIVEN
     when(organizationDAO.getAllOrganizations())
         .thenReturn(organizations);
+    when(userService.getAdminUser())
+        .thenReturn(UserWalletDTO.builder()
+            .address("adminWallet")
+            .userId("admin")
+            .build());
+    when(organizationDAO.findOrganizationByPublicKeyHash("adminWallet"))
+        .thenReturn(Optional.of(
+            OrganizationDTO.builder()
+                .roles(List.of(OrganizationRole.BSP))
+                .build()));
     // WHEN
     var dspWalletsResult = organizationService.getAllDspWallets();
     // THEN

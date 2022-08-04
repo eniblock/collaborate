@@ -2,11 +2,14 @@ package collaborate.api.test;
 
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.cache.CacheConfig.CacheNames;
+import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.security.RsaCipherService;
 import collaborate.api.security.RsaEncryptionKeyService;
@@ -31,7 +34,8 @@ class RsaEncryptionKeyServiceTest {
 
   @Mock
   ApiProperties apiProperties;
-
+  @Mock
+  CacheService cacheService;
   @Captor
   ArgumentCaptor<String> privateKeyCaptor;
   @Captor
@@ -45,11 +49,12 @@ class RsaEncryptionKeyServiceTest {
       int expectedInvocationNb)
       throws NoSuchAlgorithmException {
     // GIVEN
-    when(apiProperties.getPrivateEncryptionKey()).thenReturn(privateKey);
+    when(apiProperties.getPrivateKey()).thenReturn(privateKey);
     // WHEN
     rsaEncryptionKeyService.ensureEncryptionKeyExists();
     // THEN
-    verify(apiProperties, times(expectedInvocationNb)).setPrivateEncryptionKey(anyString());
+    verify(apiProperties, times(expectedInvocationNb)).setPrivateKey(anyString());
+    verify(cacheService, times(expectedInvocationNb)).clearOrThrow(any());
   }
 
   private static Stream<Arguments> ensureEncryptionKeyExistsParams() {
@@ -61,14 +66,14 @@ class RsaEncryptionKeyServiceTest {
   }
 
   @Test
-  void ensureEncryptionKeyExists_shouldGenerateUsableKeys()
+  void ensureEncryptionKeyExists_shouldGenerateUsableKeys_whenNotExists()
       throws NoSuchAlgorithmException {
     // GIVEN
     // WHEN
     rsaEncryptionKeyService.ensureEncryptionKeyExists();
 
     // THEN
-    verify(apiProperties).setPrivateEncryptionKey(privateKeyCaptor.capture());
+    verify(apiProperties).setPrivateKey(privateKeyCaptor.capture());
     verify(apiProperties).setPublicEncryptionKey(publicKeyCaptor.capture());
 
     var cipherService = new RsaCipherService();
@@ -76,6 +81,16 @@ class RsaEncryptionKeyServiceTest {
     var ciphered = cipherService.cipher(expectedSecret, publicKeyCaptor.getValue());
     var unciphered = cipherService.decipher(ciphered, privateKeyCaptor.getValue());
     assertThat(unciphered).isEqualTo(expectedSecret);
+  }
 
+  @Test
+  void ensureEncryptionKeyExists_shouldClearOrganizationCache_whenNotExists()
+      throws NoSuchAlgorithmException {
+    // GIVEN
+    // WHEN
+    rsaEncryptionKeyService.ensureEncryptionKeyExists();
+
+    // THEN
+    verify(cacheService, times(1)).clearOrThrow(CacheNames.ORGANIZATION);
   }
 }

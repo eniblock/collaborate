@@ -35,7 +35,6 @@ class OrganizationDAOTest {
 
   private final UpdateOrganisationFactory updateOrganisationFactory = new UpdateOrganisationFactory();
 
-  private static final     String CONTRACT_ADDRESS = "contract-address";
   @BeforeEach
   void setUp() {
     organizationDAO = new OrganizationDAO(
@@ -53,8 +52,10 @@ class OrganizationDAOTest {
     String organizationJson = OrganizationFeature.organizationTagResponseJson;
     var indexerResponse = objectMapper.readValue(organizationJson, OrganizationMap.class);
 
+    when(smartContractAddressProperties.getOrganizationYellowPage())
+        .thenReturn("yellowPageAddress");
     when(tezosApiGatewayOrganizationClient
-        .getOrganizations(CONTRACT_ADDRESS, OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST))
+        .getOrganizations("yellowPageAddress", OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST))
         .thenReturn(indexerResponse);
     // WHEN
     var actualOrganizations = organizationDAO.getAllOrganizations();

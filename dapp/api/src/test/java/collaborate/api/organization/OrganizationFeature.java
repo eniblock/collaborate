@@ -23,13 +23,15 @@ public class OrganizationFeature {
       "DSPConsortium1",
       "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
       "edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2",
-      List.of(OrganizationRole.DSP)
+      List.of(OrganizationRole.DSP),
+      true
   );
   public static final OrganizationDTO bspConsortium2Organization = new OrganizationDTO(
       "BSPConsortium2",
       "tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG",
       "edpkunY3jsNhGnP3mkYnWmBTYxqjSii1pyY9oUSkNnix3pNHRTMaAc",
-      List.of(OrganizationRole.BSP)
+      List.of(OrganizationRole.BSP),
+      true
   );
 
   public static final OrganizationDTO validOrganization = OrganizationDTO.builder()

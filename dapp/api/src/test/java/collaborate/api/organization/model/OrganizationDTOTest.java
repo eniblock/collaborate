@@ -27,6 +27,7 @@ class OrganizationDTOTest {
                 .legalName("dsp")
                 .roles(List.of(OrganizationRole.BSP))
                 .encryptionKey("edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2")
+                .active(true)
                 .build()
         );
   }

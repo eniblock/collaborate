@@ -8,7 +8,8 @@
         "address": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
         "roles": [
           "1"
-        ]
+        ],
+        "active": true
       }
     },
     {
@@ -19,7 +20,8 @@
         "address": "tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG",
         "roles": [
           "2"
-        ]
+        ],
+        "active": true
       }
     }
   ]

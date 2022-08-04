@@ -20,7 +20,7 @@ public class ApiProperties {
   private String platform;
 
   @Schema(description = "The organization private encryption key ")
-  private String privateEncryptionKey;
+  private String privateKey;
 
   @Schema(description = "The organization public encryption key ")
   private String publicEncryptionKey;

@@ -4,7 +4,6 @@ import collaborate.api.organization.OrganizationService;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 
 @RequiredArgsConstructor
 public class LegalNameNotUsedValidator implements ConstraintValidator<LegalNameNotUsedConstraint, String> {
@@ -13,6 +12,7 @@ public class LegalNameNotUsedValidator implements ConstraintValidator<LegalNameN
     @Override
     public boolean isValid(String legalName, ConstraintValidatorContext context) {
         return organizationService.findByLegalName(legalName)
+            .filter(OrganizationDTO::isActive)
             .isEmpty();
     }
 }

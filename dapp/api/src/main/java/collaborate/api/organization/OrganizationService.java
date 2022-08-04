@@ -3,12 +3,14 @@ package collaborate.api.organization;
 import static collaborate.api.organization.model.OrganizationRole.DSP;
 
 import collaborate.api.cache.CacheConfig.CacheNames;
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.user.UserService;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -22,12 +24,25 @@ import org.springframework.stereotype.Service;
 @CacheConfig(cacheNames = {CacheNames.ORGANIZATION})
 public class OrganizationService {
 
+  private final ApiProperties apiProperties;
   private final OrganizationDAO organizationDAO;
+
   private final UserService userService;
 
   @Cacheable(key = "'all'")
   public Collection<OrganizationDTO> getAllOrganizations() {
-    return organizationDAO.getAllOrganizations();
+    var knownOrganizations = organizationDAO.getAllOrganizations();
+
+    var currentOrganization = getCurrentOrganization();
+    var currentIsKnown = knownOrganizations.stream()
+        .anyMatch(orga -> StringUtils.equals(currentOrganization.getAddress(), orga.getAddress()));
+    if (!currentIsKnown){
+      return Stream.concat(knownOrganizations.stream(), Stream.of(currentOrganization))
+          .collect(Collectors.toList());
+    }else{
+      return knownOrganizations;
+    }
+
   }
 
   @Cacheable(key = "'publicKey' + #publicKeyHash")
@@ -47,7 +62,13 @@ public class OrganizationService {
   @Cacheable(key = "'current'")
   public OrganizationDTO getCurrentOrganization() {
     var adminUser = userService.getAdminUser();
-    return getByWalletAddress(adminUser.getAddress());
+    return findOrganizationByPublicKeyHash(adminUser.getAddress())
+        .orElseGet(() -> OrganizationDTO.builder()
+            .encryptionKey(apiProperties.getPublicEncryptionKey())
+            .address(adminUser.getAddress())
+            .legalName(apiProperties.getPlatform())
+            .active(false)
+            .build());
   }
 
   @Cacheable(key = "'dspWallets'")
