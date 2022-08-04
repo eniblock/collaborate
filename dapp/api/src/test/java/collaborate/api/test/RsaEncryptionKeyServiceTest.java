@@ -14,7 +14,9 @@ import collaborate.api.config.api.ApiProperties;
 import collaborate.api.security.RsaCipherService;
 import collaborate.api.security.RsaEncryptionKeyService;
 import java.security.NoSuchAlgorithmException;
+import java.security.Security;
 import java.util.stream.Stream;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -69,6 +71,7 @@ class RsaEncryptionKeyServiceTest {
   void ensureEncryptionKeyExists_shouldGenerateUsableKeys_whenNotExists()
       throws NoSuchAlgorithmException {
     // GIVEN
+    Security.addProvider(new BouncyCastleProvider());
     // WHEN
     rsaEncryptionKeyService.ensureEncryptionKeyExists();
 

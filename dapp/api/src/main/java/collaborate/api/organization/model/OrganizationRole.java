@@ -2,9 +2,13 @@ package collaborate.api.organization.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
+import javax.persistence.Embeddable;
 import lombok.Getter;
+import lombok.ToString;
 
 @Getter
+@Embeddable
+@ToString
 public enum OrganizationRole {
   BNO(0),
   DSP(1),

@@ -55,8 +55,8 @@ public class OrganizationController {
     })
     @PreAuthorize(HasRoles.BNO)
     public ResponseEntity<OrganizationDTO> addOrganization(@Valid @RequestBody OrganizationDTO organization) {
-        organizationService.upsertOrganization(organization);
-        return new ResponseEntity<>(organization, HttpStatus.CREATED);
+        var insertedOrganization = organizationService.upsertOrganization(organization);
+        return new ResponseEntity<>(insertedOrganization, HttpStatus.CREATED);
     }
 
     @GetMapping()

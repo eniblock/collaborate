@@ -35,7 +35,7 @@ public class OrganizationDTO {
   @NotEmpty
   private List<OrganizationRole> roles;
 
-  @Schema(description = "Does the organization is active", example = "true")
-  private boolean active = true;
+  @Schema(description = "The organization status", example = "0")
+  private OrganizationStatus status = OrganizationStatus.ACTIVE;
 
 }

@@ -9,6 +9,8 @@ import collaborate.api.config.api.ApiProperties;
 import collaborate.api.mail.MailService;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.model.RolesDTO;
+import collaborate.api.user.model.TransferDTO;
+import collaborate.api.user.model.TransferTransactionDTO;
 import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.KeycloakUserService;
 import java.io.IOException;
@@ -278,5 +280,18 @@ public class UserService {
       tagUserDAO.createUser(ORGANIZATION_USER_ID);
       cacheService.clearOrThrow(CacheNames.ORGANIZATION);
     }
+  }
+
+  /**
+   * @param mutez 1 XTZ = 10^6 mutez
+   */
+  public void transferMutez(String fromUserId, String recipientAddress, int mutez) {
+    tagUserDAO.transferMutez(
+        fromUserId,
+        new TransferDTO(
+            List.of(new TransferTransactionDTO(recipientAddress, mutez)),
+            fromUserId
+        )
+    );
   }
 }

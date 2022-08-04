@@ -9,7 +9,7 @@
         "roles": [
           "1"
         ],
-        "active": true
+        "status": 2
       }
     },
     {
@@ -21,7 +21,7 @@
         "roles": [
           "2"
         ],
-        "active": true
+        "status": 2
       }
     }
   ]

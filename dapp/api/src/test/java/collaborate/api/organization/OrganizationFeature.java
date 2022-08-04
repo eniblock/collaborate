@@ -6,6 +6,7 @@ import static org.mockserver.model.HttpResponse.response;
 
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.model.OrganizationRole;
+import collaborate.api.organization.model.OrganizationStatus;
 import collaborate.api.test.TestResources;
 import java.util.List;
 import lombok.Data;
@@ -24,14 +25,14 @@ public class OrganizationFeature {
       "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
       "edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2",
       List.of(OrganizationRole.DSP),
-      true
+      OrganizationStatus.ACTIVE
   );
   public static final OrganizationDTO bspConsortium2Organization = new OrganizationDTO(
       "BSPConsortium2",
       "tz1QdgwqsVV7SmpFPrWjs9B5oBNcj2brzqfG",
       "edpkunY3jsNhGnP3mkYnWmBTYxqjSii1pyY9oUSkNnix3pNHRTMaAc",
       List.of(OrganizationRole.BSP),
-      true
+      OrganizationStatus.ACTIVE
   );
 
   public static final OrganizationDTO validOrganization = OrganizationDTO.builder()
@@ -39,6 +40,7 @@ public class OrganizationFeature {
       .roles(List.of(OrganizationRole.BSP))
       .encryptionKey("MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAm97j68ewFohnhMgcPNo32iZGhbyKOv/W6Q61Z54DQtRicY9+KeOFsgmn0PUtiP3NK9UWhCx7OgGl3/9d7TG5Y1vC2pobrPPmJrZfRfPCIyXO/U7f5BvRn0vudKR1cgQY2rOFIXc1a51uDhQe2f71lkHWOEBculN2VaMbcEIyIKS59S0nePF0/Qb6z1B7tIGhdNN4MIu8QDL1FaYCO+vcNNgPSuFViIO/u13yhY2n7Jf5yNPgqZi9NOdNlgVfosl62PfNBHDW4U2hu04CxKr4e5AainmbOP7mxgX6Iuk8zFiASlESwNqjKWQJSR4HXAf8TIe1FdNexoaeqMm0ajLCcwIDAQAB")
       .legalName("legalName")
+      .status(OrganizationStatus.ACTIVE)
       .build();
 
   public static void mockTagOrganizationsStorage(ClientAndServer mockServer) {

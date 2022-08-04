@@ -1,6 +1,5 @@
 package collaborate.api.config.exception;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.validation.ConstraintViolation;
@@ -10,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -20,8 +20,6 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @Slf4j
 @RequiredArgsConstructor
 public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
-
-  private final ObjectMapper objectMapper;
 
   /**
    * handle controller methods parameter validation exceptions
@@ -49,4 +47,10 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     log.error("{}", errorMessages);
     return new ResponseEntity<>(new ErrorResponse(errorMessages), HttpStatus.BAD_REQUEST);
   }
+
+  @Override
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+    return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
+  }
+
 }

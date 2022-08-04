@@ -3,7 +3,6 @@ package collaborate.api.organization;
 import static collaborate.api.test.TestResources.asJsonString;
 import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -94,10 +93,7 @@ class OrganizationControllerIT {
   @Test
   void addOrganization_shouldResultInBadRequestAndExpectedMessage_withAddressAlreadyUsed() throws Exception {
     // GIVEN
-    var organization = OrganizationFeature.validOrganization
-        .toBuilder()
-        .active(true)
-        .build();
+    var organization = OrganizationFeature.validOrganization;
 
     when(organizationService.findOrganizationByPublicKeyHash(organization.getAddress()))
         .thenReturn(Optional.of(organization));
@@ -119,10 +115,7 @@ class OrganizationControllerIT {
   @Test
   void addOrganization_shouldResultInBadRequestAndExpectedMessage_withLegalNameAlreadyUsed() throws Exception {
     // GIVEN
-    var organization = OrganizationFeature.validOrganization
-        .toBuilder()
-        .active(true)
-        .build();
+    var organization = OrganizationFeature.validOrganization;
     when(organizationService.findByLegalName(organization.getLegalName()))
         .thenReturn(Optional.of(organization));
     // WHEN
@@ -144,7 +137,7 @@ class OrganizationControllerIT {
   void addOrganization_shouldResultInCreated_withValidOrganization() throws Exception {
     // GIVEN
     var organization = OrganizationFeature.validOrganization;
-    doNothing().when(organizationService).upsertOrganization(organization);
+    when(organizationService.upsertOrganization(organization)).thenReturn(organization);
     // WHEN
     var mockMvcResult = mockMvc
         .perform(post("/api/v1/organizations")

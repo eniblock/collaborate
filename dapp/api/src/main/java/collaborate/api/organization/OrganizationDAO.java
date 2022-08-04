@@ -1,10 +1,13 @@
 package collaborate.api.organization;
 
+import static collaborate.api.comparator.Predicates.distinctByKey;
 import static collaborate.api.tag.TezosApiGatewayJobClient.ORGANIZATION_SECURE_KEY_NAME;
 import static java.util.stream.Collectors.toList;
 
 import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.organization.model.OrganizationDTO;
+import collaborate.api.organization.model.OrganizationStatus;
+import collaborate.api.organization.tag.Organization;
 import collaborate.api.organization.tag.TezosApiGatewayOrganizationClient;
 import collaborate.api.organization.tag.UpdateOrganisationFactory;
 import collaborate.api.tag.TezosApiGatewayJobClient;
@@ -17,6 +20,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -29,6 +33,7 @@ public class OrganizationDAO {
 
   private static final String UPDATE_ORGANIZATIONS_ENTRYPOINT = "update_organizations";
   private final ModelMapper modelMapper;
+  private final PendingOrganizationRepository pendingOrganizationRepository;
   private final SmartContractAddressProperties smartContractAddressProperties;
   private final TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
@@ -47,21 +52,36 @@ public class OrganizationDAO {
     if (organizations.get(ORGANIZATION_FIELD) == null) {
       return Collections.emptyList();
     } else {
-      return Arrays.stream(organizations.get(ORGANIZATION_FIELD))
+      var onChainOrganizationsStream = Arrays.stream(organizations.get(ORGANIZATION_FIELD))
           .map(TagEntry::getValue)
-          .map(organization -> modelMapper.map(organization, OrganizationDTO.class))
+          .map(organization -> modelMapper.map(organization, OrganizationDTO.class));
+
+      var pendingOrganizationsStream = pendingOrganizationRepository.findAll()
+          .stream()
+          .map(this::toPendingOrganizationDTO);
+
+      return Stream.concat(onChainOrganizationsStream, pendingOrganizationsStream)
+          .filter(distinctByKey(OrganizationDTO::getAddress))
           .collect(toList());
     }
   }
 
+
   public Optional<OrganizationDTO> findOrganizationByPublicKeyHash(String address) {
-    return getAllOrganizations().stream()
+    var onChainOrganizationOpt = getAllOrganizations().stream()
         .filter(o -> address.equals(o.getAddress()))
         .findFirst();
+    if (onChainOrganizationOpt.isPresent()) {
+      return onChainOrganizationOpt;
+    } else {
+      return pendingOrganizationRepository.findById(address)
+          .map(this::toPendingOrganizationDTO);
+    }
   }
 
-  public void upsert(OrganizationDTO organization) {
-    var updateOrgType = List.of(updateOrganisationFactory.update(organization));
+  public void upsert(OrganizationDTO organizationDTO) {
+    var updateOrgType = List.of(updateOrganisationFactory.update(organizationDTO));
+
     var updateYellowPage = Transaction.builder()
         .contractAddress(smartContractAddressProperties.getOrganizationYellowPage())
         .entryPoint(UPDATE_ORGANIZATIONS_ENTRYPOINT)
@@ -76,7 +96,22 @@ public class OrganizationDAO {
         List.of(updateYellowPage, updateBusinessData),
         ORGANIZATION_SECURE_KEY_NAME
     );
-    tezosApiGatewayJobClient.sendTransactionBatch(transactionBatch, false);
+    var job = tezosApiGatewayJobClient.sendTransactionBatch(transactionBatch, false);
+    log.debug("Upsert organization called, transactionBatch={}\n, tagJobId={}", transactionBatch, job.getId());
+
+    var organization = toOrganization(organizationDTO);
+    pendingOrganizationRepository.save(organization);
+  }
+
+  Organization toOrganization(OrganizationDTO organizationDTO) {
+    return modelMapper.map(organizationDTO, Organization.class);
+  }
+
+  OrganizationDTO toPendingOrganizationDTO(Organization organization) {
+    return modelMapper.map(organization, OrganizationDTO.class)
+        .toBuilder()
+        .status(OrganizationStatus.PENDING)
+        .build();
   }
 }
 

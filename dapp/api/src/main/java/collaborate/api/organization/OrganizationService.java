@@ -3,8 +3,10 @@ package collaborate.api.organization;
 import static collaborate.api.organization.model.OrganizationRole.DSP;
 
 import collaborate.api.cache.CacheConfig.CacheNames;
+import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.organization.model.OrganizationDTO;
+import collaborate.api.organization.model.OrganizationStatus;
 import collaborate.api.user.UserService;
 import java.util.Collection;
 import java.util.List;
@@ -25,7 +27,10 @@ import org.springframework.stereotype.Service;
 public class OrganizationService {
 
   private final ApiProperties apiProperties;
+
+  private final CacheService cacheService;
   private final OrganizationDAO organizationDAO;
+  private final PendingOrganizationRepository pendingOrganizationRepository;
 
   private final UserService userService;
 
@@ -50,6 +55,7 @@ public class OrganizationService {
     return organizationDAO.findOrganizationByPublicKeyHash(publicKeyHash);
   }
 
+
   @Cacheable(key = "'wallet' + #walletAddress")
   public OrganizationDTO getByWalletAddress(String walletAddress) {
     return findOrganizationByPublicKeyHash(walletAddress)
@@ -67,7 +73,7 @@ public class OrganizationService {
             .encryptionKey(apiProperties.getPublicEncryptionKey())
             .address(adminUser.getAddress())
             .legalName(apiProperties.getPlatform())
-            .active(false)
+            .status(OrganizationStatus.INACTIVE)
             .build());
   }
 
@@ -88,10 +94,28 @@ public class OrganizationService {
   }
 
   /**
-   * Add an organization if the address it not already known<br>
-   * Otherwise the organization is updated
+   * Add an organization if the address it not already known<br> Otherwise the organization is
+   * updated
    */
-  public void upsertOrganization(OrganizationDTO organization) {
+  public OrganizationDTO upsertOrganization(OrganizationDTO organization) {
+    // Activate account
+    userService.transferMutez(UserService.ORGANIZATION_USER_ID, organization.getAddress(), 1);
+    // Update yellow pages
     organizationDAO.upsert(organization);
+    clearCache();
+    log.debug("organization.legalName={} added", organization.getAddress());
+    return organizationDAO.findOrganizationByPublicKeyHash(organization.getAddress())
+        .orElseThrow(() -> new IllegalStateException("Inserted organization not found"));
+  }
+
+  public void clearCache(){
+    cacheService.clearOrThrow(CacheNames.ORGANIZATION);
+  }
+
+  public void removePending(String address){
+    if (pendingOrganizationRepository.existsById(address)) {
+      pendingOrganizationRepository.deleteById(address);
+      clearCache();
+    }
   }
 }

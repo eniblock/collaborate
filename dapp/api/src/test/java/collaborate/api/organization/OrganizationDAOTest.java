@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.config.api.SmartContractAddressProperties;
+import collaborate.api.organization.tag.Organization;
 import collaborate.api.organization.tag.OrganizationMap;
 import collaborate.api.organization.tag.TezosApiGatewayOrganizationClient;
 import collaborate.api.organization.tag.UpdateOrganisationFactory;
@@ -26,6 +27,8 @@ class OrganizationDAOTest {
   private OrganizationDAO organizationDAO;
 
   @Mock
+  private PendingOrganizationRepository pendingOrganizationRepository;
+  @Mock
   private TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
   @Mock
   private SmartContractAddressProperties smartContractAddressProperties;
@@ -39,6 +42,7 @@ class OrganizationDAOTest {
   void setUp() {
     organizationDAO = new OrganizationDAO(
         new ModelMapper(),
+        pendingOrganizationRepository,
         smartContractAddressProperties,
         tezosApiGatewayOrganizationClient,
         tezosApiGatewayJobClient,
@@ -74,5 +78,21 @@ class OrganizationDAOTest {
         .writeValueAsString(OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST);
     // THEN
     assertThat(serialization).isEqualTo("{\"dataFields\":[\"organizations\"]}");
+  }
+
+  @Test
+  void toOrganization_shouldReturnExpectedMapping(){
+    // GIVEN
+    var organizationDTO = OrganizationFeature.validOrganization;
+    var expectedOrganization = Organization.builder()
+        .encryptionKey(organizationDTO.getEncryptionKey())
+        .roles(organizationDTO.getRoles())
+        .address(organizationDTO.getAddress())
+        .legalName(organizationDTO.getLegalName())
+        .build();
+    // WHEN
+    var actualOrganization = organizationDAO.toOrganization(organizationDTO);
+    // THEN
+    assertThat(actualOrganization).isEqualTo(expectedOrganization);
   }
 }

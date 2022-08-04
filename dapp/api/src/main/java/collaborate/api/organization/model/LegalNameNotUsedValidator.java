@@ -12,7 +12,7 @@ public class LegalNameNotUsedValidator implements ConstraintValidator<LegalNameN
     @Override
     public boolean isValid(String legalName, ConstraintValidatorContext context) {
         return organizationService.findByLegalName(legalName)
-            .filter(OrganizationDTO::isActive)
+            .filter(organizationDTO -> !OrganizationStatus.INACTIVE.equals(organizationDTO.getStatus()))
             .isEmpty();
     }
 }
