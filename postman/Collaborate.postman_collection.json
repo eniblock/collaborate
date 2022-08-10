@@ -2,7 +2,8 @@
 	"info": {
 		"_postman_id": "bdaf4e11-366b-4600-b869-40edfa3ac90e",
 		"name": "Collaborate",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16440121"
 	},
 	"item": [
 		{
@@ -11,205 +12,6 @@
 				{
 					"name": "Keycloak API",
 					"item": [
-						{
-							"name": "Init admin user",
-							"item": [
-								{
-									"name": "Setup - Get Keycloak Admin token",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"let response = pm.response.json();",
-													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
-													"pm.globals.set(\"keycloak-admin-token\", response.access_token);",
-													"",
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "noauth"
-										},
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "urlencoded",
-											"urlencoded": [
-												{
-													"key": "username",
-													"value": "{{dAppKeycloakUsername}}",
-													"type": "text"
-												},
-												{
-													"key": "password",
-													"value": "{{dAppKeycloakPassword}}",
-													"type": "text"
-												},
-												{
-													"key": "client_id",
-													"value": "admin-cli",
-													"type": "text"
-												},
-												{
-													"key": "grant_type",
-													"value": "password",
-													"type": "text"
-												}
-											]
-										},
-										"url": {
-											"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
-											"host": [
-												"{{dAppKeycloakUrl}}"
-											],
-											"path": [
-												"auth",
-												"realms",
-												"master",
-												"protocol",
-												"openid-connect",
-												"token"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Setup - Update admin roles",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"tests['Update of  admin roles resulted in 204 OK'] = responseCode.code === 204;"
-												],
-												"type": "text/javascript"
-											}
-										},
-										{
-											"listen": "prerequest",
-											"script": {
-												"exec": [
-													""
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "bearer",
-											"bearer": [
-												{
-													"key": "token",
-													"value": "{{keycloak-admin-token}}",
-													"type": "string"
-												}
-											]
-										},
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "[\n    {\n        \"id\": \"8928458f-9ccb-4292-ae08-b84eec9a0ab9\",\n        \"name\": \"data_service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/879acf43-8988-44ca-844a-19c84d7379b4/role-mappings/realm",
-											"host": [
-												"{{dAppKeycloakUrl}}"
-											],
-											"path": [
-												"auth",
-												"admin",
-												"realms",
-												"{{dAppKeycloakRealm}}",
-												"users",
-												"879acf43-8988-44ca-844a-19c84d7379b4",
-												"role-mappings",
-												"realm"
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Get Token - Admin",
-									"event": [
-										{
-											"listen": "test",
-											"script": {
-												"exec": [
-													"let response = pm.response.json();",
-													"pm.globals.set(\"dAppToken\", response.access_token);",
-													"",
-													"pm.test(\"Status code is 200\", function () {",
-													"    pm.response.to.have.status(200);",
-													"});"
-												],
-												"type": "text/javascript"
-											}
-										}
-									],
-									"request": {
-										"auth": {
-											"type": "noauth"
-										},
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "urlencoded",
-											"urlencoded": [
-												{
-													"key": "grant_type",
-													"value": "password",
-													"type": "text"
-												},
-												{
-													"key": "username",
-													"value": "{{dapp-dsp-admin-user}}",
-													"type": "text"
-												},
-												{
-													"key": "password",
-													"value": "{{dapp-dsp-admin-password}}",
-													"type": "text"
-												},
-												{
-													"key": "client_id",
-													"value": "{{dAppKeycloakFrontendClientId}}",
-													"type": "text"
-												}
-											]
-										},
-										"url": {
-											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
-											"host": [
-												"{{dAppKeycloakUrl}}"
-											],
-											"path": [
-												"auth",
-												"realms",
-												"{{dAppKeycloakRealm}}",
-												"protocol",
-												"openid-connect",
-												"token"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
 						{
 							"name": "Identity provider",
 							"item": [
@@ -434,190 +236,1313 @@
 							]
 						},
 						{
-							"name": "Get Token - Fabien - Identity Admin",
-							"event": [
+							"name": "Users",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let response = pm.response.json();",
-											"pm.globals.set(\"dAppToken\", response.access_token);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "urlencoded",
-									"urlencoded": [
-										{
-											"key": "grant_type",
-											"value": "password",
-											"type": "text"
+									"name": "Get users",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
 										},
-										{
-											"key": "username",
-											"value": "{{dapp-identity-admin-user}}",
-											"type": "text"
-										},
-										{
-											"key": "password",
-											"value": "{{dapp-identity-admin-password}}",
-											"type": "text"
-										},
-										{
-											"key": "client_id",
-											"value": "{{dAppKeycloakFrontendClientId}}",
-											"type": "text"
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/custom-api/users?paged=true&sorted=false&pageNumber=0&offset=0&pageSize=10",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"custom-api",
+												"users"
+											],
+											"query": [
+												{
+													"key": "paged",
+													"value": "true"
+												},
+												{
+													"key": "sorted",
+													"value": "false"
+												},
+												{
+													"key": "pageNumber",
+													"value": "0"
+												},
+												{
+													"key": "offset",
+													"value": "0"
+												},
+												{
+													"key": "pageSize",
+													"value": "10"
+												}
+											]
 										}
-									]
+									},
+									"response": []
 								},
-								"url": {
-									"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
-									"host": [
-										"{{dAppKeycloakUrl}}"
+								{
+									"name": "Get user by e-mail",
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email=pcc-development@theblockchainxdev.com",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"users"
+											],
+											"query": [
+												{
+													"key": "email",
+													"value": "pcc-development@theblockchainxdev.com"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update roles",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Update of  admin roles resulted in 204 OK'] = responseCode.code === 204;"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
 									],
-									"path": [
-										"auth",
-										"realms",
-										"{{dAppKeycloakRealm}}",
-										"protocol",
-										"openid-connect",
-										"token"
-									]
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n    {\n        \"id\": \"8928458f-9ccb-4292-ae08-b84eec9a0ab9\",\n        \"name\": \"data_service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/879acf43-8988-44ca-844a-19c84d7379b4/role-mappings/realm",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"users",
+												"879acf43-8988-44ca-844a-19c84d7379b4",
+												"role-mappings",
+												"realm"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update password",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Update of  admin roles resulted in 204 OK'] = responseCode.code === 204;"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{ \"type\": \"password\", \"temporary\": false, \"value\": \"admin\" }",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/aae4aaf7-69c0-4c90-adb8-3b6f848e31c4/reset-password",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"users",
+												"aae4aaf7-69c0-4c90-adb8-3b6f848e31c4",
+												"reset-password"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update user",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Update of  admin roles resulted in 204 OK'] = responseCode.code === 204;"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"username\": \"eric\",\n    \"enabled\": true,\n    \"emailVerified\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/aae4aaf7-69c0-4c90-adb8-3b6f848e31c4",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"users",
+												"aae4aaf7-69c0-4c90-adb8-3b6f848e31c4"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
 						},
 						{
-							"name": "Get Token - Sam - DSP Admin",
-							"event": [
+							"name": "Login",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let response = pm.response.json();",
-											"pm.globals.set(\"dAppToken\", response.access_token);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "urlencoded",
-									"urlencoded": [
+									"name": "Get Keycloak Admin token",
+									"event": [
 										{
-											"key": "grant_type",
-											"value": "password",
-											"type": "text"
-										},
-										{
-											"key": "username",
-											"value": "{{dapp-dsp-admin-user}}",
-											"type": "text"
-										},
-										{
-											"key": "password",
-											"value": "{{dapp-dsp-admin-password}}",
-											"type": "text"
-										},
-										{
-											"key": "client_id",
-											"value": "{{dAppKeycloakFrontendClientId}}",
-											"type": "text"
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													"pm.globals.set(\"keycloak-admin-token\", response.access_token);",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
 										}
-									]
-								},
-								"url": {
-									"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
-									"host": [
-										"{{dAppKeycloakUrl}}"
 									],
-									"path": [
-										"auth",
-										"realms",
-										"{{dAppKeycloakRealm}}",
-										"protocol",
-										"openid-connect",
-										"token"
-									]
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "username",
+													"value": "{{dAppKeycloakUsername}}",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "{{dAppKeycloakPassword}}",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "admin-cli",
+													"type": "text"
+												},
+												{
+													"key": "grant_type",
+													"value": "password",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/master/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"master",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Eric - Identity Admin - JWT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.globals.set(\"dAppToken\", response.access_token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "grant_type",
+													"value": "password",
+													"type": "text"
+												},
+												{
+													"key": "username",
+													"value": "{{dapp-identity-admin-user}}",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "{{dapp-identity-admin-password}}",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "{{dAppKeycloakFrontendClientId}}",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Gabriel - BNO - JWT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.globals.set(\"dAppToken\", response.access_token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "grant_type",
+													"value": "password",
+													"type": "text"
+												},
+												{
+													"key": "username",
+													"value": "gabriel",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "{{dapp-identity-admin-password}}",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "{{dAppKeycloakFrontendClientId}}",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Alice - Vehicle owner - JWT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.globals.set(\"dAppToken\", response.access_token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "grant_type",
+													"value": "password",
+													"type": "text"
+												},
+												{
+													"key": "username",
+													"value": "alice",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "admin",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "{{dAppKeycloakFrontendClientId}}",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Sam - DSP Admin - JWT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.globals.set(\"dAppToken\", response.access_token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "grant_type",
+													"value": "password",
+													"type": "text"
+												},
+												{
+													"key": "username",
+													"value": "sam",
+													"type": "text"
+												},
+												{
+													"key": "password",
+													"value": "admin",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "{{dAppKeycloakFrontendClientId}}",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Data consumer - JWT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.globals.set(\"dAppToken\", response.access_token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "client_id",
+													"value": "collaborate",
+													"type": "default"
+												},
+												{
+													"key": "client_secret",
+													"value": "57936b16-2f90-434a-9eb4-843668a3a521",
+													"type": "default"
+												},
+												{
+													"key": "scope",
+													"value": "referentials",
+													"type": "default"
+												},
+												{
+													"key": "grant_type",
+													"value": "client_credentials",
+													"type": "default"
+												}
+											]
+										},
+										"url": {
+											"raw": "https://iam.fds.pcc.eniblock.fr/auth/realms/datasource/protocol/openid-connect/token",
+											"protocol": "https",
+											"host": [
+												"iam",
+												"fds",
+												"pcc",
+												"eniblock",
+												"fr"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"datasource",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
 						},
 						{
-							"name": "Get Token - Alice",
-							"event": [
+							"name": "Realm",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"let response = pm.response.json();",
-											"pm.globals.set(\"dAppToken\", response.access_token);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"auth": {
-									"type": "noauth"
-								},
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "urlencoded",
-									"urlencoded": [
+									"name": "Configure realm top level attributes",
+									"event": [
 										{
-											"key": "grant_type",
-											"value": "password",
-											"type": "text"
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Update of  admin roles resulted in 204 OK'] = responseCode.code === 204;"
+												],
+												"type": "text/javascript"
+											}
 										},
 										{
-											"key": "username",
-											"value": "alice",
-											"type": "text"
-										},
-										{
-											"key": "password",
-											"value": "admin",
-											"type": "text"
-										},
-										{
-											"key": "client_id",
-											"value": "{{dAppKeycloakFrontendClientId}}",
-											"type": "text"
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
 										}
-									]
-								},
-								"url": {
-									"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
-									"host": [
-										"{{dAppKeycloakUrl}}"
 									],
-									"path": [
-										"auth",
-										"realms",
-										"{{dAppKeycloakRealm}}",
-										"protocol",
-										"openid-connect",
-										"token"
-									]
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "PUT",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"editUsernameAllowed\": true\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}"
+											]
+										}
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
+						},
+						{
+							"name": "Client-scopes",
+							"item": [
+								{
+									"name": "Get client-scopes",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "    {\n        \"clientId\": \"647b255e-5f7c-48ff-a6cd-77dadc63c61d\",\n        \"name\": \"647b255e-5f7c-48ff-a6cd-77dadc63c61d\",\n        \"adminUrl\": \"http://localhost:4200\",\n        \"alwaysDisplayInConsole\": false,\n        \"access\": {\n            \"view\": false,\n            \"configure\": false,\n            \"manage\": false\n        },\n        \"attributes\": {},\n        \"authenticationFlowBindingOverrides\" : {},\n        \"authorizationServicesEnabled\": true,\n        \"bearerOnly\": false,\n        \"directAccessGrantsEnabled\": true,\n        \"enabled\": true,\n        \"protocol\": \"openid-connect\",\n        \"description\": \"data consumer\",\n\n        \"rootUrl\": \"http://localhost\",\n        \"baseUrl\": \"/realms/{{dAppKeycloakRealm}}/account/\",\n        \"surrogateAuthRequired\": false,\n        \"clientAuthenticatorType\": \"client-secret\",\n        \"defaultRoles\": [\n            \"manage-account\",\n            \"view-profile\",\n            \"business_service_provider_operator\"\n        ],\n        \"redirectUris\": [\n            \"/realms/{{dAppKeycloakRealm}}/account/*\"\n        ],\n        \"webOrigins\": [\"*\"],\n        \"notBefore\": 0,\n        \"consentRequired\": false,\n        \"standardFlowEnabled\": true,\n        \"implicitFlowEnabled\": false,\n        \"serviceAccountsEnabled\": true,\n        \"publicClient\": false,\n        \"frontchannelLogout\": false,\n        \"fullScopeAllowed\": false,\n        \"nodeReRegistrationTimeout\": 0,\n        \"defaultClientScopes\": [\n            \"web-origins\",\n            \"role_list\",\n            \"profile\",\n            \"roles\",\n            \"email\"\n        ],\n        \"optionalClientScopes\": [\n            \"address\",\n            \"phone\",\n            \"offline_access\",\n            \"microprofile-jwt\"\n        ]\n    }",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/client-scopes",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"client-scopes"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Clients",
+							"item": [
+								{
+									"name": "Add client",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "    {\n        \"clientId\": \"647b255e-5f7c-48ff-a6cd-77dadc63c61d\",\n        \"name\": \"647b255e-5f7c-48ff-a6cd-77dadc63c61d\",\n        \"adminUrl\": \"http://localhost:4200\",\n        \"alwaysDisplayInConsole\": false,\n        \"access\": {\n            \"view\": false,\n            \"configure\": false,\n            \"manage\": false\n        },\n        \"attributes\": {},\n        \"authenticationFlowBindingOverrides\" : {},\n        \"authorizationServicesEnabled\": true,\n        \"bearerOnly\": false,\n        \"directAccessGrantsEnabled\": true,\n        \"enabled\": true,\n        \"protocol\": \"openid-connect\",\n        \"description\": \"data consumer\",\n\n        \"rootUrl\": \"http://localhost\",\n        \"baseUrl\": \"/realms/{{dAppKeycloakRealm}}/account/\",\n        \"surrogateAuthRequired\": false,\n        \"clientAuthenticatorType\": \"client-secret\",\n        \"defaultRoles\": [\n            \"manage-account\",\n            \"view-profile\",\n            \"business_service_provider_operator\"\n        ],\n        \"redirectUris\": [\n            \"/realms/{{dAppKeycloakRealm}}/account/*\"\n        ],\n        \"webOrigins\": [\"*\"],\n        \"notBefore\": 0,\n        \"consentRequired\": false,\n        \"standardFlowEnabled\": true,\n        \"implicitFlowEnabled\": false,\n        \"serviceAccountsEnabled\": true,\n        \"publicClient\": false,\n        \"frontchannelLogout\": false,\n        \"fullScopeAllowed\": false,\n        \"nodeReRegistrationTimeout\": 0,\n        \"defaultClientScopes\": [\n            \"web-origins\",\n            \"role_list\",\n            \"profile\",\n            \"roles\",\n            \"email\"\n        ],\n        \"optionalClientScopes\": [\n            \"address\",\n            \"phone\",\n            \"offline_access\",\n            \"microprofile-jwt\"\n        ]\n    }",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/clients",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"clients"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get client by clientId",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.globals.set(\"kClientId\", response[0].id);"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n    {\n        \"id\": \"8928458f-9ccb-4292-ae08-b84eec9a0ab9\",\n        \"name\": \"data_service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/clients?clientId=647b255e-5f7c-48ff-a6cd-77dadc63c61d",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"clients"
+											],
+											"query": [
+												{
+													"key": "clientId",
+													"value": "647b255e-5f7c-48ff-a6cd-77dadc63c61d"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get client dedicated user",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n    {\n        \"id\": \"8928458f-9ccb-4292-ae08-b84eec9a0ab9\",\n        \"name\": \"data_service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/clients/{{kClientId}}/service-account-user",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"clients",
+												"{{kClientId}}",
+												"service-account-user"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update dedicated user roles",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let user = pm.globals.get(\"test-asset-owner-email\");",
+													"tests['Update of ' + user + 'roles resulted in 204 OK'] = responseCode.code === 204;"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n    {\n        \"id\": \"8928458f-9ccb-4292-ae08-b84eec9a0ab9\",\n        \"name\": \"data_service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users/a62a6f6c-48fc-440a-a133-816cec0f7823/role-mappings/realm",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"users",
+												"a62a6f6c-48fc-440a-a133-816cec0f7823",
+												"role-mappings",
+												"realm"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get client scope-mapping",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n    {\n        \"id\": \"8928458f-9ccb-4292-ae08-b84eec9a0ab9\",\n        \"name\": \"data_service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/clients/{{kClientId}}/scope-mappings",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"clients",
+												"{{kClientId}}",
+												"scope-mappings"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update client scope-mapping",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n    {\n            \"id\": \"f46fea1f-1ca9-4a1b-a1e3-539ad4606096\",\n            \"name\": \"business_service_provider_administrator\",\n            \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/clients/{{kClientId}}/scope-mappings/realm",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"clients",
+												"{{kClientId}}",
+												"scope-mappings",
+												"realm"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get client secret",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n    {\n        \"id\": \"8928458f-9ccb-4292-ae08-b84eec9a0ab9\",\n        \"name\": \"data_service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/clients/3e8b3e10-a456-48d5-a0fe-b76d258d0c64/client-secret",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"clients",
+												"3e8b3e10-a456-48d5-a0fe-b76d258d0c64",
+												"client-secret"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get client JWT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"let response = pm.response.json();",
+													"pm.globals.set(\"dAppToken\", response.access_token);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "urlencoded",
+											"urlencoded": [
+												{
+													"key": "grant_type",
+													"value": "client_credentials",
+													"type": "text"
+												},
+												{
+													"key": "client_id",
+													"value": "647b255e-5f7c-48ff-a6cd-77dadc63c61d",
+													"type": "text"
+												},
+												{
+													"key": "client_secret",
+													"value": "a390b98c-0ad5-4dc2-ae21-6d2bb51dc106",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/protocol/openid-connect/token",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"protocol",
+												"openid-connect",
+												"token"
+											]
+										}
+									},
+									"response": []
+								}
+							]
 						},
 						{
 							"name": "Get Authorization Server Metadata",
@@ -641,7 +1566,7 @@
 							"response": []
 						},
 						{
-							"name": "Get users",
+							"name": "Get wellknown",
 							"request": {
 								"auth": {
 									"type": "bearer",
@@ -656,7 +1581,7 @@
 								"method": "GET",
 								"header": [],
 								"url": {
-									"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/custom-api/users?paged=true&sorted=false&pageNumber=0&offset=0&pageSize=10",
+									"raw": "{{dAppKeycloakUrl}}/auth/realms/{{dAppKeycloakRealm}}/.well-known/openid-configuration",
 									"host": [
 										"{{dAppKeycloakUrl}}"
 									],
@@ -664,67 +1589,8 @@
 										"auth",
 										"realms",
 										"{{dAppKeycloakRealm}}",
-										"custom-api",
-										"users"
-									],
-									"query": [
-										{
-											"key": "paged",
-											"value": "true"
-										},
-										{
-											"key": "sorted",
-											"value": "false"
-										},
-										{
-											"key": "pageNumber",
-											"value": "0"
-										},
-										{
-											"key": "offset",
-											"value": "0"
-										},
-										{
-											"key": "pageSize",
-											"value": "10"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get user by e-mail",
-							"request": {
-								"auth": {
-									"type": "bearer",
-									"bearer": [
-										{
-											"key": "token",
-											"value": "{{keycloak-admin-token}}",
-											"type": "string"
-										}
-									]
-								},
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/users?email=pcc-development@theblockchainxdev.com",
-									"host": [
-										"{{dAppKeycloakUrl}}"
-									],
-									"path": [
-										"auth",
-										"admin",
-										"realms",
-										"{{dAppKeycloakRealm}}",
-										"users"
-									],
-									"query": [
-										{
-											"key": "email",
-											"value": "pcc-development@theblockchainxdev.com"
-										}
+										".well-known",
+										"openid-configuration"
 									]
 								}
 							},
@@ -766,10 +1632,10 @@
 					"name": "Collaborate API",
 					"item": [
 						{
-							"name": "Business data",
+							"name": "Activites",
 							"item": [
 								{
-									"name": "Get scopes catalog",
+									"name": "Current org transactions",
 									"event": [
 										{
 											"listen": "test",
@@ -778,18 +1644,89 @@
 													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
 													"",
 													"var jsonData = pm.response.json();",
-													"",
-													"pm.globals.set(\"test-scope-asset-token-id\", jsonData[jsonData.length -1].tokenId);"
+													""
 												],
 												"type": "text/javascript"
 											}
 										}
 									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
 									"request": {
 										"method": "GET",
 										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
 										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/business-data",
+											"raw": "{{dAppApiUrl}}/api/v1/activities?page=0&size=10",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"activities"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "0"
+												},
+												{
+													"key": "size",
+													"value": "10"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Business data",
+							"item": [
+								{
+									"name": "Get catalog",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													"",
+													"var jsonData = pm.response.json();",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/business-data?page=0&size=100",
 											"host": [
 												"{{dAppApiUrl}}"
 											],
@@ -797,13 +1734,88 @@
 												"api",
 												"v1",
 												"business-data"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "0"
+												},
+												{
+													"key": "size",
+													"value": "100"
+												},
+												{
+													"key": "ownerAddress",
+													"value": "tz1T8T3AQdH2tUkkh4FRUkjW3AsQqK8RuBcu",
+													"disabled": true
+												}
 											]
 										}
 									},
 									"response": []
 								},
 								{
-									"name": "Get assets of scope",
+									"name": "Market place",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													"",
+													"var jsonData = pm.response.json();",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/market-place?page=0&size=100",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"market-place"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "0"
+												},
+												{
+													"key": "size",
+													"value": "100"
+												},
+												{
+													"key": "ownerAddress",
+													"value": "tz1T8T3AQdH2tUkkh4FRUkjW3AsQqK8RuBcu",
+													"disabled": true
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Test connection",
 									"event": [
 										{
 											"listen": "test",
@@ -820,7 +1832,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/{{test-scope-asset-token-id}}",
+											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/1/test-connection",
 											"host": [
 												"{{dAppApiUrl}}"
 											],
@@ -829,7 +1841,119 @@
 												"v1",
 												"business-data",
 												"asset",
-												"{{test-scope-asset-token-id}}"
+												"1",
+												"test-connection"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Fetch asset",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/24/fetch/2022-05-01LHRBA874B",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"business-data",
+												"asset",
+												"24",
+												"fetch",
+												"2022-05-01LHRBA874B"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get NFT summary",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/24",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"business-data",
+												"asset",
+												"24"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get assets of NFT",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/1?page=1&size=2",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"business-data",
+												"asset",
+												"1"
+											],
+											"query": [
+												{
+													"key": "page",
+													"value": "1"
+												},
+												{
+													"key": "size",
+													"value": "2"
+												}
 											]
 										}
 									},
@@ -906,7 +2030,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "[\n    {\n        \"assetDataCatalog\": {\n            \"datasources\": [\n                {\n                    \"id\": \"f87ced3e-757d-4594-8ce7-3e4424bc7452\",\n                    \"assetIdForDatasource\": \"workshop-analytics\",\n                    \"baseUri\": null,\n                    \"scopes\": null\n                }\n            ]\n        },\n        \"assetId\": \"f87ced3e-757d-4594-8ce7-3e4424bc7452:workshop-analytics\",\n        \"assetOwner\": {\n            \"legalName\": \"DSPConsortium1\",\n            \"address\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n            \"encryptionKey\": \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB\",\n            \"roles\": [\n                1\n            ]\n        },\n        \"accessStatus\": \"locked\",\n        \"creationDatetime\": null,\n        \"operator\": null,\n        \"multisigContractId\": null,\n        \"tokenId\": 14,\n        \"tokenStatus\": \"created\"\n    }\n]",
+											"raw": "[\n    {\n        \"tokenId\": 1,\n        \"providerAddress\": \"tz1d9eoHqwhXsgndszk7zyqSJwZh9HAFmbxF\",\n        \"assetIdForDatasource\":\"lhr-2022-05-01\",\n        \"datasourceId\":\"f4510e4c-a651-489a-997c-8a3180d5fed7\"\n    }\n]",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -927,6 +2051,127 @@
 										}
 									},
 									"response": []
+								},
+								{
+									"name": "Smart contract address",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"//pm.globals.set(\"test-token-id\", JSON.parse(request.body)[0].tokenId);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "noauth"
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n    {\n        \"assetDataCatalog\": {\n            \"datasources\": [\n                {\n                    \"id\": \"f87ced3e-757d-4594-8ce7-3e4424bc7452\",\n                    \"assetIdForDatasource\": \"workshop-analytics\",\n                    \"baseUri\": null,\n                    \"scopes\": null\n                }\n            ]\n        },\n        \"assetId\": \"f87ced3e-757d-4594-8ce7-3e4424bc7452:workshop-analytics\",\n        \"assetOwner\": {\n            \"legalName\": \"DSPConsortium1\",\n            \"address\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n            \"encryptionKey\": \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzEi+JDOxh+ENuGfl7hpGlRp/iSwG7L2Z1pRhfTt4vDAqi/bN2T/BhjzMhYZrYLQXi3CvYC3WOGqKj94Hi3SgYqkEZ1c1MihE4+7bN+DrCR11YItCVPL2Oac99mO/3MqxMajH/mfJAIZcy8P5Ey6hFLnGbdtW6vXXc25BLhoJoWLxgkh5I/DvBK4p0zfwqRUokEsy5Fcndy81DZUcGnqIhaL7Y48Sdhe9K3tEdZWoQAVZIgloZAxfaFIryYOqOS6kJxzItQRDesl7nIGnQUWoW0Qwh3q+GAMeYllxzITMf+Ti++kQOVVVZvyoJO+dRMncOqL496SmFGcp5jpKZkNh6wIDAQAB\",\n            \"roles\": [\n                1\n            ]\n        },\n        \"accessStatus\": \"locked\",\n        \"creationDatetime\": null,\n        \"operator\": null,\n        \"multisigContractId\": null,\n        \"tokenId\": 14,\n        \"tokenStatus\": \"created\"\n    }\n]",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/business-data/smart-contract",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"business-data",
+												"smart-contract"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Config",
+							"item": [
+								{
+									"name": "smart-contracts addresses",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/config/smart-contract",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"config",
+												"smart-contract"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "tzIndex url",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/config/tzindex-url",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"config",
+												"tzindex-url"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "onboarding",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/config/tzindex-url",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"config",
+												"tzindex-url"
+											]
+										}
+									},
+									"response": []
 								}
 							]
 						},
@@ -934,102 +2179,197 @@
 							"name": "Datasource",
 							"item": [
 								{
-									"name": "Personnal data",
+									"name": "Digital Passport",
 									"item": [
 										{
-											"name": "Create BasicAuth datasource",
-											"event": [
+											"name": "BasicAuth",
+											"item": [
 												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"tests['Request resulted in 201 Created'] = responseCode.code === 201;",
-															"let response = pm.response.json();",
-															"pm.globals.set(\"test-datasource-id\", response.id);"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "formdata",
-													"formdata": [
+													"name": "Create BasicAuth datasource",
+													"event": [
 														{
-															"key": "pfxFile",
-															"type": "file",
-															"src": "data/datasource/MWPDRV01.pfx"
-														},
-														{
-															"key": "datasource",
-															"contentType": "application/json",
-															"type": "file",
-															"src": "data/datasource/digital-passport-valid.json"
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 201 Created'] = responseCode.code === 201;",
+																	"let response = pm.response.json();",
+																	"pm.globals.set(\"test-datasource-id\", response.id);"
+																],
+																"type": "text/javascript"
+															}
 														}
-													]
-												},
-												"url": {
-													"raw": "{{dAppApiUrl}}/api/v1/datasources",
-													"host": [
-														"{{dAppApiUrl}}"
 													],
-													"path": [
-														"api",
-														"v1",
-														"datasources"
-													]
+													"request": {
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "formdata",
+															"formdata": [
+																{
+																	"key": "pfxFile",
+																	"type": "file",
+																	"src": "data/datasource/MWPDRV01.pfx"
+																},
+																{
+																	"key": "datasource",
+																	"contentType": "application/json",
+																	"type": "file",
+																	"src": "data/datasource/digital-passport-valid.json"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/datasources",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"datasources"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "Test connection BasicAuth",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "formdata",
+															"formdata": [
+																{
+																	"key": "pfxFile",
+																	"type": "file",
+																	"src": "data/datasource/MWPDRV01.pfx"
+																},
+																{
+																	"key": "datasource",
+																	"contentType": "application/json",
+																	"type": "file",
+																	"src": "data/datasource/digital-passport-valid.json"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/datasources/test-connection",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"datasources",
+																"test-connection"
+															]
+														}
+													},
+													"response": []
 												}
-											},
-											"response": []
+											]
 										},
 										{
-											"name": "Test connection BasicAuth",
-											"event": [
+											"name": "FakeDS",
+											"item": [
 												{
-													"listen": "test",
-													"script": {
-														"exec": [
-															"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
-														],
-														"type": "text/javascript"
-													}
-												}
-											],
-											"request": {
-												"method": "POST",
-												"header": [],
-												"body": {
-													"mode": "formdata",
-													"formdata": [
+													"name": "Test connection OAuth2",
+													"event": [
 														{
-															"key": "pfxFile",
-															"type": "file",
-															"src": "data/datasource/MWPDRV01.pfx"
-														},
-														{
-															"key": "datasource",
-															"contentType": "application/json",
-															"type": "file",
-															"src": "data/datasource/digital-passport-valid.json"
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 200 OK'] = responseCode.code === 200;"
+																],
+																"type": "text/javascript"
+															}
 														}
-													]
-												},
-												"url": {
-													"raw": "{{dAppApiUrl}}/api/v1/datasources/test-connection",
-													"host": [
-														"{{dAppApiUrl}}"
 													],
-													"path": [
-														"api",
-														"v1",
-														"datasources",
-														"test-connection"
-													]
+													"request": {
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "formdata",
+															"formdata": [
+																{
+																	"key": "datasource",
+																	"contentType": "application/json",
+																	"type": "file",
+																	"src": "/home/sskorupski/xdev/pcc/fake-datasource/api/public/demo-datasource-dsp-b.staging.json"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/datasources/test-connection",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"datasources",
+																"test-connection"
+															]
+														}
+													},
+													"response": []
+												},
+												{
+													"name": "Create OAuth2 Passport datasource",
+													"event": [
+														{
+															"listen": "test",
+															"script": {
+																"exec": [
+																	"tests['Request resulted in 201 Created'] = responseCode.code === 201;",
+																	"let response = pm.response.json();",
+																	"pm.globals.set(\"test-datasource-id\", response.id);"
+																],
+																"type": "text/javascript"
+															}
+														}
+													],
+													"request": {
+														"method": "POST",
+														"header": [],
+														"body": {
+															"mode": "formdata",
+															"formdata": [
+																{
+																	"key": "datasource",
+																	"contentType": "application/json",
+																	"type": "file",
+																	"src": "/home/sskorupski/xdev/pcc/fake-datasource/api/public/demo-datasource-dsp-b.staging.json"
+																}
+															]
+														},
+														"url": {
+															"raw": "{{dAppApiUrl}}/api/v1/datasources",
+															"host": [
+																"{{dAppApiUrl}}"
+															],
+															"path": [
+																"api",
+																"v1",
+																"datasources"
+															]
+														}
+													},
+													"response": []
 												}
-											},
-											"response": []
+											]
 										}
 									]
 								},
@@ -1061,7 +2401,7 @@
 															"key": "datasource",
 															"contentType": "application/json",
 															"type": "file",
-															"src": "data/datasource/fake-datasource-dsp-a.json"
+															"src": "/home/sskorupski/xdev/pcc/fake-datasource/api/public/demo-datasource-dsp-a.staging.json"
 														}
 													]
 												},
@@ -1102,7 +2442,7 @@
 															"key": "datasource",
 															"contentType": "application/json",
 															"type": "file",
-															"src": "data/datasource/fake-datasource-dsp-a.json"
+															"src": "/home/sskorupski/xdev/sita/flight-chain-datasource.json"
 														}
 													]
 												},
@@ -1235,7 +2575,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/datasources/{{test-datasource-id}}/scopes",
+											"raw": "{{dAppApiUrl}}/api/v1/datasources/09b08788-35b2-4890-8f75-de7f80191a6a/scopes",
 											"host": [
 												"{{dAppApiUrl}}"
 											],
@@ -1243,7 +2583,7 @@
 												"api",
 												"v1",
 												"datasources",
-												"{{test-datasource-id}}",
+												"09b08788-35b2-4890-8f75-de7f80191a6a",
 												"scopes"
 											]
 										}
@@ -1561,13 +2901,161 @@
 							]
 						},
 						{
+							"name": "KPI",
+							"item": [
+								{
+									"name": "Created datasource",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"labelFormat\": \"\",\n    \"dataSetsGroup\": \"kpiKey\",\n    \"labelGroup\":\"createdAt\",\n    \"search\": [\n        {\n            \"field\": \"kpiKey\",\n            \"operation\": \"=\",\n            \"value\": \"datasource.created\"\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/kpi",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"kpi"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Created business data nft",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"labelFormat\": \"\",\n    \"dataSetsGroup\": \"kpiKey\",\n    \"labelGroup\":\"createdAt\",\n    \"search\": [\n        {\n            \"field\": \"kpiKey\",\n            \"operation\": \"=\",\n            \"value\": \"nft.created\"\n        },\n        {\n            \"field\": \"values.contract\",\n            \"operation\": \"=\",\n            \"value\": \"KT1UJQVShZb2Dwb2Y5nWR37xceXaZJSA4Sjy\"\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/kpi?nftId=19",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"kpi"
+											],
+											"query": [
+												{
+													"key": "nftId",
+													"value": "19"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Granted access",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"labelFormat\": \"\",\n    \"dataSetsGroup\": \"kpiKey\",\n    \"labelGroup\":\"createdAt\",\n    \"search\": [\n        {\n            \"field\": \"kpiKey\",\n            \"operation\": \"=\",\n            \"value\": \"granted.access\"\n        },\n        {\n            \"field\": \"values.contract\",\n            \"operation\": \"=\",\n            \"value\": \"KT1GnukSpZdS2XyvbHTHhtKaKEbLgNQ5JkHq\"\n        },\n        {\n            \"field\": \"values.provider\",\n            \"operation\": \"=\",\n            \"value\": \"tz1d9eoHqwhXsgndszk7zyqSJwZh9HAFmbxF\"\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/kpi?nftId=19",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"kpi"
+											],
+											"query": [
+												{
+													"key": "nftId",
+													"value": "19"
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "Organization",
 							"item": [
 								{
-									"name": "Get organizations",
+									"name": "Get all organizations",
 									"request": {
 										"method": "GET",
 										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/organizations",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get by address",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/organizations",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"organizations"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Add organization",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"legalName\": \"Test 4/08/22 - 01\",\n  \"address\": \"tz1MUmTkTxZLFDBfmXqHxzSykwo27ABAQK6F\",\n  \"encryptionKey\": \"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvnWx9cdjODVW89A7VdIESllaFMglqBMFZtKA1hwZmsp0KJBwoav58qOLiidja/7BY+lWk0+QutxDxCGZZHGmyQ8xkRfRFfqhVARP9h6CRAahR+6D2J9a5oOv7QIg59ypPS36FWEBKEaZ2Z/tqPgymhDjWvuf2JdDOi5JXvckaeByXmRjodcGc7QIsviSZuciNN9cFgZaUUr/bB6ZA+hEmlW7Hidh2DaTNJg5YmfWj1ndW/ILA8enb/Cezhxm+M5sLlbAtDdCiAKml1AlzcDTkLaGunlhoOEmyzI1VQKiQDQWdrt5Y19/6kRpGwQk5x8GLrQYpnjIyz7Iahv5OzSQ7wIDAQAB\",\n  \"roles\": [\n    2\n  ]\n}\n",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
 										"url": {
 											"raw": "{{dAppApiUrl}}/api/v1/organizations",
 											"host": [
@@ -1663,7 +3151,7 @@
 												"method": "POST",
 												"header": [],
 												"url": {
-													"raw": "{{dAppApiUrl}}/api/v1/digital-passport/multisig/30",
+													"raw": "{{dAppApiUrl}}/api/v1/digital-passport/multisig/0",
 													"host": [
 														"{{dAppApiUrl}}"
 													],
@@ -1672,7 +3160,7 @@
 														"v1",
 														"digital-passport",
 														"multisig",
-														"30"
+														"0"
 													]
 												}
 											},
@@ -1701,7 +3189,7 @@
 												"method": "GET",
 												"header": [],
 												"url": {
-													"raw": "{{dAppApiUrl}}/api/v1/digital-passport/7/metrics/",
+													"raw": "{{dAppApiUrl}}/api/v1/digital-passport/6/metrics/",
 													"host": [
 														"{{dAppApiUrl}}"
 													],
@@ -1709,7 +3197,7 @@
 														"api",
 														"v1",
 														"digital-passport",
-														"7",
+														"6",
 														"metrics",
 														""
 													]
@@ -1749,7 +3237,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"assetOwnerMail\": \"alice@asset-owner.com\",\n    \"datasourceUUID\": \"{{test-datasource-id}}\",\n    \"assetId\": \"{{test-assetId}}\",\n    \"assetIdForDatasource\": \"124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79\"\n}",
+											"raw": "{\n    \"assetOwnerMail\": \"alice@asset-owner.com\",\n    \"datasourceUUID\": \"{{test-datasource-id}}\",\n    \"assetId\": \"KNADH411MA6705610\",\n    \"assetIdForDatasource\": \"124091f9115613c465747647191cfa4d0d97bc3e1e4ae2f1cb3d192c3c36e183e6620c36bd6bb6d0115a436ce28529b79\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -4082,7 +5570,7 @@
 									]
 								},
 								{
-									"name": "Create TAG user, as pending_asset_owner",
+									"name": "Create Wallet, as pending_asset_owner",
 									"request": {
 										"method": "POST",
 										"header": [],
@@ -4108,7 +5596,7 @@
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/users?page=0&size=10",
+											"raw": "{{dAppApiUrl}}/api/v1/users",
 											"host": [
 												"{{dAppApiUrl}}"
 											],
@@ -4116,28 +5604,18 @@
 												"api",
 												"v1",
 												"users"
-											],
-											"query": [
-												{
-													"key": "page",
-													"value": "0"
-												},
-												{
-													"key": "size",
-													"value": "10"
-												}
 											]
 										}
 									},
 									"response": []
 								},
 								{
-									"name": "Get user by id",
+									"name": "Get wallet",
 									"request": {
 										"method": "GET",
 										"header": [],
 										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/users?page=0&size=10",
+											"raw": "{{dAppApiUrl}}/api/v1/users",
 											"host": [
 												"{{dAppApiUrl}}"
 											],
@@ -4145,16 +5623,122 @@
 												"api",
 												"v1",
 												"users"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Update roles",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"rolesNames\": [\"service_identity_provider_administrator\"]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/users/aae4aaf7-69c0-4c90-adb8-3b6f848e31c4",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"aae4aaf7-69c0-4c90-adb8-3b6f848e31c4"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Enable/Disable user",
+									"request": {
+										"method": "PATCH",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/users/{{user-id}}?enable=false",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"users",
+												"{{user-id}}"
 											],
 											"query": [
 												{
-													"key": "page",
-													"value": "0"
-												},
-												{
-													"key": "size",
-													"value": "10"
+													"key": "enable",
+													"value": "false"
 												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Actuator",
+							"item": [
+								{
+									"name": "Health",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/actuator/health",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"actuator",
+												"health"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Liveness",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/actuator/health/liveness",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"actuator",
+												"health",
+												"liveness"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Readiness",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "{{dAppApiUrl}}/actuator/health/readiness",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"actuator",
+												"health",
+												"readiness"
 											]
 										}
 									},
@@ -4237,181 +5821,155 @@
 			"name": "Tezos Api Gateway",
 			"item": [
 				{
-					"name": "User",
+					"name": "Business data",
 					"item": [
 						{
-							"name": "Create user",
-							"event": [
+							"name": "Contract",
+							"item": [
 								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"",
-											"pm.test(\"Status code is 201\", function () {",
-											"    pm.response.to.have.status(201);",
-											"});",
-											"",
-											"var jsonData = pm.response.json();",
-											"pm.environment.set(\"test-asset-owner-publicKeyHash\", jsonData[0].account);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"userIdList\": [\n    \"pcc-developmenttheblockchainxdev.com\"\n  ],\n  \"secureKeyName\": \"{{tag-admin}}\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{tagApiUrl}}/api/user/create",
-									"host": [
-										"{{tagApiUrl}}"
-									],
-									"path": [
-										"api",
-										"user",
-										"create"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Create user metadata",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											""
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"data\": \"pcc-developmenttheblockchainxdev.com\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{tagApiUrl}}/api/user/pcc-developmenttheblockchainxdev.com/metadata",
-									"host": [
-										"{{tagApiUrl}}"
-									],
-									"path": [
-										"api",
-										"user",
-										"pcc-developmenttheblockchainxdev.com",
-										"metadata"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "GET user metadata",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"",
-											"pm.test(\"Status code is 201\", function () {",
-											"    pm.response.to.have.status(201);",
-											"});",
-											"",
-											"var jsonData = pm.response.json();",
-											"pm.environment.set(\"test-asset-owner-publicKeyHash\", jsonData[0].account);"
-										],
-										"type": "text/javascript"
-									}
-								}
-							],
-							"request": {
-								"method": "GET",
-								"header": [],
-								"url": {
-									"raw": "{{tagApiUrl}}/api/user/{{test-datasource-id}}/metadata",
-									"host": [
-										"{{tagApiUrl}}"
-									],
-									"path": [
-										"api",
-										"user",
-										"{{test-datasource-id}}",
-										"metadata"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Get user by id",
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
-							"request": {
-								"method": "GET",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{tagApiUrl}}/api/user?userIdList=pcc-development_._xdev-at_._theblockchainxdev.com&userIdList=admin",
-									"host": [
-										"{{tagApiUrl}}"
-									],
-									"path": [
-										"api",
-										"user"
-									],
-									"query": [
-										{
-											"key": "userIdList",
-											"value": "pcc-development_._xdev-at_._theblockchainxdev.com"
+									"name": "Get transactions",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
 										},
-										{
-											"key": "userIdList",
-											"value": "admin"
+										"url": {
+											"raw": "{{tagApiUrl}}/api/contract/{{buisiness-data-contract-address}}/calls?offset=0&limit=20 ",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"contract",
+												"{{buisiness-data-contract-address}}",
+												"calls"
+											],
+											"query": [
+												{
+													"key": "offset",
+													"value": "0"
+												},
+												{
+													"key": "limit",
+													"value": "20 "
+												}
+											]
 										}
-									]
+									},
+									"response": []
 								}
-							},
-							"response": []
+							]
 						},
 						{
-							"name": "Get user address",
-							"protocolProfileBehavior": {
-								"disableBodyPruning": true
-							},
+							"name": "Access",
+							"item": [
+								{
+									"name": "Ask access",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1AK9SFPYcitQzwGV8JomriMQr6an7PSh18\",\n      \"entryPoint\": \"requestAccess\",\n      \"entryPointParams\": {\n        \"id\": \"52fddab8-748f-44f4-be77-608c2b3ec2b7\",\n        \"datasourceId\": \"29dba35d-80b5-4e48-ad8b-602b01be843c\",\n        \"scope\": \"customers-analytics\",\n        \"requesterAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n        \"providerAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n      }\n    }\n  ],\n  \"secureKeyName\": \"admin\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{tagApiUrl}}/api/send/jobs?cache=false",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get access request by UUID",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"dataFields\": [\n        {\n            \"access_requests\": [\n                {\n                    \"key\": \"05b108f5-1f4c-448b-bf97-8571a2a1e5dc\"\n                }\n            ]\n        }\n    ]\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{buisiness-data-contract-address}}",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"tezos_node",
+												"storage",
+												"{{buisiness-data-contract-address}}"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "Get assets from indexer",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Result contains at least 2 organizations\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
+											"",
+											"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
+											"    pm.expect(adminOrg).not.eq(undefined);",
+											"",
+											"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
+											"    pm.expect(otherOrg).not.eq(undefined);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
 							"request": {
-								"method": "GET",
+								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "",
+									"raw": "{\n    \"dataFields\": [\n        {\n            \"nft_indexer\" : [\n                {\n                    \"key\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n                },\n                {\n                    \"key\" : \"tz1YEAJSJ7j4HNn9adywXxtwttSSHBgyYbyT\"\n                }\n            ]\n        }\n    ]\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4419,20 +5977,191 @@
 									}
 								},
 								"url": {
-									"raw": "{{tagApiUrl}}/api/user/address?userAddressList={{tag-admin-publicKeyHash}}",
+									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{buisiness-data-contract-address}}",
 									"host": [
 										"{{tagApiUrl}}"
 									],
 									"path": [
 										"api",
-										"user",
-										"address"
+										"tezos_node",
+										"storage",
+										"{{buisiness-data-contract-address}}"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Grant Access",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1AK9SFPYcitQzwGV8JomriMQr6an7PSh18\",\n      \"entryPoint\": \"requestAccess\",\n      \"entryPointParams\": {\n        \"id\": \"52fddab8-748f-44f4-be77-608c2b3ec2b7\",\n        \"datasourceId\": \"29dba35d-80b5-4e48-ad8b-602b01be843c\",\n        \"scope\": \"customers-analytics\",\n        \"requesterAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n        \"providerAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n      }\n    }\n  ],\n  \"secureKeyName\": \"admin\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/send/jobs?cache=false",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"send",
+										"jobs"
 									],
 									"query": [
 										{
-											"key": "userAddressList",
-											"value": "{{tag-admin-publicKeyHash}}"
+											"key": "cache",
+											"value": "false"
 										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Mint scope",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1HLCFJ8tBi3RD43BK38b9orbZpJRwi7jD3\",\n            \"entryPoint\": \"create_business_datasource\",\n            \"entryPointParams\": {\n                \"asset_id\": \"ac8230d5-f368-4809-9f9d-054a194207bd:referentials\",\n                \"metadata_uri\": \"\",\n                \"nft_operator_address\": \"tz1UH213Tgjzc54oeu6iV9LqAQ2qhaPHh255\"\n            }\n        }\n    ],\n    \"callerId\": \"admin\",\n    \"secureKeyName\": \"{{tag-admin}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/send/jobs",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"send",
+										"jobs"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Organization",
+					"item": [
+						{
+							"name": "Get all organizations",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"pm.test(\"Status code is 200\", function () {",
+											"    pm.response.to.have.status(200);",
+											"});",
+											"",
+											"pm.test(\"Result contains at least 2 organizations\", function () {",
+											"    var jsonData = pm.response.json();",
+											"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
+											"",
+											"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
+											"    pm.expect(adminOrg).not.eq(undefined);",
+											"",
+											"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
+											"    pm.expect(otherOrg).not.eq(undefined);",
+											"});"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"dataFields\": [\n        \"organizations\"\n    ]\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1EpjBSurvR8YShjgzrMSvVVtuxJfRAb1LX",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"tezos_node",
+										"storage",
+										"KT1EpjBSurvR8YShjgzrMSvVVtuxJfRAb1LX"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Update organization",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1NTybHtYJM15a4g5BXYyW2hG3CxPPwgErc\",\n            \"entryPoint\": \"update_organizations\",\n            \"entryPointParams\": [\n                { \n                    \"update\" : {\n                        \"legal_name\":\"Added Orga 2\",\n                        \"address\": \"tz1g53cuGXWjy6uPPzc4N3MTwifjRmydX5rD\",\n                        \"encryption_key\":\"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvTDCX7ygoq1niO4Sy607BIeYfXeszHpQIYO1Ood//vtbuf967wmAjEzVKel6YUmf01mN8CddO49mDQg7fZkx4FkBazEnO2sPloUpJSypraZS86stjNVEcUP+CegtzUeh16zhUkJi4F0GPXogtd0HjhrrGcC37T8S96RczYoleWpbQCgjsj2ygkZdccaiUNwCNOPSEOP5CAQlRBJsWLBF4JfFXCUblVVYIy3SqmxnT7Rl3nERqdK8CT1+E9kmw9RXJLn0xESshLpFNtA7LIVLBpP/EB3tO0YFYhmaR/povniMnJYDrlymBbkf3jZXEvA/jDEetfaCUmR2Dhh9vscUywIDAQAB\",\n                        \"roles\": [1]\n                    }\n                }\n            ]\n        },\n        {\n            \"contractAddress\": \"KT1EpjBSurvR8YShjgzrMSvVVtuxJfRAb1LX\",\n            \"entryPoint\": \"update_organizations\",\n            \"entryPointParams\": [\n                { \n                    \"update\" : {\n                        \"legal_name\":\"Added Orga 2\",\n                        \"address\": \"tz1g53cuGXWjy6uPPzc4N3MTwifjRmydX5rD\",\n                        \"encryption_key\":\"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvTDCX7ygoq1niO4Sy607BIeYfXeszHpQIYO1Ood//vtbuf967wmAjEzVKel6YUmf01mN8CddO49mDQg7fZkx4FkBazEnO2sPloUpJSypraZS86stjNVEcUP+CegtzUeh16zhUkJi4F0GPXogtd0HjhrrGcC37T8S96RczYoleWpbQCgjsj2ygkZdccaiUNwCNOPSEOP5CAQlRBJsWLBF4JfFXCUblVVYIy3SqmxnT7Rl3nERqdK8CT1+E9kmw9RXJLn0xESshLpFNtA7LIVLBpP/EB3tO0YFYhmaR/povniMnJYDrlymBbkf3jZXEvA/jDEetfaCUmR2Dhh9vscUywIDAQAB\",\n                        \"roles\": [1]\n                    }\n                }\n            ]\n        }\n    ],\n    \"secureKeyName\": \"admin\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/send/jobs",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"send",
+										"jobs"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Remove organization",
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1NTybHtYJM15a4g5BXYyW2hG3CxPPwgErc\",\n            \"entryPoint\": \"update_organizations\",\n            \"entryPointParams\": [\n                { \n                    \"remove\" : \"tz1g53cuGXWjy6uPPzc4N3MTwifjRmydX5rD\"\n                }\n            ]\n        },\n        {\n            \"contractAddress\": \"KT1EpjBSurvR8YShjgzrMSvVVtuxJfRAb1LX\",\n            \"entryPoint\": \"update_organizations\",\n            \"entryPointParams\": [\n                { \n                    \"remove\" : \"tz1g53cuGXWjy6uPPzc4N3MTwifjRmydX5rD\"\n                }\n            ]\n        }\n    ],\n    \"secureKeyName\": \"admin\"\n}\n",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/send/jobs",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"send",
+										"jobs"
 									]
 								}
 							},
@@ -4708,29 +6437,456 @@
 					]
 				},
 				{
-					"name": "Organization",
+					"name": "Proxy token controller",
 					"item": [
 						{
-							"name": "Get all organizations",
+							"name": "send",
+							"item": [
+								{
+									"name": "send sign",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"sign\",\n            \"entryPointParams\": 2\n        }\n    ],\n    \"secureKeyName\": \"master7\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build mint",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": false,\n                \"call_params\": {\n                    \"entry_point\": \"mint\",\n                    \"parameters\": {\n                        \"mint\": {\n                            \"mint_params\": {\n                                \"address\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                \"amount\": 1,\n                                \"metadata\": [\n                                    {\n                                        \"key\": \"\",\n                                        \"value\": \"050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762\"\n                                    }\n                                ]\n                            },\n                            \"operator\": \"tz1TjFwiHUo13xxcrAW1a2pG8iXk2Goj5HRC\"\n                        }\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 0,\n                \"signers\": [\"tz1TjFwiHUo13xxcrAW1a2pG8iXk2Goj5HRC\"]\n            }\n        }\n    ],\n    \"secureKeyName\": \"master9\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build batch_mint",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"batch_mint\",\n                    \"parameters\": {\n                        \"batch_mint\": {\n                            \"batch_mint_params\": {\n                                \"address\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                \"metadata_links\": [\n                                    \"050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762\",\n                                    \"050200000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762\"\n                                ]\n                            },\n                            \"operator\": null\n                        }\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 7,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master2\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build transfer",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"transfer\",\n                    \"parameters\": {\n                        \"transfer\": [\n                            {\n                                \"from_\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                \"txs\": [\n                                    {\n                                        \"to_\": \"tz1dAbb66qRJndGMD4KKDxzBebQursit5pfT\",\n                                        \"amount\": 1,\n                                        \"token_id\": 0\n                                    },\n                                    {\n                                        \"to_\": \"tz1dAbb66qRJndGMD4KKDxzBebQursit5pfT\",\n                                        \"amount\": 1,\n                                        \"token_id\": 1\n                                    }\n                                ]\n                            }\n                        ]\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 8,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build update_operators",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"update_operators\",\n                    \"parameters\": {\n                        \"update_operators\": [\n                            {\n                                \"remove_operator\": {\n                                    \"operator\": \"tz1TjFwiHUo13xxcrAW1a2pG8iXk2Goj5HRC\",\n                                    \"owner\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                    \"token_id\": 8\n                                }\n                            },\n                            {\n                                \"add_operator\": {\n                                    \"operator\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n                                    \"owner\": \"tz1hG1QqTMsd8XPpJkGwRmUeVBdNZSGDCPuQ\",\n                                    \"token_id\": 8\n                                }\n                            }\n                        ]\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 11,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build set_metadata",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"set_metadata\",\n                    \"parameters\": {\n                        \"set_metadata\": {\n                            \"k\": \"0055\",\n                            \"v\": \"050100000035697066733a2f2f516d5a36584762695a4d77664454325066436e71747462426e564d4a727473397670636867575251544b33337762\"\n                        }\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 12,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build set_administrator",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"set_administrator\",\n                    \"parameters\": {\n                        \"set_administrator\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\"\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 13,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build set_pause",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VU28Bc9HFMe7TCatnY6AZbiFP3sijQmSD\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"set_pause\",\n                    \"parameters\": {\n                        \"set_pause\": false\n                    },\n                    \"target_address\": \"KT1RkkkCWHmprQ2f5Aar68MzfdTtWZ12tbvo\"\n                },\n                \"multisig_id\": 14,\n                \"signers\": []\n            }\n                \n        }\n    ],\n    \"secureKeyName\": \"master1\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build update_groups",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VwewqAK5uSB2fHLa9vTMG5ygpiof4VsCd\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"update_groups\",\n                    \"parameters\": {\n                        \"update_groups\": [\n                            {\n                                \"add\": [\n                                    {\n                                        \"key\": \"test\",\n                                        \"value\": \"tz1ernQcEU7qqR1t9R4mPFUCSkp9DLQqA7hW\"\n                                    }\n                                ]\n                            },\n                            {\n                                \"remove\": [\n                                    {\n                                        \"key\": \"test\",\n                                        \"value\": \"tz1ernQcEU7qqR1t9R4mPFUCSkp9DLQqA7hW\"\n                                    }\n                                ]\n                            }\n                        ]\n                    },\n                    \"target_address\": null\n                },\n                \"multisig_id\": 1,\n                \"signers\": []\n            }\n        }\n    ],\n    \"secureKeyName\": \"master7\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build update templates",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VwewqAK5uSB2fHLa9vTMG5ygpiof4VsCd\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"update_templates\",\n                    \"parameters\": {\n                        \"update_templates\": [\n                            {\n                                \"update\": [\n                                    {\n                                        \"key\": 4,\n                                        \"value\": {\n                                            \"contract_threshold\": 1,\n                                            \"groups\": [\n                                                {\n                                                    \"key\": \"minters\",\n                                                    \"value\": {\n                                                        \"group_threshold\": 1, \n                                                        \"group_weight\": 1\n                                                    }\n                                                }\n                                            ]\n                                        }\n                                    }\n                                ]\n                            },\n                            {\n                                \"remove\": [4]\n                            }\n                        ]\n                    },\n                    \"target_address\": null\n                },\n                \"multisig_id\": 3,\n                \"signers\": []\n            }\n        }\n    ],\n    \"secureKeyName\": \"master7\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "send build update rules",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1VwewqAK5uSB2fHLa9vTMG5ygpiof4VsCd\",\n            \"entryPoint\": \"build\",\n            \"entryPointParams\": {\n                \"build_and_sign\": true,\n                \"call_params\": {\n                    \"entry_point\": \"update_rules\",\n                    \"parameters\": {\n                        \"update_rules\": [\n                            {\n                                \"update\": [\n                                    {\n                                        \"key\": \"mint\",\n                                        \"value\": {\n                                            \"template_id\": 0,\n                                            \"authorized_builders\": [\"minters\", \"batch_minters\"]\n                                        }\n                                    }\n                                ]\n                            },\n                            {\n                                \"remove\": [\"batch_mint\"]\n                            }\n                        ]\n                    },\n                    \"target_address\": null\n                },\n                \"multisig_id\": 4,\n                \"signers\": []\n            }\n        }\n    ],\n    \"secureKeyName\": \"master7\"\n}\n        ",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/send/jobs?cache=false",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Get update entrypoint schema Copy",
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"method": "GET",
+										"header": [
+											{
+												"key": "Content-Type",
+												"value": "application/json",
+												"type": "text"
+											}
+										],
+										"body": {
+											"mode": "raw",
+											"raw": ""
+										},
+										"url": {
+											"raw": "http://{{tagApiUrl}}/api/entrypoints/KT1PLfDC94ExEGwotGcuS2ciqVzedVZRddJv?=",
+											"protocol": "http",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"entrypoints",
+												"KT1PLfDC94ExEGwotGcuS2ciqVzedVZRddJv"
+											],
+											"query": [
+												{
+													"key": "",
+													"value": ""
+												}
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						}
+					]
+				},
+				{
+					"name": "User",
+					"item": [
+						{
+							"name": "Create user",
 							"event": [
 								{
 									"listen": "test",
 									"script": {
 										"exec": [
-											"pm.test(\"Status code is 200\", function () {",
-											"    pm.response.to.have.status(200);",
+											"",
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
 											"});",
 											"",
-											"pm.test(\"Result contains at least 2 organizations\", function () {",
-											"    var jsonData = pm.response.json();",
-											"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
-											"",
-											"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
-											"    pm.expect(adminOrg).not.eq(undefined);",
-											"",
-											"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
-											"    pm.expect(otherOrg).not.eq(undefined);",
-											"});"
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"test-asset-owner-publicKeyHash\", jsonData[0].account);"
 										],
 										"type": "text/javascript"
 									}
@@ -4741,7 +6897,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"dataFields\": [\n        \"organizations\"\n    ]\n}",
+									"raw": "{\n  \"userIdList\": [\n    \"pcc-developmenttheblockchainxdev.com\"\n  ],\n  \"secureKeyName\": \"{{tag-admin}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -4749,15 +6905,213 @@
 									}
 								},
 								"url": {
-									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{buisiness-data-contract-address}}",
+									"raw": "{{tagApiUrl}}/api/user/create",
 									"host": [
 										"{{tagApiUrl}}"
 									],
 									"path": [
 										"api",
-										"tezos_node",
-										"storage",
-										"{{buisiness-data-contract-address}}"
+										"user",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create user Copy",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"test-asset-owner-publicKeyHash\", jsonData[0].account);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"userIdList\": [\n    \"pcc-developmenttheblockchainxdev.com\"\n  ],\n  \"secureKeyName\": \"{{tag-admin}}\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/user/create",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"create"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Create user metadata",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											""
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "POST",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n  \"data\": \"pcc-developmenttheblockchainxdev.com\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/user/pcc-developmenttheblockchainxdev.com/metadata",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"pcc-developmenttheblockchainxdev.com",
+										"metadata"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GET user metadata",
+							"event": [
+								{
+									"listen": "test",
+									"script": {
+										"exec": [
+											"",
+											"pm.test(\"Status code is 201\", function () {",
+											"    pm.response.to.have.status(201);",
+											"});",
+											"",
+											"var jsonData = pm.response.json();",
+											"pm.environment.set(\"test-asset-owner-publicKeyHash\", jsonData[0].account);"
+										],
+										"type": "text/javascript"
+									}
+								}
+							],
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{tagApiUrl}}/api/user/{{test-datasource-id}}/metadata",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"{{test-datasource-id}}",
+										"metadata"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user by id",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/user?userIdList=pcc-development_._xdev-at_._theblockchainxdev.com&userIdList=admin",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"user"
+									],
+									"query": [
+										{
+											"key": "userIdList",
+											"value": "pcc-development_._xdev-at_._theblockchainxdev.com"
+										},
+										{
+											"key": "userIdList",
+											"value": "admin"
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Get user address",
+							"protocolProfileBehavior": {
+								"disableBodyPruning": true
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{tagApiUrl}}/api/user/address?userAddressList={{tag-admin-publicKeyHash}}",
+									"host": [
+										"{{tagApiUrl}}"
+									],
+									"path": [
+										"api",
+										"user",
+										"address"
+									],
+									"query": [
+										{
+											"key": "userAddressList",
+											"value": "{{tag-admin-publicKeyHash}}"
+										}
 									]
 								}
 							},
@@ -5146,214 +7500,37 @@
 					]
 				},
 				{
-					"name": "Business data",
-					"item": [
-						{
-							"name": "Contract",
-							"item": [
-								{
-									"name": "Get transactions",
-									"protocolProfileBehavior": {
-										"disableBodyPruning": true
-									},
-									"request": {
-										"method": "GET",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{tagApiUrl}}/api/contract/{{buisiness-data-contract-address}}/calls?offset=0&limit=20 ",
-											"host": [
-												"{{tagApiUrl}}"
-											],
-											"path": [
-												"api",
-												"contract",
-												"{{buisiness-data-contract-address}}",
-												"calls"
-											],
-											"query": [
-												{
-													"key": "offset",
-													"value": "0"
-												},
-												{
-													"key": "limit",
-													"value": "20 "
-												}
-											]
-										}
-									},
-									"response": []
+					"name": "Configuration",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
 								}
-							]
+							}
 						},
-						{
-							"name": "Access",
-							"item": [
-								{
-									"name": "Ask access",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1AK9SFPYcitQzwGV8JomriMQr6an7PSh18\",\n      \"entryPoint\": \"requestAccess\",\n      \"entryPointParams\": {\n        \"id\": \"52fddab8-748f-44f4-be77-608c2b3ec2b7\",\n        \"datasourceId\": \"29dba35d-80b5-4e48-ad8b-602b01be843c\",\n        \"scope\": \"customers-analytics\",\n        \"requesterAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n        \"providerAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n      }\n    }\n  ],\n  \"secureKeyName\": \"admin\"\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{tagApiUrl}}/api/send/jobs?cache=false",
-											"host": [
-												"{{tagApiUrl}}"
-											],
-											"path": [
-												"api",
-												"send",
-												"jobs"
-											],
-											"query": [
-												{
-													"key": "cache",
-													"value": "false"
-												}
-											]
-										}
-									},
-									"response": []
-								},
-								{
-									"name": "Get access request by UUID",
-									"request": {
-										"method": "POST",
-										"header": [],
-										"body": {
-											"mode": "raw",
-											"raw": "{\n    \"dataFields\": [\n        {\n            \"access_requests\": [\n                {\n                    \"key\": \"05b108f5-1f4c-448b-bf97-8571a2a1e5dc\"\n                }\n            ]\n        }\n    ]\n}",
-											"options": {
-												"raw": {
-													"language": "json"
-												}
-											}
-										},
-										"url": {
-											"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{buisiness-data-contract-address}}",
-											"host": [
-												"{{tagApiUrl}}"
-											],
-											"path": [
-												"api",
-												"tezos_node",
-												"storage",
-												"{{buisiness-data-contract-address}}"
-											]
-										}
-									},
-									"response": []
-								}
-							]
-						},
-						{
-							"name": "Get assets from indexer",
-							"event": [
-								{
-									"listen": "test",
-									"script": {
-										"exec": [
-											"pm.test(\"Status code is 200\", function () {",
-											"    pm.response.to.have.status(200);",
-											"});",
-											"",
-											"pm.test(\"Result contains at least 2 organizations\", function () {",
-											"    var jsonData = pm.response.json();",
-											"    pm.expect(jsonData.organizations.value.length).to.greaterThan(1);",
-											"",
-											"    const adminOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-admin-publicKeyHash\"));",
-											"    pm.expect(adminOrg).not.eq(undefined);",
-											"",
-											"    const otherOrg = jsonData.organizations.value.find(o => o.key === pm.environment.get(\"tag-other-publicKeyHash\"));",
-											"    pm.expect(otherOrg).not.eq(undefined);",
-											"});"
-										],
-										"type": "text/javascript"
-									}
-								}
+						"url": {
+							"raw": "{{tagApiUrl}}/api/conf",
+							"host": [
+								"{{tagApiUrl}}"
 							],
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n    \"dataFields\": [\n        {\n            \"nft_indexer\" : [\n                {\n                    \"key\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n                },\n                {\n                    \"key\" : \"tz1YEAJSJ7j4HNn9adywXxtwttSSHBgyYbyT\"\n                }\n            ]\n        }\n    ]\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{buisiness-data-contract-address}}",
-									"host": [
-										"{{tagApiUrl}}"
-									],
-									"path": [
-										"api",
-										"tezos_node",
-										"storage",
-										"{{buisiness-data-contract-address}}"
-									]
-								}
-							},
-							"response": []
-						},
-						{
-							"name": "Grant Access",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1AK9SFPYcitQzwGV8JomriMQr6an7PSh18\",\n      \"entryPoint\": \"requestAccess\",\n      \"entryPointParams\": {\n        \"id\": \"52fddab8-748f-44f4-be77-608c2b3ec2b7\",\n        \"datasourceId\": \"29dba35d-80b5-4e48-ad8b-602b01be843c\",\n        \"scope\": \"customers-analytics\",\n        \"requesterAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n        \"providerAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n      }\n    }\n  ],\n  \"secureKeyName\": \"admin\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{tagApiUrl}}/api/send/jobs?cache=false",
-									"host": [
-										"{{tagApiUrl}}"
-									],
-									"path": [
-										"api",
-										"send",
-										"jobs"
-									],
-									"query": [
-										{
-											"key": "cache",
-											"value": "false"
-										}
-									]
-								}
-							},
-							"response": []
+							"path": [
+								"api",
+								"conf"
+							]
 						}
-					]
+					},
+					"response": []
 				},
 				{
-					"name": "Get all entrypoints",
+					"name": "Entrypoints",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -5384,7 +7561,7 @@
 					"response": []
 				},
 				{
-					"name": "Entrypoint \"requestAccess\" of a smartcontract",
+					"name": "calls to SC",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -5401,19 +7578,28 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagApiUrl}}/api/entrypoints/{{passport-contract-address}}?entryPoints=requestAccess",
+							"raw": "{{tagApiUrl}}/api/contract/KT1HnrzYhN5v5HJJVLACXTswyPMJFN8NwMTe/calls?indexer=tzstats&offset=0&limit=20",
 							"host": [
 								"{{tagApiUrl}}"
 							],
 							"path": [
 								"api",
-								"entrypoints",
-								"{{passport-contract-address}}"
+								"contract",
+								"KT1HnrzYhN5v5HJJVLACXTswyPMJFN8NwMTe",
+								"calls"
 							],
 							"query": [
 								{
-									"key": "entryPoints",
-									"value": "requestAccess"
+									"key": "indexer",
+									"value": "tzstats"
+								},
+								{
+									"key": "offset",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "20"
 								}
 							]
 						}
@@ -5425,15 +7611,6 @@
 					"request": {
 						"method": "POST",
 						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
 						"url": {
 							"raw": "{{tagApiUrl}}/api/tezos_node/storage/{{passport-contract-address}}",
 							"host": [
@@ -5456,7 +7633,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"dataFields\": [\n        \"organizations\"\n    ]\n}",
+							"raw": "{\n    \"dataFields\": [\n        \"token_metadata\", \"all_tokens\", \"prout\"\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -5464,7 +7641,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1X2GBRQ7ADbJv9gHNKGKuGJKBgZGbcRd4U",
+							"raw": "{{tagApiUrl}}/api/tezos_node/storage/KT1UJQVShZb2Dwb2Y5nWR37xceXaZJSA4Sjy",
 							"host": [
 								"{{tagApiUrl}}"
 							],
@@ -5472,7 +7649,7 @@
 								"api",
 								"tezos_node",
 								"storage",
-								"KT1X2GBRQ7ADbJv9gHNKGKuGJKBgZGbcRd4U"
+								"KT1UJQVShZb2Dwb2Y5nWR37xceXaZJSA4Sjy"
 							]
 						}
 					},
@@ -5514,7 +7691,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"dataFields\": [\n        {\n            \"passports_indexer\" : [\n                {\n                    \"key\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n                }\n            ]\n        }\n    ]\n}",
+							"raw": "{\n    \"dataFields\": [\n        {\n            \"token_id_by_asset_id\" : [\n                {\n                    \"value\": \"1\"\n                }\n            ]\n        }\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -6675,6 +8852,198 @@
 							]
 						},
 						{
+							"name": "swarm",
+							"item": [
+								{
+									"name": "peers",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var jsonData = pm.response.json();",
+													"pm.globals.set(\"cid\", jsonData.Hash);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "path",
+													"value": "/data/ipfs/collaborate/xdev-test",
+													"type": "text",
+													"disabled": true
+												}
+											]
+										},
+										"url": {
+											"raw": "{{ipfs-api-host}}/api/v0/swarm/peers",
+											"host": [
+												"{{ipfs-api-host}}"
+											],
+											"path": [
+												"api",
+												"v0",
+												"swarm",
+												"peers"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "connect",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var jsonData = pm.response.json();",
+													"pm.globals.set(\"cid\", jsonData.Hash);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "path",
+													"value": "/data/ipfs/collaborate/xdev-test",
+													"type": "text",
+													"disabled": true
+												}
+											]
+										},
+										"url": {
+											"raw": "{{ipfs-api-host}}/api/v0/swarm/connect?arg=/ip4/10.244.0.15/tcp/4001",
+											"host": [
+												"{{ipfs-api-host}}"
+											],
+											"path": [
+												"api",
+												"v0",
+												"swarm",
+												"connect"
+											],
+											"query": [
+												{
+													"key": "arg",
+													"value": "/ip4/10.244.0.15/tcp/4001"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "listen",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var jsonData = pm.response.json();",
+													"pm.globals.set(\"cid\", jsonData.Hash);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "path",
+													"value": "/data/ipfs/collaborate/xdev-test",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{ipfs-api-host}}/api/v0/swarm/addrs/listen",
+											"host": [
+												"{{ipfs-api-host}}"
+											],
+											"path": [
+												"api",
+												"v0",
+												"swarm",
+												"addrs",
+												"listen"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
+							"name": "dht",
+							"item": [
+								{
+									"name": "findpeers",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"var jsonData = pm.response.json();",
+													"pm.globals.set(\"cid\", jsonData.Hash);",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "formdata",
+											"formdata": [
+												{
+													"key": "path",
+													"value": "/data/ipfs/collaborate/xdev-test",
+													"type": "text"
+												}
+											]
+										},
+										"url": {
+											"raw": "{{ipfs-api-host}}/api/v0/dht/findpeer/12D3KooWRSq5qvhWBCovMoBarTdxDeJqfPjZbq9tWctG9ybUtZTr",
+											"host": [
+												"{{ipfs-api-host}}"
+											],
+											"path": [
+												"api",
+												"v0",
+												"dht",
+												"findpeer",
+												"12D3KooWRSq5qvhWBCovMoBarTdxDeJqfPjZbq9tWctG9ybUtZTr"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "add path",
 							"event": [
 								{
@@ -6781,7 +9150,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{ipfs-api-host}}/api/v0/cat?arg={{cid}}",
+									"raw": "{{ipfs-api-host}}/api/v0/cat?arg=QmRtcMSEtAjkvVXsuEE1pRb9nwRzQABPbzruLCH62pGzvg",
 									"host": [
 										"{{ipfs-api-host}}"
 									],
@@ -6793,7 +9162,7 @@
 									"query": [
 										{
 											"key": "arg",
-											"value": "{{cid}}"
+											"value": "QmRtcMSEtAjkvVXsuEE1pRb9nwRzQABPbzruLCH62pGzvg"
 										}
 									]
 								}
@@ -6817,7 +9186,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{ipfs-api-host}}/api/v0/ls?arg=/ipns/{{test-ipns}}",
+									"raw": "{{ipfs-api-host}}/api/v0/ls?arg=/ipns/k51qzi5uqu5djj0fkfwc9q9146icflir6194rytuvyjmfxvhqse3pjekw0sf8g/20220805/af8a80eb-6a89-4a23-ba5e-0a2f832a9f8f",
 									"host": [
 										"{{ipfs-api-host}}"
 									],
@@ -6829,7 +9198,7 @@
 									"query": [
 										{
 											"key": "arg",
-											"value": "/ipns/{{test-ipns}}"
+											"value": "/ipns/k51qzi5uqu5djj0fkfwc9q9146icflir6194rytuvyjmfxvhqse3pjekw0sf8g/20220805/af8a80eb-6a89-4a23-ba5e-0a2f832a9f8f"
 										}
 									]
 								}
@@ -6853,7 +9222,7 @@
 								"method": "POST",
 								"header": [],
 								"url": {
-									"raw": "{{ipfs-api-host}}/api/v0/ls?arg=QmT14rktYdCX52Sd1wTnS4LAqjueXbnsVxmcDmPoVisiux",
+									"raw": "{{ipfs-api-host}}/api/v0/ls?arg=QmczL7oW1AMfDsAgSVxnE4xpR7rFZ62EmpfK7AFAaW268v",
 									"host": [
 										"{{ipfs-api-host}}"
 									],
@@ -6865,7 +9234,7 @@
 									"query": [
 										{
 											"key": "arg",
-											"value": "QmT14rktYdCX52Sd1wTnS4LAqjueXbnsVxmcDmPoVisiux"
+											"value": "QmczL7oW1AMfDsAgSVxnE4xpR7rFZ62EmpfK7AFAaW268v"
 										}
 									]
 								}

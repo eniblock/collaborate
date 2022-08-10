@@ -20,7 +20,7 @@ public class TransactionService {
       Pageable pageable) {
     return senderAddress.map(
         s -> transactionDAO.findByDestinationInAndSource(allSmartContracts, s, pageable)
-    ).orElse(transactionDAO.findByDestinationIn(allSmartContracts, pageable));
+    ).orElseGet(() -> transactionDAO.findByDestinationIn(allSmartContracts, pageable));
   }
 
   public Collection<Transaction> find(Collection<SearchCriteria> searchCriteria) {

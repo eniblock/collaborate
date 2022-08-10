@@ -127,7 +127,7 @@ public class AssetsService {
                 .collect(toList()),
             pageable,
             assets.size()))
-        .orElse(new PageImpl<>(Collections.emptyList(), pageable, 0));
+        .orElseGet(() -> new PageImpl<>(Collections.emptyList(), pageable, 0));
   }
 
   /**
@@ -216,7 +216,7 @@ public class AssetsService {
             .downloadLink(
                 URI.create(downloadLink.map(
                         d -> StringUtils.replace(d, "$id", idPath.eval(r, String.class)))
-                    .orElse(downloadPath.eval(r, String.class))
+                    .orElseGet(() -> downloadPath.eval(r, String.class))
                 )
             ).build()
         );
@@ -320,7 +320,7 @@ public class AssetsService {
             assetId -> assetDTOs.stream()
                 .filter(assetDTO -> StringUtils.equals(assetDTO.getName(), assetId))
                 .findFirst()
-        ).orElse(assetDTOs.stream().findFirst())
+        ).orElseGet(() -> assetDTOs.stream().findFirst())
         .map(ScopeAssetDTO::getDownloadLink)
         .map(URI::toString)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));

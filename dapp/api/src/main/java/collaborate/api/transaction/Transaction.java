@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
@@ -56,7 +57,19 @@ public class Transaction {
   }
 
   public boolean hasParameterValue(String key, String expectedValue) {
-    var providerAddress = getParameters().get(key);
-    return providerAddress != null && StringUtils.equals(expectedValue, providerAddress.asText());
+    var parameterValue = Optional.ofNullable(getParameters())
+        .map(parameters -> parameters.get(key));
+
+    return StringUtils.equals(
+        expectedValue,
+        parameterValue
+            .filter(param -> !param.isNull())
+            .map(JsonNode::asText)
+            .orElse(null)
+    );
+  }
+
+  public boolean isSender(String address) {
+    return StringUtils.equals(source, address);
   }
 }

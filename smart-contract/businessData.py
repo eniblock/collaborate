@@ -761,8 +761,14 @@ class NFT_Creation_Management(FA2, sp.Contract):
 
     @sp.entry_point
     def update_organizations(self, params: update_org_type):
-        sp.verify(self.data.administrator == sp.sender,
-                  message="403 - Sender not allowed")
+        # Authorizations
+        is_admin = self.data.administrator == sp.sender
+        sp.if ~is_admin:
+            sp.verify(self.data.organizations.contains(sp.sender),
+                      message = "403 - Sender not allowed")
+            sp.verify(self.data.organizations[sp.sender].roles.contains(OrganizationRoles.BNO),
+                      message = "403 - Sender not allowed")
+        # Business logic
         sp.for updates in params:
             with updates.match_cases() as arg:
                 with arg.match("update") as upd:

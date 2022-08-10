@@ -57,6 +57,19 @@
         }
       },
       {
+        "id": "c1b1328c-a28d-4131-901f-9ff878c63e50",
+        "name": "business_network_operator",
+        "description": "The business network operator",
+        "composite": false,
+        "clientRole": false,
+        "containerId": "{{.Env.REALM}}",
+        "attributes": {
+          "{{.Env.ROLE_ATTRIBUTE_KEY}}": [
+            "{{.Env.ROLE_ATTRIBUTE_VALUE}}"
+          ]
+        }
+      },
+      {
         "id": "f46fea1f-1ca9-4a1b-a1e3-539ad4606096",
         "name": "business_service_provider_administrator",
         "description": "The administrator of business service provider",

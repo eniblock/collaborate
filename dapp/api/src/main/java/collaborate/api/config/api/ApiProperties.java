@@ -19,8 +19,10 @@ public class ApiProperties {
   @NotEmpty
   private String platform;
 
-  @Schema(description = "The wallet private key ")
-  @NotEmpty
+  @Schema(description = "The organization private encryption key ")
   private String privateKey;
+
+  @Schema(description = "The organization public encryption key ")
+  private String publicEncryptionKey;
 
 }

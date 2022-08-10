@@ -3,10 +3,14 @@ package collaborate.api.user;
 import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 
+import collaborate.api.cache.CacheConfig.CacheNames;
+import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.mail.MailService;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.model.RolesDTO;
+import collaborate.api.user.model.TransferDTO;
+import collaborate.api.user.model.TransferTransactionDTO;
 import collaborate.api.user.model.UserDTO;
 import collaborate.api.user.security.KeycloakUserService;
 import java.io.IOException;
@@ -21,6 +25,7 @@ import javax.mail.MessagingException;
 import javax.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.RoleResource;
 import org.keycloak.admin.client.resource.RoleScopeResource;
@@ -48,8 +53,10 @@ public class UserService {
       "uma_authorization",
       "offline_access"
   );
+  public static final String ORGANIZATION_USER_ID = "admin";
 
   private final ApiProperties apiProperties;
+  private final CacheService cacheService;
   private final KeycloakUserService keycloakUserService;
   private final MailProperties mailProperties;
   private final MailService mailService;
@@ -212,6 +219,10 @@ public class UserService {
         });
   }
 
+  /**
+   * @deprecated Use {@link #createUser(String)} instead
+   */
+  @Deprecated(since = "0.5")
   public UserWalletDTO createActiveUser(String userId) {
     return tagUserDAO.createActiveUser(userId).orElseThrow(
         () -> {
@@ -246,7 +257,7 @@ public class UserService {
 
   public UserWalletDTO getAdminUser() {
     return tagUserDAO
-        .findOneByUserId("admin")
+        .findOneByUserId(ORGANIZATION_USER_ID)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, (
             "No admin user"
         )));
@@ -257,5 +268,30 @@ public class UserService {
     userRepresentation.setEnabled(enabled);
     realmResource.users().get(userId)
         .update(userRepresentation);
+  }
+
+  public void ensureAdminWalletExists() {
+    var adminIsMissing = tagUserDAO.findOneByUserId(ORGANIZATION_USER_ID)
+        .map(UserWalletDTO::getAddress)
+        .filter(StringUtils::isNotBlank)
+        .isEmpty();
+    if (adminIsMissing) {
+      log.info("No wallet found for the organization, creating one...");
+      tagUserDAO.createUser(ORGANIZATION_USER_ID);
+      cacheService.clearOrThrow(CacheNames.ORGANIZATION);
+    }
+  }
+
+  /**
+   * @param mutez 1 XTZ = 10^6 mutez
+   */
+  public void transferMutez(String fromUserId, String recipientAddress, int mutez) {
+    tagUserDAO.transferMutez(
+        fromUserId,
+        new TransferDTO(
+            List.of(new TransferTransactionDTO(recipientAddress, mutez)),
+            fromUserId
+        )
+    );
   }
 }

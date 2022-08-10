@@ -119,11 +119,12 @@ the [Keycloak user configuration file](../dapp/iam/realm-config/users-0.json). P
 and roles are available:
 
 | username | e-mail                 | password | roles                                   |
-|---------|------------------------| ------- |-----------------------------------------|
-| Eric    | eric@idp-admin.com     | admin | service_identity_provider_administrator |
-| Sam     | sam@dsp-admin.com      | admin | data_service_provider_administrator     |
-| David   | david@bsp-operator.com | admin | business_service_provider_operator      |
-| Paul    | paul@bsp-admin.com     | admin | business_service_provider_administraotr |
+|----------|------------------------| ------- |-----------------------------------------|
+| Eric     | eric@idp-admin.com     | admin | service_identity_provider_administrator |
+| Sam      | sam@dsp-admin.com      | admin | data_service_provider_administrator     |
+| David    | david@bsp-operator.com | admin | business_service_provider_operator      |
+| Paul     | paul@bsp-admin.com     | admin | business_service_provider_administrator |
+| Gabriel  | gabriel@bno.com        | admin | business_network_operator               |
 
 Collaborate define a pre-configured `frontend` **OpenID Connect Client** using `openid-connect`
 protocol for single-sign-on.
