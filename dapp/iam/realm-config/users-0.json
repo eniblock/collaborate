@@ -35,6 +35,39 @@
       "groups": []
     },
     {
+      "id": "8c924c20-4abe-484e-a7da-734bfdd2bc6c",
+      "createdTimestamp": 1606743707654,
+      "username": "gabriel",
+      "enabled": true,
+      "totp": false,
+      "emailVerified": true,
+      "email": "gabriel@bno.com",
+      "credentials": [
+        {
+          "id": "63167aa4-e36e-4a9e-8990-1635c6ffb6c5",
+          "type": "password",
+          "createdDate": 1659432070183,
+          "secretData": "{\"value\":\"PeQn1mTq+5n3+GzeayoGxIZR7qMho+SNSHG/JinhTOetYjDy7hhGv3e1E1Shc9JUJq+HqLpruZhisGk9XmrDwg==\",\"salt\":\"42CmdpV4sAwPLzsDyWD+ww==\"}",
+          "credentialData": "{\"hashIterations\":27500,\"algorithm\":\"pbkdf2-sha256\"}"
+        }
+      ],
+      "disableableCredentialTypes": [],
+      "requiredActions": [],
+      "realmRoles": [
+        "business_network_operator",
+        "uma_authorization",
+        "offline_access"
+      ],
+      "clientRoles": {
+        "account": [
+          "view-profile",
+          "manage-account"
+        ]
+      },
+      "notBefore": 0,
+      "groups": []
+    },
+    {
       "id": "ab6850eb-7d62-49f8-90c3-32a8ad9ce104",
       "createdTimestamp": 1606743707654,
       "username": "alice",

@@ -2,13 +2,16 @@ package collaborate.api.user;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
+import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.user.TagUserListDTO;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.tag.model.user.UsersDTO;
+import collaborate.api.user.model.TransferDTO;
 import java.util.List;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -56,5 +59,8 @@ interface TagUserClient {
    */
   @GetMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
   ResponseEntity<List<UserWalletDTO>> findOneByUserId(@RequestParam("userIdList") String userId);
+
+  @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE, path = "{userId}/transfer")
+  Job transferMutez(@PathVariable("userId") String fromUserId, @RequestBody TransferDTO transferDTO);
 
 }

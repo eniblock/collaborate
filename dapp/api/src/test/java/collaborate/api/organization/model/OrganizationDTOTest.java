@@ -27,6 +27,7 @@ class OrganizationDTOTest {
                 .legalName("dsp")
                 .roles(List.of(OrganizationRole.BSP))
                 .encryptionKey("edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2")
+                .status(OrganizationStatus.ACTIVE)
                 .build()
         );
   }
@@ -42,6 +43,7 @@ class OrganizationDTOTest {
         .legalName("dsp")
         .roles(List.of(role))
         .encryptionKey("edpkv2qoSugVizsZRt9dCb2v4iizRhZEQkw2PF5JyZUgHyE6Bp9Yv2")
+        .status(OrganizationStatus.ACTIVE)
         .build();
     // WHEN
     var organizationResult = objectMapper.readValue(

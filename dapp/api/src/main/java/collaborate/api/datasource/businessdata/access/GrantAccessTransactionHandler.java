@@ -5,7 +5,6 @@ import collaborate.api.datasource.businessdata.kpi.BusinessDataKpiService;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.transaction.Transaction;
 import collaborate.api.transaction.TransactionHandler;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,12 +17,6 @@ public class GrantAccessTransactionHandler implements TransactionHandler {
   private final BusinessDataKpiService businessDataKpiService;
   private final GrantedAccessService grantedAccessService;
   private final OrganizationService organizationService;
-  String organizationWallet = "";
-
-  @PostConstruct
-  public void init() {
-    this.organizationWallet = organizationService.getCurrentOrganization().getAddress();
-  }
 
   @Override
   public void handle(Transaction transaction) {
@@ -43,7 +36,10 @@ public class GrantAccessTransactionHandler implements TransactionHandler {
   boolean isGrantAccessForCurrentOrganisation(Transaction transaction) {
     if (isGrantAccess(transaction)) {
       var requesterAddress = transaction.getParameters().get("requester_address");
-      return requesterAddress != null && organizationWallet.equals(requesterAddress.asText());
+      return requesterAddress != null &&
+          organizationService.getCurrentOrganization()
+              .getAddress()
+              .equals(requesterAddress.asText());
     }
     return false;
   }

@@ -5,6 +5,7 @@ import static java.nio.charset.StandardCharsets.UTF_8;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class TestResources {
           ), UTF_8.name()
       );
     } catch (IOException e) {
-      throw new IllegalStateException("Can't read resource:" + testResourcePath);
+      throw new IllegalStateException("Can't read resource:" + testResourcePath, e);
     }
   }
 
@@ -65,6 +66,14 @@ public class TestResources {
       return objectMapper.writeValueAsString(o);
     } catch (JsonProcessingException e) {
       throw new IllegalStateException("Can't convert o to jsonString", e);
+    }
+  }
+
+  public static JsonNode readFileAsJsonNode(String testResourcePath) {
+    try {
+      return objectMapper.readTree(readContent(testResourcePath));
+    } catch (JsonProcessingException e) {
+      throw new IllegalStateException("Can't read resource as JSonNode:" + testResourcePath, e);
     }
   }
 }

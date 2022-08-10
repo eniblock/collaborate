@@ -1,8 +1,10 @@
 package collaborate.api.config;
 
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.tag.TagService;
 import collaborate.api.tag.config.TagConfig;
+import collaborate.api.user.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -33,4 +35,5 @@ public class ConfigController {
   public TagConfig tzIndexUrl() {
     return tagService.getConfig();
   }
+
 }
