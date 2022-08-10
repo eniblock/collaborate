@@ -6,8 +6,12 @@ import static collaborate.api.test.TestResources.objectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.config.api.SmartContractAddressProperties;
+import collaborate.api.organization.tag.Organization;
 import collaborate.api.organization.tag.OrganizationMap;
 import collaborate.api.organization.tag.TezosApiGatewayOrganizationClient;
+import collaborate.api.organization.tag.UpdateOrganisationFactory;
+import collaborate.api.tag.TezosApiGatewayJobClient;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import java.io.IOException;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,14 +27,26 @@ class OrganizationDAOTest {
   private OrganizationDAO organizationDAO;
 
   @Mock
+  private PendingOrganizationRepository pendingOrganizationRepository;
+  @Mock
   private TezosApiGatewayOrganizationClient tezosApiGatewayOrganizationClient;
-  private static final     String CONTRACT_ADDRESS = "contract-address";
+  @Mock
+  private SmartContractAddressProperties smartContractAddressProperties;
+
+  @Mock
+  private TezosApiGatewayJobClient tezosApiGatewayJobClient;
+
+  private final UpdateOrganisationFactory updateOrganisationFactory = new UpdateOrganisationFactory();
+
   @BeforeEach
   void setUp() {
     organizationDAO = new OrganizationDAO(
-        tezosApiGatewayOrganizationClient,
         new ModelMapper(),
-        CONTRACT_ADDRESS
+        pendingOrganizationRepository,
+        smartContractAddressProperties,
+        tezosApiGatewayOrganizationClient,
+        tezosApiGatewayJobClient,
+        updateOrganisationFactory
     );
   }
 
@@ -40,8 +56,10 @@ class OrganizationDAOTest {
     String organizationJson = OrganizationFeature.organizationTagResponseJson;
     var indexerResponse = objectMapper.readValue(organizationJson, OrganizationMap.class);
 
+    when(smartContractAddressProperties.getOrganizationYellowPage())
+        .thenReturn("yellowPageAddress");
     when(tezosApiGatewayOrganizationClient
-        .getOrganizations(CONTRACT_ADDRESS, OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST))
+        .getOrganizations("yellowPageAddress", OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST))
         .thenReturn(indexerResponse);
     // WHEN
     var actualOrganizations = organizationDAO.getAllOrganizations();
@@ -60,5 +78,21 @@ class OrganizationDAOTest {
         .writeValueAsString(OrganizationDAO.GET_ALL_ORGANIZATIONS_REQUEST);
     // THEN
     assertThat(serialization).isEqualTo("{\"dataFields\":[\"organizations\"]}");
+  }
+
+  @Test
+  void toOrganization_shouldReturnExpectedMapping(){
+    // GIVEN
+    var organizationDTO = OrganizationFeature.validOrganization;
+    var expectedOrganization = Organization.builder()
+        .encryptionKey(organizationDTO.getEncryptionKey())
+        .roles(organizationDTO.getRoles())
+        .address(organizationDTO.getAddress())
+        .legalName(organizationDTO.getLegalName())
+        .build();
+    // WHEN
+    var actualOrganization = organizationDAO.toOrganization(organizationDTO);
+    // THEN
+    assertThat(actualOrganization).isEqualTo(expectedOrganization);
   }
 }

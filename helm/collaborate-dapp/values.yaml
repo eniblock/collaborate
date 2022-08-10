@@ -293,4 +293,5 @@ tezos-api-gateway:
     nameOverride: tag-db
   vault:
     nameOverride: tag-vault
-
+  extraEnvVars:
+    LOGGER_LEVEL: "WARN" # https://github.com/trentm/node-bunyan#level-suggestions

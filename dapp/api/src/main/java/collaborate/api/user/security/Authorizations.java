@@ -16,6 +16,8 @@ public final class Authorizations {
     private Roles() {
     }
 
+    public static final String BNO = "business_network_operator";
+
     /**
      * As Eric a service provider identity administrator
      */
@@ -70,8 +72,11 @@ public final class Authorizations {
      * Atomic roles
      */
     public static final String IDENTITY_ADMIN = HAS_ROLE + "('" + Roles.IDENTITY_ADMIN + "')";
-    public static final String DSP_ADMIN = HAS_ROLE + "('" + Roles.DSP_ADMIN + "')";
+
+    public static final String BNO = HAS_ROLE + "('" + Roles.BNO + "')";
+
     public static final String BSP_ADMIN = HAS_ROLE + "('" + Roles.BSP_ADMIN + "')";
+    public static final String DSP_ADMIN = HAS_ROLE + "('" + Roles.DSP_ADMIN + "')";
     public static final String DSP_OPERATOR = HAS_ROLE + "('" + Roles.DSP_OPERATOR + "')";
     public static final String BSP_OPERATOR = HAS_ROLE + "('" + Roles.BSP_OPERATOR + "')";
 
@@ -83,48 +88,79 @@ public final class Authorizations {
      * Aggregated roles
      */
     public static final String BSP =
-        HasRoles.BSP_OPERATOR + " OR " + HasRoles.BSP_ADMIN + " OR " + HasRoles.IDENTITY_ADMIN;
+        HasRoles.BSP_OPERATOR
+            + " OR " + HasRoles.BSP_ADMIN
+            + " OR " + HasRoles.IDENTITY_ADMIN;
     public static final String DSP =
-        HasRoles.DSP_OPERATOR + " OR " + HasRoles.DSP_ADMIN + " OR " + HasRoles.IDENTITY_ADMIN;
-    public static final String ORGANIZATION_READ = HasRoles.BSP + " OR " + HasRoles.DSP;
-    public static final String BUSINESS_DATA_READ = HasRoles.BSP + " OR " + HasRoles.DSP;
+        HasRoles.DSP_OPERATOR
+            + " OR " + HasRoles.DSP_ADMIN
+            + " OR " + HasRoles.IDENTITY_ADMIN;
+    public static final String ORGANIZATION_READ =
+        HasRoles.BSP
+            + " OR " + HasRoles.DSP
+            + " OR " + HasRoles.BNO;
+    public static final String BUSINESS_DATA_READ =
+        HasRoles.BSP
+            + " OR " + HasRoles.DSP
+            + " OR " + HasRoles.BNO;
+
     public static final String BUSINESS_DATA_GRANT_ACCESS_REQUEST =
-        HasRoles.BSP + " OR " + HasRoles.DSP;
+        HasRoles.BSP
+            + " OR " + HasRoles.DSP
+            + " OR " + HasRoles.BNO
+        ;
 
     public static final String KPI_READ =
-        HasRoles.BSP + " OR " + HasRoles.DSP;
+        HasRoles.BSP
+            + " OR " + HasRoles.DSP
+            + " OR " + HasRoles.BNO
+        ;
 
     public static final String DATASOURCE_READ =
         HasRoles.DSP_ADMIN
-            + " OR " + HasRoles.BSP_OPERATOR;
+            + " OR " + HasRoles.BSP_OPERATOR
+            + " OR " + HasRoles.BNO
+        ;
 
     public static final String DIGITAL_PASSPORT_READ =
-        HasRoles.ASSET_OWNER +
-            " OR " + HasRoles.BSP +
-            " OR " + HasRoles.DSP;
+        HasRoles.ASSET_OWNER
+            + " OR " + HasRoles.BSP
+            + " OR " + HasRoles.DSP
+            + " OR " + HasRoles.BNO
+        ;
 
     public static final String API_GATEWAY_READ =
-        HasRoles.DSP_ADMIN +
-            " OR " + HasRoles.ASSET_OWNER;
+        HasRoles.DSP_ADMIN
+            + " OR " + HasRoles.ASSET_OWNER
+            + " OR " + HasRoles.BNO
+        ;
 
     public static final String PASSPORT_MULTISIG_READ =
         HasRoles.DSP_ADMIN
             + " OR " + HasRoles.ASSET_OWNER
-            + " OR " + HasRoles.BSP_ADMIN;
+            + " OR " + HasRoles.BSP_ADMIN
+            + " OR " + HasRoles.BNO
+        ;
 
     public static final String WALLET_READ =
         IDENTITY_ADMIN
             + "OR " + DSP_ADMIN
             + "OR " + BSP_ADMIN
             + "OR " + DSP_OPERATOR
-            + "OR " + ASSET_OWNER;
+            + "OR " + ASSET_OWNER
+            + " OR " + BNO
+        ;
 
     public static final String USER_READ =
         IDENTITY_ADMIN
             + "OR " + DSP_ADMIN
             + "OR " + BSP_ADMIN
             + "OR " + DSP_OPERATOR
-            + "OR " + BSP_OPERATOR;
+            + "OR " + BSP_OPERATOR
+            + " OR " + BNO
+        ;
+
+
   }
 
 }

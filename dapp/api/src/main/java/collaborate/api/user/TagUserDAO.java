@@ -4,9 +4,11 @@ import static java.lang.String.format;
 import static org.springframework.http.HttpStatus.CREATED;
 import static org.springframework.http.HttpStatus.OK;
 
+import collaborate.api.tag.model.job.Job;
 import collaborate.api.tag.model.user.TagUserListDTO;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.tag.model.user.UsersDTO;
+import collaborate.api.user.model.TransferDTO;
 import feign.FeignException.FeignClientException;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +37,10 @@ class TagUserDAO {
   @Value("${tezos-api-gateway.secureKeyname}")
   private String secureKeyName;
 
+  /**
+   * @deprecated Since 0.5, use {@link #createUser(String)}
+   */
+  @Deprecated(since = "0.5")
   public Optional<UserWalletDTO> createActiveUser(String userEmail) {
     UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)
@@ -156,4 +162,9 @@ class TagUserDAO {
     return walletOptResult;
   }
 
+  public Job transferMutez(String fromUserId, TransferDTO transferDTO) {
+    var job= tagUserClient.transferMutez(fromUserId, transferDTO);
+    log.debug("transferMutez tabJobId={}, fromUserId={}, transferDto={}", job.getId(), fromUserId, transferDTO);
+    return job;
+  }
 }

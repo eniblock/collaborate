@@ -86,6 +86,8 @@ management:
       enabled: true
 
 spring:
+  application:
+    name: Collaborate
   cloud:
     discovery:
       client:

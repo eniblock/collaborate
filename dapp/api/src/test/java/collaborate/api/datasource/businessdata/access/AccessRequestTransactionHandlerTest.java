@@ -31,13 +31,14 @@ class AccessRequestTransactionHandlerTest {
   void isRequestAccessForCurrentOrganisation(
       String entryPoint, String provider, boolean expectedResult) {
     // GIVEN
-    when(organizationService.getCurrentOrganization())
-        .thenReturn(
-            OrganizationDTO.builder()
-                .address(PROVIDER_ADDRESS)
-                .build()
-        );
-    accessRequestTransactionHandler.init();
+    if ("request_access".equals(entryPoint)) {
+      when(organizationService.getCurrentOrganization())
+          .thenReturn(
+              OrganizationDTO.builder()
+                  .address(PROVIDER_ADDRESS)
+                  .build()
+          );
+    }
     var transaction = Transaction.builder()
         .entrypoint(entryPoint)
         .parameters(objectMapper.createObjectNode()

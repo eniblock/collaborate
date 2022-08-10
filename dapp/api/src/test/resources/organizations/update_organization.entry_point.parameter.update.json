@@ -1,0 +1,13 @@
+[
+  {
+    "update": {
+      "roles": [
+        "0",
+        "1"
+      ],
+      "address": "tz1d9eoHqwhXsgndszk7zyqSJwZh9HAFmbxF",
+      "legal_name": "SITA",
+      "encryption_key": "encryptionA"
+    }
+  }
+]

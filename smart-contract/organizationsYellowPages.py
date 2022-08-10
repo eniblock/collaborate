@@ -18,6 +18,11 @@ update_org_type = sp.TList(sp.TVariant(
     remove = sp.TAddress
 ))
 
+class OrganizationRoles:
+    BNO = 0 # Business Network Operator
+    DSP = 1 # Data Service Provider
+    BSP = 2 # Business Service Provider
+
 class OrganizationsYellowPages(sp.Contract):
     def __init__(self, organizations: organizations_type, administrator):
         self.init_type(sp.TRecord(
@@ -37,8 +42,14 @@ class OrganizationsYellowPages(sp.Contract):
     @sp.entry_point
     def update_organizations(self, params):
         sp.set_type(params, update_org_type)
-        sp.verify(self.data.administrator == sp.sender,
-                  message="403 - Sender not allowed")
+        # Authorizations
+        is_admin = self.data.administrator == sp.sender
+        sp.if ~is_admin:
+            sp.verify(self.data.organizations.contains(sp.sender),
+                  message = "403 - Sender not allowed")
+            sp.verify(self.data.organizations[sp.sender].roles.contains(OrganizationRoles.BNO),
+                  message = "403 - Sender not allowed")
+        # Business logic
         sp.for updates in params:
             with updates.match_cases() as arg:
                 with arg.match("update") as upd:
