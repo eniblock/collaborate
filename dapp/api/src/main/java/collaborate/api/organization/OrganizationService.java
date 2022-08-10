@@ -30,7 +30,6 @@ public class OrganizationService {
 
   private final CacheService cacheService;
   private final OrganizationDAO organizationDAO;
-  private final PendingOrganizationRepository pendingOrganizationRepository;
 
   private final UserService userService;
 
@@ -93,14 +92,15 @@ public class OrganizationService {
         .findFirst();
   }
 
+  public void clearCache(){
+    cacheService.clearOrThrow(CacheNames.ORGANIZATION);
+  }
+
   /**
    * Add an organization if the address it not already known<br> Otherwise the organization is
    * updated
    */
   public OrganizationDTO upsertOrganization(OrganizationDTO organization) {
-    // Activate account
-    userService.transferMutez(UserService.ORGANIZATION_USER_ID, organization.getAddress(), 1);
-    // Update yellow pages
     organizationDAO.upsert(organization);
     clearCache();
     log.debug("organization.legalName={} added", organization.getAddress());
@@ -108,14 +108,4 @@ public class OrganizationService {
         .orElseThrow(() -> new IllegalStateException("Inserted organization not found"));
   }
 
-  public void clearCache(){
-    cacheService.clearOrThrow(CacheNames.ORGANIZATION);
-  }
-
-  public void removePending(String address){
-    if (pendingOrganizationRepository.existsById(address)) {
-      pendingOrganizationRepository.deleteById(address);
-      clearCache();
-    }
-  }
 }
