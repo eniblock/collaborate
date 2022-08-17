@@ -5,6 +5,7 @@ import collaborate.api.organization.tag.Organization;
 import collaborate.api.user.UserService;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,10 +35,11 @@ public class PendingOrganizationService {
         .collect(Collectors.toList());
   }
 
+  @Transactional
   public void removePendings(List<UpdateOrganizationTypeDTO> updatesOrRemoveOrgs) {
     var knownPendings = findKnownPendingAddresses(updatesOrRemoveOrgs);
-    if(!knownPendings.isEmpty()){
-      pendingOrganizationRepository.deleteAllById(knownPendings);
+    if (!knownPendings.isEmpty()) {
+      pendingOrganizationRepository.deleteByAddressIn(knownPendings);
       clearCache();
     }
   }

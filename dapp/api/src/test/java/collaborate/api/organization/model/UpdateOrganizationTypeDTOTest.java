@@ -39,7 +39,7 @@ public class UpdateOrganizationTypeDTOTest {
         .update(new Organization())
         .build();
     // WHEN
-    var actualIsUpdate = updateOrganizationTypeDTO.isUpdate();
+    var actualIsUpdate = updateOrganizationTypeDTO.isUpdateType();
     // THEN
     assertThat(actualIsUpdate).isTrue();
   }
@@ -51,7 +51,7 @@ public class UpdateOrganizationTypeDTOTest {
         .remove("any")
         .build();
     // WHEN
-    var actualIsUpdate = updateOrganizationTypeDTO.isUpdate();
+    var actualIsUpdate = updateOrganizationTypeDTO.isUpdateType();
     // THEN
     assertThat(actualIsUpdate).isFalse();
   }
@@ -65,7 +65,7 @@ public class UpdateOrganizationTypeDTOTest {
         .remove("any")
         .build();
     // WHEN
-    var actualIsUpdate = updateOrganizationTypeDTO.isUpdate();
+    var actualIsUpdate = updateOrganizationTypeDTO.isUpdateType();
     // THEN
     assertThat(actualIsUpdate).isFalse();
   }
@@ -78,7 +78,7 @@ public class UpdateOrganizationTypeDTOTest {
         .remove("any")
         .build();
     // WHEN
-    var actualIsUpdate = updateOrganizationTypeDTO.isRemove();
+    var actualIsUpdate = updateOrganizationTypeDTO.isRemoveType();
     // THEN
     assertThat(actualIsUpdate).isTrue();
   }
@@ -90,7 +90,7 @@ public class UpdateOrganizationTypeDTOTest {
         .update(new Organization())
         .build();
     // WHEN
-    var actualIsRemove = updateOrganizationTypeDTO.isRemove();
+    var actualIsRemove = updateOrganizationTypeDTO.isRemoveType();
     // THEN
     assertThat(actualIsRemove).isFalse();
   }
@@ -103,7 +103,7 @@ public class UpdateOrganizationTypeDTOTest {
         .remove("any")
         .build();
     // WHEN
-    var actualIsRemove = updateOrganizationTypeDTO.isRemove();
+    var actualIsRemove = updateOrganizationTypeDTO.isRemoveType();
     // THEN
     assertThat(actualIsRemove).isFalse();
   }

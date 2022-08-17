@@ -4,6 +4,7 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.config.api.ApiProperties;
 import collaborate.api.organization.model.OrganizationDTO;
 import collaborate.api.organization.model.OrganizationRole;
 import collaborate.api.tag.model.user.UserWalletDTO;
@@ -11,6 +12,7 @@ import collaborate.api.user.UserService;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -22,6 +24,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 class OrganizationServiceTest {
 
+  @Mock
+  ApiProperties apiProperties;
   @Mock
   OrganizationDAO organizationDAO;
   @Mock
@@ -85,5 +89,25 @@ class OrganizationServiceTest {
             emptyList()
         )
     );
+  }
+
+  @Test
+  void findByLegalNameIgnoreCase() {
+    // GIVEN
+    when(userService.getAdminUser())
+        .thenReturn(UserWalletDTO.builder()
+            .address("address")
+            .build()
+        );
+    when(organizationDAO.getAllOrganizations())
+        .thenReturn(List.of(OrganizationDTO.builder()
+                .legalName("Organization")
+                .build()
+            )
+        );
+    // WHEN
+    var organizationResult = organizationService.findByLegalNameIgnoreCase("organization");
+    // THEN
+    assertThat(organizationResult).isNotEmpty();
   }
 }

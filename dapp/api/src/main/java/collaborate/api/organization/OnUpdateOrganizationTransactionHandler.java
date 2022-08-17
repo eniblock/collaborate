@@ -26,19 +26,20 @@ public class OnUpdateOrganizationTransactionHandler implements TransactionHandle
   @Override
   public void handle(Transaction transaction) {
     if (transaction.isEntryPoint(UPDATE_ORGANIZATIONS)) {
-      log.info("New organization update, parameters={}", transaction.getParameters());
+      log.debug("New organization update, parameters={}", transaction.getParameters());
       var updatesOrRemoveOrgs = toUpdateTransactionTypeDTOs(transaction.getParameters());
 
       if (transaction.isSender(organizationService.getCurrentOrganization().getAddress())) {
         pendingOrganizationService.activatePendingWallets(updatesOrRemoveOrgs);
       }
       pendingOrganizationService.removePendings(updatesOrRemoveOrgs);
+      organizationService.clearCache();
     }
-    organizationService.clearCache();
   }
 
   List<UpdateOrganizationTypeDTO> toUpdateTransactionTypeDTOs(JsonNode transactionParameters) {
     try {
+
       ObjectReader reader = objectMapper.readerFor(
           new TypeReference<List<UpdateOrganizationTypeDTO>>() {
           });
