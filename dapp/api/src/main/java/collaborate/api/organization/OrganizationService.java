@@ -40,10 +40,10 @@ public class OrganizationService {
     var currentOrganization = getCurrentOrganization();
     var currentIsKnown = knownOrganizations.stream()
         .anyMatch(orga -> StringUtils.equals(currentOrganization.getAddress(), orga.getAddress()));
-    if (!currentIsKnown){
+    if (!currentIsKnown) {
       return Stream.concat(knownOrganizations.stream(), Stream.of(currentOrganization))
           .collect(Collectors.toList());
-    }else{
+    } else {
       return knownOrganizations;
     }
 
@@ -86,13 +86,14 @@ public class OrganizationService {
         .collect(Collectors.toList());
   }
 
-  public Optional<OrganizationDTO> findByLegalName(String legalName) {
+  public Optional<OrganizationDTO> findByLegalNameIgnoreCase(String legalName) {
     return getAllOrganizations().stream()
-        .filter(o -> StringUtils.equals(o.getLegalName(), legalName))
+        .filter(o -> StringUtils.equalsIgnoreCase(legalName, o.getLegalName()))
         .findFirst();
   }
 
-  public void clearCache(){
+
+  public void clearCache() {
     cacheService.clearOrThrow(CacheNames.ORGANIZATION);
   }
 
