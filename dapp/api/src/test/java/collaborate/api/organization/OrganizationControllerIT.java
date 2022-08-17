@@ -70,9 +70,10 @@ class OrganizationControllerIT {
   }
 
   @Test
-  void addOrganization_shouldResultInBadRequestAndExpectedMessage_withInvalidEncryptionKeyLength() throws Exception {
+  void addOrganization_shouldResultInBadRequestAndExpectedMessage_withInvalidEncryptionKeyLength()
+      throws Exception {
     // GIVEN
-    var organization =OrganizationFeature.validOrganization.toBuilder()
+    var organization = OrganizationFeature.validOrganization.toBuilder()
         .encryptionKey("enc")
         .build();
     // WHEN
@@ -91,7 +92,8 @@ class OrganizationControllerIT {
   }
 
   @Test
-  void addOrganization_shouldResultInBadRequestAndExpectedMessage_withAddressAlreadyUsed() throws Exception {
+  void addOrganization_shouldResultInBadRequestAndExpectedMessage_withAddressAlreadyUsed()
+      throws Exception {
     // GIVEN
     var organization = OrganizationFeature.validOrganization;
 
@@ -113,10 +115,33 @@ class OrganizationControllerIT {
   }
 
   @Test
-  void addOrganization_shouldResultInBadRequestAndExpectedMessage_withLegalNameAlreadyUsed() throws Exception {
+  void addOrganization_shouldResultInBadRequestAndExpectedMessage_withLegalNameAlreadyUsed()
+      throws Exception {
     // GIVEN
     var organization = OrganizationFeature.validOrganization;
-    when(organizationService.findByLegalName(organization.getLegalName()))
+    when(organizationService.findByLegalNameIgnoreCase(organization.getLegalName()))
+        .thenReturn(Optional.of(organization));
+    // WHEN
+    var mockMvcResult = mockMvc
+        .perform(post("/api/v1/organizations")
+            .content(asJsonString(organization))
+            .contentType(APPLICATION_JSON)
+        )
+        .andDo(MockMvcResultHandlers.print())
+        // THEN
+        .andExpect(status().isBadRequest())
+        .andReturn();
+
+    assertThat(mockMvcResult.getResponse().getContentAsString())
+        .contains("The organization name is already used by another organization.");
+  }
+
+  @Test
+  void addOrganization_shouldResultInBadRequestAndExpectedMessage_withLegalNameWithAnotherCaseAlreadyUsed()
+      throws Exception {
+    // GIVEN
+    var organization = OrganizationFeature.validOrganization;
+    when(organizationService.findByLegalNameIgnoreCase(organization.getLegalName()))
         .thenReturn(Optional.of(organization));
     // WHEN
     var mockMvcResult = mockMvc
@@ -139,7 +164,7 @@ class OrganizationControllerIT {
     var organization = OrganizationFeature.validOrganization;
     when(organizationService.upsertOrganization(organization)).thenReturn(organization);
     // WHEN
-    var mockMvcResult = mockMvc
+    mockMvc
         .perform(post("/api/v1/organizations")
             .content(asJsonString(organization))
             .contentType(APPLICATION_JSON)

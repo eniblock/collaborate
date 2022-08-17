@@ -43,14 +43,21 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         .map(err -> new ErrorModel(err.getField(), err.getRejectedValue(), err.getDefaultMessage()))
         .distinct()
         .map(ErrorModel::getMessageError)
-        .collect(Collectors.joining(","));
+        .collect(Collectors.joining(" "));
     log.error("{}", errorMessages);
-    return new ResponseEntity<>(new ErrorResponse(errorMessages), HttpStatus.BAD_REQUEST);
+    return new ResponseEntity<>(
+        new ErrorResponse(HttpStatus.BAD_REQUEST.getReasonPhrase(), errorMessages),
+        HttpStatus.BAD_REQUEST
+    );
   }
 
   @Override
-  protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-    return ResponseEntity.badRequest().body(new ErrorResponse(ex.getMessage()));
+  protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex,
+      HttpHeaders headers, HttpStatus status, WebRequest request) {
+    return ResponseEntity.badRequest().body(new ErrorResponse(
+        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+        ex.getMessage())
+    );
   }
 
 }
