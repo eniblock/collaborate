@@ -1,13 +1,11 @@
 package collaborate.api.datasource.gateway;
 
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.config.api.TraefikProperties;
-import collaborate.api.datasource.model.dto.VaultMetadata;
-import collaborate.api.user.metadata.UserMetadataService;
-import java.util.Optional;
+import collaborate.api.datasource.AuthenticationService;
+import collaborate.api.datasource.nft.AssetScopeRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -18,37 +16,35 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class GatewayUrlServiceTest {
 
   @Mock
+  AssetScopeRepository assetScopeRepository;
+  @Mock
+  AuthenticationService authenticationService;
+  @Mock
   GatewayUrlDAO gatewayUrlDAO;
   @Mock
   TraefikProperties traefikProperties;
-  @Mock
-  UserMetadataService userMetadataService;
 
   @InjectMocks
   GatewayUrlService gatewayService;
 
   @Test
-  void fetch_shouldCallGatewayUrlDAOFetchWithExpectedURL() {
+  void buildURL_returnsExpected() {
     // GIVEN
     String assetId = "Emoo8Bae";
     String datasourceUUID = "e0cbb503-7173-4330-898d-1fa9c525b33b";
     when(traefikProperties.getUrl())
         .thenReturn("https://localhost:8443");
-    when(userMetadataService.find(datasourceUUID, VaultMetadata.class))
-        .thenReturn(Optional.empty());
     // WHEN
     var gatewayResource = GatewayResourceDTO.builder()
         .assetIdForDatasource(assetId)
-        .scope("kilometer")
+        .alias("kilometer")
         .datasourceId(datasourceUUID)
         .build();
-    gatewayService.fetch(gatewayResource);
+    String urlResult = gatewayService.buildURL(gatewayResource);
 
     // THEN
-    verify(gatewayUrlDAO, times(1)).fetch(
-        "https://localhost:8443/datasource/" + datasourceUUID + "/kilometer/" + assetId,
-        Optional.empty());
-
+    assertThat(urlResult).isEqualTo(
+        "https://localhost:8443/datasource/" + datasourceUUID + "/kilometer/" + assetId);
   }
 
 }

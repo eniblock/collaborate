@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface DatasourceDAO extends JpaRepository<Datasource, String> {
+public interface DatasourceRepository extends JpaRepository<Datasource, String> {
 
   Page<Datasource> findAllByOwner(String owner, Pageable pageable);
 }

@@ -9,11 +9,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import collaborate.api.config.exception.ControllerExceptionHandler;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.config.api.SmartContractConfig;
-import collaborate.api.datasource.businessdata.access.RequestAccessService;
+import collaborate.api.config.exception.ControllerExceptionHandler;
+import collaborate.api.datasource.businessdata.access.AccessRequestService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.document.AssetsService;
 import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
@@ -54,7 +54,7 @@ class BusinessDataControllerIT {
   @MockBean
   ApiProperties apiProperties;
   @MockBean
-  RequestAccessService accessRequestService;
+  AccessRequestService accessRequestService;
   @MockBean
   NftDatasourceService nftDatasourceService;
   @MockBean

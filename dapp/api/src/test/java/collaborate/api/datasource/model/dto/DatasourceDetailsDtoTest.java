@@ -2,7 +2,7 @@ package collaborate.api.datasource.model.dto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import collaborate.api.datasource.model.dto.web.authentication.transfer.OAuth2;
+import collaborate.api.datasource.model.dto.web.authentication.transfer.OAuth2SharedCredentials;
 import collaborate.api.test.TestResources;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
@@ -12,7 +12,8 @@ class DatasourceDetailsDtoTest {
   @Test
   void serialize_shouldContainPartnerTransferMethodType() throws JsonProcessingException {
     // GIVEN
-    var details = DatasourceDetailsDto.builder().partnerTransferMethod(new OAuth2())
+    var details = DatasourceDetailsDto.builder()
+        .partnerTransferMethod(new OAuth2SharedCredentials())
         .build();
     // WHEN
     var json = TestResources.objectMapper.writeValueAsString(details);

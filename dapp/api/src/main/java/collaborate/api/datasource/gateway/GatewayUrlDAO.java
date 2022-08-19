@@ -1,6 +1,5 @@
 package collaborate.api.datasource.gateway;
 
-import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.http.RequestEntityBuilder;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -19,10 +18,12 @@ class GatewayUrlDAO {
 
   private final HttpClientFactory httpClientFactory;
 
-  public ResponseEntity<JsonNode> fetch(String url, Optional<AccessTokenResponse> oAuth2Jwt) {
+  public ResponseEntity<JsonNode> fetch(String url, Optional<String> authorizationHeader) {
     RestTemplate restTemplate = buildRestTemplate();
     var requestEntityBuilder = new RequestEntityBuilder<>(url);
-    oAuth2Jwt.ifPresent(requestEntityBuilder::jwt);
+    authorizationHeader.ifPresent(header ->
+        requestEntityBuilder.header(RequestEntityBuilder.AUTHORIZATION, header)
+    );
     return restTemplate.exchange(requestEntityBuilder.build(), JsonNode.class);
   }
 

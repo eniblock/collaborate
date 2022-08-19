@@ -23,7 +23,8 @@ public class FindBusinessDataService {
   private final OrganizationService organizationService;
   private final SortComparison sortComparison;
 
-  public Page<AssetDetailsDTO> find(Pageable pageable, Optional<Predicate<TokenIndex>> filter,
+  public Page<AssetDetailsDTO> find(Pageable pageable,
+      Optional<Predicate<TokenIndex>> tokenPredicate,
       Optional<String> ownerAddress) {
     var dspWallets = ownerAddress.map(List::of)
         .orElseGet(organizationService::getAllDspWallets);
@@ -32,7 +33,7 @@ public class FindBusinessDataService {
 
     var filteredAssetDetails = assetByDsp.streamTokenIndexes()
         .filter(tokenIndex ->
-            filter.map(f -> f.test(tokenIndex))
+            tokenPredicate.map(f -> f.test(tokenIndex))
                 .orElse(true)
         )
         .map(assetDetailsService::toAssetDetails).collect(Collectors.toList());

@@ -7,7 +7,13 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CertificateBasedAuthorityEmail implements PartnerTransferMethod {
+public class CertificateBasedAuthorityEmail extends PartnerTransferMethod {
 
+  public static final String TYPE_NAME = "CertificateBasedAuthorityEmail";
   private String email;
+
+  @Override
+  public <T> T accept(TransferMethodVisitor<T> visitor) {
+    return visitor.visitCertificateBasedBasicAuth(this);
+  }
 }

@@ -1,7 +1,8 @@
-package collaborate.api.datasource.model.scope;
+package collaborate.api.datasource.model;
 
+import javax.persistence.Column;
+import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.Id;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,9 +17,10 @@ import lombok.Setter;
 @Entity
 public class AssetScope {
 
-  @Id
-  private String resource;
-
+  @EmbeddedId
+  private AssetScopeId assetScopeId;
   private String scope;
+  @Column(unique = true)
+  private Integer nftId;
 
 }

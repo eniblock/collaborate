@@ -3,7 +3,7 @@ package collaborate.api.datasource.businessdata;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import collaborate.api.config.OpenApiConfig;
-import collaborate.api.datasource.businessdata.access.RequestAccessService;
+import collaborate.api.datasource.businessdata.access.AccessRequestService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.document.AssetsService;
 import collaborate.api.datasource.businessdata.document.model.BusinessDataNFTSummary;
@@ -55,7 +55,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class BusinessDataController {
 
-  private final RequestAccessService accessRequestService;
+  private final AccessRequestService accessRequestService;
   private final String businessDataContractAddress;
   private final FindBusinessDataService findBusinessDataService;
   private final AssetsService assetsService;

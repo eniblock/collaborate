@@ -5,16 +5,16 @@ import static org.assertj.core.api.Assertions.assertThat;
 import collaborate.api.test.TestResources;
 import org.junit.jupiter.api.Test;
 
-class OAuth2ClientCredentialsGrantRefreshTokenTest {
+class OAuth2SharedCredentialsClientCredentialsGrantRefreshTokenTest {
 
   @Test
   void deserializeAsInterface_shouldReturnExpectedImplementation() {
     // WHEN
     var transferMethod = TestResources.readContent(
-        "/datasource/model/web/authentication/transfer/oAuth2.json",
+        "/datasource/model/web/authentication/transfer/OAuth2SharedCredentials.json",
         PartnerTransferMethod.class);
 
     // THEN
-    assertThat(transferMethod).isInstanceOf(OAuth2.class);
+    assertThat(transferMethod).isInstanceOf(OAuth2SharedCredentials.class);
   }
 }

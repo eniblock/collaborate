@@ -18,6 +18,7 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class BasicAuth extends Authentication {
 
+  public static final String TYPE_NAME = "BasicAuth";
   @Schema(description = "The user credential part", example = "john")
   @Transient
   protected String user;

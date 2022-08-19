@@ -6,12 +6,13 @@ import static collaborate.api.datasource.model.dto.web.WebServerResource.Keyword
 import static java.lang.String.format;
 
 import collaborate.api.config.UUIDGenerator;
+import collaborate.api.datasource.model.AssetScope;
+import collaborate.api.datasource.model.AssetScopeId;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
-import collaborate.api.datasource.model.scope.AssetScope;
-import collaborate.api.datasource.nft.AssetScopeDAO;
+import collaborate.api.datasource.nft.AssetScopeRepository;
 import collaborate.api.datasource.nft.TokenMetadataProperties;
 import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.datasource.nft.catalog.create.Tzip21MetadataService;
@@ -30,7 +31,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MintBusinessDataService {
 
-  private final AssetScopeDAO assetScopeDAO;
+  private final AssetScopeRepository assetScopeRepository;
   private final CreateBusinessDataNftDAO createBusinessDataNftDAO;
   private final DateFormatterFactory dateFormatterFactory;
   private final TokenMetadataProperties tokenMetadataProperties;
@@ -60,9 +61,15 @@ public class MintBusinessDataService {
         .orElseThrow(() -> new IllegalStateException(
             format("Missing keyword with name=%s", ATTR_NAME_ALIAS)));
 
+    // FIXME move to a dedicated service
     webServerResource.findFirstKeywordValueByName(ATTR_JWT_SCOPE)
-        .ifPresent(scope -> assetScopeDAO.save(
-            new AssetScope(dataSourceUUID.toString() + ":" + alias, scope)));
+        .ifPresent(scope -> assetScopeRepository.save(
+                new AssetScope(
+                    new AssetScopeId(dataSourceUUID.toString(), alias),
+                    scope,
+                    null)
+            )
+        );
 
     return AssetDTO.builder()
         .assetRelativePath(buildAssetRelativePath())

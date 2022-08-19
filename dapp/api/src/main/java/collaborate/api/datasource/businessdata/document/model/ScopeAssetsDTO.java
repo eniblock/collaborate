@@ -22,5 +22,9 @@ public class ScopeAssetsDTO {
   private String providerAddress;
   @Schema(description = "The dataset scope to the relying provider access control system (ex: the OAuth2 scope)", example = "referentials")
   private String scopeName;
+  // TODO COL-557 report into the front
+  @Schema(description = "The nft token id holding the assets", example = "1")
+  private Integer nftId;
+
   private Collection<ScopeAssetDTO> assets;
 }
