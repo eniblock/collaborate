@@ -11,10 +11,12 @@ import collaborate.api.security.RsaCipherService;
 import collaborate.api.security.RsaEncryptionKeyService;
 import collaborate.api.test.config.KeycloakTestConfig;
 import collaborate.api.test.config.NoSecurityTestConfig;
+import collaborate.api.user.metadata.UserMetadataService;
 import java.security.NoSuchAlgorithmException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 
@@ -34,6 +36,8 @@ class RsaEncryptionKeyServiceIT {
 
   @Autowired
   RsaEncryptionKeyService rsaEncryptionKeyService;
+  @MockBean
+  UserMetadataService userMetadataService;
   @Autowired
   ApiProperties apiProperties;
 
