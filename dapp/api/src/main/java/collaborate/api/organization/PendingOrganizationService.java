@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PendingOrganizationService {
 
+  public static final int ONE_XTZ = 1000000;
   private final OrganizationService organizationService;
 
   private final PendingOrganizationRepository pendingOrganizationRepository;
@@ -47,7 +48,7 @@ public class PendingOrganizationService {
   void activatePendingWallets(List<UpdateOrganizationTypeDTO> updatesOrRemoveOrgs) {
     findKnownPendingAddresses(updatesOrRemoveOrgs)
         .forEach(orgAddress ->
-            userService.transferMutez(UserService.ORGANIZATION_USER_ID, orgAddress, 1)
+            userService.transferMutez(UserService.ORGANIZATION_USER_ID, orgAddress, ONE_XTZ)
         );
   }
 

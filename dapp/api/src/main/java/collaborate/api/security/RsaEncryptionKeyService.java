@@ -3,6 +3,7 @@ package collaborate.api.security;
 import collaborate.api.cache.CacheConfig.CacheNames;
 import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
+import collaborate.api.user.metadata.UserMetadataService;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
@@ -17,20 +18,37 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class RsaEncryptionKeyService {
 
+  public static final String ENCRYPTION_VAULT_KEY = "encryptionKey";
   private final ApiProperties apiProperties;
   private final CacheService cacheService;
 
-  public void ensureEncryptionKeyExists() throws NoSuchAlgorithmException {
-    boolean hasPrivateKey = StringUtils.isNotBlank(apiProperties.getPrivateKey());
-    if (!hasPrivateKey) {
-      log.info("No encryption key found for the current organization, creating one");
-      KeyPair keyPair = generateRSAKeyPair();
-      String privateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
-      String publicKey = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
+  private final UserMetadataService userMetadataService;
 
-      apiProperties.setPrivateKey(privateKey);
-      apiProperties.setPublicEncryptionKey(publicKey);
-      cacheService.clearOrThrow(CacheNames.ORGANIZATION);
+  public void ensureEncryptionKeyExists() throws NoSuchAlgorithmException {
+    var encryptionKey = userMetadataService.find("encryptionKey", EncryptionKey.class);
+    if (encryptionKey.isPresent()) {
+      log.info("Encryption key, using the key provided by Vault");
+      apiProperties.setPrivateKey(encryptionKey.get().getPrivateKey());
+      apiProperties.setPublicEncryptionKey(encryptionKey.get().getPublicKey());
+    } else {
+      if (StringUtils.isBlank(apiProperties.getPrivateKey())) {
+        log.info("Encryption key, generation a new one");
+        KeyPair keyPair = generateRSAKeyPair();
+        String privateKey = Base64.getEncoder().encodeToString(keyPair.getPrivate().getEncoded());
+        String publicKey = Base64.getEncoder().encodeToString(keyPair.getPublic().getEncoded());
+
+        apiProperties.setPrivateKey(privateKey);
+        apiProperties.setPublicEncryptionKey(publicKey);
+        cacheService.clearOrThrow(CacheNames.ORGANIZATION);
+      }
+      log.info("Encryption key, persisting in Vault");
+      userMetadataService.upsertMetadata(
+          ENCRYPTION_VAULT_KEY,
+          EncryptionKey.builder()
+              .privateKey(apiProperties.getPrivateKey())
+              .publicKey(apiProperties.getPublicEncryptionKey())
+              .build()
+      );
     }
   }
 
