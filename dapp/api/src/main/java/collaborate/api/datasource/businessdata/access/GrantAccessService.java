@@ -1,10 +1,10 @@
 package collaborate.api.datasource.businessdata.access;
 
 import collaborate.api.datasource.AuthenticationService;
+import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.businessdata.access.model.AccessGrantParams;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestParams;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
-import collaborate.api.datasource.nft.AssetScopeRepository;
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class GrantAccessService {
 
-  private final AssetScopeRepository assetScopeRepository;
+  private final NftScopeService nftScopeService;
   private final AccessTokenProvider accessTokenProvider;
   private final AuthenticationService authenticationService;
   private final CipherJwtService cipherService;
@@ -28,38 +28,41 @@ public class GrantAccessService {
   public void grant(Transaction transaction) {
     AccessRequestParams accessRequestParams = getAccessRequestParams(transaction);
     var nftId = accessRequestParams.getNftId();
-    var assetScope = assetScopeRepository.findOneByNftId(nftId)
+    var assetScope = nftScopeService.findOneByNftId(nftId)
         .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + nftId));
 
     authenticationService
-        .getAuthentication(assetScope.getAssetScopeId().getDatasource())
+        .getAuthentication(assetScope.getNFTScopeId().getDatasource())
         .getPartnerTransferMethod()
         .accept(new AccessTokenTransferMethodVisitor(
             accessTokenProvider,
             authenticationService,
-            assetScope.getAssetScopeId().getDatasource(),
+            assetScope.getNFTScopeId().getDatasource(),
             assetScope.getScope(),
-            buildSendAccessGrantedTransactionConsumer(transaction.getSource())
+            buildSendAccessGrantedTransactionConsumer(transaction.getSource(), nftId)
         ));
   }
 
-  public Consumer<String> buildSendAccessGrantedTransactionConsumer(String requester) {
+  public Consumer<String> buildSendAccessGrantedTransactionConsumer(String requester,
+      Integer nftId) {
     return accessToken -> {
       // Cipher token
       var accessGrantParams = toAccessGrantParams(
           accessToken,
-          requester
+          requester,
+          nftId
       );
       log.debug("accessGrantParams={}", accessGrantParams);
       grantAccessDAO.grantAccess(accessGrantParams);
     };
   }
 
-  AccessGrantParams toAccessGrantParams(String accessToken, String requester) {
+  AccessGrantParams toAccessGrantParams(String accessToken, String requester, Integer nftId) {
     try {
       return AccessGrantParams.builder()
           .requesterAddress(requester)
           .cipheredToken(cipherService.cipher(accessToken, requester))
+          .nftId(nftId)
           .build();
     } catch (Exception e) {
       log.error(e.getMessage());

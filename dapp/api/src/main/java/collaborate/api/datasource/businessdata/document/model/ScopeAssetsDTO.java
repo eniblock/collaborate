@@ -26,5 +26,5 @@ public class ScopeAssetsDTO {
   @Schema(description = "The nft token id holding the assets", example = "1")
   private Integer nftId;
 
-  private Collection<ScopeAssetDTO> assets;
+  private Collection<BusinessDataDocument> assets;
 }

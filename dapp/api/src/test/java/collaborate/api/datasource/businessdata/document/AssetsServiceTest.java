@@ -6,12 +6,10 @@ import static org.mockito.Mockito.when;
 import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.DatasourceMetadataService;
 import collaborate.api.datasource.DatasourceService;
-import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
+import collaborate.api.datasource.businessdata.document.model.BusinessDataDocument;
 import collaborate.api.datasource.businessdata.find.AssetDetailsService;
-import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
 import collaborate.api.datasource.gateway.GatewayUrlService;
 import collaborate.api.datasource.model.Datasource;
-import collaborate.api.datasource.nft.AssetScopeRepository;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.tag.TagService;
@@ -47,15 +45,11 @@ class AssetsServiceTest {
   @Mock
   DatasourceMetadataService datasourceMetadataService;
   @Mock
-  FindBusinessDataService findBusinessDataService;
-  @Mock
   GatewayUrlService gatewayUrlService;
   @Mock
   HttpClientFactory httpClientFactory;
   @Mock
   CatalogService catalogService;
-  @Mock
-  AssetScopeRepository assetScopeRepository;
   @Mock
   TagService tagService;
   @InjectMocks
@@ -65,14 +59,12 @@ class AssetsServiceTest {
   void setUp() {
     assetsService = new AssetsService(
         assetDetailsService,
-        assetScopeRepository,
         authenticationService,
         businessDataContractAddress,
         catalogService,
         clock,
         datasourceService,
         datasourceMetadataService,
-        findBusinessDataService,
         gatewayUrlService,
         httpClientFactory,
         TestResources.objectMapper,
@@ -93,11 +85,11 @@ class AssetsServiceTest {
     when(datasourceMetadataService.findByAlias(mockDatasource, resourceAlias)).thenReturn(
         new HashMap<>());
     // WHEN
-    var scopeAssetsResult = assetsService.convertJsonToScopeAssetDTOs(assetListJsonString,
+    var scopeAssetsResult = assetsService.convertJsonToBusinessDataDocument(assetListJsonString,
         datasourceId, resourceAlias);
     // THEN
     assertThat(scopeAssetsResult).containsExactlyInAnyOrder(
-        ScopeAssetDTO.builder()
+        BusinessDataDocument.builder()
             .name("Airport, airline and route data")
             .type("MVP document")
             .synchronizedDate(ZonedDateTime.now(clock))
@@ -124,11 +116,11 @@ class AssetsServiceTest {
         )
     );
     // WHEN
-    var scopeAssetsResult = assetsService.convertJsonToScopeAssetDTOs(assetListJsonString,
+    var scopeAssetsResult = assetsService.convertJsonToBusinessDataDocument(assetListJsonString,
         datasourceId, resourceAlias);
     // THEN
     assertThat(scopeAssetsResult).containsExactlyInAnyOrder(
-        ScopeAssetDTO.builder()
+        BusinessDataDocument.builder()
             .name("2022-05-01LHRBA874B")
             .type("MVP document")
             .synchronizedDate(ZonedDateTime.now(clock))

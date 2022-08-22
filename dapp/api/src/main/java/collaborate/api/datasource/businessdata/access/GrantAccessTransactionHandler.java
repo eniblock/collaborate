@@ -21,7 +21,7 @@ public class GrantAccessTransactionHandler implements TransactionHandler {
   @Override
   public void handle(Transaction transaction) {
     if (isGrantAccessForCurrentOrganisation(transaction)) {
-      log.info("New grantAccess with parameters={}", transaction.getParameters());
+      log.debug("New grantAccess with parameters={}", transaction.getParameters());
       grantedAccessService.onGrantedAccess(transaction);
     }
     if (isGrantAccess(transaction)) {

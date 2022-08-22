@@ -5,22 +5,17 @@ import static java.util.stream.Collectors.toList;
 import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.DatasourceMetadataService;
 import collaborate.api.datasource.DatasourceService;
+import collaborate.api.datasource.businessdata.document.model.BusinessDataDocument;
 import collaborate.api.datasource.businessdata.document.model.BusinessDataNFTSummary;
 import collaborate.api.datasource.businessdata.document.model.DownloadDocument;
-import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.datasource.businessdata.find.AssetDetailsService;
-import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
-import collaborate.api.datasource.create.MintBusinessDataParamsDTO;
 import collaborate.api.datasource.gateway.GatewayResourceDTO;
 import collaborate.api.datasource.gateway.GatewayUrlService;
-import collaborate.api.datasource.model.AssetScopeId;
-import collaborate.api.datasource.nft.AssetScopeRepository;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.tag.TagService;
-import collaborate.api.transaction.Transaction;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -71,14 +66,12 @@ public class AssetsService {
 
   public static final String ASSET_ID_SEPARATOR = ":";
   private final AssetDetailsService assetDetailsService;
-  private final AssetScopeRepository assetScopeRepository;
   private final AuthenticationService authenticationService;
   private final String businessDataContractAddress;
   private final CatalogService catalogService;
   private final Clock clock;
   private final DatasourceService datasourceService;
   private final DatasourceMetadataService datasourceMetadataService;
-  private final FindBusinessDataService findBusinessDataService;
   private final GatewayUrlService gatewayUrlService;
   private final HttpClientFactory httpClientFactory;
   private final ObjectMapper objectMapper;
@@ -88,18 +81,18 @@ public class AssetsService {
     var catalog = catalogService.getCatalogByTokenId(tokenId, businessDataContractAddress);
     return catalog.getDatasources()
         .stream()
-        .map(this::buildSummary)
+        .map(d -> buildSummary(d, tokenId))
         .findFirst()
         .orElseThrow(
             () -> new IllegalStateException("No catalog found for tokenId=" + tokenId));
   }
 
-  public BusinessDataNFTSummary buildSummary(AssetDetailsDatasourceDTO details) {
+  public BusinessDataNFTSummary buildSummary(AssetDetailsDatasourceDTO details, Integer nftId) {
     var datasourceId = details.getId();
     var resourceAlias = details.getAssetIdForDatasource();
 
     var summaryBuilder = BusinessDataNFTSummary.builder()
-        .accessStatus(assetDetailsService.getAccessStatus(datasourceId, resourceAlias))
+        .accessStatus(assetDetailsService.getAccessStatus(datasourceId, nftId))
         .datasourceId(datasourceId)
         .providerAddress(details.getOwnerAddress())
         .scopeName(resourceAlias);
@@ -110,7 +103,7 @@ public class AssetsService {
     return summaryBuilder.build();
   }
 
-  public Page<ScopeAssetDTO> listScopeAssets(Integer tokenId, Pageable pageable) {
+  public Page<BusinessDataDocument> listScopeAssets(Integer tokenId, Pageable pageable) {
     return catalogService.getCatalogByTokenId(
             tokenId,
             businessDataContractAddress
@@ -131,7 +124,7 @@ public class AssetsService {
   /**
    * @return The datasource response for the given resource
    */
-  public List<ScopeAssetDTO> listFrom(AssetDetailsDatasourceDTO datasourceDTO) {
+  public List<BusinessDataDocument> listFrom(AssetDetailsDatasourceDTO datasourceDTO) {
     var datasourceId = datasourceDTO.getId();
     var resourceAlias = datasourceDTO.getAssetIdForDatasource();
     var resourceResponse = getAssetListResponse(datasourceId, resourceAlias);
@@ -144,7 +137,7 @@ public class AssetsService {
     return Optional.ofNullable(resourceResponse.getBody())
         .map(JsonNode::toString)
         .map(assetListJsonString ->
-            convertJsonToScopeAssetDTOs(assetListJsonString, datasourceId, resourceAlias)
+            convertJsonToBusinessDataDocument(assetListJsonString, datasourceId, resourceAlias)
                 .collect(toList())
         ).orElse(Collections.emptyList());
   }
@@ -157,7 +150,8 @@ public class AssetsService {
     return gatewayUrlService.fetch(gatewayResource);
   }
 
-  Stream<ScopeAssetDTO> convertJsonToScopeAssetDTOs(String jsonResponse, String datasourceId,
+  Stream<BusinessDataDocument> convertJsonToBusinessDataDocument(String jsonResponse,
+      String datasourceId,
       String resourceAlias) {
     var metadata = datasourceService.findById(datasourceId)
         .map(d -> datasourceMetadataService.findByAlias(d, resourceAlias))
@@ -180,7 +174,7 @@ public class AssetsService {
       throw new IllegalStateException(e);
     }
     return results.stream()
-        .map(r -> ScopeAssetDTO.builder()
+        .map(r -> BusinessDataDocument.builder()
             .name(idPath.eval(r, String.class))
             .type("MVP document")
             .synchronizedDate(ZonedDateTime.now(clock))
@@ -193,15 +187,15 @@ public class AssetsService {
         );
   }
 
-  public ZipOutputStream download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)
+  public void download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)
       throws IOException {
     var jwt = authenticationService.getJwt(scopeAssets.getNftId(), businessDataContractAddress);
     var r = scopeAssets.getAssets().stream()
-        .map(ScopeAssetDTO::getDownloadLink)
+        .map(BusinessDataDocument::getDownloadLink)
         .map(URI::toString)
         .map(s -> download(s, jwt))
         .collect(toList());
-    return zip(r, outputStream);
+    zip(r, outputStream);
   }
 
   public ZipOutputStream zip(List<DownloadDocument> documents, ServletOutputStream outputStream)
@@ -278,11 +272,11 @@ public class AssetsService {
   }
 
   public ResponseEntity<String> fetch(Integer tokenId, Optional<String> assetIdOpt) {
-    var summary = getSummary(tokenId);
     var assetDTOs = catalogService.getCatalogByTokenId(
             tokenId,
             businessDataContractAddress
-        ).getDatasources().stream().findFirst()
+        ).getDatasources().stream()
+        .findFirst()
         .map(this::listFrom)
         .orElseThrow(() -> new IllegalStateException("No datasource for tokenId=" + tokenId));
 
@@ -290,10 +284,13 @@ public class AssetsService {
             assetId -> assetDTOs.stream()
                 .filter(assetDTO -> StringUtils.equals(assetDTO.getName(), assetId))
                 .findFirst()
-        ).orElseGet(() -> assetDTOs.stream().findFirst())
-        .map(ScopeAssetDTO::getDownloadLink)
+        ).orElseGet(
+            () -> assetDTOs.stream().findFirst()
+        ).map(BusinessDataDocument::getDownloadLink)
         .map(URI::toString)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
 
     var jwt = authenticationService.getJwt(tokenId, businessDataContractAddress);
 
@@ -306,37 +303,6 @@ public class AssetsService {
         HttpMethod.GET,
         new HttpEntity<String>(null, headers),
         String.class);
-  }
-
-  public void updateNftId(Transaction transaction, String currentOrganizationAddress) {
-    String assetId;
-    try {
-      assetId = objectMapper.treeToValue(
-          transaction.getParameters(),
-          MintBusinessDataParamsDTO.class
-      ).getAssetId();
-    } catch (JsonProcessingException e) {
-      log.error("While working with transaction={}", transaction);
-      throw new IllegalStateException("Can't deserialize mint business-data transaction params", e);
-    }
-    // Here the tokenId is retrieved from the "nft_indexer" big map.
-    // This big map has a cost, if in the future we won't want to use anymore, we could get the nftId
-    // from the bigmapDiff of the transaction (not available from TAG)
-    var indexedNft = findBusinessDataService.find(
-            Pageable.unpaged(),
-            Optional.of(tokenIndex ->
-                tokenIndex.getAssetId().equals(assetId)),
-            Optional.of(currentOrganizationAddress)
-        ).stream().findFirst()
-        .orElseThrow(() -> new IllegalStateException(
-            "nft not found for assetId =" + assetId)
-        );
-
-    var assetScope = assetScopeRepository.findById(new AssetScopeId(assetId));
-    if (assetScope.isPresent()) {
-      assetScope.get().setNftId(indexedNft.getTokenId());
-      assetScopeRepository.save(assetScope.get());
-    }
   }
 
 }

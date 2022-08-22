@@ -4,9 +4,7 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.AuthenticationService;
-import collaborate.api.datasource.model.AssetScope;
-import collaborate.api.datasource.model.AssetScopeId;
-import collaborate.api.datasource.nft.AssetScopeRepository;
+import collaborate.api.datasource.businessdata.NftScopeService;
 import com.fasterxml.jackson.databind.JsonNode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 public class GatewayUrlService {
 
-  private final AssetScopeRepository assetScopeRepository;
+  private final NftScopeService nftScopeService;
   private final AuthenticationService authenticationService;
   private final GatewayUrlDAO gatewayURLDAO;
   private final TraefikProperties traefikProperties;
@@ -27,9 +25,8 @@ public class GatewayUrlService {
   public ResponseEntity<JsonNode> fetch(GatewayResourceDTO resourceDTO) {
     String uri = buildURL(resourceDTO);
 
-    var aliasScopeOpt = assetScopeRepository
-        .findById(new AssetScopeId(resourceDTO.getDatasourceId(), resourceDTO.getAlias()))
-        .map(AssetScope::getScope);
+    var aliasScopeOpt = nftScopeService
+        .findScopeById(resourceDTO.getDatasourceId(), resourceDTO.getAlias());
 
     var bearerOpt = authenticationService.findAuthorizationHeader(
         resourceDTO.getDatasourceId(),

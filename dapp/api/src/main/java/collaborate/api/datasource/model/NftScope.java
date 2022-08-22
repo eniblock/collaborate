@@ -15,10 +15,10 @@ import lombok.Setter;
 @Setter
 @Builder
 @Entity
-public class AssetScope {
+public class NftScope {
 
   @EmbeddedId
-  private AssetScopeId assetScopeId;
+  private NFTScopeId NFTScopeId;
   private String scope;
   @Column(unique = true)
   private Integer nftId;

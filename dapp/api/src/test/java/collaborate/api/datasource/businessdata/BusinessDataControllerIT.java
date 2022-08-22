@@ -16,7 +16,8 @@ import collaborate.api.config.exception.ControllerExceptionHandler;
 import collaborate.api.datasource.businessdata.access.AccessRequestService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.document.AssetsService;
-import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
+import collaborate.api.datasource.businessdata.find.AssetDetailsService;
+import collaborate.api.datasource.businessdata.find.BusinessDataNftIndexerService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.test.config.KeycloakTestConfig;
@@ -56,9 +57,11 @@ class BusinessDataControllerIT {
   @MockBean
   AccessRequestService accessRequestService;
   @MockBean
+  AssetDetailsService assetDetailsService;
+  @MockBean
   NftDatasourceService nftDatasourceService;
   @MockBean
-  FindBusinessDataService findBusinessDataService;
+  BusinessDataNftIndexerService businessDataNftIndexerService;
   @MockBean
   AssetsService assetsService;
 

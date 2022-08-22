@@ -1,10 +1,9 @@
 package collaborate.api.datasource.businessdata.access;
 
+import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.businessdata.access.model.AccessGrantParams;
-import collaborate.api.datasource.model.VaultDatasourceAuth;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.transaction.Transaction;
-import collaborate.api.user.metadata.UserMetadataService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -18,14 +17,12 @@ public class GrantedAccessService {
 
   private final String businessDataContractAddress;
   private final CipherJwtService cipherService;
-  private final GrantAccessDAO grantAccessDAO;
   private final ObjectMapper objectMapper;
-  private final UserMetadataService userMetadataService;
   private final NftDatasourceService nftDatasourceService;
+  private final AuthenticationService authenticationService;
 
 
   public void onGrantedAccess(Transaction transaction) {
-    log.info("New grant_access transaction={}", transaction);
     var accessGrantParams = getAccessGrantParams(transaction);
 
     String decipheredJWT = cipherService.decipher(accessGrantParams.getCipheredToken());
@@ -40,9 +37,10 @@ public class GrantedAccessService {
   }
 
   private void storeJWT(AccessGrantParams accessGrantParams, String decipheredJWT) {
-    userMetadataService.upsertMetadata(
-        accessGrantParams.getNftId().toString(),
-        VaultDatasourceAuth.builder().jwt(decipheredJWT).build()
+    authenticationService.saveGrantedJwt(
+        accessGrantParams.getNftId(),
+        businessDataContractAddress,
+        decipheredJWT
     );
   }
 

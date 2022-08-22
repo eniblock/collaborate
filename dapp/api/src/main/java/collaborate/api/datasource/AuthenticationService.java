@@ -2,16 +2,16 @@ package collaborate.api.datasource;
 
 import static java.lang.String.format;
 
+import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.model.AccessMethodNameVisitor;
-import collaborate.api.datasource.model.AssetScope;
+import collaborate.api.datasource.model.NftScope;
 import collaborate.api.datasource.model.VaultDatasourceAuth;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.Authentication;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.model.dto.web.authentication.transfer.PartnerTransferMethod;
-import collaborate.api.datasource.nft.AssetScopeRepository;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.http.HttpClientFactory;
@@ -29,7 +29,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthenticationService {
 
   private final AccessTokenProvider accessTokenProvider;
-  private final AssetScopeRepository assetScopeRepository;
+  private final NftScopeService nftScopeService;
   private final AccessMethodNameVisitor accessMethodNameVisitor;
   private final CatalogService catalogService;
   private final HttpClientFactory httpClientFactory;
@@ -78,7 +78,7 @@ public class AuthenticationService {
   }
 
   public String getJwt(Integer nftId, String smartContract) {
-    Optional<String> nftJWTOpt = findRequestedJWT(nftId);
+    Optional<String> nftJWTOpt = findRequestedJWT(nftId, smartContract);
     if (nftJWTOpt.isEmpty()) {
       nftJWTOpt = findOwnerJWT(nftId, smartContract);
     }
@@ -93,10 +93,10 @@ public class AuthenticationService {
         .map(AssetDetailsDatasourceDTO::getId);
     if (datasourceIdOpt.isPresent()) {
       var datasourceId = datasourceIdOpt.get();
-      var scopeOpt = assetScopeRepository.findOneByNftId(nftId)
-          .map(AssetScope::getScope);
+      var scopeOpt = nftScopeService.findOneByNftId(nftId)
+          .map(NftScope::getScope);
       return userMetadataService
-          .find(datasourceId + ":" + nftId, VaultDatasourceAuth.class)
+          .find(datasourceId, VaultDatasourceAuth.class)
           .map(datasourceAuth -> accessTokenProvider.get(
               (OAuth2ClientCredentialsGrant) datasourceAuth.getAuthentication(), scopeOpt)
           ).map(AccessTokenResponse::getAccessToken);
@@ -104,7 +104,7 @@ public class AuthenticationService {
     return Optional.empty();
   }
 
-  private Optional<String> findRequestedJWT(Integer nftId) {
+  private Optional<String> findRequestedJWT(Integer nftId, String smartContract) {
     return userMetadataService
         .find(nftId.toString(), VaultDatasourceAuth.class)
         .map(VaultDatasourceAuth::getJwt);
@@ -115,4 +115,25 @@ public class AuthenticationService {
     return datasourceId + ":" + scope.orElse("");
   }
 
+  public void saveGrantedJwt(Integer nftId, String businessDataContractAddress,
+      String decipheredJWT) {
+    userMetadataService.upsertMetadata(
+        buildRequestedNftKey(businessDataContractAddress, nftId),
+        VaultDatasourceAuth.builder()
+            .jwt(decipheredJWT)
+            .build()
+    );
+  }
+
+  static String buildRequestedNftKey(String businessDataContractAddress, Integer nftId) {
+    return businessDataContractAddress + ":" + nftId;
+  }
+
+  public boolean isGranted(String datasourceId, Integer nftId, String smartContract) {
+    return datasourceRepository.findById(datasourceId).isPresent()
+        || userMetadataService.find(
+        buildRequestedNftKey(smartContract, nftId),
+        VaultDatasourceAuth.class
+    ).isPresent();
+  }
 }

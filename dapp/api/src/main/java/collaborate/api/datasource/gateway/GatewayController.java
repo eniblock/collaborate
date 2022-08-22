@@ -58,4 +58,5 @@ public class GatewayController {
         .build();
     return gatewayService.fetch(resourceDTO);
   }
+
 }

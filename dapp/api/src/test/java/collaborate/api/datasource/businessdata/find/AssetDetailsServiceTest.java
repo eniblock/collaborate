@@ -6,9 +6,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.when;
 
+import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.businessdata.transaction.BusinessDataTransactionService;
 import collaborate.api.datasource.kpi.KpiService;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
@@ -17,29 +17,25 @@ import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
-import collaborate.api.user.metadata.UserMetadataService;
 import java.util.List;
 import java.util.Optional;
-import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.stereotype.Service;
 
 @ExtendWith(MockitoExtension.class)
 public class AssetDetailsServiceTest {
 
+  @Mock
+  AuthenticationService authenticationService;
   @Mock
   BusinessDataTransactionService businessDataTransactionService;
   @Mock
   KpiService kpiService;
   @Mock
   OrganizationService organizationService;
-  @Mock
-  UserMetadataService userMetadataService;
 
   @InjectMocks
   AssetDetailsService assetDetailsService;
@@ -51,17 +47,21 @@ public class AssetDetailsServiceTest {
         .legalName("legalName")
         .address("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
         .build();
+    String datasourceId = "3636ff0b-2295-4750-a6b2-677c680e0bbb";
+    int tokenId = 11;
 
+    when(authenticationService.isGranted(datasourceId, tokenId, null))
+        .thenReturn(true);
     when(businessDataTransactionService.findTransactionDateByTokenId(nullable(String.class),
         anyString()))
         .thenReturn(Optional.empty());
     when(organizationService.getByWalletAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"))
         .thenReturn(organization);
-    when(userMetadataService.getOwnerOAuth2("3636ff0b-2295-4750-a6b2-677c680e0bbb"))
-        .thenReturn(Optional.of(new OAuth2ClientCredentialsGrant()));
+
     when(kpiService.count(any())).thenReturn(10L);
+
     TokenIndex tokenIndex = TokenIndex.builder()
-        .tokenId(11)
+        .tokenId(tokenId)
         .tokenOwnerAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
         .assetId("3636ff0b-2295-4750-a6b2-677c680e0bbb:assetId")
         .build();
@@ -73,7 +73,7 @@ public class AssetDetailsServiceTest {
         .assetDataCatalog(
             AssetDataCatalogDTO.builder()
                 .datasources(List.of(AssetDetailsDatasourceDTO.builder()
-                    .id("3636ff0b-2295-4750-a6b2-677c680e0bbb")
+                    .id(datasourceId)
                     .assetIdForDatasource("assetId")
                     .ownerAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
                     .build()
@@ -83,7 +83,7 @@ public class AssetDetailsServiceTest {
         .assetId("3636ff0b-2295-4750-a6b2-677c680e0bbb:assetId")
         .accessStatus(AccessStatus.GRANTED)
         .tokenStatus(TokenStatus.CREATED)
-        .tokenId(11)
+        .tokenId(tokenId)
         .grantedAccess(10L)
         .build());
   }

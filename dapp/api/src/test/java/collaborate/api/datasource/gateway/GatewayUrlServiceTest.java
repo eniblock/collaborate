@@ -5,7 +5,7 @@ import static org.mockito.Mockito.when;
 
 import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.AuthenticationService;
-import collaborate.api.datasource.nft.AssetScopeRepository;
+import collaborate.api.datasource.businessdata.NftScopeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,7 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class GatewayUrlServiceTest {
 
   @Mock
-  AssetScopeRepository assetScopeRepository;
+  NftScopeService nftScopeService;
   @Mock
   AuthenticationService authenticationService;
   @Mock
