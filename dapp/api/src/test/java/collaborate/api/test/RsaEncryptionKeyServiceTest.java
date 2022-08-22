@@ -13,6 +13,7 @@ import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.security.RsaCipherService;
 import collaborate.api.security.RsaEncryptionKeyService;
+import collaborate.api.user.metadata.UserMetadataService;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.util.stream.Stream;
@@ -38,6 +39,8 @@ class RsaEncryptionKeyServiceTest {
   ApiProperties apiProperties;
   @Mock
   CacheService cacheService;
+  @Mock
+  UserMetadataService userMetadataService;
   @Captor
   ArgumentCaptor<String> privateKeyCaptor;
   @Captor
