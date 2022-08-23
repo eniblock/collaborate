@@ -11,10 +11,11 @@ import java.io.Serializable;
 
 @JsonTypeInfo(use = NAME, include = PROPERTY, property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = CertificateBasedAuthorityEmail.class, name = "CertificateBasedAuthorityEmail"),
-    @JsonSubTypes.Type(value = OAuth2.class, name = "OAuth2"),
+    @JsonSubTypes.Type(value = CertificateBasedAuthorityEmail.class, name = CertificateBasedAuthorityEmail.TYPE_NAME),
+    @JsonSubTypes.Type(value = OAuth2SharedCredentials.class, name = OAuth2SharedCredentials.TYPE_NAME),
 })
 @JsonInclude(Include.NON_NULL)
-public interface PartnerTransferMethod extends Serializable {
+public abstract class PartnerTransferMethod implements Serializable {
 
+  public abstract <T> T accept(TransferMethodVisitor<T> visitor);
 }

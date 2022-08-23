@@ -1,7 +1,7 @@
 package collaborate.api.datasource.businessdata.kpi;
 
 import collaborate.api.datasource.businessdata.access.GrantedAccessService;
-import collaborate.api.datasource.create.DataCatalogCreationDTO;
+import collaborate.api.datasource.create.MintBusinessDataParamsDTO;
 import collaborate.api.datasource.kpi.Kpi;
 import collaborate.api.datasource.kpi.KpiService;
 import collaborate.api.datasource.kpi.KpiSpecification;
@@ -35,19 +35,19 @@ public class BusinessDataKpiService {
     kpiService.saveIfValueMissing(kpi, onMissingCondition);
   }
 
-  private String getDatasourceId(DataCatalogCreationDTO creationDTO) {
+  private String getDatasourceId(MintBusinessDataParamsDTO creationDTO) {
     return StringUtils.substringBefore(creationDTO.getAssetId(), ":");
   }
 
-  private String getNftAlias(DataCatalogCreationDTO creationDTO) {
+  private String getNftAlias(MintBusinessDataParamsDTO creationDTO) {
     return StringUtils.substringAfter(creationDTO.getAssetId(), ":");
   }
 
-  private DataCatalogCreationDTO getDataCatalogCreationDTOParams(Transaction transaction) {
+  private MintBusinessDataParamsDTO getDataCatalogCreationDTOParams(Transaction transaction) {
     try {
       return objectMapper.treeToValue(
           transaction.getParameters(),
-          DataCatalogCreationDTO.class
+          MintBusinessDataParamsDTO.class
       );
     } catch (JsonProcessingException e) {
       log.error(

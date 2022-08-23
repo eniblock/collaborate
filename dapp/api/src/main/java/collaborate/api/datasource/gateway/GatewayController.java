@@ -43,19 +43,20 @@ public class GatewayController {
 
   @PreAuthorize(HasRoles.API_GATEWAY_READ)
   @Operation(
-      description = "Get the given scope data for the given assetId of the given datasource",
+      description = "Get the given resourceAlias data for the given assetId of the given datasource",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
-  @GetMapping(value = "datasource/{datasourceId}/{scope}/{assetId}")
+  @GetMapping(value = "datasource/{datasourceId}/{resourceAlias}/{assetId}")
   public ResponseEntity<JsonNode> getScopeByAssetIdAndDatasourceId(
       @PathVariable @NotEmpty String datasourceId,
-      @PathVariable @NotEmpty String scope,
+      @PathVariable @NotEmpty String resourceAlias,
       @PathVariable @NotEmpty String assetId
   ) {
     var resourceDTO = GatewayResourceDTO.builder()
         .datasourceId(datasourceId)
-        .scope(scope)
+        .alias(resourceAlias)
         .assetIdForDatasource(assetId)
         .build();
     return gatewayService.fetch(resourceDTO);
   }
+
 }

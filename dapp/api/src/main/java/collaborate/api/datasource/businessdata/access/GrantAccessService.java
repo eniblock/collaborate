@@ -1,23 +1,14 @@
 package collaborate.api.datasource.businessdata.access;
 
+import collaborate.api.datasource.AuthenticationService;
+import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.businessdata.access.model.AccessGrantParams;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestParams;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
-import collaborate.api.datasource.kpi.Kpi;
-import collaborate.api.datasource.kpi.KpiService;
-import collaborate.api.datasource.model.dto.VaultMetadata;
-import collaborate.api.datasource.model.scope.AssetScope;
-import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.transaction.Transaction;
-import collaborate.api.user.metadata.UserMetadataService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.ws.rs.NotFoundException;
+import java.util.function.Consumer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,63 +18,51 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class GrantAccessService {
 
-  private final AssetScopeDAO assetScopeDAO;
-
-  private final CipherJwtService cipherService;
+  private final NftScopeService nftScopeService;
   private final AccessTokenProvider accessTokenProvider;
+  private final AuthenticationService authenticationService;
+  private final CipherJwtService cipherService;
   private final ObjectMapper objectMapper;
-  private final UserMetadataService userMetadataService;
   private final GrantAccessDAO grantAccessDAO;
-
-  private final KpiService kpiService;
 
   public void grant(Transaction transaction) {
     AccessRequestParams accessRequestParams = getAccessRequestParams(transaction);
-    kpiService.save(buildGrantKpi(transaction, accessRequestParams));
-    var requester = transaction.getSource();
-    // Get OAuth2 vault metadata
-    VaultMetadata vaultMetadata = getVaultMetadata(accessRequestParams);
+    var nftId = accessRequestParams.getNftId();
+    var assetScope = nftScopeService.findOneByNftId(nftId)
+        .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + nftId));
 
-    // Get JWT
-    var assetScope = assetScopeDAO.findAllById(accessRequestParams.getScopes())
-        .stream()
-        .map(AssetScope::getScope)
-        .collect(Collectors.joining(" "));
-
-    var accessTokenResponse = accessTokenProvider.get(
-        vaultMetadata.getOAuth2(),
-        Optional.of(assetScope).filter(s -> !s.isBlank())
-    );
-
-    // Cipher token
-    var accessGrantParams = toAccessGrantParams(
-        accessRequestParams.getAccessRequestsUuid(),
-        accessTokenResponse.getAccessToken(),
-        requester
-    );
-    log.info("accessGrantParams={}", accessGrantParams);
-    grantAccessDAO.grantAccess(accessGrantParams);
+    authenticationService
+        .getAuthentication(assetScope.getNFTScopeId().getDatasource())
+        .getPartnerTransferMethod()
+        .accept(new AccessTokenTransferMethodVisitor(
+            accessTokenProvider,
+            authenticationService,
+            assetScope.getNFTScopeId().getDatasource(),
+            assetScope.getScope(),
+            buildSendAccessGrantedTransactionConsumer(transaction.getSource(), nftId)
+        ));
   }
 
-  private VaultMetadata getVaultMetadata(AccessRequestParams accessRequestParams) {
-    var datasourceId = accessRequestParams.getDatasourceId();
-    return userMetadataService
-        .find(datasourceId, VaultMetadata.class)
-        .filter(m -> m.getOAuth2() != null)
-        .orElseThrow(() -> {
-          log.error(
-              "Access request for datasourceId={} received but oAuth2 metadata seems to be missing",
-              datasourceId);
-          throw new NotFoundException();
-        });
+  public Consumer<String> buildSendAccessGrantedTransactionConsumer(String requester,
+      Integer nftId) {
+    return accessToken -> {
+      // Cipher token
+      var accessGrantParams = toAccessGrantParams(
+          accessToken,
+          requester,
+          nftId
+      );
+      log.debug("accessGrantParams={}", accessGrantParams);
+      grantAccessDAO.grantAccess(accessGrantParams);
+    };
   }
 
-  private AccessGrantParams toAccessGrantParams(UUID uuid, String accessToken, String requester) {
+  AccessGrantParams toAccessGrantParams(String accessToken, String requester, Integer nftId) {
     try {
       return AccessGrantParams.builder()
-          .accessRequestsUuid(uuid)
           .requesterAddress(requester)
           .cipheredToken(cipherService.cipher(accessToken, requester))
+          .nftId(nftId)
           .build();
     } catch (Exception e) {
       log.error(e.getMessage());
@@ -105,14 +84,4 @@ public class GrantAccessService {
     }
   }
 
-
-  Kpi buildGrantKpi(Transaction transaction, AccessRequestParams accessRequestParams) {
-    return Kpi.builder()
-        .createdAt(transaction.getTimestamp())
-        .kpiKey("business-data.grant")
-        .organizationWallet(transaction.getSource())
-        .values(objectMapper.convertValue(Map.of("nft-id", accessRequestParams.getNftId()),
-            JsonNode.class))
-        .build();
-  }
 }

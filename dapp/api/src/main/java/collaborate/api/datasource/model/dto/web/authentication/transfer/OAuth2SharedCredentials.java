@@ -8,6 +8,12 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
-public class OAuth2 implements PartnerTransferMethod {
+public class OAuth2SharedCredentials extends PartnerTransferMethod {
 
+  public static final String TYPE_NAME = "OAuth2SharedCredentials";
+
+  @Override
+  public <T> T accept(TransferMethodVisitor<T> visitor) {
+    return visitor.visitOAuth2SharedCredentials(this);
+  }
 }

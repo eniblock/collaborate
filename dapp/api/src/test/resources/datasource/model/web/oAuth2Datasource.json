@@ -9,7 +9,7 @@
     "clientSecret": "secret",
     "authorizationServerUrl": "http://dspconsortium1.localhost/token_endpoint",
     "partnerTransferMethod": {
-      "type": "OAuth2"
+      "type": "OAuth2SharedCredentials"
     }
   },
   "keywords": [

@@ -1,6 +1,6 @@
-package collaborate.api.datasource.model.dto;
+package collaborate.api.datasource.model;
 
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
+import collaborate.api.datasource.model.dto.web.authentication.Authentication;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -16,16 +16,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @JsonIgnoreProperties(ignoreUnknown = true)
 @JsonInclude(Include.NON_NULL)
-public class VaultMetadata {
+public class VaultDatasourceAuth {
 
-  private BasicAuthCredentials basicAuthCredentials;
-  private OAuth2ClientCredentialsGrant oAuth2;
+  private Authentication authentication;
   private String jwt;
-
-  @JsonIgnore
-  public boolean hasOAuth2() {
-    return oAuth2 != null;
-  }
 
   @JsonIgnore
   public boolean hasJwt() {

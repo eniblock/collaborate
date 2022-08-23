@@ -40,25 +40,6 @@ class DatasourceMetadataServiceTest {
     });
   }
 
-  @Test
-  void getAuthentication_shouldReturnExpected_withExistingMetadata() {
-    // GIVEN
-    // WHEN
-    var authenticationResult = datasourceMetadataService.getAuthentication(datasource);
-    // THEN
-    assertThat(authenticationResult).isEqualTo("BasicAuth");
-  }
-
-  @Test
-  void getAuthentication_shouldThrowIllegalState_withMissingMetadata() {
-    // GIVEN
-    // THEN
-    assertThrows(IllegalStateException.class, () -> {
-      // WHEN
-      datasourceMetadataService.getAuthentication(emptyDatasource);
-    });
-  }
-
 //  @Test
 //  void getCertificate_shouldReturnExpected_withExistingMetadata() {
 //    // GIVEN
