@@ -16,6 +16,8 @@ import org.springframework.util.LinkedMultiValueMap;
 @EqualsAndHashCode(callSuper = true)
 public class OAuth2ClientCredentialsGrant extends Authentication {
 
+  public static final String TYPE_NAME = "OAuth2ClientCredentialsGrant";
+
   private String grantType;
   @JsonProperty("authorizationServerUrl")
   private URI tokenEndpoint;

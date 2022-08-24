@@ -3,13 +3,15 @@ package collaborate.api.datasource.businessdata;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import collaborate.api.config.OpenApiConfig;
-import collaborate.api.datasource.businessdata.access.RequestAccessService;
+import collaborate.api.datasource.businessdata.access.AccessRequestService;
+import collaborate.api.datasource.businessdata.access.GrantAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.document.AssetsService;
+import collaborate.api.datasource.businessdata.document.model.BusinessDataDocument;
 import collaborate.api.datasource.businessdata.document.model.BusinessDataNFTSummary;
-import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
-import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
+import collaborate.api.datasource.businessdata.find.AssetDetailsService;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
@@ -46,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @RestController
@@ -55,11 +58,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class BusinessDataController {
 
-  private final RequestAccessService accessRequestService;
-  private final String businessDataContractAddress;
-  private final FindBusinessDataService findBusinessDataService;
+  private final AccessRequestService accessRequestService;
   private final AssetsService assetsService;
+  private final AssetDetailsService assetDetailsService;
+  private final String businessDataContractAddress;
+  private final GrantAccessService grantAccessService;
   private final NftDatasourceService nftDatasourceService;
+  private final NftScopeService nftScopeService;
 
   @GetMapping
   @Operation(
@@ -69,11 +74,11 @@ public class BusinessDataController {
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public Page<AssetDetailsDTO> listAssetDetails(
       @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
-      @RequestParam(required = false) Optional<String> query,
+      @RequestParam(required = false) Optional<String> assetId,
       @RequestParam(required = false) Optional<String> assetOwner
   ) {
-    var predicate = query.map(q -> (Predicate<TokenIndex>) t -> t.getAssetId().contains(q));
-    return findBusinessDataService.find(pageable, predicate, assetOwner);
+    var predicate = assetId.map(q -> (Predicate<TokenIndex>) t -> t.getAssetId().contains(q));
+    return assetDetailsService.find(pageable, predicate, assetOwner);
   }
 
   @GetMapping("market-place")
@@ -85,7 +90,7 @@ public class BusinessDataController {
   public Page<AssetDetailsDTO> marketPlace(
       @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable
   ) {
-    return findBusinessDataService.marketPlace(pageable);
+    return assetDetailsService.marketPlace(pageable);
   }
 
   @PostMapping("access-request")
@@ -115,10 +120,9 @@ public class BusinessDataController {
       description = "Get some basics informations for the given NFT"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public BusinessDataNFTSummary listAssetDocuments(@PathVariable Integer tokenId)
+  public BusinessDataNFTSummary getSummary(@PathVariable Integer tokenId)
       throws InterruptedException {
     waitForDatasourceConfiguration(tokenId);
-
     return assetsService.getSummary(tokenId);
   }
 
@@ -128,14 +132,17 @@ public class BusinessDataController {
       description = "See all the Business-data assets (documents) of the specified token id"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public Page<ScopeAssetDTO> listAssetDocuments(@PathVariable Integer tokenId,
+  public Page<BusinessDataDocument> listAssetDocuments(@PathVariable Integer tokenId,
       @ParameterObject Pageable pageable)
       throws InterruptedException {
     waitForDatasourceConfiguration(tokenId);
     return assetsService.listScopeAssets(tokenId, pageable);
   }
 
-  @GetMapping(value = {"asset/{tokenId}/test-connection", "asset/{tokenId}/fetch/{assetIdOpt}"})
+  @GetMapping(value = {
+      "asset/{tokenId}/test-connection",
+      "asset/{tokenId}/fetch/{documentId}"}
+  )
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "Try to consume an element of the business data collection"
@@ -148,11 +155,11 @@ public class BusinessDataController {
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public ResponseEntity<String> fetch(@PathVariable Integer tokenId,
-      @PathVariable Optional<String> assetIdOpt)
+      @PathVariable Optional<String> documentId)
       throws InterruptedException {
     waitForDatasourceConfiguration(tokenId);
 
-    var assetResponse = assetsService.fetch(tokenId, assetIdOpt);
+    var assetResponse = assetsService.fetch(tokenId, documentId);
     var statusCode = assetResponse.getStatusCode();
     if (statusCode == HttpStatus.SERVICE_UNAVAILABLE) {
       statusCode = HttpStatus.BAD_GATEWAY;
@@ -163,12 +170,12 @@ public class BusinessDataController {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.put(HttpHeaders.CONTENT_TYPE, List.of(contentType));
       return new ResponseEntity<>(
-          assetIdOpt.map(o -> assetResponse.getBody()).orElse(null),
+          documentId.map(o -> assetResponse.getBody()).orElse(null),
           responseHeaders,
           statusCode);
     } else {
       return new ResponseEntity<>(
-          assetIdOpt.map(o -> assetResponse.getBody()).orElse(null),
+          documentId.map(o -> assetResponse.getBody()).orElse(null),
           statusCode);
 
     }
@@ -187,4 +194,21 @@ public class BusinessDataController {
     assetsService.download(scopeAssets, response.getOutputStream());
   }
 
+  @PostMapping("/asset/{tokenId}/access/{organization}")
+  @Operation(
+      description = "Get datasource details",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @PreAuthorize(HasRoles.DSP_ADMIN)
+  public void addAccess(
+      @PathVariable(value = "organization") String requesterAddress,
+      @PathVariable(value = "tokenId") Integer nftId,
+      @RequestBody OAuth2ClientCredentialsGrant clientCredentialsGrant
+  ) {
+    nftScopeService.findOneByNftId(nftId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "NftId not managed by this organization"));
+
+    grantAccessService.grant(businessDataContractAddress, requesterAddress, nftId,
+        clientCredentialsGrant);
+  }
 }

@@ -17,6 +17,8 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 public class CertificateBasedBasicAuth extends BasicAuth {
 
+  public static final String TYPE_NAME = "CertificateBasedBasicAuth";
+
   @Transient
   @ToString.Exclude
   @Schema(description = "The passphrase to use for the certificate.<br><i>Local storage only</i>", example = "+FN7m^=GU64$vRdg")

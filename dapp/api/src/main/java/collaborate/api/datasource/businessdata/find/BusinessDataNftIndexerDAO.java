@@ -11,7 +11,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-class FindBusinessDataDAO {
+class BusinessDataNftIndexerDAO {
 
   private final String businessDataContractAddress;
   private final TAGBusinessDataClient tagBusinessDataClient;

@@ -13,11 +13,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class DataCatalogCreationDTO {
+public class MintBusinessDataParamsDTO {
 
   private String nftOperatorAddress;
-
   private String assetId;
-
   private Bytes metadataUri;
 }

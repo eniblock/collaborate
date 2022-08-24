@@ -3,7 +3,7 @@ package collaborate.api.datasource.model.dto.web;
 import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.ATTR_NAME_ALIAS;
 
 import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
-import collaborate.api.datasource.model.dto.web.authentication.transfer.CertificateBasedAuthorityEmail;
+import collaborate.api.datasource.model.dto.web.authentication.transfer.EmailNotification;
 import collaborate.api.test.TestResources;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
@@ -25,7 +25,7 @@ public class CertificateBasedBasicAuthDatasourceFeatures {
               new QueryParam("client_id", "c8fc43d5-f43f-44e5-acc2-b8aebaee90e2")
           )))
           .passphrase("secret")
-          .partnerTransferMethod(new CertificateBasedAuthorityEmail("certificate@authority.email"))
+          .partnerTransferMethod(new EmailNotification("certificate@authority.email"))
           .build()
       )
       .baseUrl("https://api-cert-preprod.dspconsortium1.com")

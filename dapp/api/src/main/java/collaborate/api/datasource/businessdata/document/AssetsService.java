@@ -2,26 +2,20 @@ package collaborate.api.datasource.businessdata.document;
 
 import static java.util.stream.Collectors.toList;
 
+import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.DatasourceMetadataService;
 import collaborate.api.datasource.DatasourceService;
+import collaborate.api.datasource.businessdata.document.model.BusinessDataDocument;
 import collaborate.api.datasource.businessdata.document.model.BusinessDataNFTSummary;
 import collaborate.api.datasource.businessdata.document.model.DownloadDocument;
-import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.datasource.businessdata.find.AssetDetailsService;
-import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.gateway.GatewayResourceDTO;
 import collaborate.api.datasource.gateway.GatewayUrlService;
-import collaborate.api.datasource.model.dto.VaultMetadata;
-import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
-import collaborate.api.datasource.model.scope.AssetScope;
-import collaborate.api.datasource.nft.AssetScopeDAO;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.http.HttpClientFactory;
 import collaborate.api.tag.TagService;
-import collaborate.api.user.metadata.UserMetadataService;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -71,10 +65,8 @@ import org.springframework.web.server.ResponseStatusException;
 public class AssetsService {
 
   public static final String ASSET_ID_SEPARATOR = ":";
-
-  private final AccessTokenProvider accessTokenProvider;
   private final AssetDetailsService assetDetailsService;
-  private final AssetScopeDAO assetScopeDAO;
+  private final AuthenticationService authenticationService;
   private final String businessDataContractAddress;
   private final CatalogService catalogService;
   private final Clock clock;
@@ -84,24 +76,23 @@ public class AssetsService {
   private final HttpClientFactory httpClientFactory;
   private final ObjectMapper objectMapper;
   private final TagService tagService;
-  private final UserMetadataService userMetadataService;
 
   public BusinessDataNFTSummary getSummary(Integer tokenId) {
     var catalog = catalogService.getCatalogByTokenId(tokenId, businessDataContractAddress);
     return catalog.getDatasources()
         .stream()
-        .map(this::buildSummary)
+        .map(d -> buildSummary(d, tokenId))
         .findFirst()
         .orElseThrow(
             () -> new IllegalStateException("No catalog found for tokenId=" + tokenId));
   }
 
-  public BusinessDataNFTSummary buildSummary(AssetDetailsDatasourceDTO details) {
+  public BusinessDataNFTSummary buildSummary(AssetDetailsDatasourceDTO details, Integer nftId) {
     var datasourceId = details.getId();
     var resourceAlias = details.getAssetIdForDatasource();
 
     var summaryBuilder = BusinessDataNFTSummary.builder()
-        .accessStatus(assetDetailsService.getAccessStatus(datasourceId, resourceAlias))
+        .accessStatus(assetDetailsService.getAccessStatus(datasourceId, nftId))
         .datasourceId(datasourceId)
         .providerAddress(details.getOwnerAddress())
         .scopeName(resourceAlias);
@@ -112,7 +103,7 @@ public class AssetsService {
     return summaryBuilder.build();
   }
 
-  public Page<ScopeAssetDTO> listScopeAssets(Integer tokenId, Pageable pageable) {
+  public Page<BusinessDataDocument> listScopeAssets(Integer tokenId, Pageable pageable) {
     return catalogService.getCatalogByTokenId(
             tokenId,
             businessDataContractAddress
@@ -133,7 +124,7 @@ public class AssetsService {
   /**
    * @return The datasource response for the given resource
    */
-  public List<ScopeAssetDTO> listFrom(AssetDetailsDatasourceDTO datasourceDTO) {
+  public List<BusinessDataDocument> listFrom(AssetDetailsDatasourceDTO datasourceDTO) {
     var datasourceId = datasourceDTO.getId();
     var resourceAlias = datasourceDTO.getAssetIdForDatasource();
     var resourceResponse = getAssetListResponse(datasourceId, resourceAlias);
@@ -146,7 +137,7 @@ public class AssetsService {
     return Optional.ofNullable(resourceResponse.getBody())
         .map(JsonNode::toString)
         .map(assetListJsonString ->
-            convertJsonToScopeAssetDTOs(assetListJsonString, datasourceId, resourceAlias)
+            convertJsonToBusinessDataDocument(assetListJsonString, datasourceId, resourceAlias)
                 .collect(toList())
         ).orElse(Collections.emptyList());
   }
@@ -154,39 +145,13 @@ public class AssetsService {
   ResponseEntity<JsonNode> getAssetListResponse(String datasourceId, String alias) {
     var gatewayResource = GatewayResourceDTO.builder()
         .datasourceId(datasourceId)
-        .scope(alias)
+        .alias(alias)
         .build();
     return gatewayUrlService.fetch(gatewayResource);
   }
 
-  Optional<AccessTokenResponse> getJwt(String datasourceId, String resource) {
-    return getOAuth2(datasourceId)
-        .map(oAuth2 -> getOwnerAccessToken(datasourceId, oAuth2, resource))
-        .or(() -> getRequesterAccessToken(datasourceId, resource));
-  }
-
-  Optional<OAuth2ClientCredentialsGrant> getOAuth2(String datasourceId) {
-    return userMetadataService.find(datasourceId, VaultMetadata.class)
-        .filter(VaultMetadata::hasOAuth2)
-        .map(VaultMetadata::getOAuth2);
-  }
-
-  private AccessTokenResponse getOwnerAccessToken(String datasourceId,
-      OAuth2ClientCredentialsGrant auth2,
-      String resource) {
-    var scope = assetScopeDAO.findById(datasourceId + ":" + resource).map(AssetScope::getScope);
-    return accessTokenProvider.get(auth2, scope);
-  }
-
-  private Optional<AccessTokenResponse> getRequesterAccessToken(String datasourceId, String scope) {
-    return userMetadataService
-        .find(datasourceId + ASSET_ID_SEPARATOR + scope, VaultMetadata.class)
-        .filter(VaultMetadata::hasJwt)
-        .map(VaultMetadata::getJwt)
-        .map(accessToken -> AccessTokenResponse.builder().accessToken(accessToken).build());
-  }
-
-  Stream<ScopeAssetDTO> convertJsonToScopeAssetDTOs(String jsonResponse, String datasourceId,
+  Stream<BusinessDataDocument> convertJsonToBusinessDataDocument(String jsonResponse,
+      String datasourceId,
       String resourceAlias) {
     var metadata = datasourceService.findById(datasourceId)
         .map(d -> datasourceMetadataService.findByAlias(d, resourceAlias))
@@ -209,7 +174,7 @@ public class AssetsService {
       throw new IllegalStateException(e);
     }
     return results.stream()
-        .map(r -> ScopeAssetDTO.builder()
+        .map(r -> BusinessDataDocument.builder()
             .name(idPath.eval(r, String.class))
             .type("MVP document")
             .synchronizedDate(ZonedDateTime.now(clock))
@@ -222,16 +187,15 @@ public class AssetsService {
         );
   }
 
-  public ZipOutputStream download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)
+  public void download(ScopeAssetsDTO scopeAssets, ServletOutputStream outputStream)
       throws IOException {
-    var accessTokenResponse = getJwt(scopeAssets.getDatasourceId(), scopeAssets.getScopeName())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
+    var jwt = authenticationService.getJwt(scopeAssets.getNftId(), businessDataContractAddress);
     var r = scopeAssets.getAssets().stream()
-        .map(ScopeAssetDTO::getDownloadLink)
+        .map(BusinessDataDocument::getDownloadLink)
         .map(URI::toString)
-        .map(s -> download(s, accessTokenResponse))
+        .map(s -> download(s, jwt))
         .collect(toList());
-    return zip(r, outputStream);
+    zip(r, outputStream);
   }
 
   public ZipOutputStream zip(List<DownloadDocument> documents, ServletOutputStream outputStream)
@@ -258,7 +222,7 @@ public class AssetsService {
     }
   }
 
-  public DownloadDocument download(String url, AccessTokenResponse oAuth2Jwt) {
+  public DownloadDocument download(String url, String oAuth2Jwt) {
     RestTemplate restTemplate = buildRestTemplate();
 
     return restTemplate.execute(
@@ -266,7 +230,7 @@ public class AssetsService {
         HttpMethod.GET,
         clientHttpRequest -> clientHttpRequest.getHeaders().set(
             "Authorization",
-            "Bearer " + oAuth2Jwt.getAccessToken()
+            "Bearer " + oAuth2Jwt
         ),
         downloadResponseToDownloadDocument);
   }
@@ -308,11 +272,11 @@ public class AssetsService {
   }
 
   public ResponseEntity<String> fetch(Integer tokenId, Optional<String> assetIdOpt) {
-    var summary = getSummary(tokenId);
     var assetDTOs = catalogService.getCatalogByTokenId(
             tokenId,
             businessDataContractAddress
-        ).getDatasources().stream().findFirst()
+        ).getDatasources().stream()
+        .findFirst()
         .map(this::listFrom)
         .orElseThrow(() -> new IllegalStateException("No datasource for tokenId=" + tokenId));
 
@@ -320,17 +284,19 @@ public class AssetsService {
             assetId -> assetDTOs.stream()
                 .filter(assetDTO -> StringUtils.equals(assetDTO.getName(), assetId))
                 .findFirst()
-        ).orElseGet(() -> assetDTOs.stream().findFirst())
-        .map(ScopeAssetDTO::getDownloadLink)
+        ).orElseGet(
+            () -> assetDTOs.stream().findFirst()
+        ).map(BusinessDataDocument::getDownloadLink)
         .map(URI::toString)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        .orElseThrow(
+            () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
 
-    var accessTokenResponse = getJwt(summary.getDatasourceId(), summary.getScopeName())
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.PROXY_AUTHENTICATION_REQUIRED));
+    var jwt = authenticationService.getJwt(tokenId, businessDataContractAddress);
 
     RestTemplate restTemplate = buildRestTemplate();
     HttpHeaders headers = new HttpHeaders();
-    headers.set("Authorization", "Bearer " + accessTokenResponse.getAccessToken());
+    headers.set("Authorization", "Bearer " + jwt);
 
     return restTemplate.exchange(
         downloadLink,
@@ -338,6 +304,5 @@ public class AssetsService {
         new HttpEntity<String>(null, headers),
         String.class);
   }
-
 
 }

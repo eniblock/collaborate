@@ -27,7 +27,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DatasourceService {
 
-  private final DatasourceDAO datasourceDAO;
+  private final AuthenticationService authenticationService;
+  private final DatasourceRepository datasourceRepository;
   private final DatasourceMetadataService datasourceMetadataService;
   private final ObjectMapper objectMapper;
   private final OrganizationService organizationService;
@@ -37,7 +38,7 @@ public class DatasourceService {
   public Page<ListDatasourceDTO> findAllByCurrentOrg(Pageable pageable, String query) {
     log.warn("query={} not implemented", query);
     var currentOrgAddress = organizationService.getCurrentOrganization().getAddress();
-    return datasourceDAO.findAllByOwner(currentOrgAddress, pageable)
+    return datasourceRepository.findAllByOwner(currentOrgAddress, pageable)
         .map(d -> ListDatasourceDTO.builder()
             .creationDateTime(d.getCreationDatetime())
             .datasourceType(d.findMetadataByName(DATASOURCE_TYPE).orElse(""))
@@ -52,11 +53,11 @@ public class DatasourceService {
   }
 
   public Optional<Datasource> findById(String id) {
-    return datasourceDAO.findById(id);
+    return datasourceRepository.findById(id);
   }
 
   public Optional<DatasourceDetailsDto> findDetailsById(String id) {
-    return datasourceDAO.findById(id)
+    return datasourceRepository.findById(id)
         .map(this::buildDatasourceDetailsDto);
   }
 
@@ -69,9 +70,10 @@ public class DatasourceService {
             getResourcesByDataSourceId(datasource.getId())
                 .orElse(emptySet())
         ).baseURI(traefikProviderService.buildDatasourceBaseUri(datasource))
-        .authenticationType(datasourceMetadataService.getAuthentication(datasource))
+        .authenticationType(authenticationService.getAccessMethodName(datasource.getId()))
         .datasourceType(datasourceMetadataService.getType(datasource))
-        .partnerTransferMethod(datasourceMetadataService.getPartnerTransferMethod(datasource))
+        .partnerTransferMethod(
+            authenticationService.getTransferMethod(datasource.getId()))
         .build();
   }
 
@@ -88,12 +90,12 @@ public class DatasourceService {
   }
 
   public Optional<Set<Metadata>> getMetadata(String datasourceId) {
-    return datasourceDAO.findById(datasourceId)
+    return datasourceRepository.findById(datasourceId)
         .map(Datasource::getProviderMetadata);
   }
 
   public Datasource saveIfNotExists(Datasource d) {
-    return datasourceDAO.findById(d.getId())
-        .orElseGet(() -> datasourceDAO.save(d));
+    return datasourceRepository.findById(d.getId())
+        .orElseGet(() -> datasourceRepository.save(d));
   }
 }
