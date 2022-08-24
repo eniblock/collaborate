@@ -61,7 +61,6 @@ public class AuthenticationService {
         .orElse(null);
   }
 
-  @Deprecated
   public Optional<String> findAuthorizationHeader(String datasourceId, NftScope nftScope) {
     var datasourceOpt = findAuthentication(datasourceId);
     if (datasourceOpt.isPresent()) {

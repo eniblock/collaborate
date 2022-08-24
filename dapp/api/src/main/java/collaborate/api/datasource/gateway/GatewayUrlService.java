@@ -6,6 +6,7 @@ import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.businessdata.NftScopeService;
 import com.fasterxml.jackson.databind.JsonNode;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +26,13 @@ public class GatewayUrlService {
   public ResponseEntity<JsonNode> fetch(GatewayResourceDTO resourceDTO) {
     String uri = buildURL(resourceDTO);
 
-    var nftScope = nftScopeService.findById(
+    Optional<String> bearerOpt = nftScopeService.findById(
         resourceDTO.getDatasourceId(),
         resourceDTO.getAlias()
-    ).orElseThrow(() -> new IllegalStateException("NftScope not found"));
-
-    var bearerOpt = authenticationService.findAuthorizationHeader(
+    ).flatMap(nftScope -> authenticationService.findAuthorizationHeader(
         resourceDTO.getDatasourceId(),
-        nftScope);
+        nftScope)
+    );
 
     return gatewayURLDAO.fetch(uri, bearerOpt);
   }
@@ -46,8 +46,7 @@ public class GatewayUrlService {
     if (isNotBlank(resourceDTO.getAssetIdForDatasource())) {
       uriBuilder.path("/" + resourceDTO.getAssetIdForDatasource());
     }
-    var uri = uriBuilder.build().toUriString();
-    return uri;
+    return uriBuilder.build().toUriString();
   }
 
 }
