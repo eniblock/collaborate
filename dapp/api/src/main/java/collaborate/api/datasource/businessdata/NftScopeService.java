@@ -44,7 +44,7 @@ public class NftScopeService {
     }
     var indexedNft = businessDataNftIndexerService.find(
             Optional.of(tokenIndex -> tokenIndex.getAssetId().equals(assetId)),
-            Optional.of(currentOrganizationAddress)
+            Optional.of(transaction.getSource())
         ).stream()
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("nft not found for assetId =" + assetId));
