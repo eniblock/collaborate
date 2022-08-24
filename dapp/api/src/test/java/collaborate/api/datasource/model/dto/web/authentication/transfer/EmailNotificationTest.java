@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import collaborate.api.test.TestResources;
 import org.junit.jupiter.api.Test;
 
-class CertificateBasedAuthorityEmailTest {
+class EmailNotificationTest {
 
   @Test
   void deserializeAsInterface_shouldReturnExpectedImplementation() {
@@ -15,6 +15,6 @@ class CertificateBasedAuthorityEmailTest {
         PartnerTransferMethod.class);
 
     // THEN
-    assertThat(transferMethod).isEqualTo(new CertificateBasedAuthorityEmail("mail@test.com"));
+    assertThat(transferMethod).isEqualTo(new EmailNotification("mail@test.com"));
   }
 }

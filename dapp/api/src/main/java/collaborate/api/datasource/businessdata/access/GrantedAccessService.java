@@ -37,7 +37,7 @@ public class GrantedAccessService {
   }
 
   private void storeJWT(AccessGrantParams accessGrantParams, String decipheredJWT) {
-    authenticationService.saveGrantedJwt(
+    authenticationService.saveRequesterClientCredentials(
         accessGrantParams.getNftId(),
         businessDataContractAddress,
         decipheredJWT

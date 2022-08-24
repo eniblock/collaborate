@@ -2,18 +2,20 @@ package collaborate.api.datasource.model.dto.web.authentication.transfer;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CertificateBasedAuthorityEmail extends PartnerTransferMethod {
+@EqualsAndHashCode(callSuper = false)
+public class EmailNotification extends PartnerTransferMethod {
 
-  public static final String TYPE_NAME = "CertificateBasedAuthorityEmail";
+  public static final String TYPE_NAME = "EmailNotification";
   private String email;
 
   @Override
   public <T> T accept(TransferMethodVisitor<T> visitor) {
-    return visitor.visitCertificateBasedBasicAuth(this);
+    return visitor.visitEmailNotification(this);
   }
 }

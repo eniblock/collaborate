@@ -4,12 +4,14 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.datasource.businessdata.access.AccessRequestService;
+import collaborate.api.datasource.businessdata.access.GrantAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.document.AssetsService;
 import collaborate.api.datasource.businessdata.document.model.BusinessDataDocument;
 import collaborate.api.datasource.businessdata.document.model.BusinessDataNFTSummary;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.datasource.businessdata.find.AssetDetailsService;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
@@ -46,6 +48,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @RestController
@@ -56,10 +59,12 @@ import org.springframework.web.bind.annotation.RestController;
 public class BusinessDataController {
 
   private final AccessRequestService accessRequestService;
-  private final String businessDataContractAddress;
   private final AssetsService assetsService;
   private final AssetDetailsService assetDetailsService;
+  private final String businessDataContractAddress;
+  private final GrantAccessService grantAccessService;
   private final NftDatasourceService nftDatasourceService;
+  private final NftScopeService nftScopeService;
 
   @GetMapping
   @Operation(
@@ -189,4 +194,21 @@ public class BusinessDataController {
     assetsService.download(scopeAssets, response.getOutputStream());
   }
 
+  @PostMapping("/asset/{tokenId}/access/{organization}")
+  @Operation(
+      description = "Get datasource details",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @PreAuthorize(HasRoles.DSP_ADMIN)
+  public void addAccess(
+      @PathVariable(value = "organization") String requesterAddress,
+      @PathVariable(value = "tokenId") Integer nftId,
+      @RequestBody OAuth2ClientCredentialsGrant clientCredentialsGrant
+  ) {
+    nftScopeService.findOneByNftId(nftId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "NftId not managed by this organization"));
+
+    grantAccessService.grant(businessDataContractAddress, requesterAddress, nftId,
+        clientCredentialsGrant);
+  }
 }

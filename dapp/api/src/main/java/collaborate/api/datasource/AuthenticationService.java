@@ -11,6 +11,7 @@ import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.Authentication;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
+import collaborate.api.datasource.model.dto.web.authentication.transfer.OAuth2SharedCredentials;
 import collaborate.api.datasource.model.dto.web.authentication.transfer.PartnerTransferMethod;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
@@ -105,6 +106,7 @@ public class AuthenticationService {
   }
 
   private Optional<String> findRequestedJWT(Integer nftId, String smartContract) {
+    // FIXME COL-557
     return userMetadataService
         .find(nftId.toString(), VaultDatasourceAuth.class)
         .map(VaultDatasourceAuth::getJwt);
@@ -115,25 +117,50 @@ public class AuthenticationService {
     return datasourceId + ":" + scope.orElse("");
   }
 
-  public void saveGrantedJwt(Integer nftId, String businessDataContractAddress,
+  public void saveRequesterClientCredentials(Integer nftId, String contractAddress,
       String decipheredJWT) {
     userMetadataService.upsertMetadata(
-        buildRequestedNftKey(businessDataContractAddress, nftId),
+        buildSharedCredentialsNftKey(contractAddress, nftId),
         VaultDatasourceAuth.builder()
             .jwt(decipheredJWT)
             .build()
     );
   }
 
-  static String buildRequestedNftKey(String businessDataContractAddress, Integer nftId) {
-    return businessDataContractAddress + ":" + nftId;
+  public OAuth2ClientCredentialsGrant saveRequesterClientCredentials(String contractAddress,
+      String requesterAddress, Integer nftId, OAuth2ClientCredentialsGrant clientCredentialsGrant) {
+    var authentication = OAuth2ClientCredentialsGrant.builder()
+        .grantType(clientCredentialsGrant.getGrantType())
+        .clientId(clientCredentialsGrant.getClientId())
+        .clientSecret(clientCredentialsGrant.getClientSecret())
+        .partnerTransferMethod(new OAuth2SharedCredentials())
+        .build();
+
+    userMetadataService.upsertMetadata(
+        buildDedicatedCredentialsNftKey(contractAddress, requesterAddress, nftId),
+        VaultDatasourceAuth.builder()
+            .authentication(authentication)
+            .build()
+    );
+    return authentication;
+  }
+
+  public String buildSharedCredentialsNftKey(String contractAddress, Integer nftId) {
+    return contractAddress + ":" + nftId;
+  }
+
+  public String buildDedicatedCredentialsNftKey(String contractAddress,
+      String requester, Integer nftId) {
+    return contractAddress + "." + requester + "." + nftId;
   }
 
   public boolean isGranted(String datasourceId, Integer nftId, String smartContract) {
     return datasourceRepository.findById(datasourceId).isPresent()
         || userMetadataService.find(
-        buildRequestedNftKey(smartContract, nftId),
+        buildSharedCredentialsNftKey(smartContract, nftId),
         VaultDatasourceAuth.class
     ).isPresent();
   }
+
+
 }

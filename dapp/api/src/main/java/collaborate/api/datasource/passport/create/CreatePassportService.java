@@ -1,6 +1,6 @@
 package collaborate.api.datasource.passport.create;
 
-import static collaborate.api.mail.MailService.NOREPLY_THEBLOCKCHAINXDEV_COM;
+import static collaborate.api.mail.EMailService.NOREPLY_THEBLOCKCHAINXDEV_COM;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 import collaborate.api.config.UUIDGenerator;
@@ -8,13 +8,14 @@ import collaborate.api.datasource.nft.TokenMetadataProperties;
 import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.datasource.nft.catalog.create.Tzip21MetadataService;
 import collaborate.api.date.DateFormatterFactory;
-import collaborate.api.mail.MailDTO;
-import collaborate.api.mail.MailService;
+import collaborate.api.mail.EMailDTO;
+import collaborate.api.mail.EMailService;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.user.UserService;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Map;
 import javax.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,7 +32,7 @@ public class CreatePassportService {
 
   private final CreatePassportDAO createPassportDAO;
   private final DateFormatterFactory dateFormatterFactory;
-  private final MailService mailService;
+  private final EMailService eMailService;
   private final PassportTzip21MetadataFactory passportTzip21MetadataFactory;
   private final TokenMetadataProperties tokenMetadataProperties;
   private final Tzip21MetadataService tzip21MetadataService;
@@ -74,15 +75,18 @@ public class CreatePassportService {
   void sendMultisigCreatedEmail(String recipient) {
     log.info("SendPassportMail({})", recipient);
 
-    MailDTO mailDTO = new MailDTO(
+    EMailDTO EMailDTO = new EMailDTO(
         NOREPLY_THEBLOCKCHAINXDEV_COM,
         recipient,
         "Your Digital Passport Creation",
-        "You received this mail because your passport is created and await your consent");
-    log.info("mailDTO={}", mailDTO);
+        Map.of(
+            "content",
+            "You received this mail because your passport is created and await your consent."
+        )
+    );
 
     try {
-      mailService.sendMail(mailDTO, StandardCharsets.UTF_8.name(), CONTACT_EMAIL_HTML_TEMPLATE);
+      eMailService.sendMail(EMailDTO, StandardCharsets.UTF_8.name(), CONTACT_EMAIL_HTML_TEMPLATE);
     } catch (MessagingException | MailException e) {
       log.error("Problem with Mail sending", e);
       throw new ResponseStatusException(

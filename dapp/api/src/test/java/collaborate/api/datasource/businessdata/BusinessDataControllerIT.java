@@ -14,10 +14,10 @@ import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.config.api.SmartContractConfig;
 import collaborate.api.config.exception.ControllerExceptionHandler;
 import collaborate.api.datasource.businessdata.access.AccessRequestService;
+import collaborate.api.datasource.businessdata.access.GrantAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.document.AssetsService;
 import collaborate.api.datasource.businessdata.find.AssetDetailsService;
-import collaborate.api.datasource.businessdata.find.BusinessDataNftIndexerService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.test.config.KeycloakTestConfig;
@@ -59,9 +59,11 @@ class BusinessDataControllerIT {
   @MockBean
   AssetDetailsService assetDetailsService;
   @MockBean
+  GrantAccessService grantAccessService;
+  @MockBean
   NftDatasourceService nftDatasourceService;
   @MockBean
-  BusinessDataNftIndexerService businessDataNftIndexerService;
+  NftScopeService nftScopeService;
   @MockBean
   AssetsService assetsService;
 
