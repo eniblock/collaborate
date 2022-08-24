@@ -1,7 +1,5 @@
 package collaborate.api.datasource;
 
-import static java.lang.String.format;
-
 import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.model.AccessMethodNameVisitor;
@@ -46,34 +44,39 @@ public class AuthenticationService {
     );
   }
 
-  public Authentication getAuthentication(String datasourceId) {
+  public Optional<Authentication> findAuthentication(String datasourceId) {
     return userMetadataService.find(datasourceId, VaultDatasourceAuth.class)
-        .map(VaultDatasourceAuth::getAuthentication).orElseThrow(() -> new IllegalStateException(
-            format("Datasource id=%s not found in vault", datasourceId))
-        );
+        .map(VaultDatasourceAuth::getAuthentication);
   }
 
   public String getAccessMethodName(String datasourceId) {
-    return getAuthentication(datasourceId).accept(accessMethodNameVisitor);
+    return findAuthentication(datasourceId)
+        .map(auth -> auth.accept(accessMethodNameVisitor))
+        .orElse("");
   }
 
   public PartnerTransferMethod getTransferMethod(String datasourceId) {
-    return getAuthentication(datasourceId).getPartnerTransferMethod();
+    return findAuthentication(datasourceId)
+        .map(Authentication::getPartnerTransferMethod)
+        .orElse(null);
   }
 
-  // TODO COL-557 Remove ?
   @Deprecated
-  public Optional<String> findAuthorizationHeader(String datasourceId, Optional<String> scope) {
-    var datasourceOpt = datasourceRepository.findById(datasourceId);
+  public Optional<String> findAuthorizationHeader(String datasourceId, NftScope nftScope) {
+    var datasourceOpt = findAuthentication(datasourceId);
     if (datasourceOpt.isPresent()) {
-      var bearer = getAuthentication(datasourceId).accept(
-          new AuthenticationBearerVisitor(httpClientFactory, scope)
-      );
-      return Optional.ofNullable(bearer);
+      // Owner
+      return findAuthentication(datasourceId)
+          .map(auth -> auth.accept(
+              new AuthenticationBearerVisitor(
+                  httpClientFactory,
+                  Optional.ofNullable(nftScope.getScope())
+              )
+          ));
     } else {
-      var vaultKey = buildVaultKey(datasourceId, scope);
-      return userMetadataService.find(vaultKey, VaultDatasourceAuth.class)
-          .map(VaultDatasourceAuth::getJwt)
+      // Requester
+      // FIXME
+      return findRequestedJWT(nftScope.getNftId(), null)
           .map(jwt -> "Bearer " + jwt);
     }
   }
@@ -106,9 +109,8 @@ public class AuthenticationService {
   }
 
   private Optional<String> findRequestedJWT(Integer nftId, String smartContract) {
-    // FIXME COL-557
     return userMetadataService
-        .find(nftId.toString(), VaultDatasourceAuth.class)
+        .find(buildByNftKey(smartContract, nftId), VaultDatasourceAuth.class)
         .map(VaultDatasourceAuth::getJwt);
   }
 
@@ -120,7 +122,7 @@ public class AuthenticationService {
   public void saveRequesterClientCredentials(Integer nftId, String contractAddress,
       String decipheredJWT) {
     userMetadataService.upsertMetadata(
-        buildSharedCredentialsNftKey(contractAddress, nftId),
+        buildByNftKey(contractAddress, nftId),
         VaultDatasourceAuth.builder()
             .jwt(decipheredJWT)
             .build()
@@ -145,8 +147,9 @@ public class AuthenticationService {
     return authentication;
   }
 
-  public String buildSharedCredentialsNftKey(String contractAddress, Integer nftId) {
-    return contractAddress + ":" + nftId;
+  public String buildByNftKey(String contractAddress, Integer nftId) {
+    // FIXME
+    return nftId.toString();
   }
 
   public String buildDedicatedCredentialsNftKey(String contractAddress,
@@ -157,7 +160,7 @@ public class AuthenticationService {
   public boolean isGranted(String datasourceId, Integer nftId, String smartContract) {
     return datasourceRepository.findById(datasourceId).isPresent()
         || userMetadataService.find(
-        buildSharedCredentialsNftKey(smartContract, nftId),
+        buildByNftKey(smartContract, nftId),
         VaultDatasourceAuth.class
     ).isPresent();
   }

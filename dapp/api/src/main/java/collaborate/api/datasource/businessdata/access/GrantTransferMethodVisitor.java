@@ -65,7 +65,11 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
 
   @Override
   public Void visitOAuth2SharedCredentials(OAuth2SharedCredentials oAuth2) {
-    var authentication = authenticationService.getAuthentication(nftScope.getDatasourceId());
+    var authentication = authenticationService
+        .findAuthentication(nftScope.getDatasourceId())
+        .orElseThrow(() -> new IllegalStateException(
+            "Missing authentication for datasourceId=" + nftScope.getDatasourceId())
+        );
 
     if (authentication instanceof OAuth2ClientCredentialsGrant) {
       var accessTokenResponse = accessTokenProvider.get(

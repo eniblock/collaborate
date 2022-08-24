@@ -1,9 +1,12 @@
 package collaborate.api.datasource.businessdata.access;
 
+import static java.lang.String.format;
+
 import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestParams;
 import collaborate.api.datasource.businessdata.access.model.PendingAccessRequest.Id;
+import collaborate.api.datasource.model.dto.web.authentication.Authentication;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,10 +32,16 @@ public class GrantAccessService {
     var nftScope = nftScopeService.findOneByNftId(nftId)
         .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + nftId));
 
-    authenticationService
-        .getAuthentication(nftScope.getDatasourceId())
-        .getPartnerTransferMethod()
-        .accept(grantTransferMethodVisitorFactory.create(nftScope, transaction.getSource()));
+    authenticationService.findAuthentication(nftScope.getDatasourceId())
+        .map(Authentication::getPartnerTransferMethod)
+        .map(transferMethod -> transferMethod.accept(
+            grantTransferMethodVisitorFactory.create(nftScope, transaction.getSource())
+        )).orElseThrow(() -> new IllegalStateException(format(
+                "Missing authentication for accessRequestParams=%s, nftScope=%s",
+                accessRequestParams,
+                nftScope
+            ))
+        );
   }
 
   public AccessRequestParams getAccessRequestParams(Transaction transaction) {

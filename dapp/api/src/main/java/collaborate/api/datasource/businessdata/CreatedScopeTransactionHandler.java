@@ -32,8 +32,6 @@ public class CreatedScopeTransactionHandler implements TransactionHandler {
 
   void handleUpdateAssetScopeNftId(Transaction transaction) {
     String currentOrganizationAddress = organizationService.getCurrentOrganization().getAddress();
-    if (transaction.isSender(currentOrganizationAddress)) {
-      nftScopeService.updateNftId(transaction, currentOrganizationAddress);
-    }
+    nftScopeService.updateNftId(transaction, currentOrganizationAddress);
   }
 }

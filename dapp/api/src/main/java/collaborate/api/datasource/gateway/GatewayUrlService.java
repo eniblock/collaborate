@@ -25,12 +25,14 @@ public class GatewayUrlService {
   public ResponseEntity<JsonNode> fetch(GatewayResourceDTO resourceDTO) {
     String uri = buildURL(resourceDTO);
 
-    var aliasScopeOpt = nftScopeService
-        .findScopeById(resourceDTO.getDatasourceId(), resourceDTO.getAlias());
+    var nftScope = nftScopeService.findById(
+        resourceDTO.getDatasourceId(),
+        resourceDTO.getAlias()
+    ).orElseThrow(() -> new IllegalStateException("NftScope not found"));
 
     var bearerOpt = authenticationService.findAuthorizationHeader(
         resourceDTO.getDatasourceId(),
-        aliasScopeOpt);
+        nftScope);
 
     return gatewayURLDAO.fetch(uri, bearerOpt);
   }

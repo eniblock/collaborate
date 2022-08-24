@@ -49,11 +49,13 @@ public class NftScopeService {
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("nft not found for assetId =" + assetId));
 
-    var assetScope = nftScopeRepository.findById(new NFTScopeId(assetId));
-    if (assetScope.isPresent()) {
-      assetScope.get().setNftId(indexedNft.getTokenId());
-      nftScopeRepository.save(assetScope.get());
+    var nftScope = nftScopeRepository.findById(new NFTScopeId(assetId));
+    if (nftScope.isPresent()) {
+      nftScope.get().setNftId(indexedNft.getTokenId());
+    } else {
+      nftScope = Optional.of(new NftScope(new NFTScopeId(assetId), null, indexedNft.getTokenId()));
     }
+    nftScopeRepository.save(nftScope.get());
   }
 
   public NftScope save(NftScope nftScope) {
