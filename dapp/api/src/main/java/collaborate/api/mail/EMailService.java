@@ -12,7 +12,7 @@ import org.thymeleaf.context.Context;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class MailService {
+public class EMailService {
 
   public static final String NOREPLY_THEBLOCKCHAINXDEV_COM = "noreply@theblockchainxdev.com";
 
@@ -20,23 +20,22 @@ public class MailService {
   private final TemplateEngineWrapper templateEngine;
 
   public void sendMail(
-      MailDTO mailDto,
+      EMailDTO eMailDTO,
       String templateEncoding,
       String templateName
   ) throws MessagingException {
+    log.debug("Sending email: {}", eMailDTO);
     final Context context = new Context();
-    context.setVariable("greeting", mailDto.getGreeting());
-    context.setVariable("content", mailDto.getContent());
-    context.setVariable("subject", mailDto.getSubject());
+    eMailDTO.getContextVariables().forEach(context::setVariable);
 
     final MimeMessage mimeMessage = javaMailSender.createMimeMessage();
     final MimeMessageHelper message = new MimeMessageHelper(mimeMessage, true, templateEncoding);
     final String htmlContent = templateEngine.process(templateName, context);
 
     message.setText(htmlContent, true);
-    message.setFrom(mailDto.getFrom());
-    message.setTo(mailDto.getTo());
-    message.setSubject(mailDto.getSubject());
+    message.setFrom(eMailDTO.getFrom());
+    message.setTo(eMailDTO.getTo());
+    message.setSubject(eMailDTO.getSubject());
     javaMailSender.send(mimeMessage);
   }
 }

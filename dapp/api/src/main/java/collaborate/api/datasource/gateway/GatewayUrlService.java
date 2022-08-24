@@ -3,15 +3,9 @@ package collaborate.api.datasource.gateway;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import collaborate.api.config.api.TraefikProperties;
-import collaborate.api.datasource.DatasourceMetadataService;
-import collaborate.api.datasource.DatasourceService;
-import collaborate.api.datasource.model.dto.VaultMetadata;
-import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
-import collaborate.api.datasource.model.scope.AssetScope;
-import collaborate.api.datasource.nft.AssetScopeDAO;
-import collaborate.api.user.metadata.UserMetadataService;
+import collaborate.api.datasource.AuthenticationService;
+import collaborate.api.datasource.businessdata.NftScopeService;
 import com.fasterxml.jackson.databind.JsonNode;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -23,53 +17,37 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Slf4j
 public class GatewayUrlService {
 
-  private final AssetScopeDAO assetScopeDAO;
-  private final DatasourceService datasourceService;
+  private final NftScopeService nftScopeService;
+  private final AuthenticationService authenticationService;
   private final GatewayUrlDAO gatewayURLDAO;
   private final TraefikProperties traefikProperties;
-  private final UserMetadataService userMetadataService;
-  private final DatasourceMetadataService datasourceMetadataService;
-  private final AccessTokenProvider accessTokenProvider;
 
   public ResponseEntity<JsonNode> fetch(GatewayResourceDTO resourceDTO) {
+    String uri = buildURL(resourceDTO);
+
+    var nftScope = nftScopeService.findById(
+        resourceDTO.getDatasourceId(),
+        resourceDTO.getAlias()
+    ).orElseThrow(() -> new IllegalStateException("NftScope not found"));
+
+    var bearerOpt = authenticationService.findAuthorizationHeader(
+        resourceDTO.getDatasourceId(),
+        nftScope);
+
+    return gatewayURLDAO.fetch(uri, bearerOpt);
+  }
+
+  String buildURL(GatewayResourceDTO resourceDTO) {
     var uriBuilder = UriComponentsBuilder.fromUriString(traefikProperties.getUrl())
         .path("/datasource")
         .path("/" + resourceDTO.getDatasourceId())
-        .path("/" + resourceDTO.getScope());
+        .path("/" + resourceDTO.getAlias());
 
     if (isNotBlank(resourceDTO.getAssetIdForDatasource())) {
       uriBuilder.path("/" + resourceDTO.getAssetIdForDatasource());
     }
-
-    var accessTokenOpt = findOAuth2Jwt(
-        resourceDTO.getDatasourceId(),
-        resourceDTO.getScope());
     var uri = uriBuilder.build().toUriString();
-    return gatewayURLDAO.fetch(uri, accessTokenOpt);
+    return uri;
   }
 
-  private Optional<AccessTokenResponse> findOAuth2Jwt(String datasourceId, String resource) {
-    var vaultMetadataO =
-        // We are the datasource owner
-        userMetadataService.find(
-            datasourceId,
-            VaultMetadata.class
-        ).or(() ->
-            // We are not the datasource owner, maybe we have a granted access
-            userMetadataService.find(
-                datasourceId + ":" + resource,
-                VaultMetadata.class
-            )
-        );
-    if (vaultMetadataO.isPresent()) {
-      var oAuth2 = vaultMetadataO.get().getOAuth2();
-      if (oAuth2 != null) {
-        var scope = assetScopeDAO.findById(datasourceId + ":" + resource)
-            .map(AssetScope::getScope);
-        return Optional.of(accessTokenProvider.get(oAuth2, scope));
-      }
-    }
-    return Optional.empty();
-  }
-  
 }

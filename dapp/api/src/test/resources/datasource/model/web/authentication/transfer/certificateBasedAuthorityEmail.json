@@ -1,4 +1,4 @@
 {
-  "type": "CertificateBasedAuthorityEmail",
+  "type": "EmailNotification",
   "email": "mail@test.com"
 }

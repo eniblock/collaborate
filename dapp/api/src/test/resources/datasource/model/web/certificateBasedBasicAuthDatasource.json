@@ -14,7 +14,7 @@
     ],
     "passphrase": "secret",
     "partnerTransferMethod": {
-      "type": "CertificateBasedAuthorityEmail",
+      "type": "EmailNotification",
       "email": "certificate@authority.email"
     }
   },

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ScopeAssetDTO {
+public class BusinessDataDocument {
 
   @Schema(description = "The item displayable name", example = "List of the available products")
   private String name;

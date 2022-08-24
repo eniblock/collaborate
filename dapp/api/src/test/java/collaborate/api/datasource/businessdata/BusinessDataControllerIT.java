@@ -9,14 +9,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import collaborate.api.config.exception.ControllerExceptionHandler;
 import collaborate.api.config.api.ApiProperties;
 import collaborate.api.config.api.SmartContractAddressProperties;
 import collaborate.api.config.api.SmartContractConfig;
-import collaborate.api.datasource.businessdata.access.RequestAccessService;
+import collaborate.api.config.exception.ControllerExceptionHandler;
+import collaborate.api.datasource.businessdata.access.AccessRequestService;
+import collaborate.api.datasource.businessdata.access.GrantAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
 import collaborate.api.datasource.businessdata.document.AssetsService;
-import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
+import collaborate.api.datasource.businessdata.find.AssetDetailsService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.test.config.KeycloakTestConfig;
@@ -54,11 +55,15 @@ class BusinessDataControllerIT {
   @MockBean
   ApiProperties apiProperties;
   @MockBean
-  RequestAccessService accessRequestService;
+  AccessRequestService accessRequestService;
+  @MockBean
+  AssetDetailsService assetDetailsService;
+  @MockBean
+  GrantAccessService grantAccessService;
   @MockBean
   NftDatasourceService nftDatasourceService;
   @MockBean
-  FindBusinessDataService findBusinessDataService;
+  NftScopeService nftScopeService;
   @MockBean
   AssetsService assetsService;
 

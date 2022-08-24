@@ -1,23 +1,16 @@
 package collaborate.api.datasource.businessdata.access;
 
-import collaborate.api.datasource.businessdata.access.model.AccessGrantParams;
+import static java.lang.String.format;
+
+import collaborate.api.datasource.AuthenticationService;
+import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestParams;
-import collaborate.api.datasource.gateway.AccessTokenProvider;
-import collaborate.api.datasource.kpi.Kpi;
-import collaborate.api.datasource.kpi.KpiService;
-import collaborate.api.datasource.model.dto.VaultMetadata;
-import collaborate.api.datasource.model.scope.AssetScope;
-import collaborate.api.datasource.nft.AssetScopeDAO;
+import collaborate.api.datasource.businessdata.access.model.PendingAccessRequest.Id;
+import collaborate.api.datasource.model.dto.web.authentication.Authentication;
+import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.transaction.Transaction;
-import collaborate.api.user.metadata.UserMetadataService;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.stream.Collectors;
-import javax.ws.rs.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,68 +20,28 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class GrantAccessService {
 
-  private final AssetScopeDAO assetScopeDAO;
-
-  private final CipherJwtService cipherService;
-  private final AccessTokenProvider accessTokenProvider;
+  private final AuthenticationService authenticationService;
+  private final GrantTransferMethodVisitorFactory grantTransferMethodVisitorFactory;
+  private final NftScopeService nftScopeService;
+  private final PendingAccessRequestRepository pendingAccessRequestRepository;
   private final ObjectMapper objectMapper;
-  private final UserMetadataService userMetadataService;
-  private final GrantAccessDAO grantAccessDAO;
-
-  private final KpiService kpiService;
 
   public void grant(Transaction transaction) {
     AccessRequestParams accessRequestParams = getAccessRequestParams(transaction);
-    kpiService.save(buildGrantKpi(transaction, accessRequestParams));
-    var requester = transaction.getSource();
-    // Get OAuth2 vault metadata
-    VaultMetadata vaultMetadata = getVaultMetadata(accessRequestParams);
+    var nftId = accessRequestParams.getNftId();
+    var nftScope = nftScopeService.findOneByNftId(nftId)
+        .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + nftId));
 
-    // Get JWT
-    var assetScope = assetScopeDAO.findAllById(accessRequestParams.getScopes())
-        .stream()
-        .map(AssetScope::getScope)
-        .collect(Collectors.joining(" "));
-
-    var accessTokenResponse = accessTokenProvider.get(
-        vaultMetadata.getOAuth2(),
-        Optional.of(assetScope).filter(s -> !s.isBlank())
-    );
-
-    // Cipher token
-    var accessGrantParams = toAccessGrantParams(
-        accessRequestParams.getAccessRequestsUuid(),
-        accessTokenResponse.getAccessToken(),
-        requester
-    );
-    log.info("accessGrantParams={}", accessGrantParams);
-    grantAccessDAO.grantAccess(accessGrantParams);
-  }
-
-  private VaultMetadata getVaultMetadata(AccessRequestParams accessRequestParams) {
-    var datasourceId = accessRequestParams.getDatasourceId();
-    return userMetadataService
-        .find(datasourceId, VaultMetadata.class)
-        .filter(m -> m.getOAuth2() != null)
-        .orElseThrow(() -> {
-          log.error(
-              "Access request for datasourceId={} received but oAuth2 metadata seems to be missing",
-              datasourceId);
-          throw new NotFoundException();
-        });
-  }
-
-  private AccessGrantParams toAccessGrantParams(UUID uuid, String accessToken, String requester) {
-    try {
-      return AccessGrantParams.builder()
-          .accessRequestsUuid(uuid)
-          .requesterAddress(requester)
-          .cipheredToken(cipherService.cipher(accessToken, requester))
-          .build();
-    } catch (Exception e) {
-      log.error(e.getMessage());
-      throw new IllegalStateException(e);
-    }
+    authenticationService.findAuthentication(nftScope.getDatasourceId())
+        .map(Authentication::getPartnerTransferMethod)
+        .map(transferMethod -> transferMethod.accept(
+            grantTransferMethodVisitorFactory.create(nftScope, transaction.getSource())
+        )).orElseThrow(() -> new IllegalStateException(format(
+                "Missing authentication for accessRequestParams=%s, nftScope=%s",
+                accessRequestParams,
+                nftScope
+            ))
+        );
   }
 
   public AccessRequestParams getAccessRequestParams(Transaction transaction) {
@@ -105,14 +58,25 @@ public class GrantAccessService {
     }
   }
 
+  /**
+   * Manual grant, for an example when using e-mail notification transfer method
+   */
+  public void grant(String businessDataContractAddress, String requesterAddress, Integer nftId,
+      OAuth2ClientCredentialsGrant clientCredentialsGrant) {
+    var nftScope = nftScopeService.findOneByNftId(nftId)
+        .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + nftId));
 
-  Kpi buildGrantKpi(Transaction transaction, AccessRequestParams accessRequestParams) {
-    return Kpi.builder()
-        .createdAt(transaction.getTimestamp())
-        .kpiKey("business-data.grant")
-        .organizationWallet(transaction.getSource())
-        .values(objectMapper.convertValue(Map.of("nft-id", accessRequestParams.getNftId()),
-            JsonNode.class))
-        .build();
+    var requesterAuthorization = authenticationService.saveRequesterClientCredentials(
+        businessDataContractAddress,
+        requesterAddress,
+        nftId, clientCredentialsGrant);
+
+    var pendingAccessRquests = pendingAccessRequestRepository
+        .findById(new Id(requesterAddress, nftId));
+    if (pendingAccessRquests.isPresent()) {
+      requesterAuthorization.getPartnerTransferMethod().accept(
+          grantTransferMethodVisitorFactory.create(nftScope, requesterAddress)
+      );
+    }
   }
 }
