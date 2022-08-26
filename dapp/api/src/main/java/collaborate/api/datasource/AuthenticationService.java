@@ -9,7 +9,6 @@ import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
 import collaborate.api.datasource.model.dto.web.authentication.Authentication;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
-import collaborate.api.datasource.model.dto.web.authentication.transfer.OAuth2SharedCredentials;
 import collaborate.api.datasource.model.dto.web.authentication.transfer.PartnerTransferMethod;
 import collaborate.api.datasource.nft.catalog.CatalogService;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
@@ -128,22 +127,15 @@ public class AuthenticationService {
     );
   }
 
-  public OAuth2ClientCredentialsGrant saveCredentials(String contractAddress,
+  public void saveCredentials(String contractAddress,
       String requesterAddress, Integer nftId, OAuth2ClientCredentialsGrant clientCredentialsGrant) {
-    var authentication = OAuth2ClientCredentialsGrant.builder()
-        .grantType(clientCredentialsGrant.getGrantType())
-        .clientId(clientCredentialsGrant.getClientId())
-        .clientSecret(clientCredentialsGrant.getClientSecret())
-        .partnerTransferMethod(new OAuth2SharedCredentials())
-        .build();
 
     userMetadataService.upsertMetadata(
         buildDedicatedCredentialsNftKey(contractAddress, requesterAddress, nftId),
         VaultDatasourceAuth.builder()
-            .authentication(authentication)
+            .authentication(clientCredentialsGrant)
             .build()
     );
-    return authentication;
   }
 
   public String buildByNftKey(String contractAddress, Integer nftId) {

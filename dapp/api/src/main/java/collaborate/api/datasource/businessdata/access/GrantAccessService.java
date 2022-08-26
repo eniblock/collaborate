@@ -75,17 +75,19 @@ public class GrantAccessService {
     var nftScope = nftScopeService.findOneByNftId(nftId)
         .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + nftId));
 
-    var requesterAuthorization = authenticationService.saveCredentials(
+    authenticationService.saveCredentials(
         businessDataContractAddress,
         requesterAddress,
-        nftId, clientCredentialsGrant);
+        nftId,
+        clientCredentialsGrant
+    );
 
     var pendingAccessRquests = pendingAccessRequestRepository
         .findById(new Id(requesterAddress, nftId));
     if (pendingAccessRquests.isPresent()) {
       // FIXME should be factorized and reused by GrantTransferMethodVisitor
       var accessTokenResponse = accessTokenProvider.get(
-          requesterAuthorization,
+          clientCredentialsGrant,
           Optional.ofNullable(nftScope.getScope())
       );
       var cipheredToken = cipherJwtService.cipher(accessTokenResponse.getAccessToken(),
