@@ -6,12 +6,12 @@ import collaborate.api.config.OpenApiConfig;
 import collaborate.api.datasource.businessdata.access.AccessRequestService;
 import collaborate.api.datasource.businessdata.access.GrantAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
+import collaborate.api.datasource.businessdata.access.model.ClientIdAndSecret;
 import collaborate.api.datasource.businessdata.document.AssetsService;
 import collaborate.api.datasource.businessdata.document.model.BusinessDataDocument;
 import collaborate.api.datasource.businessdata.document.model.BusinessDataNFTSummary;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
 import collaborate.api.datasource.businessdata.find.AssetDetailsService;
-import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
@@ -202,13 +202,13 @@ public class BusinessDataController {
   public void addAccess(
       @PathVariable(value = "organization") String requesterAddress,
       @PathVariable(value = "tokenId") Integer nftId,
-      @RequestBody OAuth2ClientCredentialsGrant clientCredentialsGrant
+      @RequestBody ClientIdAndSecret clientIdAndSecret
   ) {
     nftScopeService.findOneByNftId(nftId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "NftId not managed by this organization"));
 
     grantAccessService.grant(businessDataContractAddress, requesterAddress, nftId,
-        clientCredentialsGrant);
+        clientIdAndSecret);
   }
 }

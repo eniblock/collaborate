@@ -5,6 +5,7 @@ import static java.lang.String.format;
 import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestParams;
+import collaborate.api.datasource.businessdata.access.model.ClientIdAndSecret;
 import collaborate.api.datasource.businessdata.access.model.PendingAccessRequest.Id;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.model.dto.web.authentication.Authentication;
@@ -15,7 +16,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @Service
@@ -71,28 +74,44 @@ public class GrantAccessService {
    * Manual grant, for an example when using e-mail notification transfer method
    */
   public void grant(String businessDataContractAddress, String requesterAddress, Integer nftId,
-      OAuth2ClientCredentialsGrant clientCredentialsGrant) {
+      ClientIdAndSecret clientCredentialsGrant) {
     var nftScope = nftScopeService.findOneByNftId(nftId)
         .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + nftId));
+
+    var auth = authenticationService.findAuthentication(nftScope.getDatasourceId());
+    if (auth.isEmpty()) {
+      throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+          "No datasource found for nft" + nftId);
+    }
+    var ownerAuth = (OAuth2ClientCredentialsGrant) auth.get();
+    var requesterAuth = OAuth2ClientCredentialsGrant.builder()
+        .tokenEndpoint(ownerAuth.getTokenEndpoint())
+        .clientId(clientCredentialsGrant.getClientId())
+        .clientSecret(clientCredentialsGrant.getClientSecret())
+        .grantType(ownerAuth.getGrantType())
+        .build();
 
     authenticationService.saveCredentials(
         businessDataContractAddress,
         requesterAddress,
         nftId,
-        clientCredentialsGrant
+        requesterAuth
     );
 
     var pendingAccessRquests = pendingAccessRequestRepository
         .findById(new Id(requesterAddress, nftId));
     if (pendingAccessRquests.isPresent()) {
-      // FIXME should be factorized and reused by GrantTransferMethodVisitor
+      log.debug("Granting {}", pendingAccessRquests.get());
       var accessTokenResponse = accessTokenProvider.get(
-          clientCredentialsGrant,
+          requesterAuth,
           Optional.ofNullable(nftScope.getScope())
       );
       var cipheredToken = cipherJwtService.cipher(accessTokenResponse.getAccessToken(),
           requesterAddress);
       grantAccessDAO.grantAccess(cipheredToken, requesterAddress, nftScope.getNftId());
+      pendingAccessRequestRepository.delete(pendingAccessRquests.get());
+    } else {
+      log.debug("No pending access requests");
     }
   }
 }
