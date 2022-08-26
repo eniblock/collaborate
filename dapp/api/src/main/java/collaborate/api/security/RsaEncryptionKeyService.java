@@ -25,7 +25,7 @@ public class RsaEncryptionKeyService {
   private final UserMetadataService userMetadataService;
 
   public void ensureEncryptionKeyExists() throws NoSuchAlgorithmException {
-    var encryptionKey = userMetadataService.find("encryptionKey", EncryptionKey.class);
+    var encryptionKey = userMetadataService.find(ENCRYPTION_VAULT_KEY, EncryptionKey.class);
     if (encryptionKey.isPresent()) {
       log.info("Using the key provided by Vault");
       apiProperties.setPrivateKey(encryptionKey.get().getPrivateKey());

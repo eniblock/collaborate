@@ -122,7 +122,7 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
         .build();
 
     // Store it in the Vault
-    var requesterAuthorization = authenticationService.saveRequesterClientCredentials(
+    var requesterAuthorization = authenticationService.saveCredentials(
         businessDataContractAddress,
         requester,
         nftScope.getNftId(),

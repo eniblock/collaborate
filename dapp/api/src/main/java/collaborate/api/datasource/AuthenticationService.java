@@ -118,7 +118,7 @@ public class AuthenticationService {
     return datasourceId + ":" + scope.orElse("");
   }
 
-  public void saveRequesterClientCredentials(Integer nftId, String contractAddress,
+  public void saveRequestedAccessToken(Integer nftId, String contractAddress,
       String decipheredJWT) {
     userMetadataService.upsertMetadata(
         buildByNftKey(contractAddress, nftId),
@@ -128,7 +128,7 @@ public class AuthenticationService {
     );
   }
 
-  public OAuth2ClientCredentialsGrant saveRequesterClientCredentials(String contractAddress,
+  public OAuth2ClientCredentialsGrant saveCredentials(String contractAddress,
       String requesterAddress, Integer nftId, OAuth2ClientCredentialsGrant clientCredentialsGrant) {
     var authentication = OAuth2ClientCredentialsGrant.builder()
         .grantType(clientCredentialsGrant.getGrantType())
