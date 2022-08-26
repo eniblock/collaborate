@@ -16,7 +16,11 @@ public class GrantTransferMethodVisitorFactory {
 
   private final AccessTokenProvider accessTokenProvider;
   private final AuthenticationService authenticationService;
+
+  private final String businessDataContractAddress;
   private final CipherJwtService cipherService;
+
+  private final CreateServiceAccountService createServiceAccountService;
   private final EMailService eMailService;
   private final GrantAccessDAO grantAccessDAO;
   private final OrganizationService organizationService;
@@ -26,7 +30,9 @@ public class GrantTransferMethodVisitorFactory {
     return new GrantTransferMethodVisitor(
         accessTokenProvider,
         authenticationService,
+        businessDataContractAddress,
         cipherService,
+        createServiceAccountService,
         eMailService,
         grantAccessDAO,
         organizationService,

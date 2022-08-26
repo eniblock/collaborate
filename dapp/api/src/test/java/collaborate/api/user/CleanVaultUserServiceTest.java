@@ -4,9 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
-class CleanUserServiceTest {
+class CleanVaultUserServiceTest {
 
-  private final CleanUserService cleanUserService = new CleanUserService();
+  private final CleanVaultUserService cleanVaultUserService = new CleanVaultUserService();
 
   @Test
   void clean_shouldConvertStringAsExpected() {
@@ -14,7 +14,7 @@ class CleanUserServiceTest {
     String email = "asset@owner.net";
     String expected = "asset_._xdev-at_._owner.net";
     // WHEN
-    String actual = cleanUserService.cleanUserId(email);
+    String actual = cleanVaultUserService.cleanUserId(email);
     // THEN
     assertThat(actual).isEqualTo(expected);
   }
@@ -25,7 +25,7 @@ class CleanUserServiceTest {
     String toUnclean = "asset_._xdev-at_._owner.net";
     String expected = "asset@owner.net";
     // WHEN
-    String actual = cleanUserService.uncleanUserId(toUnclean);
+    String actual = cleanVaultUserService.uncleanUserId(toUnclean);
     // THEN
     assertThat(actual).isEqualTo(expected);
   }
@@ -35,7 +35,7 @@ class CleanUserServiceTest {
     // GIVEN
     String email = "asset@owner.net";
     // WHEN
-    String actual = cleanUserService.uncleanUserId(cleanUserService.cleanUserId(email));
+    String actual = cleanVaultUserService.uncleanUserId(cleanVaultUserService.cleanUserId(email));
     // THEN
     assertThat(actual).isEqualTo(email);
   }

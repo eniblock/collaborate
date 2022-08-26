@@ -20,7 +20,6 @@ import java.util.Optional;
 import javax.mail.MessagingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.NotImplementedException;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -29,7 +28,9 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
   public static final String REQUEST_ACCESS_EMAIL_HTML_TEMPLATE = "html/accessRequest.html";
   private final AccessTokenProvider accessTokenProvider;
   private final AuthenticationService authenticationService;
+  private final String businessDataContractAddress;
   private final CipherJwtService cipherService;
+  private final CreateServiceAccountService createServiceAccountService;
   private final EMailService eMailService;
   private final GrantAccessDAO grantAccessDAO;
   private final OrganizationService organizationService;
@@ -90,10 +91,53 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
   }
 
   @Override
-  public Void visitOAuth2ClientCredentials(OAuth2ClientCredentials oAuth2) {
-    // TODO COL-655
-    throw new NotImplementedException("COL-655 Not implemented");
-  }
+  public Void visitOAuth2ClientCredentials(OAuth2ClientCredentials clientCredentials) {
+    // Get the access method credentials
+    var authentication = authenticationService
+        .findAuthentication(nftScope.getDatasourceId())
+        .orElseThrow(() -> new IllegalStateException(
+            "Missing authentication for datasourceId=" + nftScope.getDatasourceId())
+        );
+    var accessTokenResponse = accessTokenProvider.get(
+        (OAuth2ClientCredentialsGrant) authentication,
+        Optional.empty()
+    );
 
+    // Call the registration URL using the JWT
+    var serviceAccountResponse = createServiceAccountService.post(
+        clientCredentials,
+        Optional.ofNullable(nftScope.getScope()),
+        accessTokenResponse.getAccessToken()
+    );
+    if (!serviceAccountResponse.getStatusCode().is2xxSuccessful()
+        || serviceAccountResponse.getBody() == null) {
+      log.error("Unexpected create service account response={}", serviceAccountResponse);
+      throw new IllegalStateException("Unexpected create service account response");
+    }
+    var oAuth2 = OAuth2ClientCredentialsGrant.builder()
+        .partnerTransferMethod(new OAuth2SharedCredentials())
+        .grantType("client_credentials")
+        .clientId(serviceAccountResponse.getBody().getClientId())
+        .clientSecret(serviceAccountResponse.getBody().getClientSecret())
+        .build();
+
+    // Store it in the Vault
+    var requesterAuthorization = authenticationService.saveRequesterClientCredentials(
+        businessDataContractAddress,
+        requester,
+        nftScope.getNftId(),
+        oAuth2
+    );
+
+    // Send the grant transaction
+    accessTokenResponse = accessTokenProvider.get(
+        requesterAuthorization,
+        Optional.ofNullable(nftScope.getScope())
+    );
+    var cipheredToken = cipherService.cipher(accessTokenResponse.getAccessToken(), requester);
+    grantAccessDAO.grantAccess(cipheredToken, requester, nftScope.getNftId());
+
+    return null;
+  }
 
 }

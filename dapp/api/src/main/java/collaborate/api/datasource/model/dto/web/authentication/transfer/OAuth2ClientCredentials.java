@@ -14,6 +14,8 @@ public class OAuth2ClientCredentials extends PartnerTransferMethod {
 
   public static final String TYPE_NAME = "OAuth2ClientCredentials";
 
+  private String registrationURL;
+
   @Override
   public <T> T accept(TransferMethodVisitor<T> visitor) {
     return visitor.visitOAuth2ClientCredentials(this);

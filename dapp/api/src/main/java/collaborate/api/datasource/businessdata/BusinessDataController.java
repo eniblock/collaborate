@@ -196,7 +196,7 @@ public class BusinessDataController {
 
   @PostMapping("/asset/{tokenId}/access/{organization}")
   @Operation(
-      description = "Get datasource details",
+      description = "Add credentials for making the given organization able to access to the tokenId",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @PreAuthorize(HasRoles.DSP_ADMIN)
   public void addAccess(

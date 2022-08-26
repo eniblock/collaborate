@@ -13,7 +13,7 @@ import java.io.Serializable;
 @JsonSubTypes({
     @JsonSubTypes.Type(value = EmailNotification.class, name = EmailNotification.TYPE_NAME),
     @JsonSubTypes.Type(value = OAuth2SharedCredentials.class, name = OAuth2SharedCredentials.TYPE_NAME),
-    @JsonSubTypes.Type(value = PartnerTransferMethod.class, name = OAuth2ClientCredentials.TYPE_NAME),
+    @JsonSubTypes.Type(value = OAuth2ClientCredentials.class, name = OAuth2ClientCredentials.TYPE_NAME),
 })
 @JsonInclude(Include.NON_NULL)
 public abstract class PartnerTransferMethod implements Serializable {

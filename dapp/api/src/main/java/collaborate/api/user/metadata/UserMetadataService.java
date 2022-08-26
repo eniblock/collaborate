@@ -4,7 +4,7 @@ import static collaborate.api.datasource.businessdata.document.AssetsService.ASS
 
 import collaborate.api.datasource.model.VaultDatasourceAuth;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
-import collaborate.api.user.CleanUserService;
+import collaborate.api.user.CleanVaultUserService;
 import collaborate.api.user.UserService;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -14,19 +14,19 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserMetadataService {
 
-  private final CleanUserService cleanUserService;
+  private final CleanVaultUserService cleanVaultUserService;
   private final TagUserMetadataDAO tagUserMetadataDAO;
   private final UserService userService;
 
   public <T> Optional<T> find(String userId, Class<T> tClass) {
-    userId = cleanUserService.cleanUserId(userId);
+    userId = cleanVaultUserService.cleanUserId(userId);
     return tagUserMetadataDAO.getMetadata(userId, tClass);
   }
 
   public void upsertMetadata(String scope, Object metadata) {
     var user = userService.createUser(scope);
     var userId = user.getUserId();
-    userId = cleanUserService.cleanUserId(userId);
+    userId = cleanVaultUserService.cleanUserId(userId);
     tagUserMetadataDAO.upsertMetadata(userId, metadata);
   }
 
