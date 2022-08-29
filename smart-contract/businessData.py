@@ -698,7 +698,7 @@ class OrganizationRoles:
 nft_creation_type = sp.TRecord(
     nft_operator_address = sp.TAddress,
     asset_id = sp.TString,
-    metadata_uri = sp.TBytes
+    metadata = sp.TMap(sp.TString, sp.TBytes)
 )
 
 organization_value_type = sp.TRecord(
@@ -787,11 +787,10 @@ class NFT_Creation_Management(FA2, sp.Contract):
                   message = "400 - EXISTING_TOKEN_WITH_THE_SAME_ASSET_ID")
 
         ### Mint token
-        metadata = DATA_CATALOG.make_uri_metadata(params.metadata_uri)
         self.private_mint(sp.record(
             address = sp.sender,
             amount = 1,
-            metadata = metadata,
+            metadata = params.metadata,
             token_id = self.data.all_tokens
         ))
         created_token_id = self.data.all_tokens
@@ -983,21 +982,26 @@ def add_test(config, is_default = True):
         scenario += contract1.create_business_datasource(sp.record(
             nft_operator_address = bsp_org_2.address,
             asset_id = "5YJSA1DG9DFP14705",
-            metadata_uri = sp.utils.bytes_of_string("my-url://abc")
+            metadata = (sp.map(l = {
+                "" : sp.utils.bytes_of_string("my-url://abc"),
+                "custom-metadata" : sp.utils.bytes_of_string("custom-value")
+            }))
         )).run(sender = dsp_org_1.address)
+        scenario.verify(contract1.data.token_metadata.contains(contract1.data.all_tokens))
 
         scenario.h2("Alice cannot create a Data Catalog")
         scenario += contract1.create_business_datasource(sp.record(
             nft_operator_address = bsp_org_2.address,
             asset_id = "5YJSA1DG9DFP14709",
-            metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghi")
+            metadata = (sp.map(l = { "" : sp.utils.bytes_of_string("my-url://abcdefghi") }))
         )).run(sender = alice, valid = False)
+
 
         scenario.h3("BSPConsortium2 cannot create a Data Catalog")
         scenario += contract1.create_business_datasource(sp.record(
             nft_operator_address = bsp_org_2.address,
             asset_id = "5YJSA1DG9DFP14710",
-            metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghijkl")
+            metadata = (sp.map(l = { "" : sp.utils.bytes_of_string("my-url://abcdefghijkl") }))
         )).run(sender = bsp_org_2.address, valid = False)
 
         # Access Management ###

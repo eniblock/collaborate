@@ -10,6 +10,7 @@ import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.model.NFTScopeId;
 import collaborate.api.datasource.model.NftScope;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
+import collaborate.api.datasource.model.dto.web.Attribute;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
 import collaborate.api.datasource.model.dto.web.WebServerResource;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
@@ -17,8 +18,12 @@ import collaborate.api.datasource.nft.TokenMetadataProperties;
 import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.datasource.nft.catalog.create.Tzip21MetadataService;
 import collaborate.api.date.DateFormatterFactory;
+import collaborate.api.tag.model.Bytes;
+import collaborate.api.tag.model.TagEntry;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -77,6 +82,15 @@ public class MintBusinessDataService {
         .datasourceUUID(dataSourceUUID)
         .assetIdForDatasource(alias)
         .tZip21Metadata(tZip21MetadataFactory.create(webServerResource))
+        .onChainMetadata(
+            webServerResource.getKeywords().stream()
+                .filter(attr ->
+                    !List.of(ATTR_NAME_ALIAS, ATTR_NAME_TEST_CONNECTION).contains(attr.getName()))
+                .collect(Collectors.toMap(
+                    Attribute::getName,
+                    attr -> new Bytes(attr.getValue())
+                ))
+        )
         .build();
   }
 
@@ -90,13 +104,17 @@ public class MintBusinessDataService {
     ).toString();
   }
 
-  private AssetIdAndUri buildAssetIdAndMetadataUri(AssetDTO assetDTO) {
+  private AssetMetadataMintDTO buildAssetIdAndMetadataUri(AssetDTO assetDTO) {
     try {
       log.info("Minting asset={}", assetDTO);
       var ipfsMetadataUri = tzip21MetadataService.saveMetadata(assetDTO);
-      return new AssetIdAndUri(
+      assetDTO.getOnChainMetadata().put("", new Bytes(ipfsMetadataUri));
+      return new AssetMetadataMintDTO(
           assetDTO.getDatasourceUUID() + ":" + assetDTO.getAssetIdForDatasource(),
-          ipfsMetadataUri);
+          assetDTO.getOnChainMetadata().entrySet().stream()
+              .map(entry -> new TagEntry<>(entry.getKey(), entry.getValue(), null))
+              .collect(Collectors.toCollection(LinkedList::new))
+      );
     } catch (IOException e) {
       log.error("error while minting asset={}", assetDTO);
       throw new IllegalStateException(e);
