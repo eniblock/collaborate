@@ -25,7 +25,7 @@ class TagUserDAOTest {
   @Mock
   private TagUserClient tagUserClient;
   @Spy
-  private CleanUserService cleanUserService;
+  private CleanVaultUserService cleanVaultUserService;
   @InjectMocks
   private TagUserDAO tagUserDAO;
 

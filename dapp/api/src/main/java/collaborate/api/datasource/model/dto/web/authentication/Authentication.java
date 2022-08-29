@@ -16,9 +16,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+/**
+ * a.k.a: Access method
+ */
 @JsonTypeInfo(use = NAME, include = PROPERTY, property = "type")
 @JsonSubTypes({
-    @JsonSubTypes.Type(value = BasicAuth.class, name = "BasicAuth"),
+    @JsonSubTypes.Type(value = BasicAuth.class, name = BasicAuth.TYPE_NAME),
     @JsonSubTypes.Type(value = CertificateBasedBasicAuth.class, name = "CertificateBasedBasicAuth"),
     @JsonSubTypes.Type(value = OAuth2ClientCredentialsGrant.class, name = "OAuth2ClientCredentialsGrant")
 })
