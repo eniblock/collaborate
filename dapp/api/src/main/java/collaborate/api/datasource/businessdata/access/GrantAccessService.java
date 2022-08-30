@@ -13,7 +13,6 @@ import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCrede
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -104,7 +103,7 @@ public class GrantAccessService {
       log.debug("Granting {}", pendingAccessRquests.get());
       var accessTokenResponse = accessTokenProvider.get(
           requesterAuth,
-          Optional.ofNullable(nftScope.getScope())
+          nftScope.findScope()
       );
       var cipheredToken = cipherJwtService.cipher(accessTokenResponse.getAccessToken(),
           requesterAddress);

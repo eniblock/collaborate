@@ -12,7 +12,9 @@ import collaborate.api.datasource.nft.model.storage.TokenIndex;
 import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.organization.OrganizationService;
+import collaborate.api.organization.model.OrganizationDTO;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -86,9 +88,21 @@ public class AssetDetailsService {
     return new PageImpl<>(assetDetails, pageable, filteredAssetDetails.size());
   }
 
-  public Page<AssetDetailsDTO> marketPlace(Pageable pageable) {
+  public Page<AssetDetailsDTO> marketPlace(Pageable pageable, Map<String, String> filters) {
     var ownerAddress = organizationService.getCurrentOrganization().getAddress();
-    Predicate<TokenIndex> predicate = t -> !t.getTokenOwnerAddress().equals(ownerAddress);
-    return find(pageable, Optional.of(predicate), Optional.empty());
+
+    if (filters != null) {
+      if (filters.containsKey("owner")) {
+        Optional<Predicate<TokenIndex>> ownerOrgopt = organizationService
+            .findByLegalNameIgnoreCase(filters.get("owner"))
+            .map(OrganizationDTO::getAddress)
+            .map(address -> t -> !t.getTokenOwnerAddress().equals(address));
+      }
+      
+    }
+    Predicate<TokenIndex> currentOrgIsNotOwner = t -> !t.getTokenOwnerAddress()
+        .equals(ownerAddress);
+
+    return find(pageable, Optional.of(currentOrgIsNotOwner), Optional.empty());
   }
 }

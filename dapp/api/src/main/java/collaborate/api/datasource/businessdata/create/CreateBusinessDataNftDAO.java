@@ -1,6 +1,6 @@
 package collaborate.api.datasource.businessdata.create;
 
-import collaborate.api.datasource.create.MintBusinessDataParamsDTO;
+import collaborate.api.datasource.create.MintBusinessDataParams;
 import collaborate.api.tag.TezosApiGatewayJobClient;
 import collaborate.api.tag.TransactionBatchFactory;
 import collaborate.api.tag.model.job.Job;
@@ -28,7 +28,7 @@ public class CreateBusinessDataNftDAO {
   public Job mintBusinessDataNFT(List<AssetMetadataMintDTO> assetIdAndUrises) {
     var transactions = assetIdAndUrises.stream()
         .map(asset ->
-            MintBusinessDataParamsDTO.builder()
+            MintBusinessDataParams.builder()
                 .nftOperatorAddress(userService.getAdminUser().getAddress())
                 .assetId(asset.getAssetId())
                 .metadata(asset.getMetadata())

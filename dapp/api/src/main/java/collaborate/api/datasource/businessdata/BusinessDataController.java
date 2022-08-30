@@ -24,8 +24,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -84,13 +87,18 @@ public class BusinessDataController {
   @GetMapping("market-place")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "Get the business data catalog with assets are not owned by the current organization"
+      description = "Get the business data catalog where assets are not owned by the current organization"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public Page<AssetDetailsDTO> marketPlace(
-      @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable
+      @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
+      @RequestParam Map<String, String> allParams
   ) {
-    return assetDetailsService.marketPlace(pageable);
+    var excludedKeys = List.of("page", "size");
+    var filters = allParams.entrySet().stream()
+        .filter(entry -> excludedKeys.contains(entry.getKey().toLowerCase()))
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    return assetDetailsService.marketPlace(pageable, filters);
   }
 
   @PostMapping("access-request")

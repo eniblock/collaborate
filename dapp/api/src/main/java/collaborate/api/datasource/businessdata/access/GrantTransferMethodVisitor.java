@@ -2,12 +2,11 @@ package collaborate.api.datasource.businessdata.access;
 
 import static collaborate.api.mail.EMailService.NOREPLY_THEBLOCKCHAINXDEV_COM;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Optional.ofNullable;
 
 import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.businessdata.access.model.PendingAccessRequest;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
-import collaborate.api.datasource.model.NftScope;
+import collaborate.api.datasource.model.Nft;
 import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCredentialsGrant;
 import collaborate.api.datasource.model.dto.web.authentication.transfer.EmailNotification;
 import collaborate.api.datasource.model.dto.web.authentication.transfer.OAuth2ClientCredentials;
@@ -36,12 +35,12 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
   private final GrantAccessDAO grantAccessDAO;
   private final OrganizationService organizationService;
   private final PendingAccessRequestRepository pendingAccessRequestRepository;
-  private final NftScope nftScope;
+  private final Nft nft;
   private final String requester;
 
   @Override
   public Void visitEmailNotification(EmailNotification emailNotification) {
-    pendingAccessRequestRepository.save(new PendingAccessRequest(requester, nftScope.getNftId()));
+    pendingAccessRequestRepository.save(new PendingAccessRequest(requester, nft.getNftId()));
     var organization = organizationService.getByWalletAddress(requester);
     EMailDTO emailDTO = new EMailDTO(
         NOREPLY_THEBLOCKCHAINXDEV_COM,
@@ -50,9 +49,9 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
         Map.of(
             "organizationName", organization.getLegalName(),
             "organizationAddress", requester,
-            "datasourceId", nftScope.getDatasourceId(),
-            "nftId", nftScope.getNftId().toString(),
-            "scope", ofNullable(nftScope.getScope()).orElse("")
+            "datasourceId", nft.getDatasourceId(),
+            "nftId", nft.getNftId().toString(),
+            "scope", nft.findScope().orElse("")
         )
     );
 
@@ -68,21 +67,21 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
   @Override
   public Void visitOAuth2SharedCredentials(OAuth2SharedCredentials oAuth2) {
     var authentication = authenticationService
-        .findAuthentication(nftScope.getDatasourceId())
+        .findAuthentication(nft.getDatasourceId())
         .orElseThrow(() -> new IllegalStateException(
-            "Missing authentication for datasourceId=" + nftScope.getDatasourceId())
+            "Missing authentication for datasourceId=" + nft.getDatasourceId())
         );
 
     if (authentication instanceof OAuth2ClientCredentialsGrant) {
       var accessTokenResponse = accessTokenProvider.get(
           (OAuth2ClientCredentialsGrant) authentication,
-          ofNullable(nftScope.getScope())
+          nft.findScope()
       );
       var cipheredToken = cipherService.cipher(accessTokenResponse.getAccessToken(), requester);
-      grantAccessDAO.grantAccess(cipheredToken, requester, nftScope.getNftId());
+      grantAccessDAO.grantAccess(cipheredToken, requester, nft.getNftId());
     } else {
       var error = String.format("On datasourceId=%s, expects access method=%s, current is =%s ",
-          nftScope.getDatasourceId(),
+          nft.getDatasourceId(),
           OAuth2ClientCredentialsGrant.class.getName(),
           authentication.getClass().getName()
       );
@@ -95,9 +94,9 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
   public Void visitOAuth2ClientCredentials(OAuth2ClientCredentials clientCredentials) {
     // Get the access method credentials
     var authentication = authenticationService
-        .findAuthentication(nftScope.getDatasourceId())
+        .findAuthentication(nft.getDatasourceId())
         .orElseThrow(() -> new IllegalStateException(
-            "Missing authentication for datasourceId=" + nftScope.getDatasourceId())
+            "Missing authentication for datasourceId=" + nft.getDatasourceId())
         );
     var tokenEndpoint = ((OAuth2ClientCredentialsGrant) authentication).getTokenEndpoint();
     var accessTokenResponse = accessTokenProvider.get(
@@ -108,7 +107,7 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
     // Call the registration URL using the JWT
     var serviceAccountResponse = createServiceAccountService.post(
         clientCredentials,
-        ofNullable(nftScope.getScope()),
+        nft.findScope(),
         accessTokenResponse.getAccessToken()
     );
     if (!serviceAccountResponse.getStatusCode().is2xxSuccessful()
@@ -128,14 +127,14 @@ public class GrantTransferMethodVisitor implements TransferMethodVisitor<Void> {
     authenticationService.saveCredentials(
         businessDataContractAddress,
         requester,
-        nftScope.getNftId(),
+        nft.getNftId(),
         oAuth2
     );
 
     // Send the grant transaction
-    accessTokenResponse = accessTokenProvider.get(oAuth2, ofNullable(nftScope.getScope()));
+    accessTokenResponse = accessTokenProvider.get(oAuth2, nft.findScope());
     var cipheredToken = cipherService.cipher(accessTokenResponse.getAccessToken(), requester);
-    grantAccessDAO.grantAccess(cipheredToken, requester, nftScope.getNftId());
+    grantAccessDAO.grantAccess(cipheredToken, requester, nft.getNftId());
 
     return null;
   }

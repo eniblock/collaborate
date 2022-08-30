@@ -34,7 +34,6 @@ public class DatasourceService {
   private final OrganizationService organizationService;
   private final TraefikProviderService traefikProviderService;
 
-
   public Page<ListDatasourceDTO> findAllByCurrentOrg(Pageable pageable, String query) {
     log.warn("query={} not implemented", query);
     var currentOrgAddress = organizationService.getCurrentOrganization().getAddress();

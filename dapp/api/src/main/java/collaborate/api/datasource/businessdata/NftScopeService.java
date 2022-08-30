@@ -1,9 +1,9 @@
 package collaborate.api.datasource.businessdata;
 
 import collaborate.api.datasource.businessdata.find.BusinessDataNftIndexerService;
-import collaborate.api.datasource.create.MintBusinessDataParamsDTO;
+import collaborate.api.datasource.create.MintBusinessDataJsonNodeParams;
 import collaborate.api.datasource.model.NFTScopeId;
-import collaborate.api.datasource.model.NftScope;
+import collaborate.api.datasource.model.Nft;
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -18,30 +18,26 @@ import org.springframework.stereotype.Component;
 public class NftScopeService {
 
   private final BusinessDataNftIndexerService businessDataNftIndexerService;
-  private final NftScopeRepository nftScopeRepository;
+  private final NftRepository nftRepository;
   private final ObjectMapper objectMapper;
 
-  public Optional<NftScope> findById(String datasourceId, String alias) {
-    return nftScopeRepository
+  public Optional<Nft> findById(String datasourceId, String alias) {
+    return nftRepository
         .findById(new NFTScopeId(datasourceId, alias));
   }
 
-  public Optional<String> findScopeById(String datasourceId, String alias) {
-    return findById(datasourceId, alias)
-        .map(NftScope::getScope);
-  }
-
-  public void updateNftId(Transaction transaction, String currentOrganizationAddress) {
-    String assetId;
+  public void updateNftId(Transaction transaction) {
+    MintBusinessDataJsonNodeParams mintBusinessDataParams;
     try {
-      assetId = objectMapper.treeToValue(
+      mintBusinessDataParams = objectMapper.treeToValue(
           transaction.getParameters(),
-          MintBusinessDataParamsDTO.class
-      ).getAssetId();
+          MintBusinessDataJsonNodeParams.class
+      );
     } catch (JsonProcessingException e) {
       log.error("While working with transaction={}", transaction);
       throw new IllegalStateException("Can't deserialize mint business-data transaction params", e);
     }
+    var assetId = mintBusinessDataParams.getAssetId();
     var indexedNft = businessDataNftIndexerService.find(
             Optional.of(tokenIndex -> tokenIndex.getAssetId().equals(assetId)),
             Optional.of(transaction.getSource())
@@ -49,20 +45,27 @@ public class NftScopeService {
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("nft not found for assetId =" + assetId));
 
-    var nftScope = nftScopeRepository.findById(new NFTScopeId(assetId));
+    var nftScope = nftRepository.findById(new NFTScopeId(assetId));
     if (nftScope.isPresent()) {
+      // Minted by current organization
       nftScope.get().setNftId(indexedNft.getTokenId());
     } else {
-      nftScope = Optional.of(new NftScope(new NFTScopeId(assetId), null, indexedNft.getTokenId()));
+      // Minted by another organization
+      nftScope = Optional.of(
+          Nft.builder()
+              .nftScopeId(new NFTScopeId(assetId))
+              .nftId(indexedNft.getTokenId())
+              .metadata(mintBusinessDataParams.getMetadata())
+              .build());
     }
-    nftScopeRepository.save(nftScope.get());
+    nftRepository.save(nftScope.get());
   }
 
-  public NftScope save(NftScope nftScope) {
-    return nftScopeRepository.save(nftScope);
+  public Nft save(Nft nft) {
+    return nftRepository.save(nft);
   }
 
-  public Optional<NftScope> findOneByNftId(Integer nftId) {
-    return nftScopeRepository.findOneByNftId(nftId);
+  public Optional<Nft> findOneByNftId(Integer nftId) {
+    return nftRepository.findOneByNftId(nftId);
   }
 }

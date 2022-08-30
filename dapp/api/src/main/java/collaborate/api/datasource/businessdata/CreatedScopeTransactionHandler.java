@@ -22,7 +22,7 @@ public class CreatedScopeTransactionHandler implements TransactionHandler {
   public void handle(Transaction transaction) {
     if (isCreateBusinessDatasource(transaction)) {
       businessDataKpiService.onScopeCreated(transaction);
-      handleUpdateAssetScopeNftId(transaction);
+      nftScopeService.updateNftId(transaction);
     }
   }
 
@@ -30,8 +30,4 @@ public class CreatedScopeTransactionHandler implements TransactionHandler {
     return transaction.isEntryPoint(CREATE_DATASOURCE_ENTRYPOINT);
   }
 
-  void handleUpdateAssetScopeNftId(Transaction transaction) {
-    String currentOrganizationAddress = organizationService.getCurrentOrganization().getAddress();
-    nftScopeService.updateNftId(transaction, currentOrganizationAddress);
-  }
 }

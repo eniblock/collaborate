@@ -2,7 +2,7 @@ package collaborate.api.datasource.businessdata.access;
 
 import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
-import collaborate.api.datasource.model.NftScope;
+import collaborate.api.datasource.model.Nft;
 import collaborate.api.mail.EMailService;
 import collaborate.api.organization.OrganizationService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +26,7 @@ public class GrantTransferMethodVisitorFactory {
   private final OrganizationService organizationService;
   private final PendingAccessRequestRepository pendingAccessRequestRepository;
 
-  public GrantTransferMethodVisitor create(NftScope nftScope, String requester) {
+  public GrantTransferMethodVisitor create(Nft nft, String requester) {
     return new GrantTransferMethodVisitor(
         accessTokenProvider,
         authenticationService,
@@ -37,7 +37,7 @@ public class GrantTransferMethodVisitorFactory {
         grantAccessDAO,
         organizationService,
         pendingAccessRequestRepository,
-        nftScope,
+        nft,
         requester
     );
   }

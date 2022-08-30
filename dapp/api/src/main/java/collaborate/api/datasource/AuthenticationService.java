@@ -3,7 +3,7 @@ package collaborate.api.datasource;
 import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.model.AccessMethodNameVisitor;
-import collaborate.api.datasource.model.NftScope;
+import collaborate.api.datasource.model.Nft;
 import collaborate.api.datasource.model.VaultDatasourceAuth;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.authentication.AccessTokenResponse;
@@ -60,7 +60,7 @@ public class AuthenticationService {
         .orElse(null);
   }
 
-  public Optional<String> findAuthorizationHeader(String datasourceId, NftScope nftScope) {
+  public Optional<String> findAuthorizationHeader(String datasourceId, Nft nft) {
     var datasourceOpt = findAuthentication(datasourceId);
     if (datasourceOpt.isPresent()) {
       // Owner
@@ -68,13 +68,13 @@ public class AuthenticationService {
           .map(auth -> auth.accept(
               new AuthenticationBearerVisitor(
                   httpClientFactory,
-                  Optional.ofNullable(nftScope.getScope())
+                  nft.findScope()
               )
           ));
     } else {
       // Requester
       // FIXME
-      return findRequestedJWT(nftScope.getNftId(), null)
+      return findRequestedJWT(nft.getNftId(), null)
           .map(jwt -> "Bearer " + jwt);
     }
   }
@@ -96,7 +96,7 @@ public class AuthenticationService {
     if (datasourceIdOpt.isPresent()) {
       var datasourceId = datasourceIdOpt.get();
       var scopeOpt = nftScopeService.findOneByNftId(nftId)
-          .map(NftScope::getScope);
+          .flatMap(Nft::findScope);
       return userMetadataService
           .find(datasourceId, VaultDatasourceAuth.class)
           .map(datasourceAuth -> accessTokenProvider.get(

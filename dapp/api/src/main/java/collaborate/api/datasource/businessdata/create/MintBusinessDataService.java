@@ -1,14 +1,13 @@
 package collaborate.api.datasource.businessdata.create;
 
 import static collaborate.api.datasource.gateway.traefik.routing.RoutingKeyFromKeywordSupplier.ATTR_NAME_ALIAS;
-import static collaborate.api.datasource.model.dto.web.Attribute.ATTR_JWT_SCOPE;
 import static collaborate.api.datasource.model.dto.web.WebServerResource.Keywords.ATTR_NAME_TEST_CONNECTION;
 import static java.lang.String.format;
 
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.businessdata.NftScopeService;
 import collaborate.api.datasource.model.NFTScopeId;
-import collaborate.api.datasource.model.NftScope;
+import collaborate.api.datasource.model.Nft;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.Attribute;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
@@ -20,6 +19,7 @@ import collaborate.api.datasource.nft.catalog.create.Tzip21MetadataService;
 import collaborate.api.date.DateFormatterFactory;
 import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.TagEntry;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.LinkedList;
@@ -39,6 +39,7 @@ public class MintBusinessDataService {
   private final NftScopeService nftScopeService;
   private final CreateBusinessDataNftDAO createBusinessDataNftDAO;
   private final DateFormatterFactory dateFormatterFactory;
+  private final ObjectMapper objectMapper;
   private final TokenMetadataProperties tokenMetadataProperties;
   private final TZip21MetadataFactory tZip21MetadataFactory;
   private final Tzip21MetadataService tzip21MetadataService;
@@ -61,22 +62,12 @@ public class MintBusinessDataService {
     }
   }
 
-  // TODO Split
   private AssetDTO buildAssetDto(UUID dataSourceUUID, WebServerResource webServerResource) {
     var alias = webServerResource.findFirstKeywordValueByName(ATTR_NAME_ALIAS)
         .orElseThrow(() -> new IllegalStateException(
             format("Missing keyword with name=%s", ATTR_NAME_ALIAS)));
 
-    webServerResource.findFirstKeywordValueByName(ATTR_JWT_SCOPE)
-        .ifPresent(scope -> nftScopeService.save(
-                new NftScope(
-                    new NFTScopeId(dataSourceUUID.toString(), alias),
-                    scope,
-                    null)
-            )
-        );
-
-    return AssetDTO.builder()
+    var assetDTO = AssetDTO.builder()
         .assetRelativePath(buildAssetRelativePath())
         .assetType("business-data")
         .datasourceUUID(dataSourceUUID)
@@ -92,6 +83,13 @@ public class MintBusinessDataService {
                 ))
         )
         .build();
+
+    var nft = Nft.builder()
+        .nftScopeId(new NFTScopeId(dataSourceUUID.toString(), alias))
+        .metadata(objectMapper.valueToTree(assetDTO.getOnChainMetadata()))
+        .build();
+    nftScopeService.save(nft);
+    return assetDTO;
   }
 
 
