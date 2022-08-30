@@ -94,9 +94,10 @@ public class BusinessDataController {
       @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
       @RequestParam Map<String, String> allParams
   ) {
+    // Pageable attribute needs to be excluded from the market-place filters
     var excludedKeys = List.of("page", "size");
     var filters = allParams.entrySet().stream()
-        .filter(entry -> excludedKeys.contains(entry.getKey().toLowerCase()))
+        .filter(entry -> !excludedKeys.contains(entry.getKey().toLowerCase()))
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     return assetDetailsService.marketPlace(pageable, filters);
   }

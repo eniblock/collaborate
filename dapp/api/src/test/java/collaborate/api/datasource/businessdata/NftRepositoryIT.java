@@ -72,4 +72,37 @@ class NftRepositoryIT {
     // THEN
     assertThat(nftResults).hasSize(0);
   }
+
+  @Test
+  void findAll_shouldFindAll_withoutMetadataSpecs() {
+    // GIVEN
+    var nfts = TestResources.readContent(
+        "/datasource/businessdata/nft.json",
+        new TypeReference<List<Nft>>() {
+        });
+    nftRepository.saveAll(nfts);
+
+    var specification = new NftSpecification(null);
+    // WHEN
+    var nftResults = nftRepository.findAll(specification);
+    // THEN
+    assertThat(nftResults).hasSameSizeAs(nfts);
+  }
+
+  @Test
+  void findAll_shouldFindByOwner() {
+    // GIVEN
+    var kpis = TestResources.readContent(
+        "/datasource/businessdata/nft.json",
+        new TypeReference<List<Nft>>() {
+        });
+    nftRepository.saveAll(kpis);
+
+    var specification = new NftSpecification(null);
+    specification.setOwnerAddress("ownerA");
+    // WHEN
+    var nftResults = nftRepository.findAll(specification);
+    // THEN
+    assertThat(nftResults).hasSize(1);
+  }
 }

@@ -90,15 +90,16 @@ public class AssetDetailsService {
 
   public Page<AssetDetailsDTO> marketPlace(Pageable pageable, Map<String, String> filters) {
     var ownerAddress = organizationService.getCurrentOrganization().getAddress();
-
+    
     if (filters != null) {
       if (filters.containsKey("owner")) {
         Optional<Predicate<TokenIndex>> ownerOrgopt = organizationService
             .findByLegalNameIgnoreCase(filters.get("owner"))
             .map(OrganizationDTO::getAddress)
             .map(address -> t -> !t.getTokenOwnerAddress().equals(address));
+        filters.remove("owner");
       }
-      
+
     }
     Predicate<TokenIndex> currentOrgIsNotOwner = t -> !t.getTokenOwnerAddress()
         .equals(ownerAddress);

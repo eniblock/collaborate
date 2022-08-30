@@ -63,6 +63,7 @@ public class NftScopeService {
           Nft.builder()
               .nftScopeId(new NFTScopeId(assetId))
               .nftId(indexedNft.getTokenId())
+              .ownerAddress(transaction.getSource())
               .metadata(mintBusinessDataParams.getMetadata())
               .build());
     }

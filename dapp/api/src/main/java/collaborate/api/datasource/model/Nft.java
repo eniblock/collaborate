@@ -29,6 +29,7 @@ public class Nft {
   private NFTScopeId nftScopeId;
   @Column(unique = true)
   private Integer nftId;
+  private String ownerAddress;
   @Type(type = "jsonb")
   @Column(columnDefinition = "jsonb")
   private JsonNode metadata;

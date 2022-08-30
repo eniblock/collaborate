@@ -13,6 +13,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 
 @Data
@@ -20,17 +21,18 @@ import org.springframework.data.jpa.domain.Specification;
 public class NftSpecification implements Specification<Nft> {
 
   private List<JsonSpecification> specifications;
+  private String ownerAddress;
 
   /**
-   * Build a jsonSpecification based on the provided jsonSpecs
+   * Build a jsonSpecification based on the provided metadataSpecs
    *
-   * @param jsonSpecs a map where key is a jsonPath and value is the searched value
+   * @param metadataSpecs a map where key is a jsonPath and value is the searched value
    */
-  public NftSpecification(Map<String, String> jsonSpecs) {
-    if (jsonSpecs.isEmpty()) {
+  public NftSpecification(Map<String, String> metadataSpecs) {
+    if (metadataSpecs == null) {
       this.specifications = new ArrayList<>();
     } else {
-      this.specifications = jsonSpecs.entrySet().stream()
+      this.specifications = metadataSpecs.entrySet().stream()
           .map(entry -> new JsonSpecification(entry.getKey(), entry.getValue()))
           .collect(Collectors.toList());
     }
@@ -41,6 +43,16 @@ public class NftSpecification implements Specification<Nft> {
     Predicate predicate = builder.conjunction();
     var jsonSpecConsumer = new JsonSpecificationConsumer("metadata", predicate, builder, root);
     specifications.forEach(jsonSpecConsumer);
-    return jsonSpecConsumer.getPredicate();
+
+    predicate = jsonSpecConsumer.getPredicate();
+    if (StringUtils.isNotBlank(ownerAddress)) {
+      predicate = builder.and(
+          builder.equal(
+              root.get("ownerAddress"),
+              ownerAddress),
+          predicate);
+    }
+
+    return predicate;
   }
 }

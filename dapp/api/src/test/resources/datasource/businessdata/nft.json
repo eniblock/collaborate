@@ -5,6 +5,7 @@
       "alias": "A1"
     },
     "nftId": 1,
+    "ownerAddress": "ownerA",
     "metadata": {
       "k1": "value1"
     }
@@ -16,7 +17,7 @@
     },
     "nftId": 2,
     "metadata": {
-      "jwt:scope": "expected-scope"
+      "scope": "expected-scope"
     }
   }
 ]
