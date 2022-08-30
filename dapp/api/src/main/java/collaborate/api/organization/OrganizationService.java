@@ -76,6 +76,10 @@ public class OrganizationService {
             .build());
   }
 
+  public String getCurrentAddress() {
+    return this.getCurrentOrganization().getAddress();
+  }
+
   @Cacheable(key = "'dspWallets'")
   public List<String> getAllDspWallets() {
     return getAllOrganizations()

@@ -5,9 +5,9 @@ import static collaborate.api.datasource.model.dto.web.WebServerResource.Keyword
 import static java.lang.String.format;
 
 import collaborate.api.config.UUIDGenerator;
-import collaborate.api.datasource.businessdata.NftScopeService;
-import collaborate.api.datasource.model.NFTScopeId;
+import collaborate.api.datasource.businessdata.NftService;
 import collaborate.api.datasource.model.Nft;
+import collaborate.api.datasource.model.assetId;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.Attribute;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
@@ -36,7 +36,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class MintBusinessDataService {
 
-  private final NftScopeService nftScopeService;
+  private final NftService nftService;
   private final CreateBusinessDataNftDAO createBusinessDataNftDAO;
   private final DateFormatterFactory dateFormatterFactory;
   private final ObjectMapper objectMapper;
@@ -85,10 +85,10 @@ public class MintBusinessDataService {
         .build();
 
     var nft = Nft.builder()
-        .nftScopeId(new NFTScopeId(dataSourceUUID.toString(), alias))
+        .assetId(new assetId(dataSourceUUID.toString(), alias))
         .metadata(objectMapper.valueToTree(assetDTO.getOnChainMetadata()))
         .build();
-    nftScopeService.save(nft);
+    nftService.save(nft);
     return assetDTO;
   }
 

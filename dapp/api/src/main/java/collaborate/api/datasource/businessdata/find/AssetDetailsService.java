@@ -2,9 +2,11 @@ package collaborate.api.datasource.businessdata.find;
 
 import collaborate.api.comparator.SortComparison;
 import collaborate.api.datasource.AuthenticationService;
+import collaborate.api.datasource.businessdata.NftService;
 import collaborate.api.datasource.businessdata.transaction.BusinessDataTransactionService;
 import collaborate.api.datasource.kpi.KpiService;
 import collaborate.api.datasource.kpi.KpiSpecification;
+import collaborate.api.datasource.model.Nft;
 import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
@@ -12,7 +14,6 @@ import collaborate.api.datasource.nft.model.storage.TokenIndex;
 import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.organization.OrganizationService;
-import collaborate.api.organization.model.OrganizationDTO;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,10 +34,15 @@ public class AssetDetailsService {
   private final BusinessDataNftIndexerService businessDataNftIndexerService;
   private final String businessDataContractAddress;
   private final BusinessDataTransactionService businessDataTransactionService;
+  private final NftService nftService;
   private final OrganizationService organizationService;
   private final KpiService kpiService;
   private final SortComparison sortComparison;
 
+  /**
+   * @deprecated Use {@link #toAssetDetails(Nft)} instead
+   */
+  @Deprecated(since = "0.6.0")
   AssetDetailsDTO toAssetDetails(TokenIndex t) {
     var datasourceId = StringUtils.substringBefore(t.getAssetId(), ":");
     var alias = StringUtils.substringAfter(t.getAssetId(), ":");
@@ -88,22 +94,36 @@ public class AssetDetailsService {
     return new PageImpl<>(assetDetails, pageable, filteredAssetDetails.size());
   }
 
-  public Page<AssetDetailsDTO> marketPlace(Pageable pageable, Map<String, String> filters) {
-    var ownerAddress = organizationService.getCurrentOrganization().getAddress();
-    
-    if (filters != null) {
-      if (filters.containsKey("owner")) {
-        Optional<Predicate<TokenIndex>> ownerOrgopt = organizationService
-            .findByLegalNameIgnoreCase(filters.get("owner"))
-            .map(OrganizationDTO::getAddress)
-            .map(address -> t -> !t.getTokenOwnerAddress().equals(address));
-        filters.remove("owner");
-      }
+  public Page<AssetDetailsDTO> marketPlace(Map<String, String> filters, Pageable pageable) {
+    return nftService.findMarketPlaceByFilters(filters, pageable)
+        .map(this::toAssetDetails);
+  }
 
-    }
-    Predicate<TokenIndex> currentOrgIsNotOwner = t -> !t.getTokenOwnerAddress()
-        .equals(ownerAddress);
-
-    return find(pageable, Optional.of(currentOrgIsNotOwner), Optional.empty());
+  AssetDetailsDTO toAssetDetails(Nft t) {
+    var datasourceId = t.getDatasourceId();
+    var alias = t.getAssetId().getAlias();
+    var creationDate = businessDataTransactionService
+        .findTransactionDateByTokenId(
+            businessDataContractAddress,
+            t.getAssetId().toString()
+        );
+    return AssetDetailsDTO.builder()
+        .accessStatus(getAccessStatus(datasourceId, t.getNftId()))
+        .assetDataCatalog(
+            AssetDataCatalogDTO.builder()
+                .datasources(List.of(AssetDetailsDatasourceDTO.builder()
+                    .id(datasourceId)
+                    .assetIdForDatasource(alias)
+                    .ownerAddress(t.getOwnerAddress())
+                    .build()
+                ))
+                .build()
+        ).assetOwner(organizationService.getByWalletAddress(t.getOwnerAddress()))
+        .assetId(t.getAssetId().toString())
+        .tokenId(t.getNftId())
+        .tokenStatus(TokenStatus.CREATED)
+        .creationDatetime(creationDate.orElse(null))
+        .grantedAccess(kpiService.count(new KpiSpecification("nft-id", t.getNftId().toString())))
+        .build();
   }
 }

@@ -26,7 +26,7 @@ import org.hibernate.annotations.Type;
 public class Nft {
 
   @EmbeddedId
-  private NFTScopeId nftScopeId;
+  private assetId assetId;
   @Column(unique = true)
   private Integer nftId;
   private String ownerAddress;
@@ -35,13 +35,13 @@ public class Nft {
   private JsonNode metadata;
 
 
-  public Nft(NFTScopeId nftScopeId) {
-    this.nftScopeId = nftScopeId;
+  public Nft(assetId assetId) {
+    this.assetId = assetId;
   }
 
   @JsonIgnore
   public String getDatasourceId() {
-    return nftScopeId.getDatasource();
+    return assetId.getDatasource();
   }
 
   @JsonIgnore

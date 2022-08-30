@@ -11,14 +11,19 @@ import org.apache.commons.lang3.StringUtils;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class NFTScopeId implements Serializable {
+public class assetId implements Serializable {
 
   private String datasource;
   private String alias;
 
-  public NFTScopeId(String rawId) {
+  public assetId(String rawId) {
     var unsplitted = StringUtils.split(rawId, ":");
     this.datasource = unsplitted[0];
     this.alias = unsplitted[1];
+  }
+
+  @Override
+  public String toString() {
+    return datasource + ":" + alias;
   }
 }

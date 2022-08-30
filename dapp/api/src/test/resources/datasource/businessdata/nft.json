@@ -1,23 +1,37 @@
 [
   {
-    "nftScopeId": {
+    "assetId": {
       "datasource": "random",
       "alias": "A1"
     },
     "nftId": 1,
     "ownerAddress": "ownerA",
     "metadata": {
-      "k1": "value1"
+      "k1": "value1",
+      "k2": "value2"
     }
   },
   {
-    "nftScopeId": {
+    "assetId": {
       "datasource": "random",
       "alias": "A2"
     },
     "nftId": 2,
     "metadata": {
-      "scope": "expected-scope"
+      "scope": "expected-scope",
+      "k2": "value2"
+    }
+  },
+  {
+    "assetId": {
+      "datasource": "random",
+      "alias": "A3"
+    },
+    "nftId": 3,
+    "ownerAddress": "ownerB",
+    "metadata": {
+      "scope": "expected-scope",
+      "k2": "value2"
     }
   }
 ]

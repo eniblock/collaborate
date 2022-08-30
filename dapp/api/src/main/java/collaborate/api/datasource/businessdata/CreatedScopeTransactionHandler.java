@@ -16,13 +16,13 @@ public class CreatedScopeTransactionHandler implements TransactionHandler {
 
   private final BusinessDataKpiService businessDataKpiService;
   private final OrganizationService organizationService;
-  private final NftScopeService nftScopeService;
+  private final NftService nftService;
 
   @Override
   public void handle(Transaction transaction) {
     if (isCreateBusinessDatasource(transaction)) {
       businessDataKpiService.onScopeCreated(transaction);
-      nftScopeService.updateNftId(transaction);
+      nftService.updateNft(transaction);
     }
   }
 

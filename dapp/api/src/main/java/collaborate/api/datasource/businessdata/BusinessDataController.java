@@ -67,7 +67,7 @@ public class BusinessDataController {
   private final String businessDataContractAddress;
   private final GrantAccessService grantAccessService;
   private final NftDatasourceService nftDatasourceService;
-  private final NftScopeService nftScopeService;
+  private final NftService nftService;
 
   @GetMapping
   @Operation(
@@ -99,7 +99,7 @@ public class BusinessDataController {
     var filters = allParams.entrySet().stream()
         .filter(entry -> !excludedKeys.contains(entry.getKey().toLowerCase()))
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
-    return assetDetailsService.marketPlace(pageable, filters);
+    return assetDetailsService.marketPlace(filters, pageable);
   }
 
   @PostMapping("access-request")
@@ -213,7 +213,7 @@ public class BusinessDataController {
       @PathVariable(value = "tokenId") Integer nftId,
       @RequestBody ClientIdAndSecret clientIdAndSecret
   ) {
-    nftScopeService.findOneByNftId(nftId)
+    nftService.findOneByNftId(nftId)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
             "NftId not managed by this organization"));
 

@@ -63,7 +63,7 @@ class BusinessDataControllerIT {
   @MockBean
   NftDatasourceService nftDatasourceService;
   @MockBean
-  NftScopeService nftScopeService;
+  NftService nftService;
   @MockBean
   AssetsService assetsService;
 

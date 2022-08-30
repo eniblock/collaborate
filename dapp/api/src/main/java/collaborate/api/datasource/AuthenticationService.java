@@ -1,6 +1,6 @@
 package collaborate.api.datasource;
 
-import collaborate.api.datasource.businessdata.NftScopeService;
+import collaborate.api.datasource.businessdata.NftService;
 import collaborate.api.datasource.gateway.AccessTokenProvider;
 import collaborate.api.datasource.model.AccessMethodNameVisitor;
 import collaborate.api.datasource.model.Nft;
@@ -27,7 +27,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class AuthenticationService {
 
   private final AccessTokenProvider accessTokenProvider;
-  private final NftScopeService nftScopeService;
+  private final NftService nftService;
   private final AccessMethodNameVisitor accessMethodNameVisitor;
   private final CatalogService catalogService;
   private final HttpClientFactory httpClientFactory;
@@ -95,7 +95,7 @@ public class AuthenticationService {
         .map(AssetDetailsDatasourceDTO::getId);
     if (datasourceIdOpt.isPresent()) {
       var datasourceId = datasourceIdOpt.get();
-      var scopeOpt = nftScopeService.findOneByNftId(nftId)
+      var scopeOpt = nftService.findOneByNftId(nftId)
           .flatMap(Nft::findScope);
       return userMetadataService
           .find(datasourceId, VaultDatasourceAuth.class)
