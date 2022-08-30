@@ -4,9 +4,11 @@ import collaborate.api.datasource.businessdata.find.BusinessDataNftIndexerServic
 import collaborate.api.datasource.create.MintBusinessDataJsonNodeParams;
 import collaborate.api.datasource.model.NFTScopeId;
 import collaborate.api.datasource.model.Nft;
+import collaborate.api.tag.model.Bytes;
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,6 +52,12 @@ public class NftScopeService {
       // Minted by current organization
       nftScope.get().setNftId(indexedNft.getTokenId());
     } else {
+      var metadataNode = (ObjectNode) mintBusinessDataParams.getMetadata();
+      mintBusinessDataParams.getMetadata().fields()
+          .forEachRemaining(entry -> metadataNode.put(
+              entry.getKey(),
+              new Bytes(entry.getValue().asText()).toString()
+          ));
       // Minted by another organization
       nftScope = Optional.of(
           Nft.builder()

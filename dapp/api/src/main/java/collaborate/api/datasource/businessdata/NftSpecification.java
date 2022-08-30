@@ -39,7 +39,7 @@ public class NftSpecification implements Specification<Nft> {
   @Override
   public Predicate toPredicate(Root<Nft> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
     Predicate predicate = builder.conjunction();
-    var jsonSpecConsumer = new JsonSpecificationConsumer(predicate, builder, root);
+    var jsonSpecConsumer = new JsonSpecificationConsumer("metadata", predicate, builder, root);
     specifications.forEach(jsonSpecConsumer);
     return jsonSpecConsumer.getPredicate();
   }

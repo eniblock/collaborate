@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 interface NftRepository extends JpaRepository<Nft, NFTScopeId>,
-    JpaSpecificationExecutor<NftSpecification> {
+    JpaSpecificationExecutor<Nft> {
 
   Optional<Nft> findOneByNftId(Integer nftId);
 }

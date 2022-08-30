@@ -1,0 +1,22 @@
+[
+  {
+    "nftScopeId": {
+      "datasource": "random",
+      "alias": "A1"
+    },
+    "nftId": 1,
+    "metadata": {
+      "k1": "value1"
+    }
+  },
+  {
+    "nftScopeId": {
+      "datasource": "random",
+      "alias": "A2"
+    },
+    "nftId": 2,
+    "metadata": {
+      "jwt:scope": "expected-scope"
+    }
+  }
+]

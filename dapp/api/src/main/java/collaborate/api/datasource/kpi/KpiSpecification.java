@@ -24,7 +24,7 @@ public class KpiSpecification implements Specification<Kpi> {
   @Override
   public Predicate toPredicate(Root<Kpi> root, CriteriaQuery<?> query, CriteriaBuilder builder) {
     Predicate predicate = builder.conjunction();
-    var jsonSpecConsumer = new JsonSpecificationConsumer(predicate, builder, root);
+    var jsonSpecConsumer = new JsonSpecificationConsumer("values", predicate, builder, root);
     specifications.forEach(jsonSpecConsumer);
     return jsonSpecConsumer.getPredicate();
   }
