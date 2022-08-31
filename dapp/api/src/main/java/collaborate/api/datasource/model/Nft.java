@@ -2,6 +2,7 @@ package collaborate.api.datasource.model;
 
 import static collaborate.api.datasource.model.dto.web.Attribute.ATTR_JWT_SCOPE;
 
+import collaborate.api.datasource.passport.model.TokenStatus;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
@@ -26,16 +27,17 @@ import org.hibernate.annotations.Type;
 public class Nft {
 
   @EmbeddedId
-  private assetId assetId;
+  private AssetId assetId;
   @Column(unique = true)
   private Integer nftId;
   private String ownerAddress;
   @Type(type = "jsonb")
   @Column(columnDefinition = "jsonb")
   private JsonNode metadata;
+  private TokenStatus status;
 
 
-  public Nft(assetId assetId) {
+  public Nft(AssetId assetId) {
     this.assetId = assetId;
   }
 

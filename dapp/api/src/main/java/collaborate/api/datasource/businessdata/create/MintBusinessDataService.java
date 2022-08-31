@@ -6,8 +6,8 @@ import static java.lang.String.format;
 
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.businessdata.NftService;
+import collaborate.api.datasource.model.AssetId;
 import collaborate.api.datasource.model.Nft;
-import collaborate.api.datasource.model.assetId;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.web.Attribute;
 import collaborate.api.datasource.model.dto.web.WebServerDatasourceDTO;
@@ -16,6 +16,7 @@ import collaborate.api.datasource.model.dto.web.authentication.OAuth2ClientCrede
 import collaborate.api.datasource.nft.TokenMetadataProperties;
 import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.datasource.nft.catalog.create.Tzip21MetadataService;
+import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.date.DateFormatterFactory;
 import collaborate.api.tag.model.Bytes;
 import collaborate.api.tag.model.TagEntry;
@@ -30,6 +31,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -46,6 +48,7 @@ public class MintBusinessDataService {
   private final UUIDGenerator uuidGenerator;
 
 
+  @Transactional
   public void mint(DatasourceDTO datasourceDTO) {
     // Use a visitor for Access and for Datasource type when new datasource type will be implemented
     if (isOAuth2WebServer(datasourceDTO)) {
@@ -85,8 +88,9 @@ public class MintBusinessDataService {
         .build();
 
     var nft = Nft.builder()
-        .assetId(new assetId(dataSourceUUID.toString(), alias))
+        .assetId(new AssetId(dataSourceUUID.toString(), alias))
         .metadata(objectMapper.valueToTree(assetDTO.getOnChainMetadata()))
+        .status(TokenStatus.PENDING_CREATION)
         .build();
     nftService.save(nft);
     return assetDTO;

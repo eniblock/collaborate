@@ -91,7 +91,7 @@ public class BusinessDataController {
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public Page<AssetDetailsDTO> marketPlace(
-      @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
+      @PageableDefault(sort = {"nftId"}, direction = DESC) @ParameterObject Pageable pageable,
       @RequestParam Map<String, String> allParams
   ) {
     // Pageable attribute needs to be excluded from the market-place filters

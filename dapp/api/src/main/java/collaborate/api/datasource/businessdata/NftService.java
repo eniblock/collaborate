@@ -4,16 +4,15 @@ package collaborate.api.datasource.businessdata;
 import static java.util.stream.Collectors.toMap;
 
 import collaborate.api.datasource.businessdata.find.BusinessDataNftIndexerService;
-import collaborate.api.datasource.create.MintBusinessDataJsonNodeParams;
+import collaborate.api.datasource.create.MintBusinessDataBytesParams;
+import collaborate.api.datasource.model.AssetId;
 import collaborate.api.datasource.model.Nft;
-import collaborate.api.datasource.model.assetId;
+import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.organization.OrganizationService;
 import collaborate.api.organization.model.OrganizationDTO;
-import collaborate.api.tag.model.Bytes;
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -36,21 +35,24 @@ public class NftService {
 
   public Optional<Nft> findById(String datasourceId, String alias) {
     return nftRepository
-        .findById(new assetId(datasourceId, alias));
+        .findById(new AssetId(datasourceId, alias));
   }
 
   public void updateNft(Transaction transaction) {
-    MintBusinessDataJsonNodeParams mintBusinessDataParams;
+    MintBusinessDataBytesParams mintBusinessDataParams;
     try {
       mintBusinessDataParams = objectMapper.treeToValue(
           transaction.getParameters(),
-          MintBusinessDataJsonNodeParams.class
+          MintBusinessDataBytesParams.class
       );
     } catch (JsonProcessingException e) {
       log.error("While working with transaction={}", transaction);
       throw new IllegalStateException("Can't deserialize mint business-data transaction params", e);
     }
     var assetId = mintBusinessDataParams.getAssetId();
+    var metadataNode = objectMapper.createObjectNode();
+    mintBusinessDataParams.getMetadata()
+        .forEach((key, value) -> metadataNode.put(key, value.toString()));
     var indexedNft = businessDataNftIndexerService.find(
             Optional.of(tokenIndex -> tokenIndex.getAssetId().equals(assetId)),
             Optional.of(transaction.getSource())
@@ -58,27 +60,14 @@ public class NftService {
         .findFirst()
         .orElseThrow(() -> new IllegalStateException("nft not found for assetId =" + assetId));
 
-    var nftScope = nftRepository.findById(new assetId(assetId));
-    if (nftScope.isPresent()) {
-      // Minted by current organization
-      nftScope.get().setNftId(indexedNft.getTokenId());
-    } else {
-      var metadataNode = (ObjectNode) mintBusinessDataParams.getMetadata();
-      mintBusinessDataParams.getMetadata().fields()
-          .forEachRemaining(entry -> metadataNode.put(
-              entry.getKey(),
-              new Bytes(entry.getValue().asText()).toString()
-          ));
-      // Minted by another organization
-      nftScope = Optional.of(
-          Nft.builder()
-              .assetId(new assetId(assetId))
-              .nftId(indexedNft.getTokenId())
-              .ownerAddress(transaction.getSource())
-              .metadata(mintBusinessDataParams.getMetadata())
-              .build());
-    }
-    nftRepository.save(nftScope.get());
+    AssetId id = new AssetId(assetId);
+    var nft = nftRepository.findById(id)
+        .orElseGet(() -> new Nft(id));
+    nft.setNftId(indexedNft.getTokenId());
+    nft.setMetadata(metadataNode);
+    nft.setOwnerAddress(transaction.getSource());
+    nft.setStatus(TokenStatus.CREATED);
+    nftRepository.save(nft);
   }
 
   public Nft save(Nft nft) {

@@ -81,7 +81,7 @@ class NftServiceIT {
   }
 
   @Test
-  void findMarketPlaceByFilters_shouldFindByOwner_withOwnerFilterMatchngExistingOrganizationLabel() {
+  void findMarketPlaceByFilters_shouldFindByOwner_withOwnerFilterMatchingExistingOrganizationLabel() {
     // GIVEN
     populateNftRepository();
 
@@ -97,7 +97,7 @@ class NftServiceIT {
   }
 
   @Test
-  void findMarketPlaceByFilters_shouldExcludeNotEqOwner_withNoMetadataSpec() {
+  void findMarketPlaceByFilters_shouldExcludeCurrentOrg_withNoMetadataSpec() {
     // GIVEN
     populateNftRepository();
     when(organizationService.getCurrentAddress())
@@ -108,6 +108,20 @@ class NftServiceIT {
     assertThat(nftResults).hasSize(2);
     assertThatFirstNftId(nftResults).isEqualTo(2);
   }
+
+  @Test
+  void findMarketPlaceByFilters_shouldFind_withMatchingScopeMetadataSpec() {
+    // GIVEN
+    populateNftRepository();
+    // WHEN
+    var nftResults = nftService.findMarketPlaceByFilters(
+        Map.of("scope", "expected-scope-A"),
+        unpaged());
+    // THEN
+    assertThat(nftResults).hasSize(1);
+    assertThatFirstNftId(nftResults).isEqualTo(2);
+  }
+
 
   private List<Nft> populateNftRepository() {
     var kpis = TestResources.readContent(

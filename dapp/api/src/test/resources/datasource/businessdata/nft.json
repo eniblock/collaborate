@@ -18,7 +18,7 @@
     },
     "nftId": 2,
     "metadata": {
-      "scope": "expected-scope",
+      "scope": "expected-scope-A",
       "k2": "value2"
     }
   },

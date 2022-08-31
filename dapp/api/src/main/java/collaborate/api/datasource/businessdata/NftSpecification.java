@@ -23,6 +23,7 @@ import org.springframework.data.jpa.domain.Specification;
 @AllArgsConstructor
 public class NftSpecification implements Specification<Nft> {
 
+  public static final String OWNER_ADDRESS = "ownerAddress";
   @Getter(value = AccessLevel.NONE)
   @Setter(AccessLevel.NONE)
   private List<JsonSpecification> specifications;
@@ -48,7 +49,7 @@ public class NftSpecification implements Specification<Nft> {
     if (StringUtils.isNotBlank(eqOwnerAddress)) {
       predicate = builder.and(
           builder.equal(
-              root.get("ownerAddress"),
+              root.get(OWNER_ADDRESS),
               eqOwnerAddress),
           predicate);
     }
@@ -56,9 +57,9 @@ public class NftSpecification implements Specification<Nft> {
       predicate = builder.and(
           builder.or(
               builder.notEqual(
-                  root.get("ownerAddress"),
+                  root.get(OWNER_ADDRESS),
                   notEqOwnerAddress),
-              builder.isNull(root.get("ownerAddress"))
+              builder.isNull(root.get(OWNER_ADDRESS))
           ),
           predicate
       );

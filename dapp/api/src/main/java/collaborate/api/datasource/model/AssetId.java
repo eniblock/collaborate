@@ -11,12 +11,12 @@ import org.apache.commons.lang3.StringUtils;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class assetId implements Serializable {
+public class AssetId implements Serializable {
 
   private String datasource;
   private String alias;
 
-  public assetId(String rawId) {
+  public AssetId(String rawId) {
     var unsplitted = StringUtils.split(rawId, ":");
     this.datasource = unsplitted[0];
     this.alias = unsplitted[1];
