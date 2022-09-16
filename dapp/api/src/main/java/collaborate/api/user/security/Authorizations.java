@@ -160,6 +160,19 @@ public final class Authorizations {
             + " OR " + BNO
         ;
 
+    public static final String SERVICE_DATA_READ =
+        HasRoles.ASSET_OWNER
+            + " OR " + HasRoles.BSP
+            + " OR " + HasRoles.DSP
+            + " OR " + HasRoles.BNO
+        ;
+
+    public static final String SERVICE_DATA_MULTISIG_READ =
+        HasRoles.DSP_ADMIN
+            + " OR " + HasRoles.ASSET_OWNER
+            + " OR " + HasRoles.BSP_ADMIN
+            + " OR " + HasRoles.BNO
+        ;
 
   }
 

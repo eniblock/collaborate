@@ -5,6 +5,8 @@ api:
 smart-contract-address:
   digitalPassport:
   digitalPassportProxyTokenController:
+  serviceData:
+  serviceDataProxyTokenController:
   businessData:
   organizationYellowPage:
 

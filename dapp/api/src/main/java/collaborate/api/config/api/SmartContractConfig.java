@@ -27,6 +27,16 @@ public class SmartContractConfig {
   }
 
   @Bean
+  public String serviceDataContractAddress() {
+    return smartContractAddressProperties.getServiceData();
+  }
+
+  @Bean
+  public String serviceDataProxyControllerContractAddress() {
+    return smartContractAddressProperties.getServiceDataProxyTokenController();
+  }
+
+  @Bean
   public String businessDataContractAddress() {
     return smartContractAddressProperties.getBusinessData();
   }

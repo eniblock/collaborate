@@ -26,9 +26,14 @@ public class IpnsService {
       var cid = ipfsFilesClient.flush(absolutePath);
       ipfsPinClient.add(cid.getCid());
       var keyPairResponse = getKeyPairOrCreateIt(absolutePath);
-      var publishResponse = ipfsNameClient.update(cid.getCid(), keyPairResponse.getId());
-      log.info("ipfs path={} published with ipns={}", absolutePath, publishResponse.getIpns());
-      return publishResponse.getIpns();
+      try {
+        var publishResponse = ipfsNameClient.update(cid.getCid(), keyPairResponse.getId());
+        log.info("ipfs path={} published with ipns={}", absolutePath, publishResponse.getIpns());
+        return publishResponse.getIpns();
+      } catch(Exception e) {
+        // TODO: fix with proper log level
+        return "";
+      }
     });
   }
 

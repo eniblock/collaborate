@@ -1,5 +1,6 @@
 package collaborate.api.transaction;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
@@ -33,11 +34,16 @@ public class TransactionWatcher implements Runnable {
   }
 
   private List<Transaction> getTransactionPage(Long offset) {
-    return tezosApiGatewayJobClient.getSmartContractTransactionList(
+    try {
+      // TODO: fix with proper log level
+      return tezosApiGatewayJobClient.getSmartContractTransactionList(
         smartContractAddress,
         offset,
         pageSize
-    );
+      );
+    } catch(Exception e) {
+      return new ArrayList<>();
+    }
   }
 
 }
