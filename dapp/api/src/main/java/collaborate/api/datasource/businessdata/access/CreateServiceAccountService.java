@@ -33,6 +33,8 @@ public class CreateServiceAccountService {
           .collect(Collectors.joining("&scope=", "?scope=", ""));
     }
 
+    log.debug("====> " + registrationURL);
+
     var requestEntity = new RequestEntityBuilder<>(registrationURL)
         .jwt(jwt)
         .requestMethod(RequestMethod.POST.toString())
