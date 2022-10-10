@@ -148,8 +148,9 @@ public class AuthenticationService {
     return contractAddress + "." + requester + "." + nftId;
   }
 
-  public boolean isGranted(String datasourceId, Integer nftId, String smartContract) {
-    return datasourceRepository.findById(datasourceId).isPresent()
+  public boolean isGranted(String datasourceId, Integer nftId, String smartContract, String currentOrganization) {
+    return (datasourceRepository.findById(datasourceId).isPresent()
+            && datasourceRepository.findById(datasourceId).get().getOwner().equals(currentOrganization))
         || userMetadataService.find(
         buildByNftKey(smartContract, nftId),
         VaultDatasourceAuth.class

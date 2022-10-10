@@ -50,12 +50,14 @@ public class AssetDetailsServiceTest {
     String datasourceId = "3636ff0b-2295-4750-a6b2-677c680e0bbb";
     int tokenId = 11;
 
-    when(authenticationService.isGranted(datasourceId, tokenId, null))
+    when(authenticationService.isGranted(datasourceId, tokenId, null, "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"))
         .thenReturn(true);
     when(businessDataTransactionService.findTransactionDateByTokenId(nullable(String.class),
         anyString()))
         .thenReturn(Optional.empty());
     when(organizationService.getByWalletAddress("tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"))
+        .thenReturn(organization);
+    when(organizationService.getCurrentOrganization())
         .thenReturn(organization);
 
     when(kpiService.count(any())).thenReturn(10L);

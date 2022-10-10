@@ -72,7 +72,7 @@ public class AssetDetailsService {
   }
 
   public AccessStatus getAccessStatus(String datasourceId, Integer tokenId) {
-    if (authenticationService.isGranted(datasourceId, tokenId, businessDataContractAddress)) {
+    if (authenticationService.isGranted(datasourceId, tokenId, businessDataContractAddress, organizationService.getCurrentOrganization().getAddress())) {
       return AccessStatus.GRANTED;
     } else {
       return AccessStatus.LOCKED;
