@@ -1,12 +1,8 @@
 package collaborate.api.datasource;
 
-import static collaborate.api.datasource.create.AuthenticationMetadataVisitor.Keys.PARTNER_TRANSFER_METHOD;
-
-import collaborate.api.datasource.create.AuthenticationMetadataVisitor.Keys;
 import collaborate.api.datasource.create.DatasourceDTOMetadataVisitor;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.model.Metadata;
-import collaborate.api.datasource.model.dto.web.authentication.transfer.PartnerTransferMethod;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,16 +36,6 @@ public class DatasourceMetadataService {
         );
   }
 
-  public String getAuthentication(Datasource datasource) {
-    return datasource.getProviderMetadata().stream()
-        .filter(a -> a.getName().equals(Keys.DATASOURCE_AUTHENTICATION))
-        .map(Metadata::getValue)
-        .findFirst()
-        .orElseThrow(() -> new IllegalStateException(
-            "No authentication type found for datasource=" + datasource.getId())
-        );
-  }
-
   public List<String> getPurpose(Datasource datasource) {
     return datasource.getProviderMetadata().stream()
         .filter(a -> a.getName().equals(DatasourceDTOMetadataVisitor.Keys.DATASOURCE_PURPOSE))
@@ -64,24 +50,6 @@ public class DatasourceMetadataService {
         })
         .orElseThrow(() -> new IllegalStateException(
             "No purpose found for datasource=" + datasource.getId())
-        );
-  }
-
-  public PartnerTransferMethod getPartnerTransferMethod(Datasource datasource) {
-    return datasource.getProviderMetadata().stream()
-        .filter(a -> a.getName().equals(PARTNER_TRANSFER_METHOD))
-        .map(Metadata::getValue)
-        .findFirst()
-        .map(transferMethod -> {
-              try {
-                return objectMapper.readValue(transferMethod, PartnerTransferMethod.class);
-              } catch (JsonProcessingException e) {
-                throw new IllegalStateException("Can't read datasource purpose from " + transferMethod);
-              }
-            }
-        )
-        .orElseThrow(() -> new IllegalStateException(
-            "No transferMethod found for datasource=" + datasource.getId())
         );
   }
 

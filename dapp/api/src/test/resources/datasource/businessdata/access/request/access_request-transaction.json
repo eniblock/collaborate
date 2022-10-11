@@ -14,11 +14,7 @@
   "height": 667938,
   "entrypoint": "request_access",
   "parameters": {
-    "access_requests_uuid": "05b108f5-1f4c-448b-bf97-8571a2a1e5dc",
     "nft_id": "3",
-    "provider_address": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV",
-    "scopes": [
-      "f40a829f-84d9-4dda-8ea1-3fe2fbe15635:customers-analytics"
-    ]
+    "provider_address": "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV"
   }
 }

@@ -57,8 +57,8 @@ public class Datasource {
   @Schema(description = "The provider class used to configure the datasource access", example = "collaborate.api.datasource.gateway.datasource.provider.TraefikConfiguration", required = true)
   private String provider;
 
-  @ElementCollection
   @Schema(description = "Additional data about the datasource usage and configuration", required = true)
+  @ElementCollection(targetClass = Metadata.class)
   private Set<Metadata> providerMetadata;
 
   @Schema(description = "The datasource provider configuration", required = true)

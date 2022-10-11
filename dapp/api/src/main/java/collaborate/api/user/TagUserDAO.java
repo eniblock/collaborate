@@ -30,7 +30,7 @@ import org.springframework.web.server.ResponseStatusException;
 class TagUserDAO {
 
   private final TagUserClient tagUserClient;
-  private final CleanUserService cleanUserService;
+  private final CleanVaultUserService cleanVaultUserService;
   /**
    * Vault key that point to wallet (key with coins)
    */
@@ -44,7 +44,7 @@ class TagUserDAO {
   public Optional<UserWalletDTO> createActiveUser(String userEmail) {
     UsersDTO createUsersDTO = UsersDTO.builder()
         .secureKeyName(secureKeyName)
-        .userIdList(Set.of(cleanUserService.cleanUserId(userEmail)))
+        .userIdList(Set.of(cleanVaultUserService.cleanUserId(userEmail)))
         .build();
     log.debug("[TAG] create({})", createUsersDTO);
     try {
@@ -63,7 +63,7 @@ class TagUserDAO {
 
   public Optional<UserWalletDTO> createUser(String userEmail) {
     TagUserListDTO createUsersDTO = TagUserListDTO.builder()
-        .userIdList(Set.of(cleanUserService.cleanUserId(userEmail)))
+        .userIdList(Set.of(cleanVaultUserService.cleanUserId(userEmail)))
         .build();
     log.debug("[TAG] create({})", createUsersDTO);
     try {
@@ -102,7 +102,7 @@ class TagUserDAO {
   }
 
   public Optional<UserWalletDTO> findOneByUserEmail(String userEmail) {
-    return findOneByUserId(cleanUserService.cleanUserId(userEmail));
+    return findOneByUserId(cleanVaultUserService.cleanUserId(userEmail));
   }
 
   void expectResponseStatusCode(ResponseEntity<?> response,
@@ -132,7 +132,7 @@ class TagUserDAO {
           .map(w -> UserWalletDTO.builder()
               .userId(w.getUserId())
               .address(w.getAddress())
-              .email(cleanUserService.uncleanUserId(w.getUserId()))
+              .email(cleanVaultUserService.uncleanUserId(w.getUserId()))
               .build()
           );
     }

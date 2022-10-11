@@ -19,8 +19,8 @@ import static org.mockito.Mockito.when;
 import collaborate.api.cache.CacheConfig.CacheNames;
 import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.mail.MailDTO;
-import collaborate.api.mail.MailService;
+import collaborate.api.mail.EMailDTO;
+import collaborate.api.mail.EMailService;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.security.KeycloakUserService;
 import java.util.ArrayList;
@@ -69,7 +69,7 @@ class UserServiceTest {
   @Mock
   KeycloakUserService keycloakUserService;
   @Mock
-  MailService mailService;
+  EMailService EMailService;
   @Mock
   ApiProperties apiProperties;
   @Mock
@@ -189,23 +189,23 @@ class UserServiceTest {
 
     //WHEN
     try {
-      doNothing().when(mailService).sendMail(any(MailDTO.class), anyString(), anyString());
+      doNothing().when(EMailService).sendMail(any(EMailDTO.class), anyString(), anyString());
       // Both lists does not have any values
       userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
-      verify(mailService, times(0)).sendMail(any(MailDTO.class), anyString(), anyString());
+      verify(EMailService, times(0)).sendMail(any(EMailDTO.class), anyString(), anyString());
 
       // when one of the list have a value
       when(mockUserRepresentation.getEmail()).thenReturn("user@gmail.com");
       toAdd.add(mock(RoleRepresentation.class));
       userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
-      verify(mailService, times(1))
-          .sendMail(any(MailDTO.class), eq("UTF-8"), eq("html/contactEmail.html"));
+      verify(EMailService, times(1))
+          .sendMail(any(EMailDTO.class), eq("UTF-8"), eq("html/contactEmail.html"));
 
       // when email is null
       when(mockUserRepresentation.getEmail()).thenReturn(null);
       toAdd.add(mock(RoleRepresentation.class));
       userService.sendNotificationEmail(toAdd, toRemove, mockUserRepresentation, rolesNames);
-      verifyNoMoreInteractions(mailService);
+      verifyNoMoreInteractions(EMailService);
     } catch (MessagingException e) {
       e.printStackTrace();
     }
