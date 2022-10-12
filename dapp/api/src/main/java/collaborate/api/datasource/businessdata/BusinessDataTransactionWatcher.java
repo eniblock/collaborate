@@ -3,7 +3,6 @@ package collaborate.api.datasource.businessdata;
 import collaborate.api.datasource.businessdata.access.GrantAccessTransactionHandler;
 import collaborate.api.datasource.businessdata.access.RequestAccessTransactionHandler;
 import collaborate.api.datasource.businessdata.kpi.CreatedDatasourceTransactionHandler;
-import collaborate.api.datasource.businessdata.kpi.CreatedScopeTransactionHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
 import collaborate.api.transaction.TransactionPersistenceHandler;

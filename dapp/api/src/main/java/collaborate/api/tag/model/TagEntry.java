@@ -2,6 +2,8 @@ package collaborate.api.tag.model;
 
 import static java.util.stream.Collectors.toMap;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
@@ -16,6 +18,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@JsonInclude(Include.NON_NULL)
 public class TagEntry<K, V> {
 
   private K key;

@@ -6,7 +6,7 @@ import static org.springframework.http.HttpStatus.BAD_GATEWAY;
 import collaborate.api.cache.CacheConfig.CacheNames;
 import collaborate.api.cache.CacheService;
 import collaborate.api.config.api.ApiProperties;
-import collaborate.api.mail.MailService;
+import collaborate.api.mail.EMailService;
 import collaborate.api.tag.model.user.UserWalletDTO;
 import collaborate.api.user.model.RolesDTO;
 import collaborate.api.user.model.TransferDTO;
@@ -59,7 +59,7 @@ public class UserService {
   private final CacheService cacheService;
   private final KeycloakUserService keycloakUserService;
   private final MailProperties mailProperties;
-  private final MailService mailService;
+  private final EMailService EMailService;
   private final RealmResource realmResource;
   private final TagUserDAO tagUserDAO;
 
@@ -164,7 +164,7 @@ public class UserService {
 
     try {
       log.info("Sending email about updating user roles");
-      mailService.sendMail(
+      EMailService.sendMail(
           emailHelper.buildRolesSetNotificationEmail(
               mailProperties.getProperties().get("addressFrom"),
               userRepresentation.getEmail(),

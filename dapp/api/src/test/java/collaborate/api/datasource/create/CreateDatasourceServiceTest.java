@@ -6,18 +6,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import collaborate.api.config.UUIDGenerator;
-import collaborate.api.datasource.DatasourceDAO;
+import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.DatasourceProperties;
+import collaborate.api.datasource.DatasourceRepository;
 import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.businessdata.create.MintBusinessDataService;
-import collaborate.api.datasource.gateway.SaveAuthenticationVisitor;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.model.dto.DatasourceDTO;
 import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 import collaborate.api.datasource.model.dto.web.CertificateBasedBasicAuthDatasourceFeatures;
-import collaborate.api.datasource.model.dto.web.authentication.CertificateBasedBasicAuth;
 import collaborate.api.date.DateFormatterFactory;
 import collaborate.api.ipfs.IpfsDAO;
 import collaborate.api.organization.OrganizationService;
@@ -43,17 +42,15 @@ class CreateDatasourceServiceTest {
   @Mock
   UUIDGenerator uuidGenerator;
   @Mock
-  AuthenticationMetadataVisitor authenticationMetadataVisitor;
+  AuthenticationService authenticationService;
   @Mock
-  DatasourceDAO datasourceDAO;
+  DatasourceRepository datasourceRepository;
   @Mock
   DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
   @Mock
   OrganizationService organizationService;
   @Mock
   MintBusinessDataService mintBusinessDataService;
-  @Mock
-  SaveAuthenticationVisitor saveAuthenticationVisitor;
   @Mock
   TestConnectionVisitor testConnectionVisitor;
   @Mock
@@ -72,13 +69,12 @@ class CreateDatasourceServiceTest {
     Clock clock = Clock.fixed(Instant.parse("2018-08-19T16:45:42.00Z"), ZoneOffset.UTC);
     createDatasourceService =
         new CreateDatasourceService(
-            authenticationMetadataVisitor,
+            authenticationService,
             datasourceDTOMetadataVisitor,
-            datasourceDAO,
+            datasourceRepository,
             objectMapper,
             organizationService,
             mintBusinessDataService,
-            saveAuthenticationVisitor,
             testConnectionVisitor,
             traefikProviderService,
             uuidGenerator,
@@ -124,18 +120,10 @@ class CreateDatasourceServiceTest {
   }
 
   @Test
-  void buildMetadata_shouldContainsAuthenticationAndDatasourceMetadata()
+  void buildMetadata_shouldContainsDatasourceMetadata()
       throws DatasourceVisitorException {
     // GIVEN
     var datasource = CertificateBasedBasicAuthDatasourceFeatures.datasource;
-    var authMetadata = Metadata.builder()
-        .name("authName")
-        .value("authValue")
-        .build();
-    when(authenticationMetadataVisitor
-        .visitCertificateBasedBasicAuth(
-            (CertificateBasedBasicAuth) datasource.getAuthMethod())
-    ).thenReturn(Stream.of(authMetadata));
 
     var datasourceMetadata = Metadata.builder()
         .name("dsName")
@@ -147,7 +135,6 @@ class CreateDatasourceServiceTest {
     var metadataResult = createDatasourceService.buildMetadata(datasource);
     // THEN
     assertThat(metadataResult).containsExactlyInAnyOrder(
-        authMetadata,
         datasourceMetadata
     );
   }

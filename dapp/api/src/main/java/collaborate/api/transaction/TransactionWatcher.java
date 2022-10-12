@@ -13,15 +13,12 @@ public class TransactionWatcher implements Runnable {
   private final TezosApiGatewayTransactionClient tezosApiGatewayJobClient;
   private final TransactionStateService transactionStateService;
 
-  private long lastOffset = 0;
   private int pageSize = 20;
 
   @Override
   public void run() {
-    if (lastOffset == 0) {
-      transactionStateService.findLastOffset(smartContractAddress)
-          .ifPresent(o -> lastOffset = o);
-    }
+    var lastOffset = transactionStateService.findLastOffset(smartContractAddress)
+        .orElse(0L);
 
     var transactionList = this.getTransactionPage(lastOffset);
 

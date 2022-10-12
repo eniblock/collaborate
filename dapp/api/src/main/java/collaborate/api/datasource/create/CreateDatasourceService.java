@@ -1,14 +1,13 @@
 package collaborate.api.datasource.create;
 
-import static java.util.function.Function.identity;
 import static java.util.stream.Collectors.toSet;
 
 import collaborate.api.config.UUIDGenerator;
-import collaborate.api.datasource.DatasourceDAO;
+import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.DatasourceProperties;
+import collaborate.api.datasource.DatasourceRepository;
 import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.businessdata.create.MintBusinessDataService;
-import collaborate.api.datasource.gateway.SaveAuthenticationVisitor;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
 import collaborate.api.datasource.gateway.traefik.routing.AuthHeaderKeySupplier;
@@ -31,7 +30,6 @@ import java.time.ZonedDateTime;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
-import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -40,19 +38,16 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class CreateDatasourceService {
 
-  private final AuthenticationMetadataVisitor authenticationMetadataVisitor;
+  private final AuthenticationService authenticationService;
   private final DatasourceDTOMetadataVisitor datasourceDTOMetadataVisitor;
-
-  private final DatasourceDAO datasourceDAO;
+  private final DatasourceRepository datasourceRepository;
   private final ObjectMapper objectMapper;
   private final OrganizationService organizationService;
   private final MintBusinessDataService mintBusinessDataService;
-  private final SaveAuthenticationVisitor saveAuthenticationVisitor;
   private final TestConnectionVisitor testConnectionVisitor;
   private final TraefikProviderService traefikProviderService;
   private final UUIDGenerator uuidGenerator;
   private final Clock clock;
-
   private final DatasourceProperties datasourceProperties;
   private final DateFormatterFactory dateFormatterFactory;
   private final IpfsDAO ipfsDAO;
@@ -63,7 +58,8 @@ public class CreateDatasourceService {
     datasourceDTO.getAuthMethod().setDatasource(datasourceDTO);
     datasourceDTO.setId(uuidGenerator.randomUUID());
 
-    datasourceDTO.getAuthMethod().accept(saveAuthenticationVisitor);
+    authenticationService.save(datasourceDTO);
+
     var providerConfiguration = traefikProviderService.save(datasourceDTO);
     var datasource = buildDatasource(datasourceDTO, providerConfiguration);
 
@@ -94,11 +90,7 @@ public class CreateDatasourceService {
 
   Set<Metadata> buildMetadata(DatasourceDTO datasourceDTO)
       throws DatasourceVisitorException {
-    return Stream.of(
-            datasourceDTO.getAuthMethod().accept(authenticationMetadataVisitor),
-            datasourceDTO.accept(datasourceDTOMetadataVisitor)
-        ).flatMap(identity())
-        .collect(toSet());
+    return datasourceDTO.accept(datasourceDTOMetadataVisitor).collect(toSet());
   }
 
   public Datasource save(Datasource datasource) throws IOException {
@@ -108,7 +100,7 @@ public class CreateDatasourceService {
     );
     var cid = ipfsDAO.add(datasourcePath, datasource);
     datasource.setCid(cid);
-    datasourceDAO.save(datasource);
+    datasourceRepository.save(datasource);
     return datasource;
   }
 
