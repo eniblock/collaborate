@@ -34,6 +34,10 @@ public class RequestEntityBuilder<T> {
     return header(AUTHORIZATION, accessTokenResponse.getBearerHeaderValue());
   }
 
+  public RequestEntityBuilder<T> jwt(String jwt) {
+    return header(AUTHORIZATION, "Bearer " + jwt);
+  }
+
   public RequestEntityBuilder<T> requestMethod(String requestMethod) {
     this.requestMethod = HttpMethod.resolve(requestMethod);
     return this;

@@ -3,13 +3,15 @@ package collaborate.api.datasource.businessdata;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import collaborate.api.config.OpenApiConfig;
-import collaborate.api.datasource.businessdata.access.RequestAccessService;
+import collaborate.api.datasource.businessdata.access.AccessRequestService;
+import collaborate.api.datasource.businessdata.access.GrantAccessService;
 import collaborate.api.datasource.businessdata.access.model.AccessRequestDTO;
+import collaborate.api.datasource.businessdata.access.model.ClientIdAndSecret;
 import collaborate.api.datasource.businessdata.document.AssetsService;
+import collaborate.api.datasource.businessdata.document.model.BusinessDataDocument;
 import collaborate.api.datasource.businessdata.document.model.BusinessDataNFTSummary;
-import collaborate.api.datasource.businessdata.document.model.ScopeAssetDTO;
 import collaborate.api.datasource.businessdata.document.model.ScopeAssetsDTO;
-import collaborate.api.datasource.businessdata.find.FindBusinessDataService;
+import collaborate.api.datasource.businessdata.find.AssetDetailsService;
 import collaborate.api.datasource.nft.catalog.NftDatasourceService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
@@ -22,8 +24,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
@@ -46,6 +51,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RequiredArgsConstructor
 @RestController
@@ -55,11 +61,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Validated
 public class BusinessDataController {
 
-  private final RequestAccessService accessRequestService;
-  private final String businessDataContractAddress;
-  private final FindBusinessDataService findBusinessDataService;
+  private final AccessRequestService accessRequestService;
   private final AssetsService assetsService;
+  private final AssetDetailsService assetDetailsService;
+  private final String businessDataContractAddress;
+  private final GrantAccessService grantAccessService;
   private final NftDatasourceService nftDatasourceService;
+  private final NftService nftService;
 
   @GetMapping
   @Operation(
@@ -69,23 +77,29 @@ public class BusinessDataController {
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public Page<AssetDetailsDTO> listAssetDetails(
       @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
-      @RequestParam(required = false) Optional<String> query,
+      @RequestParam(required = false) Optional<String> assetId,
       @RequestParam(required = false) Optional<String> assetOwner
   ) {
-    var predicate = query.map(q -> (Predicate<TokenIndex>) t -> t.getAssetId().contains(q));
-    return findBusinessDataService.find(pageable, predicate, assetOwner);
+    var predicate = assetId.map(q -> (Predicate<TokenIndex>) t -> t.getAssetId().contains(q));
+    return assetDetailsService.find(pageable, predicate, assetOwner);
   }
 
   @GetMapping("market-place")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "Get the business data catalog with assets are not owned by the current organization"
+      description = "Get the business data catalog where assets are not owned by the current organization"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public Page<AssetDetailsDTO> marketPlace(
-      @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable
+      @PageableDefault(sort = {"nftId"}, direction = DESC) @ParameterObject Pageable pageable,
+      @RequestParam Map<String, String> allParams
   ) {
-    return findBusinessDataService.marketPlace(pageable);
+    // Pageable attribute needs to be excluded from the market-place filters
+    var excludedKeys = List.of("page", "size");
+    var filters = allParams.entrySet().stream()
+        .filter(entry -> !excludedKeys.contains(entry.getKey().toLowerCase()))
+        .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
+    return assetDetailsService.marketPlace(filters, pageable);
   }
 
   @PostMapping("access-request")
@@ -115,10 +129,9 @@ public class BusinessDataController {
       description = "Get some basics informations for the given NFT"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public BusinessDataNFTSummary listAssetDocuments(@PathVariable Integer tokenId)
+  public BusinessDataNFTSummary getSummary(@PathVariable Integer tokenId)
       throws InterruptedException {
     waitForDatasourceConfiguration(tokenId);
-
     return assetsService.getSummary(tokenId);
   }
 
@@ -128,14 +141,17 @@ public class BusinessDataController {
       description = "See all the Business-data assets (documents) of the specified token id"
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
-  public Page<ScopeAssetDTO> listAssetDocuments(@PathVariable Integer tokenId,
+  public Page<BusinessDataDocument> listAssetDocuments(@PathVariable Integer tokenId,
       @ParameterObject Pageable pageable)
       throws InterruptedException {
     waitForDatasourceConfiguration(tokenId);
     return assetsService.listScopeAssets(tokenId, pageable);
   }
 
-  @GetMapping(value = {"asset/{tokenId}/test-connection", "asset/{tokenId}/fetch/{assetIdOpt}"})
+  @GetMapping(value = {
+      "asset/{tokenId}/test-connection",
+      "asset/{tokenId}/fetch/{documentId}"}
+  )
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "Try to consume an element of the business data collection"
@@ -148,11 +164,11 @@ public class BusinessDataController {
   )
   @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
   public ResponseEntity<String> fetch(@PathVariable Integer tokenId,
-      @PathVariable Optional<String> assetIdOpt)
+      @PathVariable Optional<String> documentId)
       throws InterruptedException {
     waitForDatasourceConfiguration(tokenId);
 
-    var assetResponse = assetsService.fetch(tokenId, assetIdOpt);
+    var assetResponse = assetsService.fetch(tokenId, documentId);
     var statusCode = assetResponse.getStatusCode();
     if (statusCode == HttpStatus.SERVICE_UNAVAILABLE) {
       statusCode = HttpStatus.BAD_GATEWAY;
@@ -163,12 +179,12 @@ public class BusinessDataController {
       HttpHeaders responseHeaders = new HttpHeaders();
       responseHeaders.put(HttpHeaders.CONTENT_TYPE, List.of(contentType));
       return new ResponseEntity<>(
-          assetIdOpt.map(o -> assetResponse.getBody()).orElse(null),
+          documentId.map(o -> assetResponse.getBody()).orElse(null),
           responseHeaders,
           statusCode);
     } else {
       return new ResponseEntity<>(
-          assetIdOpt.map(o -> assetResponse.getBody()).orElse(null),
+          documentId.map(o -> assetResponse.getBody()).orElse(null),
           statusCode);
 
     }
@@ -187,4 +203,21 @@ public class BusinessDataController {
     assetsService.download(scopeAssets, response.getOutputStream());
   }
 
+  @PostMapping("/asset/{tokenId}/access/{organization}")
+  @Operation(
+      description = "Add credentials for making the given organization able to access to the tokenId",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @PreAuthorize(HasRoles.DSP_ADMIN)
+  public void addAccess(
+      @PathVariable(value = "organization") String requesterAddress,
+      @PathVariable(value = "tokenId") Integer nftId,
+      @RequestBody ClientIdAndSecret clientIdAndSecret
+  ) {
+    nftService.findOneByNftId(nftId)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+            "NftId not managed by this organization"));
+
+    grantAccessService.grant(businessDataContractAddress, requesterAddress, nftId,
+        clientIdAndSecret);
+  }
 }

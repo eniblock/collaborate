@@ -4,8 +4,9 @@ import static collaborate.api.test.TestResources.objectMapper;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
-import collaborate.api.datasource.DatasourceDAO;
+import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.DatasourceMetadataService;
+import collaborate.api.datasource.DatasourceRepository;
 import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.gateway.traefik.model.Http;
@@ -29,7 +30,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class DatasourceServiceTest {
 
   @Mock
-  DatasourceDAO datasourceDAO;
+  AuthenticationService authenticationService;
+  @Mock
+  DatasourceRepository datasourceRepository;
   @Mock
   DatasourceMetadataService datasourceMetadataService;
   @Mock
@@ -43,7 +46,8 @@ class DatasourceServiceTest {
   @BeforeEach
   void setUp() {
     datasourceService = new DatasourceService(
-        datasourceDAO,
+        authenticationService,
+        datasourceRepository,
         datasourceMetadataService,
         objectMapper,
         organizationService,
@@ -55,7 +59,7 @@ class DatasourceServiceTest {
   void getScopesByDataSourceId_shouldReturnEmpty_withProviderNotTraefik() {
     // GIVEN
     String datasourceId = "4f4daa53-eb12-4deb-b263-04b0e537842f";
-    when(datasourceDAO.findById(datasourceId)).thenReturn(
+    when(datasourceRepository.findById(datasourceId)).thenReturn(
         Optional.of(
             Datasource.builder()
                 .provider("collaborate.api.datasource.gateway.datasource.Unknown")
@@ -72,7 +76,7 @@ class DatasourceServiceTest {
   void getScopesByDataSourceId_shouldReturnEmpty_withDatasourceNotFound() {
     // GIVEN
     String datasourceId = "4f4daa53-eb12-4deb-b263-04b0e537842f";
-    when(datasourceDAO.findById(datasourceId)).thenReturn(Optional.empty());
+    when(datasourceRepository.findById(datasourceId)).thenReturn(Optional.empty());
     // WHEN
     var scopesResult = datasourceService.getResourcesByDataSourceId(datasourceId);
     // THEN
@@ -89,7 +93,7 @@ class DatasourceServiceTest {
             .build(),
         JsonNode.class
     );
-    when(datasourceDAO.findById(datasourceId)).thenReturn(
+    when(datasourceRepository.findById(datasourceId)).thenReturn(
         Optional.of(
             Datasource.builder()
                 .provider(TraefikProviderConfiguration.class.getName())
@@ -120,7 +124,7 @@ class DatasourceServiceTest {
             .build(),
         JsonNode.class
     );
-    when(datasourceDAO.findById(datasourceId)).thenReturn(
+    when(datasourceRepository.findById(datasourceId)).thenReturn(
         Optional.of(
             Datasource.builder()
                 .provider(TraefikProviderConfiguration.class.getName())

@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 @AllArgsConstructor
 public class JsonSpecificationConsumer implements Consumer<JsonSpecification> {
 
+  private String attribute;
   private Predicate predicate;
   private CriteriaBuilder builder;
   private Root<?> root;
@@ -33,7 +34,7 @@ public class JsonSpecificationConsumer implements Consumer<JsonSpecification> {
     }
 
     List<Expression<String>> extractPathParams = new ArrayList<>();
-    extractPathParams.add(root.get("values"));
+    extractPathParams.add(root.get(attribute));
     Arrays.stream(jsonPaths).map(s -> builder.literal(s)).forEach(extractPathParams::add);
     predicate =
         builder.and(

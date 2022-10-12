@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class GatewayResourceDTO {
 
   private String datasourceId;
-  private String scope;
+  private String alias;
   private String assetIdForDatasource;
   private Set<Metadata> metadata = new HashSet<>();
 }

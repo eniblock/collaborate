@@ -698,7 +698,7 @@ class OrganizationRoles:
 nft_creation_type = sp.TRecord(
     nft_operator_address = sp.TAddress,
     asset_id = sp.TString,
-    metadata_uri = sp.TBytes
+    metadata = sp.TMap(sp.TString, sp.TBytes)
 )
 
 organization_value_type = sp.TRecord(
@@ -765,9 +765,9 @@ class NFT_Creation_Management(FA2, sp.Contract):
         is_admin = self.data.administrator == sp.sender
         sp.if ~is_admin:
             sp.verify(self.data.organizations.contains(sp.sender),
-                      message = "403 - Sender not allowed")
+                  message="403 - Sender not allowed")
             sp.verify(self.data.organizations[sp.sender].roles.contains(OrganizationRoles.BNO),
-                      message = "403 - Sender not allowed")
+                  message = "403 - Sender not allowed")
         # Business logic
         sp.for updates in params:
             with updates.match_cases() as arg:
@@ -787,11 +787,10 @@ class NFT_Creation_Management(FA2, sp.Contract):
                   message = "400 - EXISTING_TOKEN_WITH_THE_SAME_ASSET_ID")
 
         ### Mint token
-        metadata = DATA_CATALOG.make_uri_metadata(params.metadata_uri)
         self.private_mint(sp.record(
             address = sp.sender,
             amount = 1,
-            metadata = metadata,
+            metadata = params.metadata,
             token_id = self.data.all_tokens
         ))
         created_token_id = self.data.all_tokens
@@ -819,37 +818,20 @@ class NFT_Creation_Management(FA2, sp.Contract):
 ########################## BUSINESS : ACCESS MANAGEMENT ######################
 ##############################################################################
 ##############################################################################
-
 access_request_parameters_type = sp.TRecord(
     nft_id = sp.TNat,
-    access_requests_uuid = sp.TString,
-    provider_address = sp.TAddress,
-    scopes = sp.TList(sp.TString)
-)
-
-access_request_value_type = sp.TRecord(
-    nft_id = sp.TNat,
-    requester_address = sp.TAddress,
-    provider_address = sp.TAddress,
-    scopes = sp.TList(sp.TString),
-    access_granted = sp.TBool,
-    access_token_hash = sp.TOption(sp.TString)
+    provider_address = sp.TAddress
 )
 
 grant_access_request_type = sp.TRecord(
-    access_requests_uuid = sp.TString,
     access_token_hash = sp.TString,
-    requester_address = sp.TAddress
+    requester_address = sp.TAddress,
+    nft_id = sp.TNat
 )
 
 class AccessManagement(NFT_Creation_Management, sp.Contract):
     def __init__(self):
-        self.update_initial_storage(
-            access_requests = sp.big_map(
-                tkey = sp.TString,
-                tvalue = access_request_value_type
-            ),
-        )
+       pass
 
     @sp.entry_point
     def request_access(self, params: access_request_parameters_type):
@@ -865,36 +847,17 @@ class AccessManagement(NFT_Creation_Management, sp.Contract):
         sp.verify(self.data.ledger.contains(user),
                   message="400 - No ledger entry")
 
-        sp.verify(sp.len(params.scopes) > 0, message = "No scope provided")
-
-        request_uuid = params.access_requests_uuid
-        sp.verify( ~ self.data.access_requests.contains(request_uuid),
-                   message = "400 - Duplicated request_uuid")
-
-        self.data.access_requests[request_uuid] = sp.record(
-            nft_id = params.nft_id,
-            requester_address = sp.sender,
-            provider_address = params.provider_address,
-            scopes = params.scopes,
-            access_granted = False,
-            access_token_hash = sp.none
-        )
 
     @sp.entry_point
     def grant_access(self, params: grant_access_request_type):
-        sp.verify(self.data.organizations.contains(sp.sender))
-        sp.verify(self.data.access_requests.contains(params.access_requests_uuid))
-
-        key = params.access_requests_uuid
-        access_request = self.data.access_requests[key]
-        sp.verify(access_request.requester_address == params.requester_address)
-        sp.verify(sp.sender == access_request.provider_address)
-        sp.verify(access_request.access_granted == False)
-        access_request.access_token_hash = sp.some(params.access_token_hash)
-        access_request.access_granted = True
-
-
-
+        params = sp.set_type_expr(params, grant_access_request_type)
+        sp.verify(self.data.organizations.contains(sp.sender),
+                  message="400 - Unknown sender")
+        sp.verify(self.data.organizations.contains(params.requester_address),
+                  message="400 - Unknown requester")
+        sp.verify(sp.len(params.access_token_hash) >= 0 , message="400 - Access token not provided")
+        sp.verify(self.data.token_metadata.contains(params.nft_id),
+              message="400 - Unknown nft_id")
 
 ##############################################################################
 ##############################################################################
@@ -1019,21 +982,26 @@ def add_test(config, is_default = True):
         scenario += contract1.create_business_datasource(sp.record(
             nft_operator_address = bsp_org_2.address,
             asset_id = "5YJSA1DG9DFP14705",
-            metadata_uri = sp.utils.bytes_of_string("my-url://abc")
+            metadata = (sp.map(l = {
+                "" : sp.utils.bytes_of_string("my-url://abc"),
+                "custom-metadata" : sp.utils.bytes_of_string("custom-value")
+            }))
         )).run(sender = dsp_org_1.address)
+        scenario.verify(contract1.data.token_metadata.contains(contract1.data.all_tokens))
 
         scenario.h2("Alice cannot create a Data Catalog")
         scenario += contract1.create_business_datasource(sp.record(
             nft_operator_address = bsp_org_2.address,
             asset_id = "5YJSA1DG9DFP14709",
-            metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghi")
+            metadata = (sp.map(l = { "" : sp.utils.bytes_of_string("my-url://abcdefghi") }))
         )).run(sender = alice, valid = False)
+
 
         scenario.h3("BSPConsortium2 cannot create a Data Catalog")
         scenario += contract1.create_business_datasource(sp.record(
             nft_operator_address = bsp_org_2.address,
             asset_id = "5YJSA1DG9DFP14710",
-            metadata_uri = sp.utils.bytes_of_string("my-url://abcdefghijkl")
+            metadata = (sp.map(l = { "" : sp.utils.bytes_of_string("my-url://abcdefghijkl") }))
         )).run(sender = bsp_org_2.address, valid = False)
 
         # Access Management ###
@@ -1044,46 +1012,19 @@ def add_test(config, is_default = True):
         scenario.h3("BSPConsortium2 can request access on DSPConsortium1 token")
 
         ### Given
-        expected_access_requests_1 = sp.record(
-            nft_id = 1,
-            uuid = "uuid-001",
-            requester_address = bsp_org_2.address,
-            provider_address = dsp_org_1.address,
-            scopes = sp.list("scopeA", sp.TString),
-            access_granted = False,
-            access_token_hash = sp.none
-        )
         ### When
         scenario += contract1.request_access(sp.record(
-            nft_id = expected_access_requests_1.nft_id,
-            access_requests_uuid = expected_access_requests_1.uuid,
-            provider_address = expected_access_requests_1.provider_address,
-            scopes = expected_access_requests_1.scopes
-        )).run(sender = expected_access_requests_1.requester_address)
+            nft_id = 1,
+            provider_address = dsp_org_1.address
+        )).run(sender = bsp_org_2.address)
         ### Then
-        actual_access_request_1 = contract1.data.access_requests[
-            expected_access_requests_1.uuid]
-        scenario.verify_equal(actual_access_request_1.nft_id,
-                              expected_access_requests_1.nft_id)
-        scenario.verify_equal(actual_access_request_1.requester_address,
-                              expected_access_requests_1.requester_address)
-        scenario.verify_equal(actual_access_request_1.provider_address,
-                              expected_access_requests_1.provider_address)
-        scenario.verify_equal(actual_access_request_1.scopes,
-                              expected_access_requests_1.scopes)
-        scenario.verify_equal(actual_access_request_1.access_granted,
-                              expected_access_requests_1.access_granted)
-        scenario.verify_equal(actual_access_request_1.access_token_hash,
-                              expected_access_requests_1.access_token_hash)
 
         ## Given
         scenario.h2("Alice can't request access on DSPConsortium1 token")
         ### When
         scenario += contract1.request_access(sp.record(
-            nft_id = expected_access_requests_1.nft_id,
-            access_requests_uuid = "uuid-002",
-            provider_address = expected_access_requests_1.provider_address,
-            scopes = expected_access_requests_1.scopes
+            nft_id = 1,
+            provider_address = dsp_org_1.address,
         )).run(sender = alice,
                #Then
                valid = False)
@@ -1093,9 +1034,7 @@ def add_test(config, is_default = True):
         ### When
         scenario += contract1.request_access(sp.record(
             nft_id = 42,
-            access_requests_uuid = "uuid-002",
-            provider_address = expected_access_requests_1.provider_address,
-            scopes = expected_access_requests_1.scopes
+            provider_address = dsp_org_1.address
         )).run(sender = bsp_org_2.address,
                 #Then
                 valid = False)
@@ -1104,10 +1043,8 @@ def add_test(config, is_default = True):
         scenario.h2("Can't request access on un-existing provider")
         ### When
         scenario += contract1.request_access(sp.record(
-            nft_id = expected_access_requests_1.nft_id,
-            access_requests_uuid = "uuid-002",
-            provider_address = alice.address,
-            scopes = expected_access_requests_1.scopes
+            nft_id = 1,
+            provider_address = alice.address
         )).run(sender = bsp_org_2.address,
                #Then
                valid = False)
@@ -1116,25 +1053,26 @@ def add_test(config, is_default = True):
         scenario.h2("Can't request access to a provider not owning the token")
         ### When
         scenario += contract1.request_access(sp.record(
-            nft_id = expected_access_requests_1.nft_id,
-            access_requests_uuid = "uuid-002",
-            provider_address = bsp_org_2.address,
-            scopes = expected_access_requests_1.scopes
+            nft_id = 1,
+            provider_address = bsp_org_2.address
         )).run(sender = bsp_org_2.address,
                #Then
                valid = False)
 
-        ## Given
-        scenario.h2("Can't request access without scope")
+        ## Request access ###
+        scenario.h2("Grant access")
+        scenario.h3("Given provided accessToken, DSPConsortium1 can grant access to BSPConsortium2")
+
+        ### Given
         ### When
-        scenario += contract1.request_access(sp.record(
-            nft_id = expected_access_requests_1.nft_id,
-            access_requests_uuid = "uuid-002",
-            provider_address = dsp_org_1.address,
-            scopes = sp.list()
-        )).run(sender = bsp_org_2.address,
-               #Then
-               valid = False)
+        scenario += contract1.grant_access(sp.record(
+            nft_id = 1,
+            access_token_hash = 'ciphered',
+            requester_address = bsp_org_2.address
+        )).run(sender = dsp_org_1.address)
+        ### Then
+
+
 
 ##
 ## ## Global Environment Parameters
