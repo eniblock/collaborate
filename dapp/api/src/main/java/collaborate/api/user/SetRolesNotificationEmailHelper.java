@@ -1,6 +1,6 @@
 package collaborate.api.user;
 
-import collaborate.api.mail.MailDTO;
+import collaborate.api.mail.EMailDTO;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -15,7 +15,7 @@ public class SetRolesNotificationEmailHelper {
     rolesNamesMap.put(idpAdminRole, "Identity Provider Admin");
   }
 
-  public MailDTO buildRolesSetNotificationEmail(
+  public EMailDTO buildRolesSetNotificationEmail(
       String from,
       String to,
       String firstName,
@@ -24,12 +24,14 @@ public class SetRolesNotificationEmailHelper {
       String platform
   ) {
     String subject = "Your roles have been modified";
-    return new MailDTO(
+    return new EMailDTO(
         from,
         to,
         subject,
-        buildContent(roles, platform),
-        greeting(firstName, lastName)
+        Map.of(
+            "content", buildContent(roles, platform),
+            "greeting", greeting(firstName, lastName)
+        )
     );
   }
 

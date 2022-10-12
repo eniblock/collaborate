@@ -13,8 +13,10 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
+@Slf4j
 @RequiredArgsConstructor
 @Repository
 class GrantAccessDAO {
@@ -27,7 +29,8 @@ class GrantAccessDAO {
   private final TezosApiGatewayJobClient tezosApiGatewayJobClient;
   private final TransactionBatchFactory transactionBatchFactory;
 
-  public Job grantAccess(AccessGrantParams accessGrantParams) {
+  public Job grantAccess(String cipheredToken, String requester, Integer nftId) {
+    var accessGrantParams = toAccessGrantParams(cipheredToken, requester, nftId);
     var transactions = transactionBatchFactory.createEntryPointJob(
         GRANT_ACCESS_ENTRY_POINT,
         accessGrantParams,
@@ -35,7 +38,19 @@ class GrantAccessDAO {
         businessDataContractAddress
     );
     return tezosApiGatewayJobClient.sendTransactionBatch(transactions, false);
+  }
 
+  AccessGrantParams toAccessGrantParams(String cipheredToken, String requester, Integer nftId) {
+    try {
+      return AccessGrantParams.builder()
+          .requesterAddress(requester)
+          .cipheredToken(cipheredToken)
+          .nftId(nftId)
+          .build();
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      throw new IllegalStateException(e);
+    }
   }
 
   public Optional<AccessRequest> findOneAccessRequestById(UUID id) {

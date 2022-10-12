@@ -106,7 +106,7 @@ public class MetricService {
         .map(scope -> GatewayResourceDTO.builder()
             .datasourceId(datasourceDTO.getId())
             .assetIdForDatasource(datasourceDTO.getAssetIdForDatasource())
-            .scope(scope)
+            .alias(scope)
             .metadata(getScopeMetadata(scope, metadata))
             .build()
         );
@@ -130,7 +130,7 @@ public class MetricService {
                   ).toString();
                   return Metric.builder()
                       .updatedAt(ZonedDateTime.now(clock))
-                      .scope(gtwResource.getScope())
+                      .scope(gtwResource.getAlias())
                       .value(extractValuePath(jsonResponse, gtwResource.getMetadata()))
                       .build();
                 }

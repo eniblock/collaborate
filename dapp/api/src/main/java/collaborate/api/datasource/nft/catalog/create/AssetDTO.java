@@ -1,7 +1,9 @@
 package collaborate.api.datasource.nft.catalog.create;
 
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
+import collaborate.api.tag.model.Bytes;
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.util.Map;
 import java.util.UUID;
 import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -28,4 +30,5 @@ public class AssetDTO {
   private String assetType;
 
   private TZip21Metadata tZip21Metadata;
+  private Map<String, Bytes> onChainMetadata;
 }

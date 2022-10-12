@@ -1545,6 +1545,74 @@
 							]
 						},
 						{
+							"name": "Roles",
+							"item": [
+								{
+									"name": "Get Realm roles",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Update of  admin roles resulted in 204 OK'] = responseCode.code === 204;"
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"protocolProfileBehavior": {
+										"disableBodyPruning": true
+									},
+									"request": {
+										"auth": {
+											"type": "bearer",
+											"bearer": [
+												{
+													"key": "token",
+													"value": "{{keycloak-admin-token}}",
+													"type": "string"
+												}
+											]
+										},
+										"method": "GET",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "[\n    {\n        \"id\": \"8928458f-9ccb-4292-ae08-b84eec9a0ab9\",\n        \"name\": \"data_service_provider_administrator\",\n        \"containerId\": \"{{dAppKeycloakRealm}}\"\n    }\n]",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppKeycloakUrl}}/auth/admin/realms/{{dAppKeycloakRealm}}/roles",
+											"host": [
+												"{{dAppKeycloakUrl}}"
+											],
+											"path": [
+												"auth",
+												"admin",
+												"realms",
+												"{{dAppKeycloakRealm}}",
+												"roles"
+											]
+										}
+									},
+									"response": []
+								}
+							]
+						},
+						{
 							"name": "Get Authorization Server Metadata",
 							"request": {
 								"method": "GET",
@@ -1786,13 +1854,14 @@
 											}
 										},
 										"url": {
-											"raw": "{{dAppApiUrl}}/api/v1/market-place?page=0&size=100",
+											"raw": "{{dAppApiUrl}}/api/v1/business-data/market-place?page=0&size=100",
 											"host": [
 												"{{dAppApiUrl}}"
 											],
 											"path": [
 												"api",
 												"v1",
+												"business-data",
 												"market-place"
 											],
 											"query": [
@@ -1805,8 +1874,23 @@
 													"value": "100"
 												},
 												{
-													"key": "ownerAddress",
-													"value": "tz1T8T3AQdH2tUkkh4FRUkjW3AsQqK8RuBcu",
+													"key": "offset",
+													"value": "1",
+													"disabled": true
+												},
+												{
+													"key": "owner",
+													"value": "SITA",
+													"disabled": true
+												},
+												{
+													"key": "scope",
+													"value": "customers-analytics",
+													"disabled": true
+												},
+												{
+													"key": "quality-index",
+													"value": "highest",
 													"disabled": true
 												}
 											]
@@ -1979,7 +2063,7 @@
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n    \"datasourceId\": \"f87ced3e-757d-4594-8ce7-3e4424bc7452\",\n    \"scopeName\": \"workshop-analytics\",\n    \"assets\": [\n        {\n            \"name\": \"Nombre de metrics saisis en atelier (par mois)\",\n            \"type\": \"MVP document\",\n            \"synchronizedDate\": \"2021-11-12T20:16:23.497Z\",\n            \"link\": \"https://datasource-dsp-a.fake-datasource.localhost/documents/dspA3\",\n            \"downloadLink\": \"https://datasource-dsp-a.fake-datasource.localhost/documents/dspA3/download\"\n        }\n    ]\n}",
+											"raw": "{\n    \"datasourceId\": \"f87ced3e-757d-4594-8ce7-3e4424bc7452\",\n    \"scopeName\": \"workshop-analytics\",\n    \"nftId\":12,\n    \"assets\": [\n        {\n            \"name\": \"Nombre de metrics saisis en atelier (par mois)\",\n            \"type\": \"MVP document\",\n            \"synchronizedDate\": \"2021-11-12T20:16:23.497Z\",\n            \"downloadLink\": \"https://dsp-a.fds.pcc.eniblock.fr/customers-analytics/clients/download\"\n        }\n    ]\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -2047,6 +2131,59 @@
 												"v1",
 												"business-data",
 												"access-request"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Grant access on organization",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"exec": [
+													"tests['Request resulted in 200 OK'] = responseCode.code === 200;",
+													""
+												],
+												"type": "text/javascript"
+											}
+										},
+										{
+											"listen": "prerequest",
+											"script": {
+												"exec": [
+													"//pm.globals.set(\"test-token-id\", JSON.parse(request.body)[0].tokenId);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n    \"clientId\": \"cfdc5b5c-52f2-4b67-92cb-12d2d3de3588\",\n    \"clientSecret\": \"6a8fffe3-2a15-41a3-815d-42389805c028\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{dAppApiUrl}}/api/v1/business-data/asset/33/access/tz1a4wHmyGm88JVTneRXaeLafSJpVwZfUtrJ",
+											"host": [
+												"{{dAppApiUrl}}"
+											],
+											"path": [
+												"api",
+												"v1",
+												"business-data",
+												"asset",
+												"33",
+												"access",
+												"tz1a4wHmyGm88JVTneRXaeLafSJpVwZfUtrJ"
 											]
 										}
 									},
@@ -2401,7 +2538,7 @@
 															"key": "datasource",
 															"contentType": "application/json",
 															"type": "file",
-															"src": "/home/sskorupski/xdev/pcc/fake-datasource/api/public/demo-datasource-dsp-a.staging.json"
+															"src": "pcc/fake-datasource/api/public/business-data.hello-world.datasource.staging.json"
 														}
 													]
 												},
@@ -5874,13 +6011,13 @@
 							"name": "Access",
 							"item": [
 								{
-									"name": "Ask access",
+									"name": "Request access",
 									"request": {
 										"method": "POST",
 										"header": [],
 										"body": {
 											"mode": "raw",
-											"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1AK9SFPYcitQzwGV8JomriMQr6an7PSh18\",\n      \"entryPoint\": \"requestAccess\",\n      \"entryPointParams\": {\n        \"id\": \"52fddab8-748f-44f4-be77-608c2b3ec2b7\",\n        \"datasourceId\": \"29dba35d-80b5-4e48-ad8b-602b01be843c\",\n        \"scope\": \"customers-analytics\",\n        \"requesterAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n        \"providerAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n      }\n    }\n  ],\n  \"secureKeyName\": \"admin\"\n}",
+											"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1EkbWQoFkAYVCM5LYEBhvogFbNTmyEHTnX\",\n      \"entryPoint\": \"request_access\",\n      \"entryPointParams\": {\n        \"nft_id\": 1,\n        \"provider_address\": \"tz1d9eoHqwhXsgndszk7zyqSJwZh9HAFmbxF\"\n      }\n    }\n  ],\n  \"secureKeyName\": \"admin\"\n}",
 											"options": {
 												"raw": {
 													"language": "json"
@@ -5931,6 +6068,40 @@
 												"tezos_node",
 												"storage",
 												"{{buisiness-data-contract-address}}"
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "Grant Access",
+									"request": {
+										"method": "POST",
+										"header": [],
+										"body": {
+											"mode": "raw",
+											"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1A89yMcHw4d1qMwUSY3fcKKFqvDGSbX9Q2\",\n      \"entryPoint\": \"grant_access\",\n      \"entryPointParams\": {\n        \"nft_id\": 1,\n        \"requester_address\": \"tz1VtbjFNSaWwiFB8DnMMwA6Md99UbCAc19b\",\n        \"access_token_hash\": \"M0qgEwWdHjuEk4WhHp5uoq2SzlReSf7OIwwX7JNQyh00+/rRvEGYN9kclXL5auxUUOyaoO1uKUwPtEbhB5hXo5D+qvbOI4FXLCoOSMVRDjjkgsQKzGFJeXq7b9SGpBRO/4HoUCtB6HQr0TtLUC7BPjlOMddDRJFibR/VG4Uo9Uydq7WRJtdNTDKcjW+DqDZCfl72Nd8tlehlarGr3bV+K8+Dg8kuBuYjWPMUzRcwSEZStgNcB6xo9lONiiukOVMdI/ciXJN0aNWst3See4AYBjILMFHLIlNUvg2N4Tn/maTGQuDc7wVaEdqoL7kxaX7Z6mreXXgGdXEmqigQ4ZwrCA== 4SCnXPB8jEpB+OSzgWJJw7ieK/R86PqAi8mfmShDO/aVoODA8izwzAup8UwlBvA5/tiklDvqRGnrNM6X0CyqsoB/CRnlYvQ6qGgW+ig5n3kzHra8/+zWxVqGz7l8s5m79EEaVCsP8+CHaiagBzPn660sm4e+hL/e9DGrlSouAn1wvAuibpgmtZ84V8u0wxexpH0PFR7sR4eDpgY1vksRZZ2iSb2RUQoefu+NGrPg2e9cmjXGZ30OZl5ZrWNZPVrxmYJmOBHZTh951gQMfBiDQMaIuBPUcKdqlMKr7qeKwrJShpn9tUSErXhglEN24T3zuHCSFwbeOjNeMPtiWXRS4DjxwzDsz941A2IwD7I9Ezn3T7DuP967oIwdQBGALjNi0K44Yi5pm4cTJlxE6hCdSMGOGJwlqzdMKBmDtLN1IB4k1oxYS5jcLtc/h0NLCnFQj86XVnZuTJqY/iLw++VH+xgw3wTxTdSCqCz8LGBxueoouiH0nm1ZXErc+7m/QILHJyoHd12nz013giZl2igWs3p6C+UzO2jhSRwbAaenoJsO79G00DfeRzyjj86yQ5/wm+4qHuiVexQUdREgNln/R7jNdQ4wd0ofDMk8RxTEQEEcXyP5+o6ga66kuzoXuAvJ9RyUwHnDjK8nHlKLSmUmOPNZzVaBo8Pa+t5j7/6SFj+TSIICcIQUDNOYjCBtuQ1uv4LFeXFIyc+sq0udINQ+nW2tZNT/zyJ/4WtTNuJBZEi3OdkMqVIZoegfttLXSZRpwl2DcK9D5V/i2bEHfBtzdWH55DJJpLB/VwXCzfAYigsvXHq6+UbYLKHmDLEMtgfyoEGhxIAx9dacX/oSqPHFKer8oK/6EeRUuLwpuNvHQyvRnuy9sYq/6ANneWFtkBf21K+n1Cpy7yr3mfaHAMEqHRMoKzyzWRkdnjIVtRiPKzLIm2ucekJMpzmAMNWWUdxHBt1lHIWFyE0gitA73iJi+cIhdKgi7kt2yuNqhYM57MxvZHF5vCVrT8q7dYoqa5Raw7+h3JPrYVexaeuTHeXBela9g/V8yKWl5SmO1FE0ZKdJvWnXZ6aRG6aygBMnJUchHPJ0z9Zqk6KqIaJxiMnyTX1Sgk/b5Jsxd9xM82N9mpz15mj0TR7ALm9ok/9KeeBdpbJ0vskKLyk3KJPYMWE4krJbYH8XIxQmnwWXZfE3Z6WUXRsDifahDo5bQYdsngssvgxKyNNa9jVPtowKUkmDkW4ACBOOxQqD7NA+VKt1LCYjiRLvQ2xlBR571i9lVh6iE5CTfjs/880UKN3h55XAei51mqwhex9edf8JuYi5E2opxmrr9ZgwvF1aAKQeLlYAWISrOv/QQSgqqgqdqGY+LmRhrfbYsDAZ3MdTMvRwBGafvMpT6eP9jzHVg6ytqvkPXcv1LRf20CN1SuDlGJpXaNeMyj/PcY4wxU2NLBDJtM0xNpuEVnHn0oEDkvfHLuxzxxTj/0+4TgxjsNqZRLnwU6p4up1whLu/i/X1pBUr3F8UECW1ylBcuA51ZdVXxOb7cyFmrsbnMviivwA=\"\n      }\n    }\n  ],\n  \"secureKeyName\": \"admin\"\n}",
+											"options": {
+												"raw": {
+													"language": "json"
+												}
+											}
+										},
+										"url": {
+											"raw": "{{tagApiUrl}}/api/send/jobs?cache=false",
+											"host": [
+												"{{tagApiUrl}}"
+											],
+											"path": [
+												"api",
+												"send",
+												"jobs"
+											],
+											"query": [
+												{
+													"key": "cache",
+													"value": "false"
+												}
 											]
 										}
 									},
@@ -5992,47 +6163,13 @@
 							"response": []
 						},
 						{
-							"name": "Grant Access",
-							"request": {
-								"method": "POST",
-								"header": [],
-								"body": {
-									"mode": "raw",
-									"raw": "{\n  \"transactions\": [\n    {\n      \"contractAddress\": \"KT1AK9SFPYcitQzwGV8JomriMQr6an7PSh18\",\n      \"entryPoint\": \"requestAccess\",\n      \"entryPointParams\": {\n        \"id\": \"52fddab8-748f-44f4-be77-608c2b3ec2b7\",\n        \"datasourceId\": \"29dba35d-80b5-4e48-ad8b-602b01be843c\",\n        \"scope\": \"customers-analytics\",\n        \"requesterAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\",\n        \"providerAddress\": \"tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV\"\n      }\n    }\n  ],\n  \"secureKeyName\": \"admin\"\n}",
-									"options": {
-										"raw": {
-											"language": "json"
-										}
-									}
-								},
-								"url": {
-									"raw": "{{tagApiUrl}}/api/send/jobs?cache=false",
-									"host": [
-										"{{tagApiUrl}}"
-									],
-									"path": [
-										"api",
-										"send",
-										"jobs"
-									],
-									"query": [
-										{
-											"key": "cache",
-											"value": "false"
-										}
-									]
-								}
-							},
-							"response": []
-						},
-						{
 							"name": "Mint scope",
 							"request": {
 								"method": "POST",
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1HLCFJ8tBi3RD43BK38b9orbZpJRwi7jD3\",\n            \"entryPoint\": \"create_business_datasource\",\n            \"entryPointParams\": {\n                \"asset_id\": \"ac8230d5-f368-4809-9f9d-054a194207bd:referentials\",\n                \"metadata_uri\": \"\",\n                \"nft_operator_address\": \"tz1UH213Tgjzc54oeu6iV9LqAQ2qhaPHh255\"\n            }\n        }\n    ],\n    \"callerId\": \"admin\",\n    \"secureKeyName\": \"{{tag-admin}}\"\n}",
+									"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1ARJifHV194BaVaaYbTy7XpHVpKjXZVgWg\",\n            \"entryPoint\": \"create_business_datasource\",\n            \"entryPointParams\": {\n                \"asset_id\": \"test2:referentials\",\n                \"metadata\": [{\"key\":\"k1\",\"value\":\"3176616c756531\"}],\n                \"nft_operator_address\": \"tz1UH213Tgjzc54oeu6iV9LqAQ2qhaPHh255\"\n            }\n        }\n    ],\n    \"callerId\": \"admin\",\n    \"secureKeyName\": \"{{tag-admin}}\"\n}",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -6146,7 +6283,7 @@
 								"header": [],
 								"body": {
 									"mode": "raw",
-									"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1NTybHtYJM15a4g5BXYyW2hG3CxPPwgErc\",\n            \"entryPoint\": \"update_organizations\",\n            \"entryPointParams\": [\n                { \n                    \"remove\" : \"tz1g53cuGXWjy6uPPzc4N3MTwifjRmydX5rD\"\n                }\n            ]\n        },\n        {\n            \"contractAddress\": \"KT1EpjBSurvR8YShjgzrMSvVVtuxJfRAb1LX\",\n            \"entryPoint\": \"update_organizations\",\n            \"entryPointParams\": [\n                { \n                    \"remove\" : \"tz1g53cuGXWjy6uPPzc4N3MTwifjRmydX5rD\"\n                }\n            ]\n        }\n    ],\n    \"secureKeyName\": \"admin\"\n}\n",
+									"raw": "{\n    \"transactions\": [\n        {\n            \"contractAddress\": \"KT1EpjBSurvR8YShjgzrMSvVVtuxJfRAb1LX\",\n            \"entryPoint\": \"update_organizations\",\n            \"entryPointParams\": [\n                { \n                    \"remove\" : \"tz1ZwRDQpfq53DYPaqrufysqYq1XAMXe953G\"\n                }\n            ]\n        }\n    ],\n    \"secureKeyName\": \"admin\"\n}\n",
 									"options": {
 										"raw": {
 											"language": "json"
@@ -7561,7 +7698,7 @@
 					"response": []
 				},
 				{
-					"name": "calls to SC",
+					"name": "Get calls to SC",
 					"protocolProfileBehavior": {
 						"disableBodyPruning": true
 					},
@@ -9306,97 +9443,6 @@
 							"path": [
 								"ipfs",
 								"QmaKmNUXWUV2z6GVxLk1XX4z6W5h6QLPKr3SwjfmNYM7dB"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Vault",
-			"item": [
-				{
-					"name": "Encrypt",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "X-Vault-Token",
-								"value": "{{vault-token}}",
-								"type": "text"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"plaintext\":\"dGhlIHF1aWNrIGJyb3duIGZveAo=\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{vault-url}}/v1/transit/encrypt/admin",
-							"host": [
-								"{{vault-url}}"
-							],
-							"path": [
-								"v1",
-								"transit",
-								"encrypt",
-								"admin"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "List keys",
-					"request": {
-						"method": "LIST",
-						"header": [
-							{
-								"key": "X-Vault-Token",
-								"value": "{{vault-token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{vault-url}}/v1/transit/keys",
-							"host": [
-								"{{vault-url}}"
-							],
-							"path": [
-								"v1",
-								"transit",
-								"keys"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Read key",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "X-Vault-Token",
-								"value": "{{vault-token}}",
-								"type": "text"
-							}
-						],
-						"url": {
-							"raw": "{{vault-url}}/v1/transit/keys/admin",
-							"host": [
-								"{{vault-url}}"
-							],
-							"path": [
-								"v1",
-								"transit",
-								"keys",
-								"admin"
 							]
 						}
 					},

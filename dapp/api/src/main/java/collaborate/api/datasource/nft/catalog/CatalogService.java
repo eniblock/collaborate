@@ -2,7 +2,6 @@ package collaborate.api.datasource.nft.catalog;
 
 import static java.lang.String.format;
 
-import collaborate.api.datasource.DatasourceService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.model.Datasource;
 import collaborate.api.datasource.nft.TokenDAO;
@@ -13,7 +12,6 @@ import collaborate.api.datasource.nft.model.metadata.DatasourceLink;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.tag.model.TokenMetadata;
-import java.util.Collections;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +24,6 @@ import org.springframework.stereotype.Service;
 public class CatalogService {
 
   private final IpfsService ipfsService;
-  private final DatasourceService datasourceService;
   private final TokenDAO tokenMetadataDAO;
   private final TraefikProviderService traefikProviderService;
 
@@ -72,13 +69,7 @@ public class CatalogService {
         .assetIdForDatasource(datasourceLink.getAssetIdForDatasource())
         .baseUri(traefikProviderService.buildDatasourceBaseUri(datasource))
         .ownerAddress(datasource.getOwner())
-        .scopes(
-            datasourceService.getResourcesByDataSourceId(datasourceLink.getId())
-                .orElseGet(() -> {
-                  log.warn("No resources found for datasource={}", datasourceLink.getId());
-                  return Collections.emptySet();
-                })
-        ).build();
+        .build();
   }
 
 }

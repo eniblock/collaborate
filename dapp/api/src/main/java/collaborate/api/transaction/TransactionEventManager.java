@@ -16,10 +16,6 @@ public class TransactionEventManager {
     listeners.add(handler);
   }
 
-  public void unsubscribe(TransactionHandler handler) {
-    listeners.remove(handler);
-  }
-
   void notify(Transaction transaction) {
     log.info("Dispatching transaction.hash={}", transaction.getHash());
     listeners.forEach(handler -> {
@@ -27,11 +23,11 @@ public class TransactionEventManager {
         handler.handle(transaction);
       } catch (Exception e) {
         log.error(
-            "Error with transaction handler={} and transaction={}, exception={}",
+            "Error with transaction handler={} and transaction={}",
             handler.getClass().getName(),
-            transaction,
-            e
+            transaction
         );
+        log.error("Exception", e);
       }
     });
   }

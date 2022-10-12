@@ -79,9 +79,9 @@ public class SortComparison {
     };
   }
 
-  public <T> Stream<T> sorted(Stream<T> straemToSort, Sort sort, Class<T> tClass) {
+  public <T> Stream<T> sorted(Stream<T> streamToSort, Sort sort, Class<T> tClass) {
     return sortComparator(tClass, sort)
-        .map(straemToSort::sorted)
-        .orElse(straemToSort);
+        .map(streamToSort::sorted)
+        .orElse(streamToSort);
   }
 }

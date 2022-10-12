@@ -76,6 +76,11 @@ public class OrganizationService {
             .build());
   }
 
+  @Cacheable(key = "'currentAddress'")
+  public String getCurrentAddress() {
+    return this.getCurrentOrganization().getAddress();
+  }
+
   @Cacheable(key = "'dspWallets'")
   public List<String> getAllDspWallets() {
     return getAllOrganizations()
@@ -86,6 +91,7 @@ public class OrganizationService {
         .collect(Collectors.toList());
   }
 
+  @Cacheable(key = "'legalName' + #legalName")
   public Optional<OrganizationDTO> findByLegalNameIgnoreCase(String legalName) {
     return getAllOrganizations().stream()
         .filter(o -> StringUtils.equalsIgnoreCase(legalName, o.getLegalName()))

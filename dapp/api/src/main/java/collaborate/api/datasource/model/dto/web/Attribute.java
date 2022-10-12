@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 @Builder
 public class Attribute {
 
-  public static final String ATTR_JWT_SCOPE = "jwt:scope";
+  public static final String ATTR_JWT_SCOPE = "scope";
 
   private String name;
   private String value;
