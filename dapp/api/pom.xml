@@ -368,7 +368,7 @@
     <lombok.version>1.18.20</lombok.version>
     <mock-server.version>3.10.8</mock-server.version>
     <spring-cloud.version>2020.0.4</spring-cloud.version>
-    <springdoc-openapi-ui.version>1.6.9</springdoc-openapi-ui.version>
+    <springdoc-openapi-ui.version>1.6.12</springdoc-openapi-ui.version>
     <sonar.organization>xdev-tech</sonar.organization>
     <sonar.projectKey>xdev-tech_collaborate</sonar.projectKey>
     <sonarcube.version>3.7.0.1746</sonarcube.version>
