@@ -1,15 +1,11 @@
 package collaborate.api.datasource.servicedata.transaction;
 
-import collaborate.api.datasource.kpi.Kpi;
-import collaborate.api.datasource.kpi.KpiService;
-import collaborate.api.datasource.servicedata.model.transaction.Fa2ServiceDataTransaction;
-import collaborate.api.datasource.servicedata.model.transaction.MintTransactionParameters;
+import collaborate.api.datasource.servicedata.model.transaction.ServiceDataTransaction;
 import collaborate.api.transaction.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.ZonedDateTime;
-import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,59 +17,42 @@ import org.springframework.stereotype.Service;
 public class ServiceDataTransactionService {
 
   private final ServiceDataTransactionDAO serviceDataTransactionDAO;
-  private final String serviceDataContractAddress;
-  private final KpiService kpiService;
-
   private final ObjectMapper objectMapper;
 
-  public Optional<ZonedDateTime> findTransactionDateByTokenId(String smartContract, Long tokenId) {
+  public Optional<ZonedDateTime> findTransactionDateByTokenId(String smartContract,
+      String tokenId) {
     return serviceDataTransactionDAO.findBySmartContractAndTokenId(smartContract, tokenId)
-        .map(Fa2ServiceDataTransaction::getTimestamp);
+        .map(ServiceDataTransaction::getTimestamp);
   }
 
-  public void saveFa2Transaction(Transaction transaction) {
-    var parameters = parseMintParams(
+  public void saveServiceDataTransaction(Transaction transaction) {
+    var parameters = deserializeTransactionParameters(
         transaction.getParameters());
     var smartContract = transaction.getDestination();
-    var timestamp = transaction.getTimestamp();
 
-    var fa2Transaction = new Fa2ServiceDataTransaction(
+    var serviceDataTransaction = new ServiceDataTransaction(
         smartContract,
-        parameters.getTokenId(),
+        parameters.getAssetId(),
         transaction.getEntrypoint(),
-        parameters.getOwner(),
-        parameters.getIpfsMetadataURI(),
-        parameters.getPassportId(),
-        timestamp,
+        parameters.getAssetId(),
+        parameters.getMetadataUri(),
+        parameters.getNftOperatorAddress(),
+        transaction.getTimestamp(),
         transaction.getParameters()
     );
-    serviceDataTransactionDAO.save(fa2Transaction);
+    serviceDataTransactionDAO.save(serviceDataTransaction);
   }
 
-  private MintTransactionParameters parseMintParams(JsonNode param) {
+  private ServiceDataTransactionParameter deserializeTransactionParameters(JsonNode param) {
     try {
       return objectMapper.treeToValue(
           param,
-          MintTransactionParameters.class
+          ServiceDataTransactionParameter.class
       );
     } catch (JsonProcessingException e) {
-      log.error("While converting transactionParameters={} to Fa2TransactionParameters", param);
+      log.error("While converting transactionParameters={} to ServiceDataTransactionParameters",
+          param);
       throw new IllegalStateException(e);
     }
-  }
-
-  public void saveNftCreated(Transaction transaction) {
-    var mintParams = parseMintParams(transaction.getParameters());
-    Kpi.builder()
-        .createdAt(transaction.getTimestamp())
-        .kpiKey("nft.created")
-        .organizationWallet(transaction.getSource())
-        .values(objectMapper.convertValue(Map.of(
-            "contract", serviceDataContractAddress,
-            "tokenId", mintParams.getTokenId(),
-            "owner", mintParams.getOwner()
-        ), JsonNode.class))
-        .build();
-
   }
 }

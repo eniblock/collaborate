@@ -1,12 +1,14 @@
 package collaborate.api.datasource.servicedata.transaction;
 
-import collaborate.api.datasource.servicedata.model.transaction.Fa2ServiceDataTransaction;
-import collaborate.api.datasource.servicedata.model.transaction.Fa2ServiceDataTransactionPK;
+import collaborate.api.datasource.servicedata.model.transaction.ServiceDataTransaction;
+import collaborate.api.datasource.servicedata.model.transaction.ServiceDataTransactionPK;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface ServiceDataTransactionDAO extends JpaRepository<Fa2ServiceDataTransaction, Fa2ServiceDataTransactionPK> {
+public interface ServiceDataTransactionDAO extends
+    JpaRepository<ServiceDataTransaction, ServiceDataTransactionPK> {
 
-  Optional<Fa2ServiceDataTransaction> findBySmartContractAndTokenId(String smartContract, Long tokenId);
+  Optional<ServiceDataTransaction> findBySmartContractAndTokenId(String smartContract,
+      String tokenId);
 
 }

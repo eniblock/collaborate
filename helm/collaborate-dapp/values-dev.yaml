@@ -16,9 +16,10 @@ api:
     businessData: KT1H7skNUrjgPcMoLjzXkGvBu6DKehsRRzSW
     digitalPassport: KT1JVhi3y73XrEXbd6tiZMAzPfHstW2eGqe8
     digitalPassportProxyTokenController: KT1EhhWaVjCVCgFHvZfMRmb6JwFxj1aopPAL
-    serviceData: KT1WKZzvhd9paipUKEqrdLaEZT7xTq54NSD5
-    serviceDataProxyTokenController: KT1N8f96a59jjjgK1AqLb36btqWJjDygQmyj
     organizationYellowPage: KT19DjuQT2MnmdFWKX1TuS28P9NkZNMTK9rt
+    serviceData: KT1FbQP4KLMLzmRGr4SEbof6iRMcMKPgSXjG
+    serviceConsent: KT1FbQP4KLMLzmRGr4SEbof6iRMcMKPgSXjG
+    serviceConsentProxyTokenController: KT1DWAsupETHJA6GoLzNFYFs8xuZBXNCm7Lq
 
   tezosApiGatewayUrl: https://tezos-api-gateway.localhost
 

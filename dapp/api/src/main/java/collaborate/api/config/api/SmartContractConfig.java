@@ -32,8 +32,13 @@ public class SmartContractConfig {
   }
 
   @Bean
-  public String serviceDataProxyControllerContractAddress() {
-    return smartContractAddressProperties.getServiceDataProxyTokenController();
+  public String serviceConsentContractAddress() {
+    return smartContractAddressProperties.getServiceConsent();
+  }
+
+  @Bean
+  public String serviceConsentProxyControllerContractAddress() {
+    return smartContractAddressProperties.getServiceConsentProxyTokenController();
   }
 
   @Bean
@@ -51,7 +56,10 @@ public class SmartContractConfig {
     return List.of(smartContractAddressProperties.getBusinessData(),
         smartContractAddressProperties.getDigitalPassport(),
         smartContractAddressProperties.getDigitalPassportProxyTokenController(),
-        smartContractAddressProperties.getOrganizationYellowPage()
+        smartContractAddressProperties.getOrganizationYellowPage(),
+        smartContractAddressProperties.getServiceData(),
+        smartContractAddressProperties.getServiceConsent(),
+        smartContractAddressProperties.getServiceConsentProxyTokenController()
     );
   }
 }

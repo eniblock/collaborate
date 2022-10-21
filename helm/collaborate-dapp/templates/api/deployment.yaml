@@ -102,14 +102,16 @@ spec:
               value: {{ .Values.api.smartContractAddress.digitalPassport | quote }}
             - name: SMART_CONTRACT_ADDRESS_DIGITAL_PASSPORT_PROXY_TOKEN_CONTROLLER
               value: {{ .Values.api.smartContractAddress.digitalPassportProxyTokenController | quote }}
-            - name: SMART_CONTRACT_ADDRESS_SERVICE_DATA
-              value: {{ .Values.api.smartContractAddress.serviceData | quote }}
-            - name: SMART_CONTRACT_ADDRESS_SERVICE_DATA_PROXY_TOKEN_CONTROLLER
-              value: {{ .Values.api.smartContractAddress.serviceDataProxyTokenController | quote }}
             - name: SMART_CONTRACT_ADDRESS_BUSINESS_DATA
               value: {{ .Values.api.smartContractAddress.businessData | quote }}
             - name: SMART_CONTRACT_ADDRESS_ORGANIZATION_YELLOW_PAGE
               value: {{ .Values.api.smartContractAddress.organizationYellowPage | quote }}
+            - name: SMART_CONTRACT_ADDRESS_SERVICE_DATA
+              value: {{ .Values.api.smartContractAddress.serviceData | quote }}
+            - name: SMART_CONTRACT_ADDRESS_SERVICE_CONSENT
+              value: {{ .Values.api.smartContractAddress.serviceConsent | quote }}
+            - name: SMART_CONTRACT_ADDRESS_SERVICE_CONSENT_PROXY_TOKEN_CONTROLLER
+              value: {{ .Values.api.smartContractAddress.serviceConsentProxyTokenController | quote }}
 
             # Api-gateway
             - name: TRAEFIK_CERTIFICATES_PATH
