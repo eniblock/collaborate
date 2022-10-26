@@ -1,6 +1,7 @@
 package collaborate.api.datasource.servicedata.find;
 
-import collaborate.api.datasource.servicedata.TAGServiceDataClient;
+import collaborate.api.datasource.businessdata.TAGBusinessDataClient;
+import collaborate.api.datasource.businessdata.find.IndexerTagResponseDTO;
 import collaborate.api.datasource.passport.model.storage.StorageFields;
 import collaborate.api.tag.model.storage.DataFieldsRequest;
 import collaborate.api.tag.model.storage.MapQuery;
@@ -14,14 +15,14 @@ import org.springframework.stereotype.Repository;
 class ServiceDataNftIndexerDAO {
 
   private final String serviceDataContractAddress;
-  private final TAGServiceDataClient tagServiceDataClient;
+  private final TAGBusinessDataClient tagClient;
 
   public IndexerTagResponseDTO findNftIndexersByDsps(
       Collection<String> dspAddresses) {
     var requestPassportsIndexer = new DataFieldsRequest<>(List.of(
         new MapQuery<>(StorageFields.NFT_INDEXER, dspAddresses)
     ));
-    return tagServiceDataClient
+    return tagClient
         .getIndexer(
             serviceDataContractAddress,
             requestPassportsIndexer

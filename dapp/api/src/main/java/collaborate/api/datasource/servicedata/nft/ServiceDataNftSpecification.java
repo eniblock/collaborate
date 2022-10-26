@@ -1,4 +1,4 @@
-package collaborate.api.datasource.servicedata;
+package collaborate.api.datasource.servicedata.nft;
 
 import collaborate.api.datasource.kpi.JsonSpecification;
 import collaborate.api.datasource.kpi.JsonSpecificationConsumer;

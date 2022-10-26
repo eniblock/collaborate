@@ -23,7 +23,7 @@ public class CreateServiceDataNftDAO {
   private final String serviceDataContractAddress;
   private final UserService userService;
 
-  public static final String CREATE_DATASOURCE_ENTRYPOINT = "create_business_datasource"; // TODO: fix with a new contract ?
+  public static final String CREATE_SERVICE_ENTRYPOINT = "create_business_datasource"; // TODO: fix with a new contract ?
 
   public Job mintServiceDataNFT(List<AssetMetadataMintDTO> assetIdAndUrises) {
     var transactions = assetIdAndUrises.stream()
@@ -35,7 +35,7 @@ public class CreateServiceDataNftDAO {
                 .build()
         ).map(
             catalogCreationDTO -> Transaction.builder()
-                .entryPoint(CREATE_DATASOURCE_ENTRYPOINT)
+                .entryPoint(CREATE_SERVICE_ENTRYPOINT)
                 .contractAddress(serviceDataContractAddress)
                 .entryPointParams(catalogCreationDTO)
                 .build()

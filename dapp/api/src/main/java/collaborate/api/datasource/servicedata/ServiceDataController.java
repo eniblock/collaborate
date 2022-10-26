@@ -5,14 +5,12 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.datasource.servicedata.model.ServiceData;
 import collaborate.api.datasource.servicedata.model.ServiceDataDTO;
-import collaborate.api.datasource.servicedata.document.ServiceDataAssetsService;
-import collaborate.api.datasource.servicedata.document.model.ServiceDataDocument;
-import collaborate.api.datasource.servicedata.document.model.ServiceDataNFTSummary;
-import collaborate.api.datasource.servicedata.document.model.ScopeAssetsDTO;
+//import collaborate.api.datasource.servicedata.document.ServiceDataAssetsService;
+//import collaborate.api.datasource.servicedata.document.model.ServiceDataNFTSummary;
 import collaborate.api.datasource.servicedata.find.ServiceDataAssetDetailsService;
-import collaborate.api.datasource.nft.catalog.NftDatasourceService;
+//import collaborate.api.datasource.nft.catalog.NftServiceDataService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
-import collaborate.api.datasource.nft.model.storage.TokenIndex;
+//import collaborate.api.datasource.nft.model.storage.TokenIndex;
 import collaborate.api.tag.model.job.Job;
 import collaborate.api.user.security.Authorizations.HasRoles;
 import io.swagger.v3.oas.annotations.Operation;
@@ -59,12 +57,12 @@ import org.springframework.web.server.ResponseStatusException;
 @Validated
 public class ServiceDataController {
 
-  private final ServiceDataAssetsService assetsService;
+//  private final ServiceDataAssetsService assetsService;
   private final ServiceDataAssetDetailsService assetDetailsService;
   private final String serviceDataContractAddress;
   private final ServiceDataService serviceDataService;  
-  private final NftDatasourceService nftDatasourceService;
-  private final ServiceDataNftService nftService;
+//  private final NftServiceDataService nftServiceDataService;
+//  private final ServiceDataNftService nftService;
 
   @PostMapping
   @Operation(
@@ -75,21 +73,6 @@ public class ServiceDataController {
   public ResponseEntity<ServiceData> createServiceData(@RequestBody @Valid ServiceDataDTO serviceDataDTO) throws IOException {
     var result = serviceDataService.create(serviceDataDTO);
     return new ResponseEntity<>(result, HttpStatus.CREATED);
-  }
-
-  @GetMapping
-  @Operation(
-      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description = "Get the service data catalog (list of scopes)"
-  )
-  @PreAuthorize(HasRoles.SERVICE_DATA_READ)
-  public Page<AssetDetailsDTO> listAssetDetails(
-      @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
-      @RequestParam(required = false) Optional<String> assetId,
-      @RequestParam(required = false) Optional<String> assetOwner
-  ) {
-    var predicate = assetId.map(q -> (Predicate<TokenIndex>) t -> t.getAssetId().contains(q));
-    return assetDetailsService.find(pageable, predicate, assetOwner);
   }
 
   @GetMapping("market-place")
@@ -109,17 +92,25 @@ public class ServiceDataController {
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     return assetDetailsService.marketPlace(filters, pageable);
   }
-  
-  private void waitForDatasourceConfiguration(Integer tokenId) throws InterruptedException {
-    if (nftDatasourceService.saveConfigurationByTokenId(
-        tokenId,
-        serviceDataContractAddress)
-    ) {
-      // Wait a while to ensure that traefik has loaded the configuration
-      Thread.sleep(1000);
-    }
+
+/*
+  @GetMapping
+  @Operation(
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description = "Get the service data catalog (list of scopes)"
+  )
+  @PreAuthorize(HasRoles.SERVICE_DATA_READ)
+  public Page<AssetDetailsDTO> listAssetDetails(
+      @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
+      @RequestParam(required = false) Optional<String> assetId,
+      @RequestParam(required = false) Optional<String> assetOwner
+  ) {
+    var predicate = assetId.map(q -> (Predicate<TokenIndex>) t -> t.getAssetId().contains(q));
+    return assetDetailsService.find(pageable, predicate, assetOwner);
   }
 
+  
+  
   @GetMapping("asset/{tokenId}/summary")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -128,7 +119,7 @@ public class ServiceDataController {
   @PreAuthorize(HasRoles.SERVICE_DATA_READ)
   public ServiceDataNFTSummary getSummary(@PathVariable Integer tokenId)
       throws InterruptedException {
-    waitForDatasourceConfiguration(tokenId);
+    nftServiceDataService.saveConfigurationByTokenId(tokenId, serviceDataContractAddress);
     return assetsService.getSummary(tokenId);
   }
 
@@ -138,11 +129,11 @@ public class ServiceDataController {
       description = "See all the service-data assets (documents) of the specified token id"
   )
   @PreAuthorize(HasRoles.SERVICE_DATA_READ)
-  public Page<ServiceDataDocument> listAssetDocuments(@PathVariable Integer tokenId,
+  public Page<ServiceData> listAssetDocuments(@PathVariable Integer tokenId,
       @ParameterObject Pageable pageable)
       throws InterruptedException {
-    waitForDatasourceConfiguration(tokenId);
+    nftServiceDataService.saveConfigurationByTokenId(tokenId, serviceDataContractAddress);
     return assetsService.listScopeAssets(tokenId, pageable);
   }
-
+*/
 }

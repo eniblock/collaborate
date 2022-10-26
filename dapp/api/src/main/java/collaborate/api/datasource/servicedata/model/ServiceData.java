@@ -1,5 +1,6 @@
 package collaborate.api.datasource.servicedata.model;
 
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.config.ISO8601JsonStringFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -61,7 +62,6 @@ public class ServiceData {
   @ISO8601JsonStringFormat
   private ZonedDateTime creationDatetime;
 
-/*
   @Schema(description = "Additional data about the servicedata usage and configuration", required = true)
   @ElementCollection(targetClass = Metadata.class)
   private Set<Metadata> providerMetadata;
@@ -73,7 +73,7 @@ public class ServiceData {
     return providerMetadata.stream().filter(m -> StringUtils.equals(name, m.getName()))
         .map(Metadata::getValue).findFirst();
   }
-
+/*
   public List<String> getPurpose(ObjectMapper objectMapper) {
     var rawPurpose = findMetadataByName(DATASOURCE_PURPOSE).orElseThrow(
         () -> new IllegalStateException("No purpose found in datasourceId=" + getId()));

@@ -5,8 +5,12 @@ import static java.util.stream.Collectors.toSet;
 import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.servicedata.create.MintServiceDataService;
 import collaborate.api.datasource.DatasourceProperties;
+import collaborate.api.datasource.model.dto.DatasourceDTOVisitor;
+import collaborate.api.datasource.model.dto.DatasourceVisitorException;
 
 import collaborate.api.datasource.servicedata.model.ServiceData;
+import collaborate.api.datasource.servicedata.model.ServiceDataDTOVisitor;
+import collaborate.api.datasource.servicedata.model.ServiceDataDTOMetadataVisitor;
 import collaborate.api.datasource.model.Metadata;
 import collaborate.api.datasource.servicedata.model.ServiceDataDTO;
 import collaborate.api.date.DateFormatterFactory;
@@ -39,10 +43,11 @@ public class ServiceDataService {
   private final DatasourceProperties datasourceProperties;
   private final DateFormatterFactory dateFormatterFactory;
   private final IpfsDAO ipfsDAO;
+  private final ServiceDataDTOMetadataVisitor serviceDataDTOMetadataVisitor;
 
   public ServiceData create(ServiceDataDTO serviceDataDTO) throws IOException {
 
-    //serviceDataDTO.setId(uuidGenerator.randomUUID()); // TODO: fix > id != datasourceId
+    serviceDataDTO.setId(uuidGenerator.randomUUID());
     
     var savedServiceData = build(serviceDataDTO);
  
@@ -66,9 +71,22 @@ public class ServiceDataService {
         .name(serviceDataDTO.getName())
         .description(serviceDataDTO.getDescription())
         .creationDatetime(ZonedDateTime.now(clock))
-        .owner(organizationService.getCurrentOrganization().getAddress())        
-        //.providerMetadata(buildMetadata(serviceDataDTO))
+        .owner(organizationService.getCurrentOrganization().getAddress()) // TODO: fix > need to keep the scope...
+        .providerMetadata(buildMetadata(serviceDataDTO))
         .build();
+  }
+
+  Set<Metadata> buildMetadata(ServiceDataDTO serviceDataDTO) {
+    return serviceDataDTO.accept(serviceDataDTOMetadataVisitor).collect(toSet());
+  }
+
+  public Optional<ServiceData> findById(String id) {
+    return serviceDataRepository.findById(id);
+  }
+
+  public ServiceData saveIfNotExists(ServiceData d) {
+    return serviceDataRepository.findById(d.getId())
+        .orElseGet(() -> serviceDataRepository.save(d));
   }
 
 }

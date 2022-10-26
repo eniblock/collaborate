@@ -1,5 +1,4 @@
-package collaborate.api.datasource.servicedata;
-
+package collaborate.api.datasource.servicedata.nft;
 
 import static java.util.stream.Collectors.toMap;
 
@@ -34,8 +33,7 @@ public class ServiceDataNftService {
   private final ObjectMapper objectMapper;
 
   public Optional<Nft> findById(String datasourceId, String alias) {
-    return nftRepository
-        .findById(new AssetId(datasourceId, alias));
+    return nftRepository.findById(new AssetId(datasourceId, alias));
   }
 
   public void updateNft(Transaction transaction) {
@@ -49,7 +47,7 @@ public class ServiceDataNftService {
       log.error("While working with transaction={}", transaction);
       throw new IllegalStateException("Can't deserialize mint service-data transaction params", e);
     }
-    var assetId = mintServiceDataParams.getAssetId();
+    var assetId = mintServiceDataParams.getAssetId(); // ASSET ID must be split
     var metadataNode = objectMapper.createObjectNode();
     mintServiceDataParams.getMetadata()
         .forEach((key, value) -> metadataNode.put(key, value.toString()));

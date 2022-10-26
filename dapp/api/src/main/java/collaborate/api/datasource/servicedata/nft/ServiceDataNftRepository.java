@@ -1,4 +1,4 @@
-package collaborate.api.datasource.servicedata;
+package collaborate.api.datasource.servicedata.nft;
 
 import collaborate.api.datasource.model.AssetId;
 import collaborate.api.datasource.model.Nft;

@@ -1,6 +1,6 @@
 package collaborate.api.datasource.servicedata;
 
-import collaborate.api.datasource.servicedata.kpi.CreatedServiceDataTransactionHandler;
+//import collaborate.api.datasource.servicedata.kpi.CreatedServiceScopeTransactionHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
 import collaborate.api.transaction.TransactionPersistenceHandler;
@@ -26,7 +26,7 @@ public class ServiceDataTransactionWatcher {
 
   private final String serviceDataContractAddress;
   private final CreatedServiceDataTransactionHandler createdServiceDataTransactionHandler;
-  private final CreatedServiceScopeTransactionHandler createdServiceScopeTransactionHandler;
+  //private final CreatedServiceScopeTransactionHandler createdServiceScopeTransactionHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
   private final TransactionPersistenceHandler transactionPersistenceHandler;
@@ -63,7 +63,7 @@ public class ServiceDataTransactionWatcher {
     log.info("Initializing block chain transaction event manager");
     var transactionEventManager = new TransactionEventManager();
     transactionEventManager.subscribe(createdServiceDataTransactionHandler);
-    transactionEventManager.subscribe(createdServiceScopeTransactionHandler);
+    //transactionEventManager.subscribe(createdServiceScopeTransactionHandler);
     transactionEventManager.subscribe(transactionPersistenceHandler);
     return transactionEventManager;
   }
