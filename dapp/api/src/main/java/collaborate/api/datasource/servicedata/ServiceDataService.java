@@ -60,7 +60,7 @@ public class ServiceDataService {
     savedServiceData.setCid(cid);
     serviceDataRepository.save(savedServiceData);
     
-    mintServiceDataService.mint(serviceDataDTO);
+    mintServiceDataService.mint(serviceDataDTO, cid);
 
     return savedServiceData;
   }

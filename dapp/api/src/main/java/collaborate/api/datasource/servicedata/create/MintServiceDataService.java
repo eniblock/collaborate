@@ -57,17 +57,10 @@ public class MintServiceDataService {
   private final IpfsDAO ipfsDAO;
 
   @Transactional
-  public void mint(ServiceDataDTO serviceDataDTO) {
-
-    String assetRelativePath = Path.of(
-        dateFormatterFactory.forPattern(
-            tokenMetadataProperties.getAssetDataCatalogPartitionDatePattern()
-        ),
-        uuidGenerator.randomUUID().toString()
-    ).toString();
+  public void mint(ServiceDataDTO serviceDataDTO, String cid) {
 
     var assetDTO = AssetDTO.builder()
-        .assetRelativePath(assetRelativePath)
+        .assetRelativePath(IPFS_PROTOCOL_PREFIX + cid)
         .assetType("service-data")
         .datasourceUUID(serviceDataDTO.getId())
         .assetIdForDatasource(serviceDataDTO.getDatasource().toString()+"_"+serviceDataDTO.getScope())
@@ -84,14 +77,14 @@ public class MintServiceDataService {
     nftService.save(nft);
     
     List<AssetMetadataMintDTO> assetIdAndUris = new ArrayList() {{
-        add(buildAssetIdAndMetadataUri(assetDTO));
+        add(buildAssetIdAndMetadataUri(assetDTO)); // PROBLEM ==> cid for ServiceData is not stored...
     }};
     
     createServiceDataNftDAO.mintServiceDataNFT(assetIdAndUris);
   }
 
   private AssetMetadataMintDTO buildAssetIdAndMetadataUri(AssetDTO assetDTO) {
-    try {
+ //   try {
       log.info("Minting asset={}", assetDTO);
       /*
       var assetDataCatalogPath = Path.of(
@@ -102,7 +95,7 @@ public class MintServiceDataService {
           assetDataCatalogPath,
           assetDataCatalogFactory.create(assetDTO)
       );
-      */
+     
       var tzip21 = metadataFactory.create(assetDTO);
       var buildPathForAssetId = Path.of(
         tokenMetadataProperties.getNftMetadataRootFolder(),
@@ -112,19 +105,20 @@ public class MintServiceDataService {
         assetDTO.getAssetRelativePath()
       );
       var ipfsMetadataUri = IPFS_PROTOCOL_PREFIX + ipfsDAO.add(buildPathForAssetId, tzip21);
-
-      assetDTO.getOnChainMetadata().put("", new Bytes(ipfsMetadataUri));
+       */
+      assetDTO.getOnChainMetadata().put("", new Bytes(assetDTO.getAssetRelativePath()));
       return new AssetMetadataMintDTO(
           assetDTO.getDatasourceUUID() + ":" + assetDTO.getAssetIdForDatasource(), // = ASSET ID
           assetDTO.getOnChainMetadata().entrySet().stream()
               .map(entry -> new TagEntry<>(entry.getKey(), entry.getValue(), null))
               .collect(Collectors.toCollection(LinkedList::new))
       );
-
+/*
     } catch (IOException e) {
       log.error("error while minting asset={}", assetDTO);
       throw new IllegalStateException(e);
     }
+*/
   }
 
 }

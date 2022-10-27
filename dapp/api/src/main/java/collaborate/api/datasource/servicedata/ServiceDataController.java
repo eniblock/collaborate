@@ -93,24 +93,20 @@ public class ServiceDataController {
     return assetDetailsService.marketPlace(filters, pageable);
   }
 
-/*
-  @GetMapping
+
+  @GetMapping("asset/{tokenId}/summary")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "Get the service data catalog (list of scopes)"
   )
   @PreAuthorize(HasRoles.SERVICE_DATA_READ)
-  public Page<AssetDetailsDTO> listAssetDetails(
-      @PageableDefault(sort = {"tokenId"}, direction = DESC) @ParameterObject Pageable pageable,
-      @RequestParam(required = false) Optional<String> assetId,
-      @RequestParam(required = false) Optional<String> assetOwner
+  public ServiceData listAssetDetails(
+      @PathVariable String tokenId
   ) {
-    var predicate = assetId.map(q -> (Predicate<TokenIndex>) t -> t.getAssetId().contains(q));
-    return assetDetailsService.find(pageable, predicate, assetOwner);
+    return assetDetailsService.find(tokenId);
   }
 
-  
-  
+/*
   @GetMapping("asset/{tokenId}/summary")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),

@@ -32,8 +32,8 @@ public class ServiceDataNftService {
   private final ServiceDataNftRepository nftRepository;
   private final ObjectMapper objectMapper;
 
-  public Optional<Nft> findById(String datasourceId, String alias) {
-    return nftRepository.findById(new AssetId(datasourceId, alias));
+  public Optional<Nft> findById(String assetId) {
+    return nftRepository.findById(new AssetId(assetId));
   }
 
   public void updateNft(Transaction transaction) {
@@ -78,6 +78,7 @@ public class ServiceDataNftService {
 
   public Page<Nft> findMarketPlaceByFilters(Map<String, String> filters, Pageable pageable) {
     var nftSpec = new ServiceDataNftSpecification(null);
+    /*
     if (filters != null && filters.containsKey(OWNER_FILTER_KEY)) {
       var orgAddress = organizationService
           .findByLegalNameIgnoreCase(filters.get(OWNER_FILTER_KEY))
@@ -95,6 +96,7 @@ public class ServiceDataNftService {
           .collect(toMap(Entry::getKey, Entry::getValue));
       nftSpec.setMetadata(metadataFilters);
     }
+    */
     return nftRepository.findAll(nftSpec, pageable);
   }
 
