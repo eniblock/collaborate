@@ -55,7 +55,7 @@ public class ServiceDataDTOMetadataVisitor implements ServiceDataDTOVisitor<Stre
 
   private Metadata buildPurpose(String datasource, String scope)  {
     return Metadata.builder()
-        .name("target")
+        .name("business-data")
         .value(datasource + ":" + scope)
         .type("string")
         .build();

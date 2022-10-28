@@ -46,6 +46,19 @@ public class ServiceConsentController {
   private final FindServiceConsentService findServiceConsentService;
   private final MetricDataServiceService metricService;
 
+  @PostMapping
+  @Operation(
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description =
+          "Create a multi-signature entry in the Smart-Contract:"
+              + "used as a \"pending\" service-data<br>"
+              + "NB: The current organization signature is automatically added")
+  @PreAuthorize(HasRoles.DSP)
+  public Job create(@RequestBody @Valid CreateMultisigServiceConsentDTO createMultisigServiceConsentDTO)
+      throws IOException {
+    return createServiceConsentService.createMultisig(createMultisigServiceConsentDTO);
+  }
+
   @PostMapping("/multisig/{contract-id}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
@@ -65,19 +78,6 @@ public class ServiceConsentController {
     return findServiceConsentService.findServiceConsentDetailsFromMultisigId(contractId)
         .map(ResponseEntity::ok)
         .orElseGet(() -> ResponseEntity.notFound().build());
-  }
-
-  @PostMapping
-  @Operation(
-      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
-      description =
-          "Create a multi-signature entry in the Smart-Contract:"
-              + "used as a \"pending\" service-data<br>"
-              + "NB: The current organization signature is automatically added")
-  @PreAuthorize(HasRoles.DSP)
-  public Job create(@RequestBody @Valid CreateMultisigServiceConsentDTO createMultisigServiceConsentDTO)
-      throws IOException {
-    return createServiceConsentService.createMultisig(createMultisigServiceConsentDTO);
   }
 
   @GetMapping
@@ -124,4 +124,6 @@ public class ServiceConsentController {
   public long count() {
     return findServiceConsentService.countServiceConsent();
   }
+
+
 }

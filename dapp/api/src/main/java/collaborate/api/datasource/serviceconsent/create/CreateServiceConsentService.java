@@ -7,6 +7,7 @@ import collaborate.api.config.UUIDGenerator;
 import collaborate.api.datasource.nft.TokenMetadataProperties;
 import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.datasource.nft.catalog.create.Tzip21MetadataService;
+import collaborate.api.datasource.passport.create.PassportTzip21MetadataFactory;
 import collaborate.api.date.DateFormatterFactory;
 import collaborate.api.mail.EMailDTO;
 import collaborate.api.mail.EMailService;
@@ -33,9 +34,9 @@ public class CreateServiceConsentService {
   private final CreateServiceConsentDAO createServiceConsentDAO;
   private final DateFormatterFactory dateFormatterFactory;
   private final EMailService mailService;
-  private final ServiceConsentTzip21MetadataFactory serviceconsentTzip21MetadataFactory;
+  private final ConsentTzip21MetadataService tzip21MetadataService;
+  private final PassportTzip21MetadataFactory passportTzip21MetadataFactory;
   private final TokenMetadataProperties tokenMetadataProperties;
-  private final Tzip21MetadataService tzip21MetadataService;
   private final UserService userService;
   private final UUIDGenerator uuidGenerator;
 
@@ -59,7 +60,7 @@ public class CreateServiceConsentService {
         .assetIdForDatasource(createMultisigServiceConsentDTO.getAssetIdForDatasource())
         .datasourceUUID(createMultisigServiceConsentDTO.getDatasourceUUID())
         .assetType("digital-serviceconsent")
-        .tZip21Metadata(serviceconsentTzip21MetadataFactory.create(createMultisigServiceConsentDTO.getAssetId()))
+        .tZip21Metadata(passportTzip21MetadataFactory.create(createMultisigServiceConsentDTO.getAssetId()))
         .build();
   }
 

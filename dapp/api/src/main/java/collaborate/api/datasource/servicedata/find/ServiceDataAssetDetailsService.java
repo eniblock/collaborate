@@ -87,26 +87,26 @@ public class ServiceDataAssetDetailsService {
   public ServiceData find(String assetId) {
     Optional<Nft> t = nftService.findById(assetId);
     if (t.isPresent()) {
-
         Integer tokenId = t.get().getNftId();
+        if (tokenId != null) {
+          var tokenMedataOpt = tokenMetadataDAO.findById(tokenId, serviceDataContractAddress);
+          
+          var serviceData = tokenMedataOpt
+            .map(TokenMetadata::getIpfsUri)
+            .flatMap(this::findByIpfsLink)
+            .orElseThrow(() -> new IllegalStateException(
+                format("No metadata found for nftId=%d, smartContract=%s", tokenId, serviceDataContractAddress)
+            ));
 
-        var tokenMedataOpt = tokenMetadataDAO.findById(tokenId, serviceDataContractAddress);
-        
-        var serviceData = tokenMedataOpt
-          .map(TokenMetadata::getIpfsUri)
-          .flatMap(this::findByIpfsLink)
-          .orElseThrow(() -> new IllegalStateException(
-              format("No metadata found for nftId=%d, smartContract=%s", tokenId, serviceDataContractAddress)
-          ));
-
-        return ServiceData.builder()
-        .id(t.get().getAssetId().toString())
-        .name(serviceData.getName())
-        .description(serviceData.getDescription())
-        .creationDatetime(serviceData.getCreationDatetime())
-        .owner(serviceData.getOwner())
-        .providerMetadata(serviceData.getProviderMetadata())
-        .build();
+          return ServiceData.builder()
+          .id(t.get().getAssetId().toString())
+          .name(serviceData.getName())
+          .description(serviceData.getDescription())
+          .creationDatetime(serviceData.getCreationDatetime())
+          .owner(serviceData.getOwner())
+          .providerMetadata(serviceData.getProviderMetadata())
+          .build();
+        }
      }
      return null;
   }
@@ -120,50 +120,4 @@ public class ServiceDataAssetDetailsService {
       return Optional.empty();
     }
   }
-
-
-/*
-  ServiceData buildServiceData(DatasourceLink datasourceLink) {
-    return ipfsService.cat(datasourceLink.getUri(), ServiceData.class);
-  }
-
-
-    var tokenMedataOpt = tokenMetadataDAO.findById(tokenId, smartContract);
-    return tokenMedataOpt
-        .map(TokenMetadata::getIpfsUri)
-        .flatMap(this::findByIpfsLink)
-        .orElseThrow(() -> new IllegalStateException(
-            format("No catalog found for nftId=%d, smartContract=%s", tokenId, smartContract)
-        ));
-  }
-
-  public Optional<AssetServiceDataCatalogDTO> findByIpfsLink(String tZip21Url) {
-    try {
-      var tokenMetadata = ipfsService.cat(tZip21Url, TZip21Metadata.class);
-      return getAssetServiceDataCatalogDTO(tokenMetadata);
-    } catch (Exception e) {
-      log.error("While getting dataCatalog from tZip21Url={}\n{}", tZip21Url, e);
-      return Optional.empty();
-    }
-  }
-
-  public Optional<AssetServiceDataCatalogDTO> getAssetServiceDataCatalogDTO(TZip21Metadata tokenMetadata) {
-    if (tokenMetadata == null) {
-      return Optional.empty();
-    }
-    return tokenMetadata.getAssetDataCatalogUri()
-        .map(catalogUri -> ipfsService.cat(catalogUri, AssetDataCatalog.class))
-        .map(AssetDataCatalog::getDatasources)
-        .map(
-            links -> links.stream()
-                .map(this::buildServiceData)
-                .collect(Collectors.toList())
-        ).map(AssetServiceDataCatalogDTO::new);
-  }
-
-  ServiceData buildServiceData(DatasourceLink datasourceLink) {
-    return ipfsService.cat(datasourceLink.getUri(), ServiceData.class);
-  }
-*/
-
 }

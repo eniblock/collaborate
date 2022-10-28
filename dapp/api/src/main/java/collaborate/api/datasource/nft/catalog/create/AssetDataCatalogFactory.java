@@ -16,7 +16,7 @@ public class AssetDataCatalogFactory {
 
   private final DatasourceService datasourceService;
 
-  AssetDataCatalog create(AssetDTO assetDTO) {
+  public AssetDataCatalog create(AssetDTO assetDTO) {
     var datasourceInIpfs = datasourceService
         .findById(assetDTO.getDatasourceUUID().toString())
         .orElseThrow(

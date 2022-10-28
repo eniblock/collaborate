@@ -1,10 +1,10 @@
-package collaborate.api.datasource.servicedata.create;
+package collaborate.api.datasource.serviceconsent.create;
 
 import collaborate.api.datasource.nft.TokenMetadataProperties;
-import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.datasource.nft.model.metadata.Attribute;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata.AttributeKeys;
+import collaborate.api.datasource.nft.catalog.create.AssetDTO;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.ipfs.IpnsService;
 import java.nio.file.Path;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @RequiredArgsConstructor
 @Component
-public class ServiceTzip21MetadataFactory {
+public class ConsentTzip21MetadataFactory {
 
   private final IpnsService ipnsService;
   private final TokenMetadataProperties tokenMetadataProperties;

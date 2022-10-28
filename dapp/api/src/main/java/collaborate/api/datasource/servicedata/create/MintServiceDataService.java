@@ -51,7 +51,7 @@ public class MintServiceDataService {
   private final ObjectMapper objectMapper;
   private final TokenMetadataProperties tokenMetadataProperties;
   private final TZip21MetadataServiceFactory tZip21MetadataFactory;
-  private final ServiceTzip21MetadataFactory metadataFactory;
+  //private final ServiceTzip21MetadataFactory metadataFactory;
   private final Tzip21MetadataService tzip21MetadataService;
   private final UUIDGenerator uuidGenerator;
   private final IpfsDAO ipfsDAO;

@@ -18,7 +18,8 @@ class ConsentServiceConsentDAO {
   private final TransactionBatchFactory transactionBatchFactory;
   private final String serviceConsentProxyControllerContractAddress;
 
-  public Job consent(ConsentServiceConsentDTO consentServiceConsentDTO) {
+  public Job consent(ConsentServiceConsentDTO consentServiceConsentDTO) {    
+    log.info("ConsentServiceConsentDTO({})", consentServiceConsentDTO.getVehicleOwnerUserWallet().getUserId());
     var transactions = transactionBatchFactory.createEntryPointJob(
         CONSENT_ENTRY_POINT,
         consentServiceConsentDTO.getContractId(),
