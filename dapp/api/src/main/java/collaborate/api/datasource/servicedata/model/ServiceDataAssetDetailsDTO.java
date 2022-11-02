@@ -42,10 +42,6 @@ public class ServiceDataAssetDetailsDTO {
   @NotNull
   private OrganizationDTO assetOwner;
 
-  @Schema(description = "The asset creation datetime (ISO8601 = yyyy-MM-dd'T'HH:mm:ss.SSSXXX)")
-  @ISO8601JsonStringFormat
-  private ZonedDateTime creationDatetime;
-
   @Schema(description = "The NFT operator")
   private OrganizationDTO operator;
 
@@ -54,5 +50,12 @@ public class ServiceDataAssetDetailsDTO {
 
   @Schema(description = "The token status of the the asset", example = "PENDING_CREATION")
   private TokenStatus tokenStatus;
+
+  @Schema(description = "The id of the asset", example = "5NPET4AC8AH593530")
+  @NotBlank
+  private String name;
+
+  @Schema(description = "The asset creation datetime (ISO8601 = yyyy-MM-dd'T'HH:mm:ss.SSSXXX)")
+  private String date;
 
 }

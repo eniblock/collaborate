@@ -57,7 +57,7 @@ public class MintServiceDataService {
   private final IpfsDAO ipfsDAO;
 
   @Transactional
-  public void mint(ServiceDataDTO serviceDataDTO, String cid) {
+  public void mint(ServiceDataDTO serviceDataDTO, String cid, String creationDatetime) {
 
     var assetAlias = serviceDataDTO.getServices().stream()
         .map(r -> { return r.getDatasource().toString()  + "=" + r.getScope(); })
@@ -71,6 +71,9 @@ public class MintServiceDataService {
         .tZip21Metadata(tZip21MetadataFactory.create(serviceDataDTO.getName(), serviceDataDTO.getDescription()))
         .onChainMetadata(new HashMap()) // TODO: fix ? transaction.ServiceDataTransactionParameter["metadata"]) >> Cannot deserialize value
         .build();
+
+    assetDTO.getOnChainMetadata().put("name", new Bytes(serviceDataDTO.getName()));
+    assetDTO.getOnChainMetadata().put("date", new Bytes(creationDatetime));
 
     var nft = Nft.builder()
         .assetId(new AssetId(assetDTO.getDatasourceUUID().toString(), assetDTO.getAssetIdForDatasource())) // ASSET ID = concat

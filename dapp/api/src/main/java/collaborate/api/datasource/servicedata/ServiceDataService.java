@@ -59,8 +59,8 @@ public class ServiceDataService {
 
     savedServiceData.setCid(cid);
     serviceDataRepository.save(savedServiceData);
-    
-    mintServiceDataService.mint(serviceDataDTO, cid);
+
+    mintServiceDataService.mint(serviceDataDTO, cid, savedServiceData.getCreationDatetime().toString());
 
     return savedServiceData;
   }

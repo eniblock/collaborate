@@ -68,7 +68,28 @@ public class ServiceDataAssetDetailsService {
     var alias = t.getAssetId().getAlias();
     //var creationDate = serviceDataTransactionService.findTransactionDateByTokenId(serviceDataContractAddress, t.getAssetId().toString());
     
-
+    Integer tokenId = t.getNftId();
+    var tokenMedataOpt = tokenMetadataDAO.findById(tokenId, serviceDataContractAddress);
+    String name = "", date = "";
+    try {
+      name = tokenMedataOpt.get().getTokenInfo().stream()
+        .filter(tagEntry -> "name".equals(tagEntry.getKey()))
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalStateException("Can't find metadata field for tokenId=" + tokenId)
+        ).getValue()
+        .toString();
+      date = tokenMedataOpt.get().getTokenInfo().stream()
+        .filter(tagEntry -> "date".equals(tagEntry.getKey()))
+        .findFirst()
+        .orElseThrow(
+            () -> new IllegalStateException("Can't find metadata field for tokenId=" + tokenId)
+        ).getValue()
+        .toString();
+    } catch (Exception e) {
+      //log.error("Error getting name in metadata: {}", e);
+    }
+  
     return ServiceDataAssetDetailsDTO.builder()
         //.accessStatus(getAccessStatus(datasourceId, t.getNftId()))
         .services(
@@ -83,6 +104,8 @@ public class ServiceDataAssetDetailsService {
           .collect(Collectors.toList())
         )
         .id(t.getAssetId().toString().split(":")[0])
+        .name(name)
+        .date(date)
         .assetOwner(Optional.ofNullable(t.getOwnerAddress())
             .map(organizationService::getByWalletAddress)
             .orElseGet(organizationService::getCurrentOrganization))

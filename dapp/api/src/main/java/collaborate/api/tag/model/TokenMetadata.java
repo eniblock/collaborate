@@ -20,7 +20,7 @@ public class TokenMetadata {
   public static final String TOKEN_METADATA_FIELD = "";
   private Integer tokenId;
 
-  private List<TagEntry<String, Bytes>> tokenInfo;
+  public List<TagEntry<String, Bytes>> tokenInfo;
 
   @JsonIgnore
   public String getIpfsUri() {
