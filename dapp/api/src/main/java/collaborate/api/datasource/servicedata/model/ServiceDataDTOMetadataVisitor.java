@@ -49,14 +49,17 @@ public class ServiceDataDTOMetadataVisitor implements ServiceDataDTOVisitor<Stre
   @Override
   public Stream<Metadata> visit(ServiceDataDTO serviceDataDTO)  {
     return Stream.of(
-            buildPurpose(serviceDataDTO.getDatasource().toString(), serviceDataDTO.getScope())
+            buildPurpose(serviceDataDTO.getServices())
         );
   }
 
-  private Metadata buildPurpose(String datasource, String scope)  {
+  private Metadata buildPurpose(List<ServiceDataDTOElement> services)  {
+    var resources = services.stream()
+        .map(r -> { return r.getDatasource().toString()  + ":" + r.getScope(); })
+        .collect(Collectors.joining(","));
     return Metadata.builder()
         .name("business-data")
-        .value(datasource + ":" + scope)
+        .value(resources)
         .type("string")
         .build();
   }

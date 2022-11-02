@@ -59,11 +59,15 @@ public class MintServiceDataService {
   @Transactional
   public void mint(ServiceDataDTO serviceDataDTO, String cid) {
 
+    var assetAlias = serviceDataDTO.getServices().stream()
+        .map(r -> { return r.getDatasource().toString()  + "=" + r.getScope(); })
+        .collect(Collectors.joining("_"));
+
     var assetDTO = AssetDTO.builder()
         .assetRelativePath(IPFS_PROTOCOL_PREFIX + cid)
         .assetType("service-data")
         .datasourceUUID(serviceDataDTO.getId())
-        .assetIdForDatasource(serviceDataDTO.getDatasource().toString()+"_"+serviceDataDTO.getScope())
+        .assetIdForDatasource(assetAlias)
         .tZip21Metadata(tZip21MetadataFactory.create(serviceDataDTO.getName(), serviceDataDTO.getDescription()))
         .onChainMetadata(new HashMap()) // TODO: fix ? transaction.ServiceDataTransactionParameter["metadata"]) >> Cannot deserialize value
         .build();
