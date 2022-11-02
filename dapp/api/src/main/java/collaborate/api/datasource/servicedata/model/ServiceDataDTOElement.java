@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class ServiceDataDTOElement implements Serializable  {
 
   @Schema(description = "Used for serialization", example = "WebServerDatasource")
-  protected UUID datasource;
+  protected String datasource;
 
   @Schema(description = "Used for serialization", example = "WebServerDatasource")
   protected String scope;

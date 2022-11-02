@@ -58,9 +58,9 @@ public class CreateServiceConsentService {
     return AssetDTO.builder()
         .assetRelativePath(buildAssetRelativePath())
         .assetIdForDatasource(createMultisigServiceConsentDTO.getAssetIdForDatasource())
-        .datasourceUUID(createMultisigServiceConsentDTO.getDatasourceUUID())
+        .datasourceUUID(createMultisigServiceConsentDTO.getAssetId()) //createMultisigServiceConsentDTO.getDatasourceUUID())
         .assetType("digital-serviceconsent")
-        .tZip21Metadata(passportTzip21MetadataFactory.create(createMultisigServiceConsentDTO.getAssetId()))
+        .tZip21Metadata(passportTzip21MetadataFactory.create(createMultisigServiceConsentDTO.getAssetId().toString()))
         .build();
   }
 

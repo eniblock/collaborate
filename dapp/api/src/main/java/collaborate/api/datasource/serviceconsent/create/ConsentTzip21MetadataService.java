@@ -28,7 +28,7 @@ public class ConsentTzip21MetadataService {
       throws IOException {
 
     var tzip21 = businessTzip21MetadataFactory.create(assetDTO);
-    saveAssetDataCatalog(assetDTO);
+    //saveAssetDataCatalog(assetDTO);
 
     return IPFS_PROTOCOL_PREFIX + ipfsDAO.add(buildPathForAssetId(assetDTO), tzip21);
   }
@@ -42,7 +42,7 @@ public class ConsentTzip21MetadataService {
         assetDTO.getAssetRelativePath()
     );
   }
-
+/*
   private void saveAssetDataCatalog(AssetDTO assetDTO) throws IOException {
     var assetDataCatalogPath = Path.of(
         tokenMetadataProperties.getAssetDataCatalogRootFolder(),
@@ -53,5 +53,5 @@ public class ConsentTzip21MetadataService {
         assetDataCatalogFactory.create(assetDTO)
     );
   }
-
+*/
 }

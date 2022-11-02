@@ -8,6 +8,7 @@ import collaborate.api.datasource.servicedata.model.ServiceDataDTO;
 //import collaborate.api.datasource.servicedata.document.ServiceDataAssetsService;
 //import collaborate.api.datasource.servicedata.document.model.ServiceDataNFTSummary;
 import collaborate.api.datasource.servicedata.find.ServiceDataAssetDetailsService;
+import collaborate.api.datasource.servicedata.model.ServiceDataAssetDetailsDTO;
 //import collaborate.api.datasource.nft.catalog.NftServiceDataService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 //import collaborate.api.datasource.nft.model.storage.TokenIndex;
@@ -81,7 +82,7 @@ public class ServiceDataController {
       description = "Get the service data catalog where assets are not owned by the current organization"
   )
   @PreAuthorize(HasRoles.SERVICE_DATA_READ)
-  public Page<AssetDetailsDTO> marketPlace(
+  public Page<ServiceDataAssetDetailsDTO> marketPlace(
       @PageableDefault(sort = {"nftId"}, direction = DESC) @ParameterObject Pageable pageable,
       @RequestParam Map<String, String> allParams
   ) {
@@ -92,7 +93,6 @@ public class ServiceDataController {
         .collect(Collectors.toMap(Entry::getKey, Entry::getValue));
     return assetDetailsService.marketPlace(filters, pageable);
   }
-
 
   @GetMapping("asset/{tokenId}/summary")
   @Operation(

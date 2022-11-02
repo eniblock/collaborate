@@ -14,6 +14,8 @@ import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
 import collaborate.api.datasource.nft.model.storage.TokenIndex;
+import collaborate.api.datasource.servicedata.model.ServiceDataAssetDetailsDTO;
+import collaborate.api.datasource.servicedata.model.ServiceDataDTOElement;
 import collaborate.api.datasource.passport.model.AccessStatus;
 import collaborate.api.datasource.passport.model.TokenStatus;
 import collaborate.api.datasource.servicedata.model.ServiceData;
@@ -26,10 +28,13 @@ import collaborate.api.tag.model.TokenMetadata;
 import collaborate.api.organization.OrganizationService;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.Collections;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -53,27 +58,32 @@ public class ServiceDataAssetDetailsService {
   private final IpfsService ipfsService;
   private final TokenDAO tokenMetadataDAO;
 
-  public Page<AssetDetailsDTO> marketPlace(Map<String, String> filters, Pageable pageable) {
+  public Page<ServiceDataAssetDetailsDTO> marketPlace(Map<String, String> filters, Pageable pageable) {
     return nftService.findMarketPlaceByFilters(filters, pageable)
         .map(this::toAssetDetails);
   }
 
-  AssetDetailsDTO toAssetDetails(Nft t) {
+  ServiceDataAssetDetailsDTO toAssetDetails(Nft t) {
     var datasourceId = t.getDatasourceId();
     var alias = t.getAssetId().getAlias();
     //var creationDate = serviceDataTransactionService.findTransactionDateByTokenId(serviceDataContractAddress, t.getAssetId().toString());
-    return AssetDetailsDTO.builder()
+    
+
+    return ServiceDataAssetDetailsDTO.builder()
         //.accessStatus(getAccessStatus(datasourceId, t.getNftId()))
-        .assetDataCatalog(
-            AssetDataCatalogDTO.builder()
-                .datasources(List.of(AssetDetailsDatasourceDTO.builder()
-                    .id(datasourceId)
-                    .assetIdForDatasource(alias)
-                    .ownerAddress(t.getOwnerAddress())
-                    .build()
-                ))
-                .build()
-        ).assetOwner(Optional.ofNullable(t.getOwnerAddress())
+        .services(
+          List.of(alias.split("_"))
+          .stream()
+          .map(s -> 
+            ServiceDataDTOElement.builder()
+              .datasource(s.split("=")[0])
+              .scope(s.split("=")[1])
+              .build()
+          )
+          .collect(Collectors.toList())
+        )
+        .id(t.getAssetId().toString().split(":")[0])
+        .assetOwner(Optional.ofNullable(t.getOwnerAddress())
             .map(organizationService::getByWalletAddress)
             .orElseGet(organizationService::getCurrentOrganization))
         .assetId(t.getAssetId().toString())
