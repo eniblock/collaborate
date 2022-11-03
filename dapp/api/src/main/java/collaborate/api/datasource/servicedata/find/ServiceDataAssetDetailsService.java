@@ -68,10 +68,10 @@ public class ServiceDataAssetDetailsService {
     var alias = t.getAssetId().getAlias();
     //var creationDate = serviceDataTransactionService.findTransactionDateByTokenId(serviceDataContractAddress, t.getAssetId().toString());
     
-    Integer tokenId = t.getNftId();
-    var tokenMedataOpt = tokenMetadataDAO.findById(tokenId, serviceDataContractAddress);
     String name = "", date = "";
     try {
+      Integer tokenId = t.getNftId();
+      var tokenMedataOpt = tokenMetadataDAO.findById(tokenId, serviceDataContractAddress);
       name = tokenMedataOpt.get().getTokenInfo().stream()
         .filter(tagEntry -> "name".equals(tagEntry.getKey()))
         .findFirst()
@@ -88,8 +88,7 @@ public class ServiceDataAssetDetailsService {
         .toString();
     } catch (Exception e) {
       //log.error("Error getting name in metadata: {}", e);
-    }
-  
+    }  
     return ServiceDataAssetDetailsDTO.builder()
         //.accessStatus(getAccessStatus(datasourceId, t.getNftId()))
         .services(
