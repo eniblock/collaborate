@@ -88,7 +88,8 @@ public class ServiceDataAssetDetailsService {
         .toString();
     } catch (Exception e) {
       //log.error("Error getting name in metadata: {}", e);
-    }  
+    }
+
     return ServiceDataAssetDetailsDTO.builder()
         //.accessStatus(getAccessStatus(datasourceId, t.getNftId()))
         .services(
@@ -97,7 +98,7 @@ public class ServiceDataAssetDetailsService {
           .map(s -> 
             ServiceDataDTOElement.builder()
               .datasource(s.split("=")[0])
-              .scope(s.split("=")[1])
+              .scope(s.split("=").length > 1 ? s.split("=")[1] : new String())
               .build()
           )
           .collect(Collectors.toList())
