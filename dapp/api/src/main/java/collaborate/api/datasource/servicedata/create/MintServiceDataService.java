@@ -59,9 +59,12 @@ public class MintServiceDataService {
   @Transactional
   public void mint(ServiceDataDTO serviceDataDTO, String cid, String creationDatetime) {
 
+    /*
     var assetAlias = serviceDataDTO.getServices().stream()
         .map(r -> { return r.getDatasource().toString()  + "=" + r.getScope(); })
         .collect(Collectors.joining("_"));
+    */
+    var assetAlias = "service-data";
 
     var assetDTO = AssetDTO.builder()
         .assetRelativePath(IPFS_PROTOCOL_PREFIX + cid)
@@ -69,14 +72,14 @@ public class MintServiceDataService {
         .datasourceUUID(serviceDataDTO.getId())
         .assetIdForDatasource(assetAlias)
         .tZip21Metadata(tZip21MetadataFactory.create(serviceDataDTO.getName(), serviceDataDTO.getDescription()))
-        .onChainMetadata(new HashMap()) // TODO: fix ? transaction.ServiceDataTransactionParameter["metadata"]) >> Cannot deserialize value
+        .onChainMetadata(new HashMap())
         .build();
 
     assetDTO.getOnChainMetadata().put("name", new Bytes(serviceDataDTO.getName()));
     assetDTO.getOnChainMetadata().put("date", new Bytes(creationDatetime));
 
     var nft = Nft.builder()
-        .assetId(new AssetId(assetDTO.getDatasourceUUID().toString(), assetDTO.getAssetIdForDatasource())) // ASSET ID = concat
+        .assetId(new AssetId(assetDTO.getDatasourceUUID().toString(), assetDTO.getAssetIdForDatasource())) 
         .metadata(objectMapper.valueToTree(assetDTO.getOnChainMetadata()))
         .status(TokenStatus.PENDING_CREATION)
         .build();
@@ -84,7 +87,7 @@ public class MintServiceDataService {
     nftService.save(nft);
     
     List<AssetMetadataMintDTO> assetIdAndUris = new ArrayList() {{
-        add(buildAssetIdAndMetadataUri(assetDTO)); // PROBLEM ==> cid for ServiceData is not stored...
+        add(buildAssetIdAndMetadataUri(assetDTO));
     }};
     
     createServiceDataNftDAO.mintServiceDataNFT(assetIdAndUris);
@@ -115,7 +118,7 @@ public class MintServiceDataService {
        */
       assetDTO.getOnChainMetadata().put("", new Bytes(assetDTO.getAssetRelativePath()));
       return new AssetMetadataMintDTO(
-          assetDTO.getDatasourceUUID() + ":" + assetDTO.getAssetIdForDatasource(), // = ASSET ID
+          assetDTO.getDatasourceUUID() + ":" + assetDTO.getAssetIdForDatasource(),
           assetDTO.getOnChainMetadata().entrySet().stream()
               .map(entry -> new TagEntry<>(entry.getKey(), entry.getValue(), null))
               .collect(Collectors.toCollection(LinkedList::new))

@@ -64,13 +64,13 @@ public class ServiceData {
 
   @Schema(description = "Additional data about the servicedata usage and configuration", required = true)
   @ElementCollection(targetClass = Metadata.class)
-  private Set<Metadata> providerMetadata;
+  private Set<Metadata> services;
 
   public Optional<String> findMetadataByName(String name) {
-    if (providerMetadata == null) {
+    if (services == null) {
       return Optional.empty();
     }
-    return providerMetadata.stream().filter(m -> StringUtils.equals(name, m.getName()))
+    return services.stream().filter(m -> StringUtils.equals(name, m.getName()))
         .map(Metadata::getValue).findFirst();
   }
 /*

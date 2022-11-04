@@ -71,8 +71,8 @@ public class ServiceDataService {
         .name(serviceDataDTO.getName())
         .description(serviceDataDTO.getDescription())
         .creationDatetime(ZonedDateTime.now(clock))
-        .owner(organizationService.getCurrentOrganization().getAddress()) // TODO: fix > need to keep the scope...
-        .providerMetadata(buildMetadata(serviceDataDTO))
+        .owner(organizationService.getCurrentOrganization().getAddress())
+        .services(buildMetadata(serviceDataDTO))
         .build();
   }
 

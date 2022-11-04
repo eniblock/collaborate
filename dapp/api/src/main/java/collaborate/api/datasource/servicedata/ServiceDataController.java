@@ -105,6 +105,7 @@ public class ServiceDataController {
   ) {
     return assetDetailsService.find(tokenId);
   }
+  
 
 /*
   @GetMapping("asset/{tokenId}/summary")

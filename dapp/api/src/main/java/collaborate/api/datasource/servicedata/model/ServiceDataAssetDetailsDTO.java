@@ -32,11 +32,6 @@ public class ServiceDataAssetDetailsDTO {
   @NotBlank
   private String assetId;
 
-  @Schema(description = "The asset catalog of datasources")
-  @Valid
-  @NotNull
-  private List<@Valid ServiceDataDTOElement> services;
-
   @Schema(description = "The owner of the asset")
   @Valid
   @NotNull
@@ -56,6 +51,12 @@ public class ServiceDataAssetDetailsDTO {
   private String name;
 
   @Schema(description = "The asset creation datetime (ISO8601 = yyyy-MM-dd'T'HH:mm:ss.SSSXXX)")
-  private String date;
+  private String creationDatetime;
 
+/*
+  @Schema(description = "The asset catalog of datasources")
+  @Valid
+  @NotNull
+  private List<@Valid ServiceDataDTOElement> services;
+*/
 }

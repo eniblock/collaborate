@@ -92,6 +92,7 @@ public class ServiceDataAssetDetailsService {
 
     return ServiceDataAssetDetailsDTO.builder()
         //.accessStatus(getAccessStatus(datasourceId, t.getNftId()))
+        /*
         .services(
           List.of(alias.split("_"))
           .stream()
@@ -103,9 +104,10 @@ public class ServiceDataAssetDetailsService {
           )
           .collect(Collectors.toList())
         )
+        */
         .id(t.getAssetId().toString().split(":")[0])
         .name(name)
-        .date(date)
+        .creationDatetime(date)
         .assetOwner(Optional.ofNullable(t.getOwnerAddress())
             .map(organizationService::getByWalletAddress)
             .orElseGet(organizationService::getCurrentOrganization))
@@ -118,7 +120,7 @@ public class ServiceDataAssetDetailsService {
   }
 
   public ServiceData find(String assetId) {
-    Optional<Nft> t = nftService.findById(assetId);
+    Optional<Nft> t = nftService.findById(assetId+":service-data");
     if (t.isPresent()) {
         Integer tokenId = t.get().getNftId();
         if (tokenId != null) {
@@ -137,7 +139,7 @@ public class ServiceDataAssetDetailsService {
           .description(serviceData.getDescription())
           .creationDatetime(serviceData.getCreationDatetime())
           .owner(serviceData.getOwner())
-          .providerMetadata(serviceData.getProviderMetadata())
+          .services(serviceData.getServices())
           .build();
         }
      }
