@@ -94,16 +94,16 @@ public class ServiceDataController {
     return assetDetailsService.marketPlace(filters, pageable);
   }
 
-  @GetMapping("asset/{tokenId}/summary")
+  @GetMapping("{serviceId}")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
       description = "Get the service data catalog (list of scopes)"
   )
   @PreAuthorize(HasRoles.SERVICE_DATA_READ)
   public ServiceData listAssetDetails(
-      @PathVariable String tokenId
+      @PathVariable String serviceId
   ) {
-    return assetDetailsService.find(tokenId);
+    return assetDetailsService.find(serviceId);
   }
   
 
