@@ -18,7 +18,7 @@ jobs:
       id: setup
       with:
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Run nft tests
+    - name: Run api tests
       run: |
          earthly --strict ./dapp/api+test
 
@@ -68,7 +68,7 @@ jobs:
     - uses: eniblock/build/actions/setup@develop
       id: setup
       with:
-        helmdir: helm/nft
+        helmdir: helm/collaborate-dapp
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the core image
       run: |
