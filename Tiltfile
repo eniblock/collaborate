@@ -40,7 +40,7 @@ custom_build(
 
 custom_build(
     "eniblock/collaborate-keycloak",
-    "earthly ./dapp/api+docker --ref=$EXPECTED_REF",
+    "earthly ./dapp/iam+docker --ref=$EXPECTED_REF",
     ["./dapp/iam"],
 )
 
