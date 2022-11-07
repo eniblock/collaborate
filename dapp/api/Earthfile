@@ -22,6 +22,10 @@ build:
     SAVE ARTIFACT target/dependency/BOOT-INF
     SAVE ARTIFACT target/dependency/META-INF
 
+test:
+    FROM +build
+    RUN --no-cache ./mvnw test
+
 docker:
     FROM openjdk:11-jdk
     VOLUME /tmp
