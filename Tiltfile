@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-config.define_bool("delete-volumes")
+config.define_bool("no-volumes")
 cfg = config.parse()
 
 clk_k8s = 'clk -a --force-color k8s -c ' + k8s_context() + ' '
@@ -96,7 +96,7 @@ local_resource('helm lint',
                'earthly ./helm+lint',
                'helm/collaborate/', allow_parallel=True)
 
-if config.tilt_subcommand == 'down' and cfg.get("delete-volumes"):
+if config.tilt_subcommand == 'down' and not cfg.get("no-volumes"):
   local(
       'kubectl --context ' + k8s_context()
       + ' delete pvc --selector=app.kubernetes.io/instance=col --wait=false'
