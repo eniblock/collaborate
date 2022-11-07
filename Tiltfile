@@ -5,11 +5,6 @@ cfg = config.parse()
 
 clk_k8s = 'clk -a --force-color k8s -c ' + k8s_context() + ' '
 
-load('ext://kubectl_build', 'image_build', 'kubectl_build_registry_secret',
-     'kubectl_build_enable')
-kubectl_build_enable(
-    local(clk_k8s + 'features --field value --format plain kubectl_build'))
-
 if config.tilt_subcommand == 'up':
   # declare the host we'll be using locally in k8s dns
   local(clk_k8s + 'add-domain col.localhost')
@@ -37,15 +32,16 @@ k8s_yaml(
     )
 )
 
-image_build(
-    'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/api',
-    'dapp/api',
-    target='dev'
+custom_build(
+    "eniblock/collaborate-api",
+    "earthly ./dapp/api+docker --ref=$EXPECTED_REF",
+    ["./dapp/api"],
 )
 
-image_build(
-    'registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/collaborate/dapp/iam',
-    'dapp/iam'
+custom_build(
+    "eniblock/collaborate-keycloak",
+    "earthly ./dapp/api+docker --ref=$EXPECTED_REF",
+    ["./dapp/iam"],
 )
 
 print('exposing maildev on port 1080')
