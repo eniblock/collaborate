@@ -4,7 +4,7 @@ metadata:
   name: {{ (print $.Release.Name "-keycloak") | trunc 20 | trimSuffix "-" }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    {{- include "collaborate.labels" . | nindent 4 }}
     app.kubernetes.io/component: api
 spec:
   podSelector:

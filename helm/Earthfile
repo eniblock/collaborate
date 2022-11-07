@@ -4,8 +4,8 @@ ARG helmhelper=github.com/eniblock/build/helm:develop
 IMPORT $helmhelper AS helmper
 
 lint:
-    DO helmper+LINT --helmdir=./collaborate-dapp --login=false
+    DO helmper+LINT --helmdir=./collaborate --login=false
 
 publish:
     ARG tag=latest
-    DO helmper+PUBLISH_HELM --image=ghcr.io/eniblock/collaborate --helmdir=./collaborate-dapp --path_value=.keycloak.image.tag --tag=${tag}
+    DO helmper+PUBLISH_HELM --image=ghcr.io/eniblock/collaborate --helmdir=./collaborate --path_value=.keycloak.image.tag --tag=${tag}

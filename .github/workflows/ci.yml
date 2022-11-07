@@ -54,7 +54,7 @@ jobs:
     - uses: eniblock/build/actions/setup@develop
       id: setup
       with:
-        helmdir: helm/collaborate-dapp
+        helmdir: helm/collaborate
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the asset image
       run: |
@@ -68,7 +68,7 @@ jobs:
     - uses: eniblock/build/actions/setup@develop
       id: setup
       with:
-        helmdir: helm/collaborate-dapp
+        helmdir: helm/collaborate
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the core image
       run: |
@@ -84,7 +84,7 @@ jobs:
     - uses: eniblock/build/actions/setup@develop
       id: setup
       with:
-        helmdir: helm/collaborate-dapp
+        helmdir: helm/collaborate
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build/Publish the helm charts
       run: |

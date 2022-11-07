@@ -35,11 +35,11 @@ keycloak:
   assetOwnerIdentityProviderConfigClientSecret: "860faf20430956489e72b101ad8ca95ba62dff46"
   extraEnvVars:
     - name: REALM
-      value: "collaborate-dapp"
+      value: "collaborate"
     - name: ROLE_ATTRIBUTE_KEY
       value: "type"
     - name: ROLE_ATTRIBUTE_VALUE
-      value: "collaborate-dapp"
+      value: "collaborate"
     - name: ASSET_OWNER_IDENTITY_PROVIDER_DISPLAY_NAME
       value: "GitHub for vehicle owner"
     - name: ASSET_OWNER_IDENTITY_PROVIDER_CONFIG_CLIENT_ID

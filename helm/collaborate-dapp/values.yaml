@@ -1,4 +1,4 @@
-# Default values for collaborate-dapp.
+# Default values for collaborate.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 nameOverride: ""
@@ -168,11 +168,11 @@ keycloak:
     - name: WILDFLY_LOGLEVEL
       value: "DEBUG"
     - name: REALM
-      value: "collaborate-dapp"
+      value: "collaborate"
     - name: ROLE_ATTRIBUTE_KEY
       value: "type"
     - name: ROLE_ATTRIBUTE_VALUE
-      value: "collaborate-dapp"
+      value: "collaborate"
   service:
     type: ClusterIP
   commonAnnotations:
@@ -196,7 +196,7 @@ keycloak:
         name: "{{ .Release.Name }}-{{ .Values.nameOverride }}"
       databasePassword:
         name: "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}"
-  extraEnvVarsSecret: '{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets'
+  extraEnvVarsSecret: '{{ .Release.Name }}-collaborate-keycloak-extra-secrets'
   podLabels:
     "{{ .Release.Name }}-{{ .Values.postgresql.nameOverride }}-client": "true"
   resources:

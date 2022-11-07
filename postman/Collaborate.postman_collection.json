@@ -9530,7 +9530,7 @@
 	"variable": [
 		{
 			"key": "dAppKeycloakRealm",
-			"value": "collaborate-dapp"
+			"value": "collaborate"
 		},
 		{
 			"key": "dapp-dsp-admin-user",

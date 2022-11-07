@@ -4,7 +4,7 @@ kind: PersistentVolumeClaim
 metadata:
   labels:
     {{- include "vault.labels" . | nindent 4 }}
-  name: data-{{ include "collaborate-dapp.fullname" . }}-traefik-providers
+  name: data-{{ include "collaborate.fullname" . }}-traefik-providers
 spec:
   accessModes:
     {{- .Values.api.traefik.providers.persistence.accessModes | toYaml | nindent 4 }}

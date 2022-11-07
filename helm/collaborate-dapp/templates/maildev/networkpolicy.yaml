@@ -2,15 +2,15 @@
 kind: NetworkPolicy
 apiVersion: networking.k8s.io/v1
 metadata:
-  name: {{ include "collaborate-dapp.fullname" . }}-maildev
+  name: {{ include "collaborate.fullname" . }}-maildev
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    {{- include "collaborate.labels" . | nindent 4 }}
     app.kubernetes.io/component: maildev
 spec:
   podSelector:
     matchLabels:
-      {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
+      {{- include "collaborate.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: maildev
   ingress:
     - from:

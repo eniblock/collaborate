@@ -19,7 +19,7 @@ access internal services exposed by service providers._
 The running keycloak instance is the
 an [XDev - Keycloak](https://gitlab.com/the-blockchain-xdev/xdev-product/enterprise-business-network/keycloak)
 container image. During development cycle,
-the [Keycloak Administration console user interface](https://col.localhost/auth/admin/master/console/#/realms/collaborate-dapp)
+the [Keycloak Administration console user interface](https://col.localhost/auth/admin/master/console/#/realms/collaborate)
 can be used for configuration and test purposes using Keycloak Admin credentials:
 
 * Open **Lens**
@@ -52,7 +52,7 @@ GitHub...) in its configuration. There is multiple ways to add an Identity provi
 Keycloak instance :
 
 * Use
-  the [Keycloak Administration console user interface](https://col.localhost/auth/admin/master/console/#/realms/collaborate-dapp):
+  the [Keycloak Administration console user interface](https://col.localhost/auth/admin/master/console/#/realms/collaborate):
     * According
       to [Keycloak Official Documentation](https://www.keycloak.org/docs/latest/server_admin/#_identity_broker)
       you can follow step described to integrate the Identity Provider of your choice.
@@ -66,7 +66,7 @@ Keycloak instance :
       cf. [Get a JWT](#get-a-jwt)). Following example illustrate how to add a GitHub provider.
 
 ```
-curl --location --request POST 'http://psa.localhost/auth/admin/realms/collaborate-dapp/identity-provider/instances' \
+curl --location --request POST 'http://psa.localhost/auth/admin/realms/collaborate/identity-provider/instances' \
 --header 'Authorization: Bearer {{YOUR_JWT_ACCESS_TOKEN_GOES_HERE}}' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -97,7 +97,7 @@ You can define a default role to users that come from an external identity provi
 role mapper:
 
 ```
-curl --location --request POST 'http://psa.localhost/auth/admin/realms/collaborate-dapp/identity-provider/instances/github/mappers' \
+curl --location --request POST 'http://psa.localhost/auth/admin/realms/collaborate/identity-provider/instances/github/mappers' \
 --header 'Authorization: Bearer {{YOUR_JWT_ACCESS_TOKEN_GOES_HERE}}' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -132,7 +132,7 @@ protocol for single-sign-on.
 To get a JWT token you can make a request:
 
 ```
-curl --location --request POST 'https://col.localhost/auth/realms/collaborate-dapp/protocol/openid-connect/token' \
+curl --location --request POST 'https://col.localhost/auth/realms/collaborate/protocol/openid-connect/token' \
 --header 'Content-Type: application/x-www-form-urlencoded' \
 --data-urlencode 'grant_type=password' \
 --data-urlencode 'username=sam' \

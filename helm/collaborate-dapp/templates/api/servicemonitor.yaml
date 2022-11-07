@@ -2,15 +2,15 @@
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: {{ include "collaborate-dapp.fullname" . }}-api
+  name: {{ include "collaborate.fullname" . }}-api
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    {{- include "collaborate.labels" . | nindent 4 }}
     app.kubernetes.io/component: api
 spec:
   selector:
     matchLabels:
-      {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
+      {{- include "collaborate.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: api
   endpoints:
     - port: prometheus

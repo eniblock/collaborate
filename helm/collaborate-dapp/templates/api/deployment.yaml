@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "collaborate-dapp.fullname" . }}-api
+  name: {{ include "collaborate.fullname" . }}-api
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    {{- include "collaborate.labels" . | nindent 4 }}
     app.kubernetes.io/component: api
   annotations:
     reloader.stakater.com/auto: "true"
@@ -14,7 +14,7 @@ spec:
   {{- end }}
   selector:
     matchLabels:
-      {{- include "collaborate-dapp.selectorLabels" . | nindent 6 }}
+      {{- include "collaborate.selectorLabels" . | nindent 6 }}
       app.kubernetes.io/component: api
   strategy:
     type: Recreate
@@ -25,17 +25,17 @@ spec:
       {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "collaborate-dapp.selectorLabels" . | nindent 8 }}
+        {{- include "collaborate.selectorLabels" . | nindent 8 }}
         app.kubernetes.io/component: api
         {{ .Release.Name }}-{{ .Values.db.nameOverride }}-client: "true"
         {{ .Release.Name }}-{{ index .Values "tezos-api-gateway" "nameOverride" }}-api-client: "true"
-        {{ include "collaborate-dapp.fullname" . }}-ipfs-client: "true"
+        {{ include "collaborate.fullname" . }}-ipfs-client: "true"
     spec:
       {{- with .Values.api.imagePullSecrets }}
       imagePullSecrets:
       {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "collaborate-dapp.serviceAccountName" . }}
+      serviceAccountName: {{ include "collaborate.serviceAccountName" . }}
       securityContext:
       {{- toYaml .Values.api.podSecurityContext | nindent 8 }}
       containers:
@@ -60,7 +60,7 @@ spec:
             - name: TRAEFIK_PILOT_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "collaborate-dapp.fullname" . }}-traefik-extra-secrets
+                  name: {{ include "collaborate.fullname" . }}-traefik-extra-secrets
                   key: TRAEFIK_PILOT_TOKEN
           livenessProbe:
             httpGet:
@@ -117,7 +117,7 @@ spec:
             - name: TRAEFIK_PFX_UN_PROTECTOR_SCRIPT_PATH
               value: {{ .Values.api.traefik.certificates.persistence.path }}pfx-un-protector.sh
             - name: IPFS_URL
-              value: http://{{ include "collaborate-dapp.fullname" . }}-ipfs-api:5001
+              value: http://{{ include "collaborate.fullname" . }}-ipfs-api:5001
 
             # tezos-api-gateway config
             - name: TEZOS_API_GATEWAY_URL
@@ -138,27 +138,27 @@ spec:
             - name: spring.mail.host
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  name: "{{ .Release.Name }}-collaborate-keycloak-extra-secrets"
                   key: SMTP_HOST
             - name: spring.mail.port
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  name: "{{ .Release.Name }}-collaborate-keycloak-extra-secrets"
                   key: SMTP_PORT
             - name: spring.mail.username
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  name: "{{ .Release.Name }}-collaborate-keycloak-extra-secrets"
                   key: SMTP_USER
             - name: spring.mail.password
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  name: "{{ .Release.Name }}-collaborate-keycloak-extra-secrets"
                   key: SMTP_PASSWORD
             - name: spring.mail.properties.mail.smtp.auth
               valueFrom:
                 secretKeyRef:
-                  name: "{{ .Release.Name }}-collaborate-dapp-keycloak-extra-secrets"
+                  name: "{{ .Release.Name }}-collaborate-keycloak-extra-secrets"
                   key: SMTP_AUTH
             - name: spring.mail.properties.mail.smtp.starttls.enable
               # FIXME: use SMTP_SSL secret?
@@ -168,7 +168,7 @@ spec:
             - name: KEYCLOAK_AUTH_SERVER_URL
               value: "https://{{ .Values.ingress.host }}/auth"
             - name: KEYCLOAK_REALM
-              value: "collaborate-dapp"
+              value: "collaborate"
             - name: KEYCLOAK_RESOURCE
               value: backend
             - name: KEYCLOAK_ADMIN_CLIENT_PROPERTIES_BASE_URL
@@ -176,7 +176,7 @@ spec:
             - name: KEYCLOAK_ADMIN_CLIENT_PROPERTIES_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "collaborate-dapp.fullname" . }}-keycloak-extra-secrets
+                  name: {{ include "collaborate.fullname" . }}-keycloak-extra-secrets
                   key: BACKEND_SECRET
             - name: KEYCLOAK_ADMIN_CLIENT_PROPERTIES_CLIENT_ID
               value: backend
@@ -187,20 +187,20 @@ spec:
             - name: SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_COLLABORATE_CLIENT_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: {{ include "collaborate-dapp.fullname" . }}-keycloak-extra-secrets
+                  name: {{ include "collaborate.fullname" . }}-keycloak-extra-secrets
                   key: BACKEND_SECRET
             - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COLLABORATE_AUTHORIZATION_URI
-              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/auth"
+              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate/protocol/openid-connect/auth"
             - name: SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_COLLABORATE_TOKEN_URI
-              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/token"
+              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate/protocol/openid-connect/token"
 
             # keycloak swagger
             - name: SPRINGDOC_SWAGGER_UI_OAUTH_CLIENT_ID
               value: backend
             - name: SPRINGDOC_OAUTHFLOW_AUTHORIZATIONURL
-              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/auth"
+              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate/protocol/openid-connect/auth"
             - name: SPRINGDOC_OAUTHFLOW_TOKENURL
-              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate-dapp/protocol/openid-connect/token"
+              value: "https://{{ .Values.ingress.host }}/auth/realms/collaborate/protocol/openid-connect/token"
 
             # Tag Transactions
             - name: TRANSACTION_WATCHERS_TAG_CLIENT_URL
@@ -253,11 +253,11 @@ spec:
       volumes:
         - name: traefik-config
           configMap:
-            name: '{{ include "collaborate-dapp.fullname" . }}-traefik-configuration'
+            name: '{{ include "collaborate.fullname" . }}-traefik-configuration'
             defaultMode: 0555
         - name: traefik-certs
           persistentVolumeClaim:
-            claimName: {{ .Values.api.traefik.certificates.persistence.existingClaim | default (printf "data-%s-traefik-certificates" (include "collaborate-dapp.fullname" . )) }}
+            claimName: {{ .Values.api.traefik.certificates.persistence.existingClaim | default (printf "data-%s-traefik-certificates" (include "collaborate.fullname" . )) }}
         - name: traefik-providers
           persistentVolumeClaim:
-            claimName: {{ .Values.api.traefik.providers.persistence.existingClaim | default (printf "data-%s-traefik-providers" (include "collaborate-dapp.fullname" . )) }}
+            claimName: {{ .Values.api.traefik.providers.persistence.existingClaim | default (printf "data-%s-traefik-providers" (include "collaborate.fullname" . )) }}

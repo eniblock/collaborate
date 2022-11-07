@@ -1,12 +1,12 @@
 {{- if .Values.ingress.enabled -}}
-{{- $fullName := include "collaborate-dapp.fullname" . -}}
+{{- $fullName := include "collaborate.fullname" . -}}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ $fullName }}
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    {{- include "collaborate.labels" . | nindent 4 }}
   {{- with .Values.ingress.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -48,7 +48,7 @@ metadata:
   name: {{ $fullName }}-tls
   namespace: {{ .Release.Namespace }}
   labels:
-    {{- include "collaborate-dapp.labels" . | nindent 4 }}
+    {{- include "collaborate.labels" . | nindent 4 }}
   annotations:
     nginx.ingress.kubernetes.io/backend-protocol: "HTTPS"
   {{- with .Values.ingress.annotations }}
