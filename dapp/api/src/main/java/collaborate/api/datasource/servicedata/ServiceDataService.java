@@ -49,6 +49,8 @@ public class ServiceDataService {
 
     serviceDataDTO.setId(uuidGenerator.randomUUID());
     
+    //authenticationService.save(datasourceDTO);
+
     var savedServiceData = build(serviceDataDTO);
  
     var datasourcePath = Path.of(datasourceProperties.getRootFolder(),

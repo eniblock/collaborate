@@ -74,6 +74,7 @@ public class NftService {
     return nftRepository.save(nft);
   }
 
+
   public Optional<Nft> findOneByNftId(Integer nftId) {
     return nftRepository.findOneByNftId(nftId);
   }

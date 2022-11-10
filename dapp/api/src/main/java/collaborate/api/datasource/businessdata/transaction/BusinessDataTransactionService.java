@@ -35,7 +35,7 @@ public class BusinessDataTransactionService {
         parameters.getAssetId(),
         transaction.getEntrypoint(),
         parameters.getAssetId(),
-        parameters.getMetadataUri(),
+        parameters.getMetadata(),
         parameters.getNftOperatorAddress(),
         transaction.getTimestamp(),
         transaction.getParameters()

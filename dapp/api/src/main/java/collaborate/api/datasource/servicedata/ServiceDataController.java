@@ -5,10 +5,14 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import collaborate.api.config.OpenApiConfig;
 import collaborate.api.datasource.servicedata.model.ServiceData;
 import collaborate.api.datasource.servicedata.model.ServiceDataDTO;
+import collaborate.api.datasource.servicedata.access.GrantSubscribeService;
+import collaborate.api.datasource.servicedata.access.SubscribeRequestService;
+import collaborate.api.datasource.servicedata.access.model.AccessRequestDTO;
 //import collaborate.api.datasource.servicedata.document.ServiceDataAssetsService;
 //import collaborate.api.datasource.servicedata.document.model.ServiceDataNFTSummary;
 import collaborate.api.datasource.servicedata.find.ServiceDataAssetDetailsService;
 import collaborate.api.datasource.servicedata.model.ServiceDataAssetDetailsDTO;
+import collaborate.api.datasource.businessdata.access.model.ClientIdAndSecret;
 //import collaborate.api.datasource.nft.catalog.NftServiceDataService;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 //import collaborate.api.datasource.nft.model.storage.TokenIndex;
@@ -64,7 +68,9 @@ public class ServiceDataController {
   private final ServiceDataService serviceDataService;  
 //  private final NftServiceDataService nftServiceDataService;
 //  private final ServiceDataNftService nftService;
-
+  private final SubscribeRequestService subscribeRequestService;
+  private final GrantSubscribeService grantSubscribeService;
+  
   @PostMapping
   @Operation(
       description = "Generate a datasource configuration and publish it on IPFS."
@@ -107,7 +113,48 @@ public class ServiceDataController {
   }
   
 
+  @PostMapping("access-request")
+  @Operation(
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description = "Make a grant access request for the given tokens"
+  )
+  @PreAuthorize(HasRoles.SERVICE_DATA_GRANT_ACCESS_REQUEST)
+  public Job requestAccess(
+      @RequestBody @NotEmpty List<@Valid AccessRequestDTO> accessRequestDTOs) {
+    return subscribeRequestService.requestAccess(accessRequestDTOs);
+  }
+
+
 /*
+
+  @PostMapping("/access/{serviceId}/access/{organization}")
+  @Operation(
+      description = "Add credentials for making the given organization able to access to the serviceId",
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
+  @PreAuthorize(HasRoles.DSP_ADMIN)
+  public void addAccess(
+      @PathVariable(value = "organization") String requesterAddress,
+      @PathVariable(value = "serviceId") Integer serviceId,
+      @RequestBody ClientIdAndSecret clientIdAndSecret
+  ) {
+    //nftService.findOneByNftId(nftId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "NftId not managed by this organization"));
+
+    grantSubscribeService.grant(serviceDataContractAddress, requesterAddress, serviceId, clientIdAndSecret);
+  }
+
+  @PostMapping("asset/download")
+  @Operation(
+      security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+      description = "Download a set of assets"
+  )
+  @PreAuthorize(HasRoles.BUSINESS_DATA_READ)
+  public void downloadAsset(
+      @RequestBody ScopeAssetsDTO scopeAssets, HttpServletResponse response) throws IOException {
+    response.setHeader("Content-Disposition", "attachment; filename=download.zip");
+    response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
+    assetsService.download(scopeAssets, response.getOutputStream());
+  }
+
   @GetMapping("asset/{tokenId}/summary")
   @Operation(
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),

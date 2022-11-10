@@ -1,5 +1,7 @@
 package collaborate.api.datasource.servicedata;
 
+import collaborate.api.datasource.servicedata.access.GrantSubscribeTransactionHandler;
+import collaborate.api.datasource.servicedata.access.RequestSubscribeTransactionHandler;
 //import collaborate.api.datasource.servicedata.kpi.CreatedServiceScopeTransactionHandler;
 import collaborate.api.transaction.TezosApiGatewayTransactionClient;
 import collaborate.api.transaction.TransactionEventManager;
@@ -27,6 +29,8 @@ public class ServiceDataTransactionWatcher {
   private final String serviceDataContractAddress;
   private final CreatedServiceDataTransactionHandler createdServiceDataTransactionHandler;
   //private final CreatedServiceScopeTransactionHandler createdServiceScopeTransactionHandler;
+  private final GrantSubscribeTransactionHandler grantAccessTransactionHandler;
+  private final RequestSubscribeTransactionHandler requestAccessTransactionHandler;
   private final TezosApiGatewayTransactionClient tezosApiGatewayTransactionClient;
   private final ThreadPoolTaskScheduler transactionWatcherPoolTaskScheduler;
   private final TransactionPersistenceHandler transactionPersistenceHandler;
@@ -65,6 +69,8 @@ public class ServiceDataTransactionWatcher {
     transactionEventManager.subscribe(createdServiceDataTransactionHandler);
     //transactionEventManager.subscribe(createdServiceScopeTransactionHandler);
     transactionEventManager.subscribe(transactionPersistenceHandler);
+    transactionEventManager.subscribe(grantAccessTransactionHandler);
+    transactionEventManager.subscribe(requestAccessTransactionHandler);
     return transactionEventManager;
   }
 

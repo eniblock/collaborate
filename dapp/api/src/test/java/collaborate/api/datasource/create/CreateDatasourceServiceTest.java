@@ -11,6 +11,7 @@ import collaborate.api.datasource.DatasourceProperties;
 import collaborate.api.datasource.DatasourceRepository;
 import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.businessdata.create.MintBusinessDataService;
+import collaborate.api.datasource.businessdata.create.MintPassportDataService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
 import collaborate.api.datasource.model.Metadata;
@@ -52,6 +53,8 @@ class CreateDatasourceServiceTest {
   @Mock
   MintBusinessDataService mintBusinessDataService;
   @Mock
+  MintPassportDataService mintPassportDataService;
+  @Mock
   TestConnectionVisitor testConnectionVisitor;
   @Mock
   TraefikProviderService traefikProviderService;
@@ -74,7 +77,8 @@ class CreateDatasourceServiceTest {
             datasourceRepository,
             objectMapper,
             organizationService,
-            mintBusinessDataService,            
+            mintBusinessDataService,
+            mintPassportDataService,            
             testConnectionVisitor,
             traefikProviderService,
             uuidGenerator,

@@ -8,7 +8,7 @@ import collaborate.api.datasource.DatasourceProperties;
 import collaborate.api.datasource.DatasourceRepository;
 import collaborate.api.datasource.TestConnectionVisitor;
 import collaborate.api.datasource.businessdata.create.MintBusinessDataService;
-//import collaborate.api.datasource.businessdata.create.MintPassportDataService;
+import collaborate.api.datasource.businessdata.create.MintPassportDataService;
 import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
 import collaborate.api.datasource.gateway.traefik.model.TraefikProviderConfiguration;
 import collaborate.api.datasource.gateway.traefik.routing.AuthHeaderKeySupplier;
@@ -45,7 +45,7 @@ public class CreateDatasourceService {
   private final ObjectMapper objectMapper;
   private final OrganizationService organizationService;
   private final MintBusinessDataService mintBusinessDataService;
-  //private final MintPassportDataService mintPassportDataService;
+  private final MintPassportDataService mintPassportDataService;
   private final TestConnectionVisitor testConnectionVisitor;
   private final TraefikProviderService traefikProviderService;
   private final UUIDGenerator uuidGenerator;
@@ -69,7 +69,7 @@ public class CreateDatasourceService {
     if (DatasourcePurpose.BUSINESS_DATA.match(datasourceDTO)) {
       mintBusinessDataService.mint(datasourceDTO);
     } else if (DatasourcePurpose.DIGITAL_PASSPORT.match(datasourceDTO)) {
-      //mintPassportDataService.mint(datasourceDTO);
+      mintPassportDataService.mint(datasourceDTO);
     }
     return savedDatasource;
   }

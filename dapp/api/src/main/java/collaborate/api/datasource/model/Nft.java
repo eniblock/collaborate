@@ -16,6 +16,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
+import collaborate.api.tag.BytesDeserializer;
+import java.nio.charset.StandardCharsets;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -24,12 +28,15 @@ import org.hibernate.annotations.Type;
 @Builder
 @ToString
 @Entity
+@Slf4j
 public class Nft {
 
   @EmbeddedId
   private AssetId assetId;
-  @Column(unique = true)
+  
+  //@Column(unique = true)
   private Integer nftId;
+  
   private String ownerAddress;
   @Type(type = "jsonb")
   @Column(columnDefinition = "jsonb")
@@ -53,6 +60,7 @@ public class Nft {
     }
     return Optional.ofNullable(metadata.get(ATTR_JWT_SCOPE))
         .map(JsonNode::asText);
+        //.map(s -> {  log.info(s); return s.length() > 0 ? new String(BytesDeserializer.decodeHexString(s), StandardCharsets.UTF_8) : ""; });
   }
 
 }
