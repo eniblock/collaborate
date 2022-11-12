@@ -6,6 +6,8 @@ metadata:
   labels:
     {{- include "collaborate.labels" . | nindent 4 }}
     app.kubernetes.io/component: ipfs
+  annotations:
+    ignore-check.kube-linter.io/exposed-services: "ipfs needs to be exposed to the outside world"
 spec:
   type: {{ .Values.ipfs.service.swarm.type }}
   ports:
