@@ -3,6 +3,8 @@ on:
   push:
     branches:
       - "**"
+    tags:
+      - "*"
 
 env:
   FORCE_COLOR: 1
