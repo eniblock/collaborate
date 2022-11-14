@@ -7,9 +7,11 @@ import collaborate.api.comparator.SortComparison;
 import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.servicedata.nft.ServiceDataNftService;
 //import collaborate.api.datasource.servicedata.transaction.ServiceDataTransactionService;
+import collaborate.api.datasource.businessdata.find.BusinessDataNftIndexerService;
 import collaborate.api.datasource.kpi.KpiService;
 import collaborate.api.datasource.kpi.KpiSpecification;
 import collaborate.api.datasource.model.Nft;
+import collaborate.api.datasource.model.AssetId;
 import collaborate.api.datasource.nft.model.AssetDataCatalogDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDTO;
 import collaborate.api.datasource.nft.model.AssetDetailsDatasourceDTO;
@@ -23,6 +25,7 @@ import collaborate.api.datasource.nft.TokenDAO;
 import collaborate.api.datasource.nft.model.metadata.AssetDataCatalog;
 import collaborate.api.datasource.nft.model.metadata.DatasourceLink;
 import collaborate.api.datasource.nft.model.metadata.TZip21Metadata;
+import collaborate.api.datasource.model.Metadata;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.tag.model.TokenMetadata;
 import collaborate.api.organization.OrganizationService;
@@ -48,7 +51,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceDataAssetDetailsService {
 
-  private final ServiceDataNftIndexerService serviceDataNftIndexerService;
+  private final ServiceDataNftIndexerService serviceDataNftIndexerService;  
+  private final BusinessDataNftIndexerService businessDataNftIndexerService;
   private final String serviceDataContractAddress;
   //private final ServiceDataTransactionService serviceDataTransactionService;
   private final ServiceDataNftService nftService;
@@ -133,13 +137,30 @@ public class ServiceDataAssetDetailsService {
                 format("No metadata found for nftId=%d, smartContract=%s", tokenId, serviceDataContractAddress)
             ));
 
+          var services = serviceData.getServices()
+            .stream()
+            .map(s -> {
+              var indexedNft = businessDataNftIndexerService.find(
+                  Optional.of(tokenIndex -> tokenIndex.getAssetId().contains(s.getValue())),
+                  Optional.of(serviceData.getOwner())
+                ).stream()
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("nft not found for assetId =" + s.getValue()));              
+              return Metadata.builder()
+              .name(indexedNft.getTokenId().toString())
+              .value(s.getValue())
+              .type("business-data")
+              .build();
+            })
+            .collect(Collectors.toSet());
+
           return ServiceData.builder()
           .id(t.get().getAssetId().toString())
           .name(serviceData.getName())
           .description(serviceData.getDescription())
           .creationDatetime(serviceData.getCreationDatetime())
           .owner(serviceData.getOwner())
-          .services(serviceData.getServices())
+          .services(services)
           .build();
         }
      }

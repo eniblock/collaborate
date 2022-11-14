@@ -34,7 +34,7 @@ public class GatewayController {
       description = "Get the given scope data for the given datasource",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @GetMapping(value = "datasource/{datasourceId}/{scope}")
-  public ResponseEntity<JsonNode> getScopeByDatasourceId(
+  public ResponseEntity<String> getScopeByDatasourceId(
       @PathVariable @NotEmpty String datasourceId,
       @PathVariable @NotEmpty String scope
   ) {
@@ -46,7 +46,7 @@ public class GatewayController {
       description = "Get the given resourceAlias data for the given assetId of the given datasource",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
   @GetMapping(value = "datasource/{datasourceId}/{resourceAlias}/{assetId}")
-  public ResponseEntity<JsonNode> getScopeByAssetIdAndDatasourceId(
+  public ResponseEntity<String> getScopeByAssetIdAndDatasourceId(
       @PathVariable @NotEmpty String datasourceId,
       @PathVariable @NotEmpty String resourceAlias,
       @PathVariable @NotEmpty String assetId

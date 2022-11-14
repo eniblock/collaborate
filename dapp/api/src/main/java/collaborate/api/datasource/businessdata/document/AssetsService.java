@@ -135,14 +135,14 @@ public class AssetsService {
     }
 
     return Optional.ofNullable(resourceResponse.getBody())
-        .map(JsonNode::toString)
+        //.map(JsonNode::toString)
         .map(assetListJsonString ->
-            convertJsonToBusinessDataDocument(assetListJsonString, datasourceId, resourceAlias)
+            convertJsonToBusinessDataDocument(assetListJsonString, datasourceId, resourceAlias) // Todo: fix
                 .collect(toList())
         ).orElse(Collections.emptyList());
   }
 
-  ResponseEntity<JsonNode> getAssetListResponse(String datasourceId, String alias) {
+  ResponseEntity<String> getAssetListResponse(String datasourceId, String alias) {
     var gatewayResource = GatewayResourceDTO.builder()
         .datasourceId(datasourceId)
         .alias(alias)
@@ -293,6 +293,8 @@ public class AssetsService {
         );
 
     var jwt = authenticationService.getJwt(tokenId, businessDataContractAddress);
+
+    log.debug(jwt);
 
     RestTemplate restTemplate = buildRestTemplate();
     HttpHeaders headers = new HttpHeaders();

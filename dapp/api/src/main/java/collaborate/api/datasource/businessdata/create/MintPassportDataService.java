@@ -72,7 +72,7 @@ public class MintPassportDataService {
 
     var assetDTO = AssetDTO.builder()
         .assetRelativePath(buildAssetRelativePath())
-        .assetType("business-data")
+        .assetType("business-data") // TODO fix ?
         .datasourceUUID(dataSourceUUID)
         .assetIdForDatasource(alias)
         .tZip21Metadata(tZip21MetadataFactory.create(webServerResource))

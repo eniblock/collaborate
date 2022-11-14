@@ -20,6 +20,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -28,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class AssetDetailsService {
 
   private final AuthenticationService authenticationService;
@@ -100,7 +102,8 @@ public class AssetDetailsService {
   }
 
   AssetDetailsDTO toAssetDetails(Nft t) {
-    var datasourceId = t.getDatasourceId();
+    var datasourceId = t.getDatasourceId();    
+    //log.debug(t.getAssetId().toString());
     var alias = t.getAssetId().getAlias();
     var creationDate = businessDataTransactionService
         .findTransactionDateByTokenId(
@@ -125,7 +128,7 @@ public class AssetDetailsService {
         .tokenId(t.getNftId())
         .tokenStatus(t.getStatus())
         .creationDatetime(creationDate.orElse(null))
-        .grantedAccess(kpiService.count(new KpiSpecification("nft-id", t.getNftId().toString())))
+        .grantedAccess(kpiService.count(new KpiSpecification("nft-id", t.getNftId() != null ? t.getNftId().toString() : "")))
         .build();
   }
 }

@@ -27,6 +27,7 @@ public class SubscribeRequestService {
   AccessRequestParams toAccessRequestParam(AccessRequestDTO accessRequestDTO) {
     return AccessRequestParams.builder()
         .nftId(accessRequestDTO.getTokenId())
+        .consentId(accessRequestDTO.getConsentId()) // TODO: check exists and signed
         .providerAddress(accessRequestDTO.getProviderAddress())
         .build();
   }

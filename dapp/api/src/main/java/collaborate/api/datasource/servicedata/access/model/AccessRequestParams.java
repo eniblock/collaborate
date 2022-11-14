@@ -33,4 +33,6 @@ public class AccessRequestParams implements Serializable {
   @NotEmpty
   private String providerAddress;
 
+  @NotNull
+  private Integer consentId;
 }

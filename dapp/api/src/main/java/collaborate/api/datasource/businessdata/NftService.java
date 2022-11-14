@@ -90,7 +90,7 @@ public class NftService {
       }
       nftSpec.setEqOwnerAddress(orgAddress.get());
     } else {
-      nftSpec.setNotEqOwnerAddress(organizationService.getCurrentAddress());
+      //nftSpec.setNotEqOwnerAddress(organizationService.getCurrentAddress()); // TODO : fix?
     }
     if (filters != null) {
       var metadataFilters = filters.entrySet().stream()

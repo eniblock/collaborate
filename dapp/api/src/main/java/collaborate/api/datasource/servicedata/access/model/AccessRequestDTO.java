@@ -31,4 +31,10 @@ public class AccessRequestDTO {
   @Schema(description = "The provider wallet address", example = "tz1NSuGfg7Tfy8WUxrqWjRSVtTtW8HCMUegV")
   @NotBlank
   private String providerAddress;
+
+
+  @Schema(description = "identifier", example = "1", required = true)
+  @NotNull
+  private Integer consentId;
+
 }

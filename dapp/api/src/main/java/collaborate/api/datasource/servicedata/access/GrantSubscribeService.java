@@ -62,27 +62,28 @@ public class GrantSubscribeService {
         .map(r -> { return r.getValue(); })
         .collect(Collectors.toList());
 
-    var scope = scopes.get(0); //nftId = ids.get(0); // TODO: iterate
+    for (var scope : scopes) {
 
-    var nftScope = nftService.findById(scope.split(":")[0], scope.split(":")[1]) //nftService.findOneByNftId(nftId)
-        .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + scope));
+      var nftScope = nftService.findById(scope.split(":")[0], scope.split(":")[1]) //nftService.findOneByNftId(nftId)
+          .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + scope));
 
-    log.info("findScope: "+nftScope.findScope()+" id:"+nftScope.getNftId());
+      log.info("findScope: "+nftScope.findScope()+" id:"+nftScope.getNftId());
 
-    var transferMethodOpt = authenticationService
-        .findAuthentication(nftScope.getDatasourceId())
-        .map(Authentication::getPartnerTransferMethod);
-        
-    if (transferMethodOpt.isPresent()) {
-      transferMethodOpt.get().accept(
-          grantTransferMethodVisitorFactory.create(nftScope, transaction.getSource())
-      );
-    } else {
-      throw new IllegalStateException(format(
-          "Missing authentication for accessRequestParams=%s", //, nftScope=%s",
-          accessRequestParams
-          //nftScope
-      ));
+      var transferMethodOpt = authenticationService
+          .findAuthentication(nftScope.getDatasourceId())
+          .map(Authentication::getPartnerTransferMethod);
+          
+      if (transferMethodOpt.isPresent()) {
+        transferMethodOpt.get().accept(
+            grantTransferMethodVisitorFactory.create(nftScope, transaction.getSource())
+        );
+      } else {
+        throw new IllegalStateException(format(
+            "Missing authentication for accessRequestParams=%s", //, nftScope=%s",
+            accessRequestParams
+            //nftScope
+        ));
+      }
     }
   }
 
