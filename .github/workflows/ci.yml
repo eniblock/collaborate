@@ -7,50 +7,47 @@ on:
       - "*"
 
 env:
-  FORCE_COLOR: 1
+  EARTHLY_REMOTE_CACHE: cache.registry/${{ github.repository }}/${{ github.job }}/${{ github.ref_name }}:cache
+  EARTHLY_CACHE_FROM: cache.registry/${{ github.repository }}/${{ github.job }}/develop:cache
+  EARTHLY_STRICT: "true"
+  EARTHLY_PUSH: "true"
 
 jobs:
 
   ############################ tests ############################
 
   test-api:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     steps:
     - uses: eniblock/build/actions/setup@develop
       id: setup
       with:
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Run api tests
-      run: |
-         earthly --strict ./dapp/api+test
+    - run: earthly ./dapp/api+test
 
   test-keycloak:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     steps:
     - uses: eniblock/build/actions/setup@develop
       id: setup
       with:
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
-    - name: Run admin tests
-      run: |
-         earthly --strict ./dapp/iam+test
+    - run: earthly ./dapp/iam+test
 
   lint-helm:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     steps:
     - uses: eniblock/build/actions/setup@develop
       id: setup
       with:
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
-    - run: |
-         earthly --strict \
-         ./helm+lint
+    - run: earthly ./helm+lint
 
 
   ############################ docker ############################
 
   docker-api:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     needs: [test-api, test-keycloak, lint-helm]
     steps:
     - uses: eniblock/build/actions/setup@develop
@@ -59,12 +56,10 @@ jobs:
         helmdir: helm/collaborate
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the asset image
-      run: |
-         earthly --strict --push ./dapp/api+docker \
-         --tag=${{ steps.setup.outputs.tag }}
+      run: earthly ./dapp/api+docker --tag=${{ steps.setup.outputs.tag }}
 
   docker-keycloak:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     needs: [test-api, test-keycloak, lint-helm]
     steps:
     - uses: eniblock/build/actions/setup@develop
@@ -73,14 +68,13 @@ jobs:
         helmdir: helm/collaborate
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build the core image
-      run: |
-         earthly --strict --push ./dapp/iam+docker \
-         --tag=${{ steps.setup.outputs.tag }}
+      run: earthly ./dapp/iam+docker --tag=${{ steps.setup.outputs.tag }}
+
 
   ############################ helm ############################
 
   helm-publish:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     needs: [docker-api, docker-keycloak]
     steps:
     - uses: eniblock/build/actions/setup@develop
@@ -90,8 +84,8 @@ jobs:
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
     - name: Build/Publish the helm charts
       run: |
-         earthly \
-         --secret registry_username=notused \
-         --secret registry_password=${{ github.token }} \
-         --strict ./helm+publish \
-         --tag=${{ steps.setup.outputs.tag }}
+        earthly \
+          --secret registry_username=notused \
+          --secret registry_password=${{ github.token }} \
+          ./helm+publish \
+          --tag=${{ steps.setup.outputs.tag }}
