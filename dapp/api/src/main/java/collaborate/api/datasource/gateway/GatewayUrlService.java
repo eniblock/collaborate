@@ -5,6 +5,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import collaborate.api.config.api.TraefikProperties;
 import collaborate.api.datasource.AuthenticationService;
 import collaborate.api.datasource.businessdata.NftService;
+import collaborate.api.datasource.gateway.traefik.TraefikProviderService;
+import collaborate.api.datasource.DatasourceRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +24,10 @@ public class GatewayUrlService {
   private final AuthenticationService authenticationService;
   private final GatewayUrlDAO gatewayURLDAO;
   private final TraefikProperties traefikProperties;
+  private final DatasourceRepository datasourceRepository;
+  private final TraefikProviderService traefikProviderService;
 
-  public ResponseEntity<JsonNode> fetch(GatewayResourceDTO resourceDTO) {
+  public ResponseEntity<String> fetch(GatewayResourceDTO resourceDTO) {
     String uri = buildURL(resourceDTO);
 
     Optional<String> bearerOpt = nftService.findById(
@@ -38,7 +42,14 @@ public class GatewayUrlService {
   }
 
   String buildURL(GatewayResourceDTO resourceDTO) {
-    var uriBuilder = UriComponentsBuilder.fromUriString(traefikProperties.getUrl())
+    var datasource = datasourceRepository.findById(resourceDTO.getDatasourceId())
+      .stream()
+      .findFirst()
+      .orElseThrow(() -> new IllegalStateException("datasource not found for id =" + resourceDTO.getDatasourceId()));
+      
+    String baseURI = traefikProviderService.buildDatasourceBaseUri(datasource);
+    log.debug(baseURI);
+    var uriBuilder = UriComponentsBuilder.fromUriString(baseURI) // traefikProperties.getUrl()
         .path("/datasource")
         .path("/" + resourceDTO.getDatasourceId())
         .path("/" + resourceDTO.getAlias());

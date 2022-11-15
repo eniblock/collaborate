@@ -247,7 +247,7 @@ public class UserService {
     return tagUserDAO
         .findOneByUserEmail(email)
         .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, (
-            format("No user found for userId=%s", email)
+            format("No user found for userEmail=%s", email)
         )));
   }
 

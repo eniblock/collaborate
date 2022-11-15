@@ -20,13 +20,16 @@ public class SmartContractAddressProperties {
   @Schema(description = "The digital passport Proxy Token Controller smart-contract address")
   private String digitalPassportProxyTokenController;
 
-  @Schema(description = "The service data smart-contract address")
-  private String serviceData;
-
-  @Schema(description = "The service data Proxy Token Controller smart-contract address")
-  private String serviceDataProxyTokenController;
-
   @Schema(description = "The organization yellow page smart-contract address")
   @NotEmpty
   private String organizationYellowPage;
+
+  @Schema(description = "The service data smart-contract address")
+  private String serviceData;
+
+  @Schema(description = "The service consent smart-contract address")
+  private String serviceConsent;
+
+  @Schema(description = "The service consent Proxy Token Controller smart-contract address")
+  private String serviceConsentProxyTokenController;
 }

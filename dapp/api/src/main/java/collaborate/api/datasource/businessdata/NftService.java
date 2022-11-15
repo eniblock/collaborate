@@ -74,6 +74,7 @@ public class NftService {
     return nftRepository.save(nft);
   }
 
+
   public Optional<Nft> findOneByNftId(Integer nftId) {
     return nftRepository.findOneByNftId(nftId);
   }
@@ -89,7 +90,7 @@ public class NftService {
       }
       nftSpec.setEqOwnerAddress(orgAddress.get());
     } else {
-      nftSpec.setNotEqOwnerAddress(organizationService.getCurrentAddress());
+      //nftSpec.setNotEqOwnerAddress(organizationService.getCurrentAddress()); // TODO : fix?
     }
     if (filters != null) {
       var metadataFilters = filters.entrySet().stream()

@@ -99,6 +99,7 @@ public final class Authorizations {
         HasRoles.BSP
             + " OR " + HasRoles.DSP
             + " OR " + HasRoles.BNO;
+
     public static final String BUSINESS_DATA_READ =
         HasRoles.BSP
             + " OR " + HasRoles.DSP
@@ -161,13 +162,25 @@ public final class Authorizations {
         ;
 
     public static final String SERVICE_DATA_READ =
+        HasRoles.BSP
+            + " OR " + HasRoles.DSP
+            + " OR " + HasRoles.BNO
+        ;
+
+    public static final String SERVICE_DATA_GRANT_ACCESS_REQUEST =
+        HasRoles.BSP
+            + " OR " + HasRoles.DSP
+            + " OR " + HasRoles.BNO
+        ;
+
+    public static final String SERVICE_CONSENT_READ =
         HasRoles.ASSET_OWNER
             + " OR " + HasRoles.BSP
             + " OR " + HasRoles.DSP
             + " OR " + HasRoles.BNO
         ;
 
-    public static final String SERVICE_DATA_MULTISIG_READ =
+    public static final String SERVICE_CONSENT_MULTISIG_READ =
         HasRoles.DSP_ADMIN
             + " OR " + HasRoles.ASSET_OWNER
             + " OR " + HasRoles.BSP_ADMIN

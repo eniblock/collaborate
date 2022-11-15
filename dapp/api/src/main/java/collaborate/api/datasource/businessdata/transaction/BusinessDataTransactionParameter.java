@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Data
 @AllArgsConstructor
@@ -14,7 +15,7 @@ public class BusinessDataTransactionParameter {
 
   private String assetId;
 
-  private String metadataUri;
+  private JsonNode metadata;
 
   private String nftOperatorAddress;
 

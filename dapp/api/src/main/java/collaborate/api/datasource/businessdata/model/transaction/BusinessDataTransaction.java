@@ -36,7 +36,10 @@ public class BusinessDataTransaction {
 
   private String assetId;
 
-  private String ipfsMetadataURI;
+  //private String ipfsMetadataURI;
+  @Type(type = "jsonb")
+  @Column(columnDefinition = "jsonb")
+  private JsonNode metadata;
 
   private String operator;
 
