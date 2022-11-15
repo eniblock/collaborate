@@ -1,0 +1,43 @@
+VERSION 0.6
+
+deps:
+    FROM openjdk:11-jdk-slim
+    WORKDIR /workspace/app
+
+    COPY mvnw .
+    COPY .mvn .mvn
+    COPY pom.xml .
+
+    RUN --mount=type=cache,target=/root/.m2 \
+        ./mvnw dependency:go-offline -B
+    # cache build dependencies, without the sources
+    RUN --mount=type=cache,target=/root/.m2 \
+        ./mvnw package -DskipTests -B || true
+
+build:
+    FROM +deps
+    COPY src src
+    RUN --mount=type=cache,target=/root/.m2 \
+        ./mvnw package -DskipTests -B
+    RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
+    SAVE ARTIFACT target/dependency/BOOT-INF
+    SAVE ARTIFACT target/dependency/META-INF
+
+test:
+    FROM +build
+    RUN --no-cache ./mvnw test
+
+docker:
+    FROM openjdk:11-jdk
+    VOLUME /tmp
+    COPY +build/BOOT-INF/lib /app/lib
+    COPY +build/META-INF /app/META-INF
+    COPY +build/BOOT-INF/classes /app
+    ENTRYPOINT ["java","-cp","app:app/lib/*","collaborate.api.ApiApplication"]
+    ARG tag=latest
+    ARG ref=eniblock/collaborate-api:${tag}
+    SAVE IMAGE --push ${ref}
+
+dev:
+    FROM +dev
+    ENTRYPOINT ["java","-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5000","-cp","app:app/lib/*","collaborate.api.ApiApplication"]

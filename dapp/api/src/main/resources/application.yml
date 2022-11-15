@@ -33,7 +33,7 @@ ipfs:
 
 keycloak-admin-client-properties:
   base-url: https://localhost:8443/auth
-  realm: collaborate-dapp
+  realm: collaborate
   user:
   password:
   client-id: backend
@@ -43,7 +43,7 @@ keycloak-admin-client-properties:
 
 keycloak:
   auth-server-url: https://localhost:8443/auth
-  realm: collaborate-dapp
+  realm: collaborate
   resource: collaborate-backend
   public-client: true
   bearer-only: true
@@ -146,8 +146,8 @@ springdoc:
       clientId: backend
       useBasicAuthenticationWithAccessCodeGrant: true
   oAuthFlow:
-    authorizationUrl: https://col.localhost/auth/realms/collaborate-dapp/protocol/openid-connect/auth
-    tokenUrl: https://col.localhost/auth/realms/collaborate-dapp/protocol/openid-connect/token
+    authorizationUrl: https://col.localhost/auth/realms/collaborate/protocol/openid-connect/auth
+    tokenUrl: https://col.localhost/auth/realms/collaborate/protocol/openid-connect/token
 
 tezos-api-gateway:
   url: http://localhost:3333/api

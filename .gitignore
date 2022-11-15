@@ -44,7 +44,7 @@ Info.plist*
 
 .history
 helm/**/charts
-/helm/collaborate-dapp/values-dev-user.yaml
+/helm/collaborate/values-dev-user.yaml
 *~
 
 # Tests resources

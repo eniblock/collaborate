@@ -1,0 +1,32 @@
+VERSION 0.6
+
+ARG helmhelper=github.com/eniblock/build/helm:develop
+IMPORT $helmhelper AS helm
+
+ARG repository=ghcr.io/eniblock/collaborate
+
+deps:
+    DO helm+BASE
+    DO helm+UPDATE --helmdir=./collaborate
+
+lint:
+    FROM +deps
+    COPY collaborate ./
+    RUN lint col ./ --values values-dev.yaml
+
+build:
+    FROM +deps
+    ARG tag=0.1.0-local
+    DO helm+BUILD --helmdir=./collaborate --tag=${tag} --patch_values=.keycloak.image.tag
+    SAVE ARTIFACT /app/*-${tag}.tgz
+
+save-package:
+    FROM scratch
+    COPY +build/*.tgz /
+    SAVE ARTIFACT /*.tgz AS LOCAL ./
+
+publish:
+    ARG tag=0.1.0-local
+    FROM +build --tag=${tag}
+    DO helm+LOGIN
+    DO helm+PUBLISH --repository=$repository

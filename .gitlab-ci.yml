@@ -43,8 +43,8 @@ helm-dapp-lint:
   allow_failure: true
   script:
     - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - helm dependency update ./helm/collaborate-dapp
-    - lint helm/collaborate-dapp --values helm/collaborate-dapp/values-dev.yaml
+    - helm dependency update ./helm/collaborate
+    - lint helm/collaborate --values helm/collaborate/values-dev.yaml
 
 docker-dapp-api:
   stage: docker
@@ -52,7 +52,7 @@ docker-dapp-api:
     name: registry.gitlab.com/xdev-tech/build/docker:2.0
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/api helm/collaborate-dapp dapp/api
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/api helm/collaborate dapp/api
 
 docker-dapp-iam:
   image:
@@ -60,12 +60,12 @@ docker-dapp-iam:
   stage: docker
   script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/iam helm/collaborate-dapp dapp/iam
+    - build_with_helm_tag $CI_REGISTRY_IMAGE/dapp/iam helm/collaborate dapp/iam
 
 helm-dapp:
   stage: helm
   image: registry.gitlab.com/xdev-tech/build/helm:2.0
   script:
     - helm registry login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-    - helm dependency update ./helm/collaborate-dapp
-    - build $CI_REGISTRY_IMAGE/helm/collaborate-dapp ./helm/collaborate-dapp .keycloak.image.tag
+    - helm dependency update ./helm/collaborate
+    - build $CI_REGISTRY_IMAGE/helm/collaborate ./helm/collaborate .keycloak.image.tag

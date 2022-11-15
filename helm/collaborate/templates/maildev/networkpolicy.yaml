@@ -1,0 +1,18 @@
+{{- if .Values.mail.dev }}
+kind: NetworkPolicy
+apiVersion: networking.k8s.io/v1
+metadata:
+  name: {{ include "collaborate.fullname" . }}-maildev
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "collaborate.labels" . | nindent 4 }}
+    app.kubernetes.io/component: maildev
+spec:
+  podSelector:
+    matchLabels:
+      {{- include "collaborate.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: maildev
+  ingress:
+    - from:
+      - podSelector: {}
+{{- end }}

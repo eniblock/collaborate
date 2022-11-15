@@ -1,0 +1,29 @@
+VERSION 0.6
+
+build:
+    FROM maven:3.6.3-jdk-11-slim
+    WORKDIR /workspace/app
+
+    COPY pom.xml iam/
+    COPY authenticator/pom.xml iam/authenticator/
+    RUN mvn dependency:go-offline install -DskipTests -B -f iam
+
+    COPY authenticator/src iam/authenticator/src
+    RUN mvn install -DskipTests -f iam/authenticator
+    SAVE ARTIFACT iam/authenticator/target/authenticator-email.jar
+
+test:
+    FROM +build
+    RUN --no-cache mvn test -f iam
+
+docker:
+    FROM registry.gitlab.com/xdev-tech/xdev-enterprise-business-network/keycloak:0.1.0
+    COPY +build/authenticator-email.jar /opt/bitnami/keycloak/standalone/deployments/authenticator-email.jar
+    COPY custom-theme/custom-keycloak/ /opt/bitnami/keycloak/themes/custom-keycloak/
+    COPY custom-theme/logical-pictures/ /opt/bitnami/keycloak/themes/logical-pictures/
+    COPY custom-theme/collaborate/ /opt/bitnami/keycloak/themes/collaborate/
+    RUN mkdir -p /realm-config/
+    COPY realm-config/*.json /realm-config/
+    ARG tag=latest
+    ARG ref=eniblock/collaborate-keycloak:${tag}
+    SAVE IMAGE --push ${ref}
