@@ -155,7 +155,7 @@ public class ServiceDataAssetDetailsService {
             .collect(Collectors.toSet());
 
           return ServiceData.builder()
-          .id(t.get().getAssetId().toString())
+          .id(tokenId.toString()) //t.get().getAssetId().toString())
           .name(serviceData.getName())
           .description(serviceData.getDescription())
           .creationDatetime(serviceData.getCreationDatetime())

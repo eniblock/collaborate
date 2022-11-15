@@ -62,7 +62,7 @@ public class GrantSubscribeService {
         .map(r -> { return r.getValue(); })
         .collect(Collectors.toList());
 
-    for (var scope : scopes) {
+    for (var scope : scopes) { // TODO: wait job done to avoid TAG error
 
       var nftScope = nftService.findById(scope.split(":")[0], scope.split(":")[1]) //nftService.findOneByNftId(nftId)
           .orElseThrow(() -> new IllegalStateException("Scope not found for nftId=" + scope));
@@ -83,6 +83,12 @@ public class GrantSubscribeService {
             accessRequestParams
             //nftScope
         ));
+      }
+
+      try {
+        Thread.sleep(10000); // TODO: fix?
+      } catch (Exception e) {
+        log.error("Error", e);
       }
     }
   }
