@@ -289,6 +289,9 @@ tezos-api-gateway:
   nameOverride: tag
   rabbitmq:
     nameOverride: tag-rabbitmq
+    auth:
+      tls:
+        enabled: false
   db:
     nameOverride: tag-db
   vault:
