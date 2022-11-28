@@ -51,12 +51,21 @@ public class NftDatasourceService {
         .map(dsUri -> ipfsService.cat(dsUri, Datasource.class));
   }
 
+  public TZip21Metadata findByIpfsLink(String tZip21Url) {
+    try {      
+      return ipfsService.cat(tZip21Url, TZip21Metadata.class);
+    } catch (Exception e) {
+      log.error("While getting tZip21Url={}\n{}", tZip21Url, e);
+      return null;
+    }
+  }
+
   public Optional<TZip21Metadata> getTZip21MetadataByTokenId(Integer tokenId,
       String smartContract) {
     var tokenMetadataOpt = tokenMetadataDAO.findById(tokenId, smartContract);
     return tokenMetadataOpt
         .map(TokenMetadata::getIpfsUri)
-        .map(uri -> ipfsService.cat(uri, TZip21Metadata.class));
+        .map(uri -> findByIpfsLink(uri));
   }
 
   public Map<Integer, TZip21Metadata> getTZip21MetadataByTokenIds(Collection<Integer> tokenIdList,

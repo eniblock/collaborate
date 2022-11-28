@@ -16,6 +16,7 @@ public class MintServiceConsentTokenHandler implements TransactionHandler {
   @Override
   public void handle(Transaction transaction) {
     if (transaction.getEntrypoint().equals("mint")) {
+      log.debug("Mint consent");
       serviceConsentTransactionService.saveFa2Transaction(transaction);
       serviceConsentTransactionService.saveNftCreated(transaction);
     }

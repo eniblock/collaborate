@@ -35,7 +35,7 @@ public class CreateServiceConsentService {
   private final DateFormatterFactory dateFormatterFactory;
   private final EMailService mailService;
   private final ConsentTzip21MetadataService tzip21MetadataService;
-  private final PassportTzip21MetadataFactory passportTzip21MetadataFactory;
+  private final ConsentServiceTzip21MetadataFactory consentTzip21MetadataFactory;
   private final TokenMetadataProperties tokenMetadataProperties;
   private final UserService userService;
   private final UUIDGenerator uuidGenerator;
@@ -60,7 +60,7 @@ public class CreateServiceConsentService {
         .assetIdForDatasource(createMultisigServiceConsentDTO.getAssetIdForDatasource())
         .datasourceUUID(createMultisigServiceConsentDTO.getAssetId()) //createMultisigServiceConsentDTO.getDatasourceUUID())
         .assetType("digital-serviceconsent")
-        .tZip21Metadata(passportTzip21MetadataFactory.create(createMultisigServiceConsentDTO.getAssetId().toString()))
+        .tZip21Metadata(consentTzip21MetadataFactory.create(createMultisigServiceConsentDTO.getAssetId().toString())) // +"_"+createMultisigServiceConsentDTO.getPassportId().toString()
         .build();
   }
 

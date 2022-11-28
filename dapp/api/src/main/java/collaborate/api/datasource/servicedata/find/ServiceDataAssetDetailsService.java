@@ -29,6 +29,7 @@ import collaborate.api.datasource.model.Metadata;
 import collaborate.api.ipfs.IpfsService;
 import collaborate.api.tag.model.TokenMetadata;
 import collaborate.api.organization.OrganizationService;
+import collaborate.api.datasource.serviceconsent.find.FindServiceConsentDAO;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.Collections;
 import java.util.Arrays;
+import java.util.LinkedList;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -54,7 +56,9 @@ public class ServiceDataAssetDetailsService {
   private final ServiceDataNftIndexerService serviceDataNftIndexerService;  
   private final BusinessDataNftIndexerService businessDataNftIndexerService;
   private final String serviceDataContractAddress;
+  private final String serviceConsentContractAddress;
   //private final ServiceDataTransactionService serviceDataTransactionService;
+  private final FindServiceConsentDAO findServiceConsentDAO;
   private final ServiceDataNftService nftService;
   private final OrganizationService organizationService;
   private final KpiService kpiService;
@@ -94,6 +98,28 @@ public class ServiceDataAssetDetailsService {
       //log.error("Error getting name in metadata: {}", e);
     }
 
+    // TODO : use database to find consent directly without calling ipfs.. too slow
+    /*
+    var allTokens = findServiceConsentDAO.countServiceConsent();
+    var consents = new LinkedList<Integer>();
+    for (int i = 0; i < allTokens; i++) {
+      var tokenMetadataOpt = tokenMetadataDAO.findById(i, serviceConsentContractAddress);
+      var tokenMetadataByTokenId = tokenMetadataOpt
+        .map(TokenMetadata::getIpfsUri)
+        .map(tZip21Url -> {
+          try {      
+            return ipfsService.cat(tZip21Url, TZip21Metadata.class);
+          } catch (Exception e) {
+            //log.error("While getting tZip21Url={}\n{}", tZip21Url, e);
+            return null;
+          }
+        }).orElse(null);
+      if (tokenMetadataByTokenId != null && t.getAssetId().toString().equals(tokenMetadataByTokenId.getAssetId().toString())) {
+        consents.add(i);
+      }
+    }
+    */
+
     return ServiceDataAssetDetailsDTO.builder()
         //.accessStatus(getAccessStatus(datasourceId, t.getNftId()))
         /*
@@ -118,6 +144,7 @@ public class ServiceDataAssetDetailsService {
         .assetId(t.getAssetId().toString())
         .tokenId(t.getNftId())
         .tokenStatus(t.getStatus())
+        //.consents(consents)
         //.creationDatetime(creationDate.orElse(null))
         //.grantedAccess(kpiService.count(new KpiSpecification("nft-id", t.getNftId().toString())))
         .build();

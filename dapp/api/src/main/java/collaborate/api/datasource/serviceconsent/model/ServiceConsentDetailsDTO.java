@@ -29,8 +29,8 @@ public class ServiceConsentDetailsDTO {
   @Schema(description = "The owner of the asset")
   private UserWalletDTO assetOwner;
 
-  @Schema(description = "The status of the the asset", example = "GRANTED")
-  private AccessStatus accessStatus;
+  //@Schema(description = "The status of the the asset", example = "GRANTED")
+  //private AccessStatus accessStatus;
 
   @Schema(description = "The asset creation datetime (ISO8601 = yyyy-MM-dd'T'HH:mm:ss.SSSXXX)")
   @ISO8601JsonStringFormat

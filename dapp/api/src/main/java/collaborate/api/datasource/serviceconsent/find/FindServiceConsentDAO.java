@@ -18,7 +18,7 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-class FindServiceConsentDAO {
+public class FindServiceConsentDAO {
 
   private final String serviceConsentContractAddress;
   private final String serviceConsentProxyControllerContractAddress;

@@ -53,6 +53,10 @@ public class ServiceDataAssetDetailsDTO {
   @Schema(description = "The asset creation datetime (ISO8601 = yyyy-MM-dd'T'HH:mm:ss.SSSXXX)")
   private String creationDatetime;
 
+  //@Schema(description = "Used for serialization", example = "WebServerDatasource")
+  //protected List<Integer> consents;
+ 
+
 /*
   @Schema(description = "The asset catalog of datasources")
   @Valid

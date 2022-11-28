@@ -60,12 +60,15 @@ public class ServiceConsentDetailsDTOFactory {
                           serviceConsentContractAddress,
                           Long.valueOf(tokenId)
                       );
+
+            if (metadata != null)
+            log.debug(metadata.toString()+" "+metadata.getAssetId());
+            
               return ServiceConsentDetailsDTO.builder()
-                  .assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata)
-                      .orElse(null))
+                  //.assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata).orElse(null))
                   .assetId(metadata == null ? null : metadata.getAssetId().orElse(null))
                   .assetOwner(userService.getByWalletAddress(owner))
-                  .accessStatus(makeAccessStatus(owner, operator))
+                  //.accessStatus(makeAccessStatus(owner, operator))
                   .creationDatetime(creationDatetime.orElse(null))
                   .operator(organizationService.getByWalletAddress(operator))
                   .multisigContractId(null)
@@ -98,11 +101,10 @@ public class ServiceConsentDetailsDTOFactory {
               var metadata = ipfsService.cat(
                   metadataIpfsUri, TZip21Metadata.class);
               return ServiceConsentDetailsDTO.builder()
-                  .assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata)
-                      .orElse(null))
+                  //.assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata).orElse(null))
                   .assetId(metadata == null ? null : metadata.getAssetId().orElse(null))
                   .assetOwner(userService.getByWalletAddress(ownerAddress))
-                  .accessStatus(AccessStatus.PENDING)
+                  //.accessStatus(AccessStatus.PENDING)
                   .creationDatetime(null)
                   .operator(organizationService.getByWalletAddress(operatorAddress))
                   .multisigContractId(Math.toIntExact(multisigContractId))

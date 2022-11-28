@@ -22,16 +22,15 @@ public class ConsentTzip21MetadataFactory {
 
   public TZip21Metadata create(AssetDTO assetDTO) {
     var catalogAttribute = Attribute.builder()
-        .name(AttributeKeys.ASSET_DATA_CATALOG)
-        .value(buildAssetDataCatalogIpnsPath(assetDTO.getAssetRelativePath()))
-        .type("URI")
+        .name(AttributeKeys.ASSET_ID)
+        .value(assetDTO.getDatasourceUUID().toString())
+        .type("ID")
         .build();
 
     return assetDTO.getTZip21Metadata().toBuilder()
         .attributes(List.of(catalogAttribute))
         .build();
   }
-
 
   String buildAssetDataCatalogIpnsPath(String assetDataCatalogRelativePath) {
     var ipnsRoot = ipnsService
@@ -42,6 +41,5 @@ public class ConsentTzip21MetadataFactory {
 
     return IpfsService.IPNS_PROTOCOL_PREFIX + Path.of(ipnsRoot, assetDataCatalogRelativePath);
   }
-
 
 }

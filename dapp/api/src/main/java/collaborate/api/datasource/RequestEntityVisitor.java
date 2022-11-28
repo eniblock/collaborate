@@ -11,12 +11,22 @@ import collaborate.api.http.security.SSLContextFactory;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 import javax.net.ssl.SSLContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.lang.Nullable;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.stereotype.Repository;
 import org.springframework.web.client.RestTemplate;
 
 @Slf4j
@@ -82,6 +92,11 @@ public class RequestEntityVisitor implements
             httpClientFactory.createTrustAllAndNoHostnameVerifier()
         )
     );
+    List<HttpMessageConverter<?>> messageConverters = new ArrayList<>();
+    MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+    converter.setSupportedMediaTypes(Collections.singletonList(MediaType.ALL));
+    messageConverters.add(converter);
+    //restTemplate.setMessageConverters(messageConverters);
     return () -> restTemplate.exchange(requestEntityBuilder.build(), JsonNode.class);
   }
 }

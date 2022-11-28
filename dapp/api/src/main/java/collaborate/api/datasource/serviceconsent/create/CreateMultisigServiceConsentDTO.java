@@ -21,6 +21,8 @@ public class CreateMultisigServiceConsentDTO {
   //@Schema(description = "The datasource Universal Unique Identifier (UUID) where the vehicle data (metrics) are stored. Mostly, this datasource is own by the DSP", example = "ab357d94-04da-4695-815e-24c569fd3a49", required = true)
   //@NotNull
   //private UUID datasourceUUID;
+  @NotNull
+  private Integer passportId;
 
   @Schema(description = "The Asset Identifier.", example = "5NPET4AC8AH593530", required = true)
   @NotNull
