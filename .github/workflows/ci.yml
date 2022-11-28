@@ -89,3 +89,24 @@ jobs:
           --secret registry_password=${{ github.token }} \
           ./helm+publish \
           --tag=${{ steps.setup.outputs.tag }}
+    - name: Generate job summary
+      run: |
+        cat <<"EOF" >> $GITHUB_STEP_SUMMARY
+        ## Helm package
+        Helm package was generated with tag `${{ steps.setup.outputs.tag }}`
+
+        Use it directly with
+
+        ~~~bash
+        helm install col oci://ghcr.io/eniblock/collaborate --version ${{ steps.setup.outputs.tag }}
+        ~~~
+
+        or as a helm dependency in your `Chart.yaml`:
+
+        ~~~yaml
+        dependencies:
+          - name: collaborate
+            version: "${{ steps.setup.outputs.tag }}"
+            repository: "oci://ghcr.io/eniblock"
+        ~~~
+        EOF
