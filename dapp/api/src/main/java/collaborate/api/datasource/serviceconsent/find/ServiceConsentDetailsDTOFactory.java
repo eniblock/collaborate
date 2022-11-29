@@ -59,11 +59,7 @@ public class ServiceConsentDetailsDTOFactory {
                       .findTransactionDateByTokenId(
                           serviceConsentContractAddress,
                           Long.valueOf(tokenId)
-                      );
-
-            if (metadata != null)
-            log.debug(metadata.toString()+" "+metadata.getAssetId());
-            
+                      );         
               return ServiceConsentDetailsDTO.builder()
                   //.assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata).orElse(null))
                   .assetId(metadata == null ? null : metadata.getAssetId().orElse(null))
@@ -98,8 +94,12 @@ public class ServiceConsentDetailsDTOFactory {
               var operatorAddress = transaction.getOperator();
               var ownerAddress = transaction.getOwner();
               var metadataIpfsUri = transaction.getMetadata();
-              var metadata = ipfsService.cat(
-                  metadataIpfsUri, TZip21Metadata.class);
+              TZip21Metadata metadata = null;
+              try {
+                metadata = ipfsService.cat(metadataIpfsUri, TZip21Metadata.class);
+              } catch (Exception e) {
+                log.error("While getting metadataIpfsUri={}\n{}", metadataIpfsUri, e);
+              }
               return ServiceConsentDetailsDTO.builder()
                   //.assetDataCatalog(catalogService.getAssetDataCatalogDTO(metadata).orElse(null))
                   .assetId(metadata == null ? null : metadata.getAssetId().orElse(null))
