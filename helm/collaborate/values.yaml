@@ -295,3 +295,6 @@ tezos-api-gateway:
     nameOverride: tag-vault
   extraEnvVars:
     LOGGER_LEVEL: "WARN" # https://github.com/trentm/node-bunyan#level-suggestions
+    TEZOS_NODE_URLS: "https://ghostnet.smartpy.io,https://ghostnet.ecadinfra.com,https://rpc.ghost.tzstats.com"
+    TZSTATS_URL: "https://api.ghost.tzstats.com/"
+    TZKT_URL: "https://api.ghostnet.tzkt.io/"
