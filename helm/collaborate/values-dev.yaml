@@ -51,10 +51,6 @@ keycloak:
       value: "true"
 
 tezos-api-gateway:
-  extraEnvVars:
-    TEZOS_NODE_URLS: "https://ghostnet.smartpy.io,https://ghostnet.ecadinfra.com,https://rpc.ghost.tzstats.com"
-    TZSTATS_URL: "https://api.ghost.tzstats.com/"
-    TZKT_URL: "https://api.ghostnet.tzkt.io/"
   vault:
     server:
       debug: true

@@ -161,16 +161,31 @@ public final class Authorizations {
             + " OR " + BNO
         ;
 
+    public static final String SERVICE_DATA_WRITE =
+        HasRoles.BSP
+            + " OR " + HasRoles.DSP
+            + " OR " + HasRoles.BNO
+            + " OR " + HasRoles.BSP_ADMIN
+            + "OR " + BSP_OPERATOR
+            + "OR " + DSP_ADMIN
+        ;
+
     public static final String SERVICE_DATA_READ =
         HasRoles.BSP
             + " OR " + HasRoles.DSP
             + " OR " + HasRoles.BNO
+            + " OR " + HasRoles.BSP_ADMIN
+            + "OR " + BSP_OPERATOR
+            + "OR " + DSP_ADMIN
         ;
 
     public static final String SERVICE_DATA_GRANT_ACCESS_REQUEST =
         HasRoles.BSP
             + " OR " + HasRoles.DSP
             + " OR " + HasRoles.BNO
+            + " OR " + HasRoles.BSP_ADMIN
+            + "OR " + BSP_OPERATOR
+            + "OR " + DSP_ADMIN
         ;
 
     public static final String SERVICE_CONSENT_READ =
@@ -178,13 +193,18 @@ public final class Authorizations {
             + " OR " + HasRoles.BSP
             + " OR " + HasRoles.DSP
             + " OR " + HasRoles.BNO
+            + " OR " + HasRoles.BSP_ADMIN
+            + "OR " + BSP_OPERATOR
+            + "OR " + DSP_ADMIN
         ;
 
     public static final String SERVICE_CONSENT_MULTISIG_READ =
         HasRoles.DSP_ADMIN
             + " OR " + HasRoles.ASSET_OWNER
-            + " OR " + HasRoles.BSP_ADMIN
             + " OR " + HasRoles.BNO
+            + " OR " + HasRoles.BSP_ADMIN
+            + "OR " + BSP_OPERATOR
+            + "OR " + DSP_ADMIN
         ;
 
   }

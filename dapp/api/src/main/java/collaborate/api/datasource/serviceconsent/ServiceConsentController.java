@@ -53,7 +53,7 @@ public class ServiceConsentController {
           "Create a multi-signature entry in the Smart-Contract:"
               + "used as a \"pending\" service-data<br>"
               + "NB: The current organization signature is automatically added")
-  @PreAuthorize(HasRoles.DSP)
+  @PreAuthorize(HasRoles.SERVICE_DATA_WRITE)
   public Job create(@RequestBody @Valid CreateMultisigServiceConsentDTO createMultisigServiceConsentDTO)
       throws IOException {
     return createServiceConsentService.createMultisig(createMultisigServiceConsentDTO);

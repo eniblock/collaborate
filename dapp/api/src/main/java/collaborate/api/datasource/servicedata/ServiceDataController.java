@@ -76,7 +76,7 @@ public class ServiceDataController {
       description = "Generate a datasource configuration and publish it on IPFS."
           + "When the datasource is for business data, the associated scope are also minted as NFT business data token",
       security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK))
-  @PreAuthorize(HasRoles.DSP)
+  @PreAuthorize(HasRoles.SERVICE_DATA_WRITE)
   public ResponseEntity<ServiceData> createServiceData(@RequestBody @Valid ServiceDataDTO serviceDataDTO) throws IOException {
     var result = serviceDataService.create(serviceDataDTO);
     return new ResponseEntity<>(result, HttpStatus.CREATED);
