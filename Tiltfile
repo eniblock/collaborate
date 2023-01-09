@@ -9,11 +9,11 @@ if config.tilt_subcommand == 'up':
   # declare the host we'll be using locally in k8s dns
   local(clk_k8s + 'add-domain col.localhost')
   # update the helm package dependencies a first time at startup, so helm can load the helm chart
-  local(clk_k8s + 'helm-dependency-update helm/collaborate')
+  local(clk_k8s + 'helm dependency-update helm/collaborate')
 
 # manually download the dependencies
 local_resource('helm dependencies',
-               clk_k8s + 'helm-dependency-update helm/collaborate -ft Tiltfile',
+               clk_k8s + 'helm dependency-update helm/collaborate -ft Tiltfile',
                trigger_mode=TRIGGER_MODE_MANUAL, auto_init=False)
 
 overridedValues = [
