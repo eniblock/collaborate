@@ -10,6 +10,7 @@ smart-contract-address:
   serviceData:
   serviceConsent:
   serviceConsentProxyTokenController:
+  goldenToken:
 
 transaction-watchers:
   tag-client-url:

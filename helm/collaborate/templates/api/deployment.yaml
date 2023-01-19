@@ -112,6 +112,8 @@ spec:
               value: {{ .Values.api.smartContractAddress.serviceConsent | quote }}
             - name: SMART_CONTRACT_ADDRESS_SERVICE_CONSENT_PROXY_TOKEN_CONTROLLER
               value: {{ .Values.api.smartContractAddress.serviceConsentProxyTokenController | quote }}
+            - name: SMART_CONTRACT_ADDRESS_GOLDEN_TOKEN
+              value: {{ .Values.api.smartContractAddress.goldenToken | quote }}
 
             # Api-gateway
             - name: TRAEFIK_CERTIFICATES_PATH

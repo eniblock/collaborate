@@ -32,4 +32,7 @@ public class SmartContractAddressProperties {
 
   @Schema(description = "The service consent Proxy Token Controller smart-contract address")
   private String serviceConsentProxyTokenController;
+
+  @Schema(description = "The Golden Token smart-contract address")
+  private String goldenToken;
 }
