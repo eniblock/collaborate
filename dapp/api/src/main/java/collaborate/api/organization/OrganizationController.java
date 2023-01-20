@@ -13,8 +13,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
 import java.util.Collection;
 import javax.validation.Valid;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -57,6 +59,30 @@ public class OrganizationController {
     public ResponseEntity<OrganizationDTO> addOrganization(@Valid @RequestBody OrganizationDTO organization) {
         var insertedOrganization = organizationService.upsertOrganization(organization);
         return new ResponseEntity<>(insertedOrganization, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/withGoldenToken")
+    @Operation(
+            security = @SecurityRequirement(name = OpenApiConfig.SECURITY_SCHEMES_KEYCLOAK),
+            description = "Add an organization to the consortium, using a Golden Token",
+            tags = {"organization"}
+    )
+    @ApiResponses(value = {
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "The organization has been added",
+                    content = @Content(schema = @Schema(implementation = OrganizationDTO.class))
+            ),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "The provided data are incorrect")
+    })
+    public ResponseEntity<OrganizationDTO> addOrganizationUsingGoldenToken(@Valid @RequestBody OrganizationDTO organization) {
+        /*
+        var insertedOrganization = organizationService.upsertOrganization(organization);
+        return new ResponseEntity<>(insertedOrganization, HttpStatus.CREATED);
+         */
+        return new ResponseEntity<>(OrganizationDTO.builder().build(), HttpStatus.CREATED);
     }
 
     @GetMapping()

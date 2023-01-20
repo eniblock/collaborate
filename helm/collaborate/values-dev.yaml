@@ -20,7 +20,6 @@ api:
     serviceData: KT1FbQP4KLMLzmRGr4SEbof6iRMcMKPgSXjG
     serviceConsent: KT1FbQP4KLMLzmRGr4SEbof6iRMcMKPgSXjG
     serviceConsentProxyTokenController: KT1DWAsupETHJA6GoLzNFYFs8xuZBXNCm7Lq
-    goldenToken: KT1X3c3WX97eZ7K5CKqqFeiamnKfsfDf1EvL
 
   tezosApiGatewayUrl: https://tezos-api-gateway.localhost
 

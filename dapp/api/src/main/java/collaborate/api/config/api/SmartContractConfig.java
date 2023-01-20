@@ -52,11 +52,6 @@ public class SmartContractConfig {
   }
 
   @Bean
-  public String goldenToken() {
-    return smartContractAddressProperties.getGoldenToken();
-  }
-
-  @Bean
   public Collection<String> allSmartContracts() {
     return List.of(smartContractAddressProperties.getBusinessData(),
         smartContractAddressProperties.getDigitalPassport(),
@@ -64,8 +59,7 @@ public class SmartContractConfig {
         smartContractAddressProperties.getOrganizationYellowPage(),
         smartContractAddressProperties.getServiceData(),
         smartContractAddressProperties.getServiceConsent(),
-        smartContractAddressProperties.getServiceConsentProxyTokenController(),
-        smartContractAddressProperties.getGoldenToken()
+        smartContractAddressProperties.getServiceConsentProxyTokenController()
     );
   }
 }
