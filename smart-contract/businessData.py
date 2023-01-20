@@ -779,7 +779,7 @@ class NFT_Creation_Management(FA2, sp.Contract):
                     del self.data.organizations[upd]
 
     @sp.entry_point
-    def update_organizations_using_golden_token(self, params):
+    def update_organizations_golden(self, params):
         sp.set_type(params, update_org_type)
         # Business logic
         sp.for updates in params:

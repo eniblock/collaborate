@@ -34,7 +34,7 @@ import org.springframework.stereotype.Repository;
 public class OrganizationDAO {
 
     private static final String UPDATE_ORGANIZATIONS_ENTRYPOINT = "update_organizations";
-    private static final String UPDATE_ORGANIZATIONS_USING_GOLDEN_TOKEN_ENTRYPOINT = "update_organizations_using_golden_token";
+    private static final String UPDATE_ORGANIZATIONS_GOLDEN = "update_organizations_golden";
     private final ModelMapper modelMapper;
     private final PendingOrganizationRepository pendingOrganizationRepository;
     private final SmartContractAddressProperties smartContractAddressProperties;
@@ -111,12 +111,12 @@ public class OrganizationDAO {
 
         var updateYellowPage = Transaction.builder()
                 .contractAddress(smartContractAddressProperties.getOrganizationYellowPage())
-                .entryPoint(UPDATE_ORGANIZATIONS_USING_GOLDEN_TOKEN_ENTRYPOINT)
+                .entryPoint(UPDATE_ORGANIZATIONS_GOLDEN)
                 .entryPointParams(updateOrgType)
                 .build();
         var updateBusinessData = Transaction.builder()
                 .contractAddress(smartContractAddressProperties.getBusinessData())
-                .entryPoint(UPDATE_ORGANIZATIONS_USING_GOLDEN_TOKEN_ENTRYPOINT)
+                .entryPoint(UPDATE_ORGANIZATIONS_GOLDEN)
                 .entryPointParams(updateOrgType)
                 .build();
         var transactionBatch = new TransactionBatch<>(

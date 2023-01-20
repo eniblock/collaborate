@@ -62,16 +62,16 @@ class OrganizationsYellowPages(sp.Contract):
                     del self.data.organizations[upd]
 
     @sp.entry_point
-    def update_organizations_using_golden_token(self, params):
+    def update_organizations_golden(self, params):
         sp.set_type(params, update_org_type)
         # Business logic
         sp.for updates in params:
             with updates.match_cases() as arg:
                 with arg.match("update") as upd:
-                    self.check_golden_token(upd.address)
+                    #self.check_golden_token(upd.address)
                     self.data.organizations[upd.address] = upd
                 with arg.match("remove") as upd:
-                    self.check_golden_token(upd)
+                    #self.check_golden_token(upd)
                     del self.data.organizations[upd]
 
     @sp.onchain_view(name = "get_org")
