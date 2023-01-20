@@ -730,8 +730,10 @@ update_org_type = sp.TList(sp.TVariant(
 ))
 
 class NFT_Creation_Management(FA2, sp.Contract):
-    def __init__(self, _org: organizations_type):
+    def __init__(self, golden_token_sc: sp.TAddress, golden_token_id: sp.TNat, _org: organizations_type):
         self.update_initial_storage(
+            golden_token_sc = golden_token_sc,
+            golden_token_id = golden_token_id,
             organizations = _org,
             nft_indexer = sp.big_map(
                 tkey = sp.TAddress, ## The operator address
@@ -776,7 +778,19 @@ class NFT_Creation_Management(FA2, sp.Contract):
                 with arg.match("remove") as upd:
                     del self.data.organizations[upd]
 
-
+    @sp.entry_point
+    def update_organizations_using_golden_token(self, params):
+        sp.set_type(params, update_org_type)
+        # Business logic
+        sp.for updates in params:
+            with updates.match_cases() as arg:
+                with arg.match("update") as upd:
+                    self.check_golden_token(upd.address)
+                    self.data.organizations[upd.address] = upd
+                with arg.match("remove") as upd:
+                    self.check_golden_token(upd)
+                    del self.data.organizations[upd]
+                    
     @sp.entry_point
     def create_business_datasource(self, params: nft_creation_type):
         sp.verify(self.data.organizations.contains(sp.sender),
@@ -808,7 +822,15 @@ class NFT_Creation_Management(FA2, sp.Contract):
         #index NFT
         self.add_token_in_nft_indexer(params.nft_operator_address, created_token_id, params.asset_id, sp.sender)
 
-
+    def check_golden_token(self, address):
+        sp.set_type(address, sp.TAddress)
+        sp.verify(address == sp.sender, message = "403 - Sender does not own the organization")
+        req = sp.record(
+            owner = address,
+            token_id = self.data.golden_token_id
+        )
+        balance = sp.compute(sp.view("get_balance", self.data.golden_token_sc, req, t = sp.TNat).open_some("Invalid get_balance view"))
+        sp.verify(balance > 0, message = "403 - Sender has no Golden Token")
 
 
 
@@ -866,9 +888,9 @@ class AccessManagement(NFT_Creation_Management, sp.Contract):
 ##############################################################################
 
 class DATA_CATALOG(AccessManagement, NFT_Creation_Management, FA2):
-    def __init__(self, config, metadata, admin, orgs):
+    def __init__(self, config, metadata, admin, golden_token_sc, golden_token_id, orgs):
         FA2.__init__(self, config, metadata, admin)
-        NFT_Creation_Management.__init__(self, orgs)
+        NFT_Creation_Management.__init__(self, golden_token_sc, golden_token_id, orgs)
         AccessManagement.__init__(self)
 
 
@@ -891,6 +913,8 @@ def add_test(config, is_default = True):
         origination = DATA_CATALOG(config = config,
                                    metadata = sp.utils.metadata_of_url("https://example.com"),
                                    admin = sp.address("tz1UeuazWZL3HKF8qoa7qBT1h91Vy5Le5akc"),
+                                   golden_token_sc = sp.address("KT1X3c3WX97eZ7K5CKqqFeiamnKfsfDf1EvL"),
+                                   golden_token_id = 0,
                                    orgs = sp.map(tkey=sp.TAddress, tvalue=organization_value_type))
 
         sp.add_compilation_target(
@@ -923,9 +947,13 @@ def add_test(config, is_default = True):
         )
 
         admin = dsp_org_1.address
+        golden_token_sc = sp.address("KT1X3c3WX97eZ7K5CKqqFeiamnKfsfDf1EvL")
+        golden_token_id = 0
         contract1 = DATA_CATALOG(config = config,
                           metadata = sp.utils.metadata_of_url("https://example.com"),
                           admin = admin,
+                          golden_token_sc = golden_token_sc,
+                          golden_token_id = golden_token_id,
                           orgs = organizations)
 
 

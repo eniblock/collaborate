@@ -24,14 +24,18 @@ class OrganizationRoles:
     BSP = 2 # Business Service Provider
 
 class OrganizationsYellowPages(sp.Contract):
-    def __init__(self, organizations: organizations_type, administrator):
+    def __init__(self, organizations: organizations_type, administrator, golden_token_sc, golden_token_id):
         self.init_type(sp.TRecord(
             organizations = organizations_type,
-            administrator = sp.TAddress
+            administrator = sp.TAddress,
+            golden_token_sc = sp.TAddress,
+            golden_token_id = sp.TNat
         ))
         self.init(
             organizations = organizations,
-            administrator = administrator
+            administrator = administrator,
+            golden_token_sc = golden_token_sc,
+            golden_token_id = golden_token_id
         )
 
     @sp.entry_point
@@ -57,6 +61,19 @@ class OrganizationsYellowPages(sp.Contract):
                 with arg.match("remove") as upd:
                     del self.data.organizations[upd]
 
+    @sp.entry_point
+    def update_organizations_using_golden_token(self, params):
+        sp.set_type(params, update_org_type)
+        # Business logic
+        sp.for updates in params:
+            with updates.match_cases() as arg:
+                with arg.match("update") as upd:
+                    self.check_golden_token(upd.address)
+                    self.data.organizations[upd.address] = upd
+                with arg.match("remove") as upd:
+                    self.check_golden_token(upd)
+                    del self.data.organizations[upd]
+
     @sp.onchain_view(name = "get_org")
     def get_org(self, org_address):
         sp.verify(self.data.organizations.contains(org_address), "UNKNOWN_ORGANIZATION")
@@ -66,12 +83,24 @@ class OrganizationsYellowPages(sp.Contract):
     def is_org(self, org_address):
         sp.result(self.data.organizations.contains(org_address))
 
+    def check_golden_token(self, address):
+        sp.set_type(address, sp.TAddress)
+        sp.verify(address == sp.sender, message = "403 - Sender does not own the organization")
+        req = sp.record(
+            owner = address,
+            token_id = self.data.golden_token_id
+        )
+        balance = sp.compute(sp.view("get_balance", self.data.golden_token_sc, req, t = sp.TNat).open_some("Invalid get_balance view"))
+        sp.verify(balance > 0, message = "403 - Sender has no Golden Token")
+
 if "templates" not in __name__:
     def origination():
         ### Origination - deployment target
         origination = OrganizationsYellowPages(
             organizations = sp.map(tkey=sp.TAddress, tvalue=organization_value_type),
-            administrator = sp.address("tz1UeuazWZL3HKF8qoa7qBT1h91Vy5Le5akc")
+            administrator = sp.address("tz1UeuazWZL3HKF8qoa7qBT1h91Vy5Le5akc"),
+            golden_token_sc = sp.address("KT1X3c3WX97eZ7K5CKqqFeiamnKfsfDf1EvL"),
+            golden_token_id = 0
         )
 
         sp.add_compilation_target(
@@ -85,6 +114,8 @@ if "templates" not in __name__:
 
         scenario = sp.test_scenario()
         admin = sp.address("tz1W5ubDUJwpd9Gb94V2YKnZBHggAMMxtbBd")
+        golden_token_sc = sp.address("KT1X3c3WX97eZ7K5CKqqFeiamnKfsfDf1EvL")
+        golden_token_id = 0
 
         dsp_org_1 = sp.record(
             legal_name = 'DSPConsortium1',
@@ -107,7 +138,9 @@ if "templates" not in __name__:
 
         c1 = OrganizationsYellowPages(
             organizations = organizations,
-            administrator=admin)
+            administrator=admin,
+            golden_token_sc=golden_token_sc,
+            golden_token_id = 0)
 
         scenario += c1
 

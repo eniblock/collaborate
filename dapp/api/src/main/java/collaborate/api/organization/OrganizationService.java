@@ -115,4 +115,11 @@ public class OrganizationService {
         .orElseThrow(() -> new IllegalStateException("Inserted organization not found"));
   }
 
+  public OrganizationDTO upsertOrganizationUsingGoldenToken(OrganizationDTO organization) {
+    organizationDAO.upsertUsingGoldenToken(organization);
+    clearCache();
+    log.debug("organization.legalName={} added using Golden Token", organization.getAddress());
+    return organizationDAO.findOrganizationByPublicKeyHash(organization.getAddress())
+            .orElseThrow(() -> new IllegalStateException("Inserted organization not found"));
+  }
 }

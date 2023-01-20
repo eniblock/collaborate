@@ -78,11 +78,8 @@ public class OrganizationController {
                     description = "The provided data are incorrect")
     })
     public ResponseEntity<OrganizationDTO> addOrganizationUsingGoldenToken(@Valid @RequestBody OrganizationDTO organization) {
-        /*
-        var insertedOrganization = organizationService.upsertOrganization(organization);
+        var insertedOrganization = organizationService.upsertOrganizationUsingGoldenToken(organization);
         return new ResponseEntity<>(insertedOrganization, HttpStatus.CREATED);
-         */
-        return new ResponseEntity<>(OrganizationDTO.builder().build(), HttpStatus.CREATED);
     }
 
     @GetMapping()
