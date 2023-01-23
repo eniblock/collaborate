@@ -68,10 +68,10 @@ class OrganizationsYellowPages(sp.Contract):
         sp.for updates in params:
             with updates.match_cases() as arg:
                 with arg.match("update") as upd:
-                    #self.check_golden_token(upd.address)
+                    self.check_golden_token(upd.address)
                     self.data.organizations[upd.address] = upd
                 with arg.match("remove") as upd:
-                    #self.check_golden_token(upd)
+                    self.check_golden_token(upd)
                     del self.data.organizations[upd]
 
     @sp.onchain_view(name = "get_org")
@@ -100,7 +100,7 @@ if "templates" not in __name__:
             organizations = sp.map(tkey=sp.TAddress, tvalue=organization_value_type),
             administrator = sp.address("tz1UeuazWZL3HKF8qoa7qBT1h91Vy5Le5akc"),
             golden_token_sc = sp.address("KT1X3c3WX97eZ7K5CKqqFeiamnKfsfDf1EvL"),
-            golden_token_id = 0
+            golden_token_id = sp.nat(0)
         )
 
         sp.add_compilation_target(
@@ -115,7 +115,7 @@ if "templates" not in __name__:
         scenario = sp.test_scenario()
         admin = sp.address("tz1W5ubDUJwpd9Gb94V2YKnZBHggAMMxtbBd")
         golden_token_sc = sp.address("KT1X3c3WX97eZ7K5CKqqFeiamnKfsfDf1EvL")
-        golden_token_id = 0
+        golden_token_id = sp.nat(0)
 
         dsp_org_1 = sp.record(
             legal_name = 'DSPConsortium1',
@@ -140,7 +140,7 @@ if "templates" not in __name__:
             organizations = organizations,
             administrator=admin,
             golden_token_sc=golden_token_sc,
-            golden_token_id = 0)
+            golden_token_id = golden_token_id)
 
         scenario += c1
 

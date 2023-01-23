@@ -914,7 +914,7 @@ def add_test(config, is_default = True):
                                    metadata = sp.utils.metadata_of_url("https://example.com"),
                                    admin = sp.address("tz1UeuazWZL3HKF8qoa7qBT1h91Vy5Le5akc"),
                                    golden_token_sc = sp.address("KT1X3c3WX97eZ7K5CKqqFeiamnKfsfDf1EvL"),
-                                   golden_token_id = 0,
+                                   golden_token_id = sp.nat(0),
                                    orgs = sp.map(tkey=sp.TAddress, tvalue=organization_value_type))
 
         sp.add_compilation_target(
@@ -948,7 +948,7 @@ def add_test(config, is_default = True):
 
         admin = dsp_org_1.address
         golden_token_sc = sp.address("KT1X3c3WX97eZ7K5CKqqFeiamnKfsfDf1EvL")
-        golden_token_id = 0
+        golden_token_id = sp.nat(0)
         contract1 = DATA_CATALOG(config = config,
                           metadata = sp.utils.metadata_of_url("https://example.com"),
                           admin = admin,
