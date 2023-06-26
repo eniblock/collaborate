@@ -1,6 +1,6 @@
 VERSION 0.6
 
-ARG helmhelper=github.com/eniblock/build/helm:develop
+ARG helmhelper=github.com/eniblock/build/helm:4.1
 IMPORT $helmhelper AS helm
 
 ARG repository=ghcr.io/eniblock/collaborate

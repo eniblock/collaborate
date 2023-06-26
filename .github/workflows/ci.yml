@@ -13,7 +13,7 @@ jobs:
   test-api:
     runs-on: [self-hosted]
     steps:
-    - uses: eniblock/build/actions/setup@develop
+    - uses: eniblock/build/actions/setup@4.1
       id: setup
       with:
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -22,7 +22,7 @@ jobs:
   test-keycloak:
     runs-on: [self-hosted]
     steps:
-    - uses: eniblock/build/actions/setup@develop
+    - uses: eniblock/build/actions/setup@4.1
       id: setup
       with:
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -31,7 +31,7 @@ jobs:
   lint-helm:
     runs-on: [self-hosted]
     steps:
-    - uses: eniblock/build/actions/setup@develop
+    - uses: eniblock/build/actions/setup@4.1
       id: setup
       with:
         dockerhub_token: ${{ secrets.DOCKERHUB_TOKEN }}
@@ -44,7 +44,7 @@ jobs:
     runs-on: [self-hosted]
     needs: [test-api, test-keycloak, lint-helm]
     steps:
-    - uses: eniblock/build/actions/setup@develop
+    - uses: eniblock/build/actions/setup@4.1
       id: setup
       with:
         helmdir: helm/collaborate
@@ -56,7 +56,7 @@ jobs:
     runs-on: [self-hosted]
     needs: [test-api, test-keycloak, lint-helm]
     steps:
-    - uses: eniblock/build/actions/setup@develop
+    - uses: eniblock/build/actions/setup@4.1
       id: setup
       with:
         helmdir: helm/collaborate
@@ -71,7 +71,7 @@ jobs:
     runs-on: [self-hosted]
     needs: [docker-api, docker-keycloak]
     steps:
-    - uses: eniblock/build/actions/setup@develop
+    - uses: eniblock/build/actions/setup@4.1
       id: setup
       with:
         helmdir: helm/collaborate
